@@ -201,18 +201,18 @@ function Test-Installed
 #
 # Aliases
 #
-Set-Alias -Scope Global -Name ~ -Value Home
-Set-Alias -Scope Global -Name la -Value Get-ChildItem
-Set-Alias -Scope Global -Name ls -Value Get-ChildItemColorFormatWide -Option AllScope
-Set-Alias -Scope Global -Name rf -Value Remove-DirectoryForce
-Set-Alias -Scope Global -Name dip -Value Invoke-DockerInspectAddress
-Set-Alias -Scope Global -Name dra -Value Invoke-DockerRemoveAll
-Set-Alias -Scope Global -Name drai -Value Invoke-DockerRemoveAllImages
-Set-Alias -Scope Global -Name g -Value Invoke-GitCommand
-Set-Alias -Scope Global -Name gcam -Value Invoke-GitCommit
-Set-Alias -Scope Global -Name gd -Value Invoke-GitDiff
-Set-Alias -Scope Global -Name glo -Value Invoke-GitLog
-Set-Alias -Scope Global -Name gpom -Value Invoke-GitPushMaster
-Set-Alias -Scope Global -Name grbi -Value Invoke-GitRebase
-Set-Alias -Scope Global -Name gsb -Value Invoke-GitStatus
-Set-Alias -Scope Global -Name touch -Value New-File
+Set-Alias -Scope Global -Option AllScope -Name ~ -Value Home
+Set-Alias -Scope Global -Option AllScope -Name la -Value Get-ChildItem
+Set-Alias -Scope Global -Option AllScope -Name ls -Value Get-ChildItemColorFormatWide
+Set-Alias -Scope Global -Option AllScope -Name rf -Value Remove-DirectoryForce
+Set-Alias -Scope Global -Option AllScope -Name dip -Value Invoke-DockerInspectAddress
+Set-Alias -Scope Global -Option AllScope -Name dra -Value Invoke-DockerRemoveAll
+Set-Alias -Scope Global -Option AllScope -Name drai -Value Invoke-DockerRemoveAllImages
+Set-Alias -Scope Global -Option AllScope -Name g -Value Invoke-GitCommand
+Set-Alias -Scope Global -Option AllScope -Name gcam -Value Invoke-GitCommit
+Set-Alias -Scope Global -Option AllScope -Name gd -Value Invoke-GitDiff
+Set-Alias -Scope Global -Option AllScope -Name glo -Value Invoke-GitLog
+Set-Alias -Scope Global -Option AllScope -Name gpom -Value Invoke-GitPushMaster
+Set-Alias -Scope Global -Option AllScope -Name grbi -Value Invoke-GitRebase
+Set-Alias -Scope Global -Option AllScope -Name gsb -Value Invoke-GitStatus
+Set-Alias -Scope Global -Option AllScope -Name touch -Value New-File
