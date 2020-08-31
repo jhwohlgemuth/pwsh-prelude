@@ -28,7 +28,6 @@ function Get-File
   echo "http://example.com/file.txt" | Get-File
   #>
   [CmdletBinding()]
-  [Alias('touch')]
   param(
     [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
     [string] $Url,
@@ -39,6 +38,9 @@ function Get-File
 }
 function Home
 {
+  [CmdletBinding()]
+  [Alias('~')]
+  param()
   Set-Location ~
 }
 function Install-SshServer
@@ -59,9 +61,27 @@ function Install-SshServer
   Write-Verbose '=> Adding firewall rule for sshd'
   New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
 }
-function Invoke-DockerInspectAddress { docker inspect --format '{{ .NetworkSettings.IPAddress }}' $args[0] }
-function Invoke-DockerRemoveAll { docker stop $(docker ps -a -q); docker rm $(docker ps -a -q) }
-function Invoke-DockerRemoveAllImages { docker rmi $(docker images -a -q) }
+function Invoke-DockerInspectAddress
+{
+  [CmdletBinding()]
+  [Alias('dip')]
+  param()
+  docker inspect --format '{{ .NetworkSettings.IPAddress }}' $args[0]
+}
+function Invoke-DockerRemoveAll
+{
+  [CmdletBinding()]
+  [Alias('dra')]
+  param()
+  docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
+}
+function Invoke-DockerRemoveAllImages
+{
+  [CmdletBinding()]
+  [Alias('drai')]
+  param()
+  docker rmi $(docker images -a -q)
+}
 function Invoke-GitCommand { git $args }
 function Invoke-GitCommit { git commit -vam $args }
 function Invoke-GitDiff { git diff $args }
@@ -78,6 +98,7 @@ function New-File
   New-File <file name>
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
+  [Alias('touch')]
   param (
     [Parameter(Mandatory=$true)]
     [string] $Name
@@ -117,6 +138,7 @@ function Remove-DirectoryForce
   rf <folder name>
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
+  [Alias('rf')]
   param (
     [Parameter(Mandatory=$true)]
     [string] $Name
