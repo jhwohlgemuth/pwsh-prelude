@@ -43,7 +43,7 @@
     )
     PrivateData = @{
         PSData = @{
-            Tags = @('helpers')
+            Tags = @('dev', 'helpers', 'git', 'docker')
             LicenseUri = 'https://github.com/jhwohlgemuth/pwsh-handy-helpers/blob/master/LICENSE'
             ProjectUri = 'https://github.com/jhwohlgemuth/pwsh-handy-helpers'
         }
