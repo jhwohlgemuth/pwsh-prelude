@@ -1,7 +1,7 @@
 .PHONY: publish update validate
 
 publish: validate
-	@powershell Publish-Module -Path (Get-Location) -NuGetApiKey $$ENV:NUGET_API_KEY -Verbose
+	@powershell Publish-Module -Path (Get-Location) -NuGetApiKey $$ENV:NUGET_API_KEY -Verbose -Exclude "Makefile","README.md",".vscode/settings.json"
 
 update:
 	powershell Update-Module -Name PowerShellGet

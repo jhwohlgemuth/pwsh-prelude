@@ -8,11 +8,6 @@
     Description = 'Helper functions, aliases and more'
     PowerShellVersion = '5.0'
     FileList = @()
-    Exclude = @(
-        'Makefile',
-        'README.md',
-        '.vscode/settings.json'
-    )
     CmdletsToExport = @()
     VariablesToExport = @()
     AliasesToExport = @(
