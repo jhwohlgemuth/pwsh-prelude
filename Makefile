@@ -4,7 +4,7 @@ publish: validate
 	@powershell Publish-Module -Path (Get-Location) -NuGetApiKey $$ENV:NUGET_API_KEY -Verbose
 
 update:
-	powershell Install-Module -Name PowerShellGet -RequiredVersion 2.2.1 -Force
+	powershell Update-Module -Name PowerShellGet
 
 validate:
 	@powershell Test-ModuleManifest -Path (Join-Path (Get-Location) pwsh-handy-helpers.psd1)
