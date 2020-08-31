@@ -63,13 +63,30 @@ function Install-SshServer
 }
 function Invoke-DockerInspectAddress
 {
+  <#
+  .SYNOPSIS
+  Get IP address of Docker container at given name (or ID)
+  .EXAMPLE
+  dip <container name/id>
+  .EXAMPLE
+  echo <container name/id> | dip
+  #>
   [CmdletBinding()]
   [Alias('dip')]
-  param()
-  docker inspect --format '{{ .NetworkSettings.IPAddress }}' $args[0]
+  param(
+    [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
+    [string] $Name
+  )
+  docker inspect --format '{{ .NetworkSettings.IPAddress }}' $Name
 }
 function Invoke-DockerRemoveAll
 {
+  <#
+  .SYNOPSIS
+  Remove ALL Docker containers
+  .EXAMPLE
+  dra <container name/id>
+  #>
   [CmdletBinding()]
   [Alias('dra')]
   param()
@@ -77,6 +94,12 @@ function Invoke-DockerRemoveAll
 }
 function Invoke-DockerRemoveAllImages
 {
+  <#
+  .SYNOPSIS
+  Remove ALL Docker images
+  .EXAMPLE
+  drai <container name/id>
+  #>
   [CmdletBinding()]
   [Alias('drai')]
   param()
@@ -93,9 +116,11 @@ function New-File
 {
   <#
   .SYNOPSIS
-  Powershell equivalent of linux "touch" command
+  Powershell equivalent of linux "touch" command (includes "touch" alias)
   .EXAMPLE
   New-File <file name>
+  .EXAMPLE
+  touch <file name>
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   [Alias('touch')]
@@ -114,7 +139,8 @@ function New-SshKey
   [CmdletBinding()]
   param(
     [Parameter()]
-    [string] $Name="id_rsa")
+    [string] $Name="id_rsa"
+  )
   Write-Verbose "==> Generating SSH key pair"
   $Path = "~/.ssh/$Name"
   ssh-keygen --% -q -b 4096 -t rsa -N "" -f TEMPORARY_FILE_NAME
@@ -217,19 +243,18 @@ function Test-Empty
 }
 function Test-Installed
 {
-  $Name = $args[0]
+  [CmdletBinding()]
+  [OutputType([bool])]
+  param(
+    [string] $Name
+  )
   Get-Module -ListAvailable -Name $Name
 }
 #
 # Aliases
 #
-Set-Alias -Scope Global -Option AllScope -Name ~ -Value Home
 Set-Alias -Scope Global -Option AllScope -Name la -Value Get-ChildItem
 Set-Alias -Scope Global -Option AllScope -Name ls -Value Get-ChildItemColorFormatWide
-Set-Alias -Scope Global -Option AllScope -Name rf -Value Remove-DirectoryForce
-Set-Alias -Scope Global -Option AllScope -Name dip -Value Invoke-DockerInspectAddress
-Set-Alias -Scope Global -Option AllScope -Name dra -Value Invoke-DockerRemoveAll
-Set-Alias -Scope Global -Option AllScope -Name drai -Value Invoke-DockerRemoveAllImages
 Set-Alias -Scope Global -Option AllScope -Name g -Value Invoke-GitCommand
 Set-Alias -Scope Global -Option AllScope -Name gcam -Value Invoke-GitCommit
 Set-Alias -Scope Global -Option AllScope -Name gd -Value Invoke-GitDiff
@@ -237,4 +262,3 @@ Set-Alias -Scope Global -Option AllScope -Name glo -Value Invoke-GitLog
 Set-Alias -Scope Global -Option AllScope -Name gpom -Value Invoke-GitPushMaster
 Set-Alias -Scope Global -Option AllScope -Name grbi -Value Invoke-GitRebase
 Set-Alias -Scope Global -Option AllScope -Name gsb -Value Invoke-GitStatus
-Set-Alias -Scope Global -Option AllScope -Name touch -Value New-File
