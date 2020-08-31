@@ -2,8 +2,21 @@ Powershell Handy Helpers &nbsp; [![CodeFactor](https://www.codefactor.io/reposit
 ========================
 > Useful functions and aliases for everyday development tasks
 
-Functions!
-----------
+Quick Start
+-----------
+
+1. Install module
+```powershell
+Install-Module -Name pwsh-handy-helpers
+```
+
+2. Import module
+```powershell
+Import-Module pwsh-handy-helpers
+```
+
+Functions
+---------
 > Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
 
 - `Find-Duplicates`
@@ -17,8 +30,8 @@ Functions!
 - `Test-Empty`
 - `Test-Installed`
 
-Aliases!
---------
+Aliases
+-------
 > Use `Get-Alias <Name>` to see alias details. **Example**: `Get-Alias dra`
 
 - `~`
