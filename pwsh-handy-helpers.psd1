@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.0.6'
+    ModuleVersion = '1.0.0.7'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Unknown'
@@ -8,6 +8,11 @@
     Description = 'Helper functions, aliases and more'
     PowerShellVersion = '5.0'
     FileList = @()
+    Exclude = @(
+        'Makefile',
+        'README.md',
+        '.vscode/settings.json'
+    )
     CmdletsToExport = @()
     VariablesToExport = @()
     AliasesToExport = @(
