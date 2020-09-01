@@ -112,6 +112,26 @@ function Invoke-GitPushMaster { git push origin master }
 function Invoke-GitStatus { git status -sb }
 function Invoke-GitRebase { git rebase -i $args }
 function Invoke-GitLog { git log --oneline --decorate }
+function New-DailyShutdownJob
+{
+  <#
+  .SYNOPSIS
+  Create job to shutdown computer at a certain time every day
+  .EXAMPLE
+  New-DailyShutdownJob -At "22:00"
+  #>
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true)]
+    [string] $At
+  )
+  if (Test-Admin) {
+    $trigger = New-JobTrigger -Daily -At $At
+    Register-ScheduledJob -Name "DailyShutdown" -ScriptBlock { Stop-Computer -Force } -Trigger $trigger
+  } else {
+    Write-Error "==> New-DailyShutdownJob requires Administrator privileges"
+  }
+}
 function New-File
 {
   <#
@@ -153,6 +173,22 @@ function New-SshKey
     Write-Output "==> Public key saved to clipboard"
   } else {
     Write-Error "==> Failed to create SSH key"
+  }
+}
+function Remove-DailyShutdownJob
+{
+  <#
+  .SYNOPSIS
+  Remove job created with New-DailyShutdownJob
+  .EXAMPLE
+  Remove-DailyShutdownJob
+  #>
+  [CmdletBinding()]
+  param()
+  if (Test-Admin) {
+    Unregister-ScheduledJob -Name "DailyShutdown"
+  } else {
+    Write-Error "==> Remove-DailyShutdownJob requires Administrator privileges"
   }
 }
 function Remove-DirectoryForce
