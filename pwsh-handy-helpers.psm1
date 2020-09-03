@@ -112,6 +112,42 @@ function Invoke-GitPushMaster { git push origin master }
 function Invoke-GitStatus { git status -sb }
 function Invoke-GitRebase { git rebase -i $args }
 function Invoke-GitLog { git log --oneline --decorate }
+function Invoke-RemoteCommand
+{
+  <#
+  .SYNOPSIS
+  Execute script block on remote computer (like Invoke-Command, but remote)
+  .EXAMPLE
+  Invoke-RemoteCommand -ComputerName PCNAME -Password 123456 { whoami }
+  .EXAMPLE
+  { whoami } | Invoke-RemoteCommand -ComputerName PCNAME -Password 123456
+  .EXAMPLE
+  { whoami } | Invoke-RemoteCommand -ComputerName PCNAME
+
+  This will open a prompt for you to input your password
+  #>
+  [CmdletBinding()]
+  [Alias('irc')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
+  param(
+    [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+    [System.Management.Automation.ScriptBlock] $ScriptBlock,
+    [Parameter(Mandatory=$true)]
+    [string] $ComputerName,
+    [Parameter()]
+    [string] $Password
+  )
+  $User = whoami
+  Write-Verbose "==> Creating credential for $User"
+  if ($Password) {
+    $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
+  } else {
+    $Credential = Get-Credential -Message "Please provide password to access $ComputerName" -User $User
+  }
+  Write-Verbose "==> Running command on $ComputerName"
+  Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock $ScriptBlock
+}
 function New-DailyShutdownJob
 {
   <#
