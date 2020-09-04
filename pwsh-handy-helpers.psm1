@@ -1,3 +1,33 @@
+function Enable-Remoting
+{
+  <#
+  .SYNOPSIS
+  Function to enable Powershell remoting for workgroup computer
+  .PARAMETER TrustedHosts
+  Comma-separated list of trusted host names
+  example: "RED,WHITE,BLUE"
+  .EXAMPLE
+  Enable-Remoting
+  .EXAMPLE
+  Enable-Remoting -TrustedHosts "MARIO,LUIGI"
+  #>
+  [CmdletBinding()]
+  param(
+    [string] $TrustedHosts = "*"
+  )
+  if (Test-Admin) {
+    Write-Verbose "==> Making network private"
+    Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
+    $Path = "WSMan:\localhost\Client\TrustedHosts"
+    Write-Verbose "==> Enabling Powershell remoting"
+    Enable-PSRemoting -Force -SkipNetworkProfileCheck
+    Write-Verbose "==> Updated trusted hosts"
+    Set-Item $Path -Value $TrustedHosts -Force
+    Get-Item $Path
+  } else {
+    Write-Error "==> Enable-Remoting requires Administrator privileges"
+  }
+}
 function Find-Duplicates
 {
   <#
@@ -52,13 +82,13 @@ function Install-SshServer
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   param()
-  Write-Verbose '=> Enabling OpenSSH server'
+  Write-Verbose '==> Enabling OpenSSH server'
   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-  Write-Verbose '=> Starting sshd service'
+  Write-Verbose '==> Starting sshd service'
   Start-Service sshd
-  Write-Verbose '=> Setting sshd service to start automatically'
+  Write-Verbose '==> Setting sshd service to start automatically'
   Set-Service -Name sshd -StartupType 'Automatic'
-  Write-Verbose '=> Adding firewall rule for sshd'
+  Write-Verbose '==> Adding firewall rule for sshd'
   New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
 }
 function Invoke-DockerInspectAddress
@@ -147,6 +177,39 @@ function Invoke-RemoteCommand
   }
   Write-Verbose "==> Running command on $ComputerName"
   Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock $ScriptBlock
+}
+function Open-Session
+{
+  <#
+  .SYNOPSIS
+  Create interactive session with remote computer
+  .EXAMPLE
+  Open-Session -ComputerName PCNAME -Password 123456
+  .EXAMPLE
+  Open-Session -ComputerName PCNAME
+
+  This will open a prompt for you to input your password
+  #>
+  [CmdletBinding()]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
+  param(
+    [Parameter(Mandatory=$true)]
+    [string] $ComputerName,
+    [Parameter()]
+    [string] $Password
+  )
+  $User = whoami
+  Write-Verbose "==> Creating credential for $User"
+  if ($Password) {
+    $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
+  } else {
+    $Credential = Get-Credential -Message "Please provide password to access $ComputerName" -User $User
+  }
+  Write-Verbose "==> Creating session"
+  $Session = New-PSSession -ComputerName $ComputerName -Credential $Credential
+  Write-Verbose "==> Entering session"
+  Enter-PSSession -Session $Session
 }
 function New-DailyShutdownJob
 {
