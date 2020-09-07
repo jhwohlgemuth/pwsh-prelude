@@ -22,8 +22,12 @@ Functions
 - `Find-Duplicates`
 - `Get-File`
 - `Install-SshServer`
+- `Invoke-RemoteCommand`
+- `New-DailyShutdownJob`
 - `New-File`
 - `New-SshKey`
+- `Open-Session`
+- `Remove-DailyShutdownJob`
 - `Remove-DirectoryForce`
 - `Take`
 - `Test-Admin`
