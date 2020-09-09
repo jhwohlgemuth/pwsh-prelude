@@ -17,6 +17,7 @@
         'drai',
         'irc',
         'rf',
+        'say',
         'touch'
     )
     FunctionsToExport = @(
@@ -36,6 +37,7 @@
         'Invoke-GitRebase',
         'Invoke-GitLog',
         'Invoke-RemoteCommand',
+        'Invoke-Speak',
         'Open-Session',
         'New-DailyShutdownJob',
         'New-File',
