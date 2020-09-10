@@ -155,6 +155,10 @@ function Invoke-RemoteCommand
   { whoami } | Invoke-RemoteCommand -ComputerName PCNAME
 
   This will open a prompt for you to input your password
+  .EXAMPLE
+  { whoami } | irc -ComputerName Larry, Moe, Curly
+
+  Use the "irc" alias and execute commands on multiple computers!
   #>
   [CmdletBinding()]
   [Alias('irc')]
@@ -163,7 +167,7 @@ function Invoke-RemoteCommand
     [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
-    [string] $ComputerName,
+    [string[]] $ComputerNames,
     [Parameter()]
     [string] $Password
   )
@@ -173,10 +177,10 @@ function Invoke-RemoteCommand
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
   } else {
-    $Credential = Get-Credential -Message "Please provide password to access $ComputerName" -User $User
+    $Credential = Get-Credential -Message "Please provide password to access $ComputerNames" -User $User
   }
-  Write-Verbose "==> Running command on $ComputerName"
-  Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock $ScriptBlock
+  Write-Verbose "==> Running command on $ComputerNames"
+  Invoke-Command -ComputerName $ComputerNames -Credential $Credential -ScriptBlock $ScriptBlock
 }
 function Invoke-Speak
 {
