@@ -38,6 +38,7 @@
         'Invoke-GitLog',
         'Invoke-RemoteCommand',
         'Invoke-Speak',
+        'Join-ListWithGrammar',
         'Open-Session',
         'New-DailyShutdownJob',
         'New-File',
