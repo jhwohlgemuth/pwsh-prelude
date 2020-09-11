@@ -23,3 +23,19 @@ Describe "New-File (touch)" {
         ".\SomeFile" | Should -FileContentMatch $Content
     }
 }
+Describe "Invoke-Speak (say)" {
+    It "can passthru text without speaking" {
+        $Text = "this should not be heard"
+        Invoke-Speak $Text -Silent | Should -Be $Text
+    }
+    It "can output SSML" {
+        $Text = "this should not be heard either"
+        Invoke-Speak $Text -Silent -Output ssml | Should -Match "<p>$Text</p>"
+    }
+    It "can output SSML with custom rate" {
+        $Text = "this should not be heard either"
+        $Rate = 10
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<p>$Text</p>"
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<prosody rate=`"$Rate`">"
+    }
+}
