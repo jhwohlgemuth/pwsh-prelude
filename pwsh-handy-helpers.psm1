@@ -182,15 +182,15 @@ function Invoke-RemoteCommand
   .SYNOPSIS
   Execute script block on remote computer (like Invoke-Command, but remote)
   .EXAMPLE
-  Invoke-RemoteCommand -ComputerName PCNAME -Password 123456 { whoami }
+  Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456 { whoami }
   .EXAMPLE
-  { whoami } | Invoke-RemoteCommand -ComputerName PCNAME -Password 123456
+  { whoami } | Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456
   .EXAMPLE
-  { whoami } | Invoke-RemoteCommand -ComputerName PCNAME
+  { whoami } | Invoke-RemoteCommand -ComputerNames PCNAME
 
   This will open a prompt for you to input your password
   .EXAMPLE
-  { whoami } | irc -ComputerName Larry, Moe, Curly
+  { whoami } | irc -ComputerNames Larry, Moe, Curly
 
   Use the "irc" alias and execute commands on multiple computers!
   #>
