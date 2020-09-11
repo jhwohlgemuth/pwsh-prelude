@@ -488,7 +488,11 @@ function Test-Installed
   param(
     [string] $Name
   )
-  Get-Module -ListAvailable -Name $Name
+  if (Get-Module -ListAvailable -Name $Name) {
+    $true
+  } else {
+    $false
+  }
 }
 #
 # Aliases

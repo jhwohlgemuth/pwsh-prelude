@@ -1,5 +1,10 @@
 Import-Module ./pwsh-handy-helpers.psm1
 
+Describe "Find-Duplicates" {
+    It "can identify duplicate files" {
+        # Under construction
+    }
+}
 Describe "Join-StringsWithGrammar" {
     It "accepts one parameter" {
         Join-StringsWithGrammar @("one") | Should -Be "one"
@@ -18,9 +23,40 @@ Describe "New-File (touch)" {
     }
     It "can create a file" {
         $Content = "testing"
+        ".\SomeFile" | Should -Not -Exist
         New-File SomeFile
         Write-Output $Content >> .\SomeFile
         ".\SomeFile" | Should -FileContentMatch $Content
+    }
+}
+Describe "Remove-DirectoryForce (rf)" {
+    It "can create a file" {
+        New-File SomeFile
+        ".\SomeFile" | Should -Exist
+        Remove-DirectoryForce .\SomeFile
+        ".\SomeFile" | Should -Not -Exist
+    }
+}
+Describe "Test-Admin" {
+    It "should return false if not Administrator" {
+        Test-Admin | Should -Be $false
+    }
+}
+Describe "Test-Empty" {
+    It "should return true for directories with no contents" {
+        "TestDrive:\Foo" | Should -Not -Exist
+        mkdir "TestDrive:\Foo"
+        "TestDrive:\Foo" | Should -Exist
+        Test-Empty "TestDrive:\Foo" | Should -Be $true
+        mkdir "TestDrive:\Foo\Bar"
+        mkdir "TestDrive:\Foo\Bar\Baz"
+        Test-Empty "TestDrive:\Foo" | Should -Be $false
+    }
+}
+Describe "Test-Installed" {
+    It "should return true if passed module is installed" {
+        Test-Installed Pester | Should -Be $true
+        Test-Installed NotInstalledModule | Should -Be $false
     }
 }
 Describe "Invoke-Speak (say)" {

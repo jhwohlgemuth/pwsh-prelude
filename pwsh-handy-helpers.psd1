@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.0.12'
+    ModuleVersion = '1.0.1.0'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Unknown'
