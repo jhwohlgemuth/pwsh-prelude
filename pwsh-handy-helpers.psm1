@@ -45,13 +45,13 @@ function Find-Duplicates
   )
   Get-Item $Name | Get-ChildItem -Recurse | Get-FileHash | Group-Object -Property Hash | Where-Object Count -GT 1 | ForEach-Object {$_.Group | Select-Object Path, Hash} | Write-Output
 }
-function Join-ListWithGrammar()
+function Join-StringsWithGrammar()
 {
   <#
   .SYNOPSIS
   Helper function that creates a string out of a list that properly employs commands and "and"
   .EXAMPLE
-  Join-ListWithGrammar @("a", "b", "c")
+  Join-StringsWithGrammar @("a", "b", "c")
 
   Returns "a, b, and c"
   #>
@@ -211,9 +211,9 @@ function Invoke-RemoteCommand
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
     $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
   } else {
-    $Credential = Get-Credential -Message "Please provide password to access $(Join-ListWithGrammar $ComputerNames)" -User $User
+    $Credential = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerNames)" -User $User
   }
-  Write-Verbose "==> Running command on $(Join-ListWithGrammar $ComputerNames)"
+  Write-Verbose "==> Running command on $(Join-StringsWithGrammar $ComputerNames)"
   Invoke-Command -ComputerName $ComputerNames -Credential $Credential -ScriptBlock $ScriptBlock
 }
 function Invoke-Speak

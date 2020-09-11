@@ -19,10 +19,13 @@ Functions
 ---------
 > Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
 
+- `Enable-Remoting`
 - `Find-Duplicates`
 - `Get-File`
 - `Install-SshServer`
 - `Invoke-RemoteCommand`
+- `Invoke-Speak`
+- `Join-StringsWithGrammar`
 - `New-DailyShutdownJob`
 - `New-File`
 - `New-SshKey`
@@ -48,7 +51,9 @@ Aliases
 - `gpom`
 - `grbi`
 - `gsb`
+- `irc`
 - `la`
 - `ls`
 - `rf`
+- `say`
 - `touch`
