@@ -1,4 +1,4 @@
-.PHONY: install publish test validate
+.PHONY: install publish test test-ci validate
 
 publish: validate
 	@powershell Publish-Module -Path (Get-Location) -NuGetApiKey $$ENV:NUGET_API_KEY -Verbose
@@ -13,3 +13,6 @@ validate:
 
 test:
 	@powershell Invoke-Pester
+
+test-ci:
+	@powershell '$$results = Invoke-Pester -PassThru; if ($$results.FailedCount -gt 0) { throw "$$($$results.FailedCount) tests failed." }'

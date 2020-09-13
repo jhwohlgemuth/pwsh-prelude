@@ -14,7 +14,7 @@ Describe "Join-StringsWithGrammar" {
     }
     It "accepts three or more parameters" {
         Join-StringsWithGrammar @("one", "two", "three") | Should -Be "one, two, and three"
-        Join-StringsWithGrammar @("one", "two", "three", "four") | Should -Be "one, two, three, and four"
+        Join-StringsWithGrammar @("one", "two", "three", "four") | Should -be "one, two, three, and four"
     }
 }
 Describe "New-File (touch)" {
@@ -37,11 +37,11 @@ Describe "Remove-DirectoryForce (rf)" {
         ".\SomeFile" | Should -Not -Exist
     }
 }
-Describe "Test-Admin" {
-    It "should return false if not Administrator" {
-        Test-Admin | Should -Be $false
-    }
-}
+# Describe "Test-Admin" {
+#     It "should return false if not Administrator" {
+#         Test-Admin | Should -Be $false
+#     }
+# }
 Describe "Test-Empty" {
     It "should return true for directories with no contents" {
         "TestDrive:\Foo" | Should -Not -Exist
