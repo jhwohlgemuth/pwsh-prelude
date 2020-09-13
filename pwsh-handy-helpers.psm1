@@ -283,39 +283,6 @@ function Invoke-Speak
     }
   }
 }
-function Open-Session
-{
-  <#
-  .SYNOPSIS
-  Create interactive session with remote computer
-  .EXAMPLE
-  Open-Session -ComputerName PCNAME -Password 123456
-  .EXAMPLE
-  Open-Session -ComputerName PCNAME
-
-  This will open a prompt for you to input your password
-  #>
-  [CmdletBinding()]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
-  param(
-    [Parameter(Mandatory=$true)]
-    [string] $ComputerName,
-    [Parameter()]
-    [string] $Password
-  )
-  $User = whoami
-  Write-Verbose "==> Creating credential for $User"
-  if ($Password) {
-    $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
-  } else {
-    $Credential = Get-Credential -Message "Please provide password to access $ComputerName" -User $User
-  }
-  Write-Verbose "==> Creating session"
-  $Session = New-PSSession -ComputerName $ComputerName -Credential $Credential
-  Write-Verbose "==> Entering session"
-  Enter-PSSession -Session $Session
-}
 function New-DailyShutdownJob
 {
   <#
@@ -377,6 +344,96 @@ function New-SshKey
     Write-Output "==> Public key saved to clipboard"
   } else {
     Write-Error "==> Failed to create SSH key"
+  }
+}
+function Open-Session
+{
+  <#
+  .SYNOPSIS
+  Create interactive session with remote computer
+  .EXAMPLE
+  Open-Session -ComputerName PCNAME -Password 123456
+  .EXAMPLE
+  Open-Session -ComputerName PCNAME
+
+  This will open a prompt for you to input your password
+  #>
+  [CmdletBinding()]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
+  param(
+    [Parameter(Mandatory=$true)]
+    [string] $ComputerName,
+    [Parameter()]
+    [string] $Password
+  )
+  $User = whoami
+  Write-Verbose "==> Creating credential for $User"
+  if ($Password) {
+    $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
+  } else {
+    $Credential = Get-Credential -Message "Please provide password to access $ComputerName" -User $User
+  }
+  Write-Verbose "==> Creating session"
+  $Session = New-PSSession -ComputerName $ComputerName -Credential $Credential
+  Write-Verbose "==> Entering session"
+  Enter-PSSession -Session $Session
+}
+function Out-Default
+{
+  <#
+  .ForwardHelpTargetName Out-Default
+  .ForwardHelpCategory Function
+  #>
+  [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=113362', RemotingCapability='None')]
+  param(
+    [switch] ${Transcript},
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [psobject] ${InputObject}
+  )
+  Begin {
+    try {
+      $outBuffer = $null
+      if ($PSBoundParameters.TryGetValue('OutBuffer', [ref]$outBuffer)) {
+        $PSBoundParameters['OutBuffer'] = 1
+      }
+      $wrappedCmd = $ExecutionContext.InvokeCommand.GetCommand('Microsoft.PowerShell.Core\Out-Default', [System.Management.Automation.CommandTypes]::Cmdlet)
+      $scriptCmd = {& $wrappedCmd @PSBoundParameters }
+      $steppablePipeline = $scriptCmd.GetSteppablePipeline()
+      $steppablePipeline.Begin($PSCmdlet)
+    } catch {
+      throw
+    }
+  }
+  Process {
+    try {
+      $do_process = $true
+      if ($_ -is [System.Management.Automation.ErrorRecord]) {
+        if ($_.Exception -is [System.Management.Automation.CommandNotFoundException]) {
+          $__command = $_.Exception.CommandName
+          if (Test-Path -Path $__command -PathType Container) {
+            Set-Location $__command
+            $do_process = $false
+          } elseif ($__command -match '^https?://|\.(com|org|net|edu|dev|gov|io)$') {
+            [System.Diagnostics.Process]::Start($__command)
+            $do_process = $false
+          }
+        }
+      }
+      if ($do_process) {
+        $global:LAST = $_;
+        $steppablePipeline.Process($_)
+      }
+    } catch {
+      throw
+    }
+  }
+  End {
+    try {
+      $steppablePipeline.End()
+    } catch {
+      throw
+    }
   }
 }
 function Remove-DailyShutdownJob
@@ -497,7 +554,7 @@ function Test-Installed
 #
 # Aliases
 #
-Set-Alias -Scope Global -Option AllScope -Name la -Value Get-ChildItem
+Set-Alias -Scope Global -Option AllScope -Name la -Value Get-ChildItemColor
 Set-Alias -Scope Global -Option AllScope -Name ls -Value Get-ChildItemColorFormatWide
 Set-Alias -Scope Global -Option AllScope -Name g -Value Invoke-GitCommand
 Set-Alias -Scope Global -Option AllScope -Name gcam -Value Invoke-GitCommit
