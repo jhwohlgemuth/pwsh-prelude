@@ -315,7 +315,7 @@ function New-File
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   [Alias('touch')]
-  param (
+  param(
     [Parameter(Mandatory=$true)]
     [string] $Name
   )
@@ -325,11 +325,35 @@ function New-File
     New-Item -Path . -Name $Name -ItemType "file" -Value ""
   }
 }
+function New-ProxyCommand
+{
+  <#
+  .SYNOPSIS
+  Create function template for proxy function
+  .DESCRIPTION
+  This function can be used to create a framework for a proxy function. If you want to create a proxy function for a command named Some-Command,
+  you should pass "Some-Command" as the Name attribute - New-ProxyCommand -Name Some-Command
+  .EXAMPLE
+  New-ProxyCommand -Name "Out-Default" | Out-File "Out-Default.ps1"
+  .EXAMPLE
+  "Invoke-Item" | New-ProxyCommand | Out-File "Invoke-Item-proxy.ps1"
+  #>
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [string] $Name
+  )
+  $metadata = New-Object System.Management.Automation.CommandMetadata (Get-Command $Name)
+  Write-Output "
+  function $Name
+  {
+    $([System.Management.Automation.ProxyCommand]::Create($metadata))
+  }"
+}
 function New-SshKey
 {
   [CmdletBinding()]
   param(
-    [Parameter()]
     [string] $Name="id_rsa"
   )
   Write-Verbose "==> Generating SSH key pair"

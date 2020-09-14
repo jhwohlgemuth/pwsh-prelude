@@ -50,6 +50,7 @@ Functions
 - `Join-StringsWithGrammar`
 - `New-DailyShutdownJob`
 - `New-File`
+- `New-ProxyCommand`
 - `New-SshKey`
 - `Open-Session`
 - `Out-Default`
