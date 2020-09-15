@@ -240,46 +240,55 @@ function Invoke-Speak
     [switch] $Silent,
     [string] $Output = "none"
   )
-  if (-not ([System.Management.Automation.PSTypeName]'System.Speech.Synthesis.SpeechSynthesizer').Type) {
-    Write-Verbose "==> Adding System.Speech type"
-    Add-Type -AssemblyName System.Speech
-  } else {
-    Write-Verbose "==> System.Speech is already loaded"
+  Begin {
+    if (-not ([System.Management.Automation.PSTypeName]'System.Speech.Synthesis.SpeechSynthesizer').Type) {
+      Write-Verbose "==> Adding System.Speech type"
+      Add-Type -AssemblyName System.Speech
+    } else {
+      Write-Verbose "==> System.Speech is already loaded"
+    }
+    $TotalText = ""
   }
-  Write-Verbose "==> Creating speech synthesizer"
-  $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
-  if (-not $Silent) {
-    switch ($InputType)
+  Process {
+    Write-Verbose "==> Creating speech synthesizer"
+    $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
+    if (-not $Silent) {
+      switch ($InputType)
+      {
+        "ssml" {
+          Write-Verbose "==> Received SSML input"
+          $synthesizer.SpeakSsml($Text)
+        }
+        Default {
+          Write-Verbose "==> Speaking: $Text"
+          $synthesizer.Rate = $Rate
+          $synthesizer.Speak($Text)
+        }
+      }
+    }
+    $TotalText += "$Text "
+  }
+  End {
+    $TotalText = $TotalText.Trim()
+    switch ($Output)
     {
+      "file" {
+        Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
+      }
       "ssml" {
-        Write-Verbose "==> Received SSML input"
-        $synthesizer.SpeakSsml($Text)
+        Write-Output "
+          <speak version=`"1.0`" xmlns=`"http://www.w3.org/2001/10/synthesis`" xml:lang=`"en-US`">
+              <voice xml:lang=`"en-US`">
+                  <prosody rate=`"$Rate`">
+                      <p>$TotalText</p>
+                  </prosody>
+              </voice>
+          </speak>
+        "
       }
       Default {
-        Write-Verbose "==> Speaking: $Text"
-        $synthesizer.Rate = $Rate
-        $synthesizer.Speak($Text)
+        Write-Output $TotalText
       }
-    }
-  }
-  switch ($Output)
-  {
-    "file" {
-      Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
-    }
-    "ssml" {
-      Write-Output "
-        <speak version=`"1.0`" xmlns=`"http://www.w3.org/2001/10/synthesis`" xml:lang=`"en-US`">
-            <voice xml:lang=`"en-US`">
-                <prosody rate=`"$Rate`">
-                    <p>$Text</p>
-                </prosody>
-            </voice>
-        </speak>
-      "
-    }
-    Default {
-      Write-Output $Text
     }
   }
 }
