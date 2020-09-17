@@ -193,28 +193,36 @@ function Invoke-RemoteCommand
   { whoami } | irc -ComputerNames Larry, Moe, Curly
 
   Use the "irc" alias and execute commands on multiple computers!
+  .EXAMPLE
+  Get-Credential | Export-CliXml -Path .\crendential.xml
+  { whoami } | Invoke-RemoteCommand -Credential (Import-Clixml -Path .\credential.xml) -ComputerNames PCNAME -Verbose
   #>
   [CmdletBinding()]
   [Alias('irc')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Credential")]
   param(
     [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
     [string[]] $ComputerNames,
     [Parameter()]
-    [string] $Password
+    [string] $Password,
+    [Parameter()]
+    [psobject] $Credential
   )
   $User = whoami
-  Write-Verbose "==> Creating credential for $User"
-  if ($Password) {
+  if ($Credential) {
+    Write-Verbose "==> Using -Credential for authentication"
+  } elseif ($Password) {
+    Write-Verbose "==> Creating credential for $User using -Password"
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
+    $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
   } else {
-    $Credential = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerNames)" -User $User
+    $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerNames)" -User $User
   }
   Write-Verbose "==> Running command on $(Join-StringsWithGrammar $ComputerNames)"
-  Invoke-Command -ComputerName $ComputerNames -Credential $Credential -ScriptBlock $ScriptBlock
+  Invoke-Command -ComputerName $ComputerNames -Credential $Cred -ScriptBlock $ScriptBlock
 }
 function Invoke-Speak
 {
