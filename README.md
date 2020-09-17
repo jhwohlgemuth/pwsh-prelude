@@ -1,5 +1,6 @@
 Powershell Handy Helpers Module &nbsp; [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-handy-helpers/badge)](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-handy-helpers)
 [![Build Status](https://travis-ci.com/jhwohlgemuth/pwsh-handy-helpers.svg?branch=master)](https://travis-ci.com/jhwohlgemuth/pwsh-handy-helpers)
+![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-handy-helpers)
 ==============================
 > Useful functions and aliases for everyday development tasks
 
