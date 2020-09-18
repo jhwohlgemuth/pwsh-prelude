@@ -1,3 +1,14 @@
+function ConvertTo-PowershellSyntax
+{
+  param(
+    [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+    [string] $Value,
+    [string] $DataVariableName = "Data"
+  )
+  Write-Output $Value |
+    ForEach-Object { $_ -Replace '{{\s*', "`$(`$$DataVariableName." } |
+    ForEach-Object { $_ -Replace '\s*}}', ')' }
+}
 function Enable-Remoting
 {
   <#
@@ -385,6 +396,53 @@ function New-SshKey
     Write-Output "==> Public key saved to clipboard"
   } else {
     Write-Error "==> Failed to create SSH key"
+  }
+}
+function New-Template
+{
+  <#
+  .SYNOPSIS
+  Create render function that interpolates passed object values
+  .EXAMPLE
+  $function:render = New-Template '<div>Hello {{ name }}!</div>'
+  render @{ name = "World" }
+  # "<div>Hello World!</div>"
+
+  Use mustache template syntax! Just like Handlebars.js!
+  .EXAMPLE
+  $function:render = New-Template '<div>Hello $($Data.name)!</div>'
+  render @{ name = "World" }
+  # "<div>Hello World!</div>"
+
+  Or stick to plain Powershell syntax...this is a little more verbose ($Data is required)
+  .EXAMPLE
+  $div = New-Template -Template '<div>{{ text }}</div>'
+  $section = New-Template "<section>
+      <h1>{{ title }}</h1>
+      $(& $div @{text = "Hello World!"})
+  </section>"
+
+  Templates can even be nested!
+  #>
+  [CmdletBinding()]
+  [Alias('tpl')]
+  param(
+    [string] $Template
+  )
+  $script:__template = $Template # This line is super important
+  {
+    param(
+      [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+      [psobject] $Data,
+      [switch] $PassThru
+    )
+    $DataVariableName = Get-Variable -Name Data | ForEach-Object{ $_.Name }
+    if ($PassThru) {
+      $render = $__template
+    } else {
+      $render = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+    }
+    $ExecutionContext.InvokeCommand.ExpandString($render)
   }
 }
 function Open-Session

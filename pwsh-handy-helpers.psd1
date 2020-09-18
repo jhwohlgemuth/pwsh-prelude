@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.1.4'
+    ModuleVersion = '1.0.1.5'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Unknown'
@@ -18,9 +18,11 @@
         'irc',
         'rf',
         'say',
-        'touch'
+        'touch',
+        'tpl'
     )
     FunctionsToExport = @(
+        'ConvertTo-PowershellSyntax'
         'Enable-Remoting',
         'Find-Duplicates',
         'Get-File',

@@ -43,6 +43,7 @@ Functions
 ---------
 > Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
 
+- `ConvertTo-PowershellSyntax`
 - `Enable-Remoting`
 - `Find-Duplicates`
 - `Get-File`
@@ -54,6 +55,7 @@ Functions
 - `New-File`
 - `New-ProxyCommand`
 - `New-SshKey`
+- `New-Template`
 - `Open-Session`
 - `Out-Default`
 - `Remove-DailyShutdownJob`
@@ -83,3 +85,4 @@ Aliases
 - `rf`
 - `say`
 - `touch`
+- `tpl`

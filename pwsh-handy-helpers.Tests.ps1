@@ -29,6 +29,59 @@ Describe "New-File (touch)" {
         ".\SomeFile" | Should -FileContentMatch $Content
     }
 }
+Describe "New-Template" {
+    Context "when passed an empty object" {
+        $script:Expected = "<div>Hello </div>"
+        It "can return function that accepts positional parameter" {
+            $function:render = New-Template '<div>Hello {{ name }}</div>'
+            render @{} | Should -Be $Expected
+        }
+        It "can return function when instantiated as function variable" {
+            $function:render = New-Template -Template '<div>Hello {{ name }}</div>'
+            render @{} | Should -Be $Expected
+        }
+        It "can return function when instantiated as normal variable" {
+            $renderVariable = New-Template -Template '<div>Hello {{ name }}</div>'
+            & $renderVariable @{} | Should -Be $Expected
+        }
+    }
+    It "can create function from template string using mustache notation" {
+        $Expected = "<div>Hello World!</div>"
+        $function:render = New-Template '<div>Hello {{ name }}!</div>'
+        render @{ name = "World" } | Should -Be $Expected
+        @{ name = "World" } | render | Should -Be $Expected
+    }
+    It "can create function from template string using Powershell syntax" {
+        $Expected = "<div>Hello World!</div>"
+        $function:render = New-Template '<div>Hello $($Data.name)!</div>'
+        render @{ name = "World" } | Should -Be $Expected
+        @{ name = "World" } | render | Should -Be $Expected
+    }
+    It "can be nested within other templates" {
+        $Expected = "<section>
+            <h1>Title</h1>
+            <div>Hello World!</div>
+        </section>"
+        $div = New-Template -Template '<div>{{ text }}</div>'
+        $section = New-Template "<section>
+            <h1>{{ title }}</h1>
+            $(& $div @{text = "Hello World!"})
+        </section>"
+        & $section @{ title = "Title" } | Should -Be $Expected
+    }
+    It "can be nested within other templates (with Powershell syntax)" {
+        $Expected = "<section>
+            <h1>Title</h1>
+            <div>Hello World!</div>
+        </section>"
+        $div = New-Template -Template '<div>{{ text }}</div>'
+        $section = New-Template "<section>
+            <h1>`$(`$Data.title)</h1>
+            $(& $div @{text = "Hello World!"})
+        </section>"
+        & $section @{ title = "Title" } | Should -Be $Expected
+    }
+}
 Describe "Remove-DirectoryForce (rf)" {
     It "can create a file" {
         New-File SomeFile
