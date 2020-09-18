@@ -424,9 +424,9 @@ function New-Template
   .EXAMPLE
   $title = New-Template -Template '<h1>{{ text }}</h1>' -DefaultValues @{ text = "Default" }
   & $title
-  # => "<h1>Default</h1>"
+  # "<h1>Default</h1>"
   & $title @{ text = "Hello World" }
-  # => "<h1>Hello World</h1>"
+  # "<h1>Hello World</h1>"
 
   Provide default values for your templates!
   .EXAMPLE
