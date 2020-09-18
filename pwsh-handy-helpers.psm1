@@ -441,7 +441,9 @@ function New-Template
   [CmdletBinding()]
   [Alias('tpl')]
   param(
+    [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
     [string] $Template,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [psobject] $DefaultValues
   )
   $script:__template = $Template # This line is super important
