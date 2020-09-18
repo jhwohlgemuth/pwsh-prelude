@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.1.5'
+    ModuleVersion = '1.0.1.6'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Unknown'
@@ -45,6 +45,7 @@
         'New-File',
         'New-ProxyCommand',
         'New-SshKey',
+        'New-Template',
         'Open-Session',
         'Out-Default',
         'Remove-DailyShutdownJob',
