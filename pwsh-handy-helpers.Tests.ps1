@@ -44,6 +44,11 @@ Describe "New-Template" {
             $renderVariable = New-Template -Template '<div>Hello {{ name }}</div>'
             & $renderVariable @{} | Should -Be $Expected
         }
+        It "can support default values" {
+            $renderVariable = New-Template -Template '<div>Hello {{ name }}</div>' -DefaultValues @{ name = "Default" }
+            & $renderVariable | Should -Be "<div>Hello Default</div>"
+            & $renderVariable @{ name = "Not Default" } | Should -Be "<div>Hello Not Default</div>"
+        }
     }
     It "can create function from template string using mustache notation" {
         $Expected = "<div>Hello World!</div>"

@@ -54,7 +54,14 @@ function Find-Duplicates
     [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
     [string] $Name
   )
-  Get-Item $Name | Get-ChildItem -Recurse | Get-FileHash | Group-Object -Property Hash | Where-Object Count -GT 1 | ForEach-Object {$_.Group | Select-Object Path, Hash} | Write-Output
+  Get-Item $Name |
+    Get-ChildItem -Recurse |
+    Get-FileHash |
+    Group-Object -Property Hash |
+    Where-Object Count -GT 1 |
+    ForEach-Object {$_.Group |
+    Select-Object Path, Hash} |
+    Write-Output
 }
 function Join-StringsWithGrammar()
 {
@@ -295,15 +302,14 @@ function Invoke-Speak
         Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
       }
       "ssml" {
-        Write-Output "
-          <speak version=`"1.0`" xmlns=`"http://www.w3.org/2001/10/synthesis`" xml:lang=`"en-US`">
-              <voice xml:lang=`"en-US`">
-                  <prosody rate=`"$Rate`">
-                      <p>$TotalText</p>
-                  </prosody>
-              </voice>
-          </speak>
-        "
+        $function:render = New-Template '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+            <voice xml:lang="en-US">
+                <prosody rate="{{ rate }}">
+                    <p>{{ text }}</p>
+                </prosody>
+            </voice>
+        </speak>'
+        render @{ rate = $Rate; text = $TotalText } | Write-Output
       }
       Default {
         Write-Output $TotalText
@@ -416,10 +422,18 @@ function New-Template
 
   Or stick to plain Powershell syntax...this is a little more verbose ($Data is required)
   .EXAMPLE
+  $title = New-Template -Template '<h1>{{ text }}</h1>' -DefaultValues @{ text = "Default" }
+  & $title
+  # => "<h1>Default</h1>"
+  & $title @{ text = "Hello World" }
+  # => "<h1>Hello World</h1>"
+
+  Provide default values for your templates!
+  .EXAMPLE
   $div = New-Template -Template '<div>{{ text }}</div>'
   $section = New-Template "<section>
       <h1>{{ title }}</h1>
-      $(& $div @{text = "Hello World!"})
+      $(& $div @{ text = "Hello World!" })
   </section>"
 
   Templates can even be nested!
@@ -427,12 +441,14 @@ function New-Template
   [CmdletBinding()]
   [Alias('tpl')]
   param(
-    [string] $Template
+    [string] $Template,
+    [psobject] $DefaultValues
   )
   $script:__template = $Template # This line is super important
+  $script:__defaults = $DefaultValues # This line is also super important
   {
     param(
-      [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+      [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
       [psobject] $Data,
       [switch] $PassThru
     )
@@ -441,6 +457,9 @@ function New-Template
       $render = $__template
     } else {
       $render = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+    }
+    if (-not $Data) {
+      $Data = $__defaults
     }
     $ExecutionContext.InvokeCommand.ExpandString($render)
   }
