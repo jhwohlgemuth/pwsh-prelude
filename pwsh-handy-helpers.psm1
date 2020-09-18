@@ -416,6 +416,12 @@ function New-Template
 
   Use mustache template syntax! Just like Handlebars.js!
   .EXAMPLE
+  $function:render = 'hello {{ name }}' | New-Template
+  @{ name = "world" } | render
+  # "hello world"
+
+  New-Template supports idiomatic powershell pipeline syntax
+  .EXAMPLE
   $function:render = New-Template '<div>Hello $($Data.name)!</div>'
   render @{ name = "World" }
   # "<div>Hello World!</div>"
