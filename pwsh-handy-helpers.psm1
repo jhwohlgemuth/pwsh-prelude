@@ -460,16 +460,21 @@ function New-Template
       [psobject] $Data,
       [switch] $PassThru
     )
-    $DataVariableName = Get-Variable -Name Data | ForEach-Object{ $_.Name }
     if ($PassThru) {
       $render = $__template
     } else {
+      $DataVariableName = Get-Variable -Name Data | ForEach-Object{ $_.Name }
       $render = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
     if (-not $Data) {
       $Data = $__defaults
     }
-    $ExecutionContext.InvokeCommand.ExpandString($render)
+    $render = $render -Replace '"', '`"'
+    $importDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
+    $powershell = [powershell]::Create()
+    [void]$powershell.AddScript($importDataVariable).AddScript("Write-Output `"$render`"")
+    $powershell.Invoke()
+    [void]$powershell.Dispose()
   }
 }
 function Open-Session
