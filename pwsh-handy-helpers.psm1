@@ -685,8 +685,10 @@ function Test-Installed
 #
 # Aliases
 #
-Set-Alias -Scope Global -Option AllScope -Name la -Value Get-ChildItemColor
-Set-Alias -Scope Global -Option AllScope -Name ls -Value Get-ChildItemColorFormatWide
+if (Test-Installed Get-ChildItemColor) {
+  Set-Alias -Scope Global -Option AllScope -Name la -Value Get-ChildItemColor
+  Set-Alias -Scope Global -Option AllScope -Name ls -Value Get-ChildItemColorFormatWide
+}
 Set-Alias -Scope Global -Option AllScope -Name g -Value Invoke-GitCommand
 Set-Alias -Scope Global -Option AllScope -Name gcam -Value Invoke-GitCommit
 Set-Alias -Scope Global -Option AllScope -Name gd -Value Invoke-GitDiff
