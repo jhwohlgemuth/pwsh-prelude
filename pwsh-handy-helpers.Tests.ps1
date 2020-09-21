@@ -1,5 +1,28 @@
 Import-Module ./pwsh-handy-helpers.psm1
 
+Describe "ConvertTo-PowershellSyntax" {
+    It "can act as pass-thru for normal strings" {
+        $Expected = "normal string with not mustache templates"
+        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+    It "can convert strings with single mustache template" {
+        $InputString = 'Hello {{ world }}'
+        $Expected = 'Hello $($Data.world)'
+        $InputString | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+    It "can convert strings with multiple mustache templates without regard to spaces" {
+        $Expected = '$($Data.hello) $($Data.world)'
+        '{{ hello }} {{ world }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+        '{{ hello }} {{ world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+        '{{hello }} {{world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+    It "will not convert mustache helper templates" {
+        $Expected = 'The sky is {{#blue blue }}'
+        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
+        $Expected = '{{#red greet }}, my name $($Data.foo) $($Data.foo) is $($Data.name)'
+        '{{#red greet }}, my name {{foo }} {{foo}} is {{ name }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+}
 Describe "Find-Duplicates" {
     It "can identify duplicate files" {
         # Under construction
