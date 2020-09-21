@@ -6,7 +6,7 @@ function ConvertTo-PowershellSyntax
     [string] $DataVariableName = "Data"
   )
   Write-Output $Value |
-    ForEach-Object { $_ -Replace '(?<!{{#\w*\s*\w*\s*)\s*}}', ')' } |
+    ForEach-Object { $_ -Replace '(?<!{{#[\w\s]*)\s*}}', ')' } |
     ForEach-Object { $_ -Replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
 function Enable-Remoting
