@@ -674,6 +674,7 @@ function Test-Installed
   [CmdletBinding()]
   [OutputType([bool])]
   param(
+    [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
     [string] $Name
   )
   if (Get-Module -ListAvailable -Name $Name) {
