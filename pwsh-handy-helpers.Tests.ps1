@@ -28,6 +28,19 @@ Describe "Find-Duplicates" {
         # Under construction
     }
 }
+Describe "Find-FirstIndex" {
+    It "can determine index of first item that satisfies default predicate" {
+        Find-FirstIndex -Values $false,$true,$false | Should -Be 1
+        ,($false, $true, $false) | Find-FirstIndex | Should -Be 1
+    }
+    It "can determine index of first item that satisfies passed predicate" {
+        $Arr = 1,1,1,1,2,1,1
+        $Predicate = { $args[0] -eq 2 }
+        Find-FirstIndex -Values $Arr | Should -Be $null
+        Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
+        ,$Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
+    }
+}
 Describe "Join-StringsWithGrammar" {
     It "accepts one parameter" {
         Join-StringsWithGrammar @("one") | Should -Be "one"

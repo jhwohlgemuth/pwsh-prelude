@@ -63,6 +63,37 @@ function Find-Duplicates
     Select-Object Path, Hash} |
     Write-Output
 }
+function Find-FirstIndex
+{
+  <#
+  .SYNOPSIS
+  Helper function to return index of first array item that returns true for a given predicate
+  (default predicate returns true if value is $true)
+  .EXAMPLE
+  Find-FirstIndex -Values $false,$true,$false
+  # Returns 1
+  .EXAMPLE
+  $Values = 1,1,1,2,1,1
+  Find-FirstIndex -Values $Values -Predicate { $args[0] -eq 2 }
+  # Returns 3
+  .EXAMPLE
+  $Values = 1,1,1,2,1,1
+  ,$Values | Find-FirstIndex -Predicate { $args[0] -eq 2 }
+  # Returns 3
+
+  Note the use of the unary comma operator
+  .EXAMPLE
+  ,(1,1,1,2,1,1) | Find-FirstIndex -Predicate { $args[0] -eq 2 }
+  # Returns 3
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Position=0,ValueFromPipeline=$true)]
+    [array] $Values,
+    [scriptblock] $Predicate = { $args[0] -eq $true }
+  )
+  @($Values | ForEach-Object{ $i = 0 }{ if(& $Predicate $_){ [array]::IndexOf($Values, $_) }; $i++ }).Where({ $_ }, 'First')
+}
 function Join-StringsWithGrammar()
 {
   <#
@@ -681,6 +712,56 @@ function Test-Installed
     $true
   } else {
     $false
+  }
+}
+function Write-Color
+{
+  <#
+  .SYNOPSIS
+  Basically Write-Host with the ability to color parts of the output by using template strings
+  .EXAMPLE
+  $function:render = '{{#red "this will be red" }} and {{#blue this will be blue" }} | Write-Color
+  .EXAMPLE
+  Write-Color 'You can still color entire strings using switch parameters' -Green
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [string] $Text,
+    [switch] $Black,
+    [switch] $DarkBlue,
+    [switch] $DarkGreen,
+    [switch] $DarkCyan,
+    [switch] $DarkRed,
+    [switch] $DarkMagenta,
+    [switch] $DarkYellow,
+    [switch] $Gray,
+    [switch] $DarkGray,
+    [switch] $Blue,
+    [switch] $Green,
+    [switch] $Cyan,
+    [switch] $Red,
+    [switch] $Magenta,
+    [switch] $Yellow,
+    [switch] $White
+  )
+  $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
+  $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
+  if ($Index) {
+    $Color = $ColorNames[$Index]
+  } else {
+    $Color = "White"
+  }
+  $position = 0
+  $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
+    Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
+    $HelperTemplate = $Text.Substring($_.Index, $_.Length)
+    $Arr = $HelperTemplate | %{ $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
+    Write-Host $Arr[1] -ForegroundColor $Arr[0] -NoNewline
+    $position = $_.Index + $_.Length
+  }
+  if ($position -lt $Text.Length) {
+    Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color
   }
 }
 #

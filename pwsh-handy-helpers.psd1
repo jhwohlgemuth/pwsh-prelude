@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.2.1'
+    ModuleVersion = '1.0.2.2'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Unknown'
@@ -25,6 +25,7 @@
         'ConvertTo-PowershellSyntax'
         'Enable-Remoting',
         'Find-Duplicates',
+        'Find-FirstIndex',
         'Get-File',
         'Home',
         'Install-SshServer',
@@ -53,7 +54,8 @@
         'Take',
         'Test-Admin',
         'Test-Empty',
-        'Test-Installed'
+        'Test-Installed',
+        'Write-Color'
     )
     PrivateData = @{
         PSData = @{

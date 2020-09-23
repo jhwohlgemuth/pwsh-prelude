@@ -46,6 +46,7 @@ Functions
 - `ConvertTo-PowershellSyntax`
 - `Enable-Remoting`
 - `Find-Duplicates`
+- `Find-FirstIndex`
 - `Get-File`
 - `Install-SshServer`
 - `Invoke-RemoteCommand`
@@ -64,6 +65,7 @@ Functions
 - `Test-Admin`
 - `Test-Empty`
 - `Test-Installed`
+- `Write-Color`
 
 Aliases
 -------
