@@ -298,7 +298,8 @@ function Invoke-Speak
     [string] $Output = "none"
   )
   Begin {
-    if (-not ([System.Management.Automation.PSTypeName]'System.Speech.Synthesis.SpeechSynthesizer').Type) {
+    $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
+    if (-not ($SpeechSynthesizerTypeName -as [type])) {
       Write-Verbose "==> Adding System.Speech type"
       Add-Type -AssemblyName System.Speech
     } else {
@@ -308,7 +309,7 @@ function Invoke-Speak
   }
   Process {
     Write-Verbose "==> Creating speech synthesizer"
-    $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
+    $synthesizer = New-Object ($SpeechSynthesizerTypeName -as [type])
     if (-not $Silent) {
       switch ($InputType)
       {
