@@ -334,13 +334,14 @@ function Invoke-Speak
         Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
       }
       "ssml" {
-        $function:render = New-Template '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
-            <voice xml:lang="en-US">
-                <prosody rate="{{ rate }}">
-                    <p>{{ text }}</p>
-                </prosody>
-            </voice>
-        </speak>'
+        $function:render = New-Template `
+'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+    <voice xml:lang="en-US">
+        <prosody rate="{{ rate }}">
+            <p>{{ text }}</p>
+        </prosody>
+    </voice>
+</speak>'
         render @{ rate = $Rate; text = $TotalText } | Write-Output
       }
       Default {
