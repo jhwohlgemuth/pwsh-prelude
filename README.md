@@ -15,8 +15,8 @@ Imagine you are trying to perform some technical task on Windows, like executing
 
 If you have ever had a similar thought train, this module might be for you!
 
-> "It is almost like I just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all my favorite functions and aliases into a grab-bag module..."  
-*- My "Inner Critic"*
+> "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
+*- Probably some people that are reading this README*
 
 
 Quick Start
