@@ -1,7 +1,7 @@
 function ConvertTo-PowershellSyntax
 {
   param(
-    [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Value,
     [string] $DataVariableName = "Data"
   )
@@ -51,7 +51,7 @@ function Find-Duplicates
   #>
   [CmdletBinding()]
   param (
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [string] $Name
   )
   Get-Item $Name |
@@ -88,45 +88,11 @@ function Find-FirstIndex
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0,ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$true)]
     [array] $Values,
     [scriptblock] $Predicate = { $args[0] -eq $true }
   )
   @($Values | ForEach-Object{ $i = 0 }{ if(& $Predicate $_){ [array]::IndexOf($Values, $_) }; $i++ }).Where({ $_ }, 'First')
-}
-function Join-StringsWithGrammar()
-{
-  <#
-  .SYNOPSIS
-  Helper function that creates a string out of a list that properly employs commands and "and"
-  .EXAMPLE
-  Join-StringsWithGrammar @("a", "b", "c")
-
-  Returns "a, b, and c"
-  #>
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory=$true)]
-    [string[]] $Items,
-    [string] $Delimiter = ","
-  )
-  $NumberOfItems = $Items.Length
-  switch ($NumberOfItems)
-  {
-    1 {
-      $Items
-    }
-    2 {
-      $Items -Join " and "
-    }
-    Default {
-      @(
-        ($Items[0..($NumberOfItems - 2)] -Join ", ") + ","
-        "and"
-        $Items[$NumberOfItems - 1]
-       ) -Join " "
-    }
-  }
 }
 function Get-File
 {
@@ -142,7 +108,7 @@ function Get-File
   #>
   [CmdletBinding()]
   param(
-    [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Url,
     [string] $File="download.txt"
   )
@@ -187,7 +153,7 @@ function Invoke-DockerInspectAddress
   [CmdletBinding()]
   [Alias('dip')]
   param(
-    [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Name
   )
   docker inspect --format '{{ .NetworkSettings.IPAddress }}' $Name
@@ -267,6 +233,107 @@ function Invoke-Listen
     }
   }
 }
+function Invoke-Menu
+{
+  <#
+  .SYNOPSIS
+  Create interactive single or multi-select list menu
+  .EXAMPLE
+  menu @('one', 'two', 'three')
+  .EXAMPLE
+  menu @('one', 'two', 'three') -Multiselect -ReturnIndex | Sort-Object
+  .EXAMPLE
+  ,(1,2,3,4,5) | menu
+  #>
+  [CmdletBinding()]
+  [Alias('menu')]
+  Param (
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [array] $Items,
+    [switch] $Multiselect,
+    [switch] $ReturnIndex = $false
+  )
+  [console]::CursorVisible = $false
+  $Keycodes = @{
+    enter = 13;
+    escape = 27;
+    space = 32;
+    up = 38;
+    down = 40;
+  }
+  $Keycode = 0
+  $Position = 0
+  $Selection = @()
+  if ($Items.Length -gt 0) {
+		Invoke-MenuDraw $Items $Position $Multiselect $Selection
+		While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
+			$Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
+      switch ($Keycode) {
+        $Keycodes.escape {
+          $Position = $null
+        }
+        $Keycodes.space {
+          $Selection = Update-MenuSelection $Position $Selection
+        }
+        $Keycodes.up {
+          $Position = (($Position - 1) + $Items.Length) % $Items.Length
+        }
+        $Keycodes.down {
+          $Position = ($Position + 1) % $Items.Length
+        }
+      }
+      If ($null -ne $Position) {
+        $StartPosition = [console]::CursorTop - $Items.Length
+        [console]::SetCursorPosition(0, $StartPosition)
+        Invoke-MenuDraw $Items $Position $Multiselect $Selection
+      }
+		}
+	} else {
+		$Position = $null
+	}
+  [console]::CursorVisible = $true
+  if ($ReturnIndex -eq $false -and $null -ne $Position) {
+		if ($Multiselect) {
+			return $Items[$Selection]
+		} else {
+			return $Items[$Position]
+		}
+	} else {
+		if ($Multiselect) {
+			return $Selection
+		} else {
+			return $Position
+		}
+	}
+}
+function Invoke-MenuDraw
+{
+  [CmdletBinding()]
+  Param (
+    [array] $Items, 
+    [int] $Position, 
+    [bool] $Multiselect, 
+    [array] $Selection
+  )
+  $Items | ForEach-Object { $i = 0 } {
+    $Item = $_
+    if ($null -ne $Item) {
+      if ($Multiselect) {
+        if ($Selection -contains $i) {
+          $Item = '[x] ' + $Item
+        } else {
+          $Item = '[ ] ' + $Item
+        }
+      }
+      if ($i -eq $Position) {
+        Write-Host "> $Item" -ForegroundColor Cyan
+      } else {
+        Write-Host "  $Item"
+      }
+    }
+    $i++
+  }
+}
 function Invoke-RemoteCommand
 {
   <#
@@ -293,7 +360,7 @@ function Invoke-RemoteCommand
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Credential")]
   param(
-    [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
     [string[]] $ComputerNames,
@@ -332,7 +399,7 @@ function Invoke-Speak
   [CmdletBinding()]
   [Alias('say')]
   param(
-    [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Text = "",
     [string] $InputType = "text",
     [int] $Rate = 0,
@@ -386,6 +453,40 @@ function Invoke-Speak
       Default {
         Write-Verbose "==> $TotalText"
       }
+    }
+  }
+}
+function Join-StringsWithGrammar()
+{
+  <#
+  .SYNOPSIS
+  Helper function that creates a string out of a list that properly employs commands and "and"
+  .EXAMPLE
+  Join-StringsWithGrammar @("a", "b", "c")
+
+  Returns "a, b, and c"
+  #>
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true)]
+    [string[]] $Items,
+    [string] $Delimiter = ","
+  )
+  $NumberOfItems = $Items.Length
+  switch ($NumberOfItems)
+  {
+    1 {
+      $Items
+    }
+    2 {
+      $Items -Join " and "
+    }
+    Default {
+      @(
+        ($Items[0..($NumberOfItems - 2)] -Join ", ") + ","
+        "and"
+        $Items[$NumberOfItems - 1]
+       ) -Join " "
     }
   }
 }
@@ -519,7 +620,7 @@ function New-Template
   [CmdletBinding()]
   [Alias('tpl')]
   param(
-    [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Template,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [psobject] $DefaultValues
@@ -528,7 +629,7 @@ function New-Template
   $script:__defaults = $DefaultValues # This line is also super important
   {
     param(
-      [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)]
+      [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
       [psobject] $Data,
       [switch] $PassThru
     )
@@ -736,7 +837,7 @@ function Test-Empty
   [ValidateNotNullorEmpty()]
   [OutputType([bool])]
   param (
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [string] $Name
   )
   Get-Item $Name | ForEach-Object {$_.psiscontainer -AND $_.GetFileSystemInfos().Count -EQ 0} | Write-Output
@@ -746,7 +847,7 @@ function Test-Installed
   [CmdletBinding()]
   [OutputType([bool])]
   param(
-    [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Name
   )
   if (Get-Module -ListAvailable -Name $Name) {
@@ -754,6 +855,21 @@ function Test-Installed
   } else {
     $false
   }
+}
+function Update-MenuSelection
+{
+  [CmdletBinding()]
+	Param (
+    [int] $Position,
+    [array] $Selection
+  )
+	if ($Selection -contains $Position) { 
+		$Result = $Selection | Where-Object {$_ -ne $Position}
+	} else {
+		$Selection += $Position
+		$Result = $Selection
+	}
+	$Result
 }
 function Use-Grammar
 {
@@ -798,7 +914,7 @@ function Write-Color
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [string] $Text,
     [switch] $NoNewLine,
     [switch] $Black,

@@ -3,7 +3,21 @@ Powershell Handy Helpers Module
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-handy-helpers/badge)](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-handy-helpers)
 [![Build Status](https://travis-ci.com/jhwohlgemuth/pwsh-handy-helpers.svg?branch=master)](https://travis-ci.com/jhwohlgemuth/pwsh-handy-helpers)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-handy-helpers)](https://www.powershellgallery.com/packages/pwsh-handy-helpers)
-> Useful functions and aliases for everyday development tasks
+> Useful helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
+
+Imagine you are trying to perform some technical task on Windows, like executing commands on remote computers. And then you think:
+- It should be easier to enable remoting...
+- ...and to execute commands on other computers
+- ...by passing idiomatic scriptblocks,
+- ...to functions that do stuff like shutdown the remote computer
+- ...and speak to me
+- ...and other totally reasonable stuff ([see function section](#Functions))
+
+If you have ever had a similar thought train, this module might be for you!
+
+> "It is almost like I just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all my favorite functions and aliases into a grab-bag module..."  
+*- My "Inner Critic"*
+
 
 Quick Start
 -----------
@@ -36,6 +50,14 @@ cd path/to/some/folder
 # new hotness
 path/to/some/folder
 ```
+- Exexute code on a remote computer
+```powershell
+{ whoami } | irc -ComputerNames PCNAME
+```
+- Make your computer talk
+```powershell
+say "Hello World"
+```
 
 ### And much more! Check out the [functions](#Functions) and [aliases](#Aliases) sections below for details
 
@@ -50,6 +72,8 @@ Functions
 - `Get-File`
 - `Install-SshServer`
 - `Invoke-Listen`
+- `Invoke-Menu`
+- `Invoke-MenuDraw`
 - `Invoke-RemoteCommand`
 - `Invoke-Speak`
 - `Join-StringsWithGrammar`
@@ -66,6 +90,7 @@ Functions
 - `Test-Admin`
 - `Test-Empty`
 - `Test-Installed`
+- `Update-MenuSelection`
 - `Use-Grammar`
 - `Use-Speech`
 - `Write-Color`
@@ -88,6 +113,7 @@ Aliases
 - `la`
 - `listen`
 - `ls`
+- `menu`
 - `rf`
 - `say`
 - `touch`
