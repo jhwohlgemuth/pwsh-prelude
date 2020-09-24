@@ -156,7 +156,8 @@ Describe "Test-Installed" {
 Describe "Invoke-Speak (say)" {
     It "can passthru text without speaking" {
         $Text = "this should not be heard"
-        Invoke-Speak $Text -Silent | Should -Be $Text
+        Invoke-Speak $Text -Silent | Should -Be $null
+        Invoke-Speak $Text -Silent -Output text | Should -Be $Text
     }
     It "can output SSML" {
         $Text = "this should not be heard either"
