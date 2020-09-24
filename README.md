@@ -49,6 +49,7 @@ Functions
 - `Find-FirstIndex`
 - `Get-File`
 - `Install-SshServer`
+- `Invoke-Listen`
 - `Invoke-RemoteCommand`
 - `Invoke-Speak`
 - `Join-StringsWithGrammar`
@@ -65,6 +66,8 @@ Functions
 - `Test-Admin`
 - `Test-Empty`
 - `Test-Installed`
+- `Use-Grammar`
+- `Use-Speech`
 - `Write-Color`
 
 Aliases
@@ -83,6 +86,7 @@ Aliases
 - `gsb`
 - `irc`
 - `la`
+- `listen`
 - `ls`
 - `rf`
 - `say`

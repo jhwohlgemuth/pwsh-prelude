@@ -1,8 +1,8 @@
 @{
-    ModuleVersion = '1.0.2.4'
+    ModuleVersion = '1.0.2.5'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
-    CompanyName = 'Unknown'
+    CompanyName = 'MyBusiness'
     Author = 'Jason Wohlgemuth'
     Copyright = '(c) 2020 Jason Wohlgemuth. All rights reserved.'
     Description = 'Helper functions, aliases and more'
@@ -16,6 +16,7 @@
         'dra',
         'drai',
         'irc',
+        'listen',
         'rf',
         'say',
         'touch',
@@ -39,6 +40,7 @@
         'Invoke-GitStatus',
         'Invoke-GitRebase',
         'Invoke-GitLog',
+        'Invoke-Listen',
         'Invoke-RemoteCommand',
         'Invoke-Speak',
         'Join-StringsWithGrammar',
@@ -55,6 +57,8 @@
         'Test-Admin',
         'Test-Empty',
         'Test-Installed',
+        'Use-Grammar',
+        'Use-Speech',
         'Write-Color'
     )
     PrivateData = @{

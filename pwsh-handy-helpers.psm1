@@ -225,6 +225,48 @@ function Invoke-GitPushMaster { git push origin master }
 function Invoke-GitStatus { git status -sb }
 function Invoke-GitRebase { git rebase -i $args }
 function Invoke-GitLog { git log --oneline --decorate }
+
+function Invoke-Listen
+{
+  <#
+  .SYNOPSIS
+  Start loop that listens for trigger words and execute passed functions when recognized
+  .DESCRIPTION
+  This function uses the Windows Speech Recognition. For best results, you should first improve speech recognition via Speech Recognition Voice Training.
+  .EXAMPLE
+  Invoke-Listen -Triggers "hello" -Actions { Write-Color 'Welcome' -Green }
+  .EXAMPLE
+  Invoke-Listen -Triggers "hello","quit" -Actions { say 'Welcome' | Out-Null; $true }, { say 'Goodbye' | Out-Null; $false }
+
+  An action will stop listening when it returns a "falsy" value like $true or $null. Conversely, returning "truthy" values will continue the listening loop.
+  #>
+  [CmdletBinding()]
+  [Alias('listen')]
+  Param(
+    [Parameter(Mandatory=$true)]
+    [string[]] $Triggers,
+    [scriptblock[]] $Actions,
+    [double] $Threshhold = 0.85
+  )
+  Use-Speech
+  $Engine = Use-Grammar -Words $Triggers
+  $Continue = $true;
+  Write-Color 'Listening for trigger words...' -Cyan
+  while ($Continue) {
+    $Recognizer = $Engine.Recognize();
+    $Confidence = $Recognizer.Confidence;
+    $Text = $Recognizer.text;
+    if ($Text.Length -gt 0) {
+      Write-Verbose "==> Heard `"$Text`""
+    }
+    $Triggers | ForEach-Object { $i = 0 }{
+      if ($Text -match $_ -and [double]$Confidence -gt $Threshhold) {
+        $Continue = & $Actions[$i]
+      }
+      $i++
+    }
+  }
+}
 function Invoke-RemoteCommand
 {
   <#
@@ -298,18 +340,12 @@ function Invoke-Speak
     [string] $Output = "none"
   )
   Begin {
-    $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
-    if (-not ($SpeechSynthesizerTypeName -as [type])) {
-      Write-Verbose "==> Adding System.Speech type"
-      Add-Type -AssemblyName System.Speech
-    } else {
-      Write-Verbose "==> System.Speech is already loaded"
-    }
+    Use-Speech
     $TotalText = ""
   }
   Process {
     Write-Verbose "==> Creating speech synthesizer"
-    $synthesizer = New-Object ($SpeechSynthesizerTypeName -as [type])
+    $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
     if (-not $Silent) {
       switch ($InputType)
       {
@@ -344,8 +380,11 @@ function Invoke-Speak
 </speak>'
         render @{ rate = $Rate; text = $TotalText } | Write-Output
       }
-      Default {
+      "text" {
         Write-Output $TotalText
+      }
+      Default {
+        Write-Verbose "==> $TotalText"
       }
     }
   }
@@ -716,6 +755,37 @@ function Test-Installed
     $false
   }
 }
+function Use-Grammar
+{
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true)]
+    [string[]] $Words
+  )
+  Write-Verbose "==> Creating Speech Recognition Engine"
+  $Engine = [System.Speech.Recognition.SpeechRecognitionEngine]::new();
+  $Engine.InitialSilenceTimeout = 15
+  $Engine.SetInputToDefaultAudioDevice();
+  $Words | ForEach-Object {
+    Write-Verbose "==> Loading grammar for $_"
+    $Grammar = [System.Speech.Recognition.GrammarBuilder]::new();
+    $Grammar.Append($_)
+    $Engine.LoadGrammar($Grammar)
+  }
+  $Engine
+}
+function Use-Speech
+{
+  [CmdletBinding()]
+  Param()
+  $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
+  if (-not ($SpeechSynthesizerTypeName -as [type])) {
+    Write-Verbose "==> Adding System.Speech type"
+    Add-Type -AssemblyName System.Speech
+  } else {
+    Write-Verbose "==> System.Speech is already loaded"
+  }
+}
 function Write-Color
 {
   <#
@@ -730,6 +800,7 @@ function Write-Color
   Param(
     [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
     [string] $Text,
+    [switch] $NoNewLine,
     [switch] $Black,
     [switch] $DarkBlue,
     [switch] $DarkGreen,
@@ -763,7 +834,11 @@ function Write-Color
     $position = $_.Index + $_.Length
   }
   if ($position -lt $Text.Length) {
-    Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color
+    if ($NoNewLine) {
+      Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline
+    } else {
+      Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color
+    }
   }
 }
 #
