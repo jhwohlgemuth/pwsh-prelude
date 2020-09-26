@@ -236,25 +236,25 @@ function Invoke-Menu
 {
   <#
   .SYNOPSIS
-  Create interactive single, multi-select, or checkbox list menu
+  Create interactive single, multi-select, or single-select list menu
   .EXAMPLE
   menu @('one', 'two', 'three')
   .EXAMPLE
-  menu @('one', 'two', 'three') -Multiselect -ReturnIndex | Sort-Object
+  menu @('one', 'two', 'three') -MultiSelect -ReturnIndex | Sort-Object
   .EXAMPLE
   ,(1,2,3,4,5) | menu
   .EXAMPLE
-  ,(1,2,3,4,5) | menu -Checkbox
+  ,(1,2,3,4,5) | menu -SingleSelect
 
-  The Checkbox switch allows for only one item to be selected at a time
+  The SingleSelect switch allows for only one item to be selected at a time
   #>
   [CmdletBinding()]
   [Alias('menu')]
   Param (
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [array] $Items,
-    [switch] $Multiselect,
-    [switch] $Checkbox,
+    [switch] $MultiSelect,
+    [switch] $SingleSelect,
     [switch] $ReturnIndex = $false
   )
   [console]::CursorVisible = $false
@@ -269,7 +269,7 @@ function Invoke-Menu
   $Position = 0
   $Selection = @()
   if ($Items.Length -gt 0) {
-		Invoke-MenuDraw $Items $Position $Multiselect $Checkbox $Selection
+    Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
 		While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
 			$Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
       switch ($Keycode) {
@@ -277,7 +277,7 @@ function Invoke-Menu
           $Position = $null
         }
         $Keycodes.space {
-          $Selection = Update-MenuSelection $Position $Checkbox $Selection
+          $Selection = Update-MenuSelection -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
         }
         $Keycodes.up {
           $Position = (($Position - 1) + $Items.Length) % $Items.Length
@@ -289,7 +289,7 @@ function Invoke-Menu
       If ($null -ne $Position) {
         $StartPosition = [console]::CursorTop - $Items.Length
         [console]::SetCursorPosition(0, $StartPosition)
-        Invoke-MenuDraw $Items $Position $Multiselect $Checkbox $Selection
+        Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
       }
 		}
 	} else {
@@ -297,13 +297,13 @@ function Invoke-Menu
 	}
   [console]::CursorVisible = $true
   if ($ReturnIndex -eq $false -and $null -ne $Position) {
-		if ($Multiselect) {
+		if ($MultiSelect) {
 			return $Items[$Selection]
 		} else {
 			return $Items[$Position]
 		}
 	} else {
-		if ($Multiselect) {
+		if ($MultiSelect) {
 			return $Selection
 		} else {
 			return $Position
@@ -316,21 +316,21 @@ function Invoke-MenuDraw
   Param (
     [array] $Items, 
     [int] $Position, 
-    [bool] $Multiselect,
-    [bool] $Checkbox,
-    [array] $Selection
+    [array] $Selection,
+    [switch] $MultiSelect,
+    [switch] $SingleSelect
   )
   $Items | ForEach-Object { $i = 0 } {
     $Item = $_
     if ($null -ne $Item) {
-      if ($Multiselect) {
+      if ($MultiSelect) {
         if ($Selection -contains $i) {
           $Item = "[x] $Item"
         } else {
           $Item = "[ ] $Item"
         }
       } else {
-        if ($Checkbox) {
+        if ($SingleSelect) {
           if ($Selection -contains $i) {
             $Item = "(o) $Item"
           } else {
@@ -874,13 +874,14 @@ function Update-MenuSelection
   [CmdletBinding()]
 	Param (
     [int] $Position,
-    [bool] $Checkbox,
-    [array] $Selection
+    [array] $Selection,
+    [switch] $MultiSelect,
+    [switch] $SingleSelect
   )
 	if ($Selection -contains $Position) {
 		$Result = $Selection | Where-Object { $_ -ne $Position }
 	} else {
-    if ($Multiselect) {
+    if ($MultiSelect) {
       $Selection += $Position
     } else {
       $Selection = ,$Position
@@ -963,16 +964,12 @@ function Write-Color
   $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
     Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
     $HelperTemplate = $Text.Substring($_.Index, $_.Length)
-    $Arr = $HelperTemplate | %{ $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
+    $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
     Write-Host $Arr[1] -ForegroundColor $Arr[0] -NoNewline
     $position = $_.Index + $_.Length
   }
   if ($position -lt $Text.Length) {
-    if ($NoNewLine) {
-      Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline
-    } else {
-      Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color
-    }
+    Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline:$NoNewLine
   }
 }
 #
