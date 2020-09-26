@@ -1,6 +1,6 @@
 function ConvertTo-PowershellSyntax
 {
-  param(
+  Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Value,
     [string] $DataVariableName = "Data"
@@ -23,7 +23,7 @@ function Enable-Remoting
   Enable-Remoting -TrustedHosts "MARIO,LUIGI"
   #>
   [CmdletBinding()]
-  param(
+  Param(
     [string] $TrustedHosts = "*"
   )
   if (Test-Admin) {
@@ -50,7 +50,7 @@ function Find-Duplicates
   pwd | Find-Duplicates
   #>
   [CmdletBinding()]
-  param (
+  Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [string] $Name
   )
@@ -59,8 +59,7 @@ function Find-Duplicates
     Get-FileHash |
     Group-Object -Property Hash |
     Where-Object Count -GT 1 |
-    ForEach-Object {$_.Group |
-    Select-Object Path, Hash} |
+    ForEach-Object { $_.Group | Select-Object Path, Hash } |
     Write-Output
 }
 function Find-FirstIndex
@@ -107,7 +106,7 @@ function Get-File
   echo "http://example.com/file.txt" | Get-File
   #>
   [CmdletBinding()]
-  param(
+  Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Url,
     [string] $File="download.txt"
@@ -119,7 +118,7 @@ function Home
 {
   [CmdletBinding()]
   [Alias('~')]
-  param()
+  Param()
   Set-Location ~
 }
 function Install-SshServer
@@ -130,7 +129,7 @@ function Install-SshServer
   https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
-  param()
+  Param()
   Write-Verbose '==> Enabling OpenSSH server'
   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
   Write-Verbose '==> Starting sshd service'
@@ -152,7 +151,7 @@ function Invoke-DockerInspectAddress
   #>
   [CmdletBinding()]
   [Alias('dip')]
-  param(
+  Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Name
   )
@@ -168,7 +167,7 @@ function Invoke-DockerRemoveAll
   #>
   [CmdletBinding()]
   [Alias('dra')]
-  param()
+  Param()
   docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 }
 function Invoke-DockerRemoveAllImages
@@ -181,7 +180,7 @@ function Invoke-DockerRemoveAllImages
   #>
   [CmdletBinding()]
   [Alias('drai')]
-  param()
+  Param()
   docker rmi $(docker images -a -q)
 }
 function Invoke-GitCommand { git $args }
@@ -225,7 +224,7 @@ function Invoke-Listen
     if ($Text.Length -gt 0) {
       Write-Verbose "==> Heard `"$Text`""
     }
-    $Triggers | ForEach-Object { $i = 0 }{
+    $Triggers | ForEach-Object { $i = 0 } {
       if ($Text -match $_ -and [double]$Confidence -gt $Threshhold) {
         $Continue = & $Actions[$i]
       }
@@ -237,13 +236,17 @@ function Invoke-Menu
 {
   <#
   .SYNOPSIS
-  Create interactive single or multi-select list menu
+  Create interactive single, multi-select, or checkbox list menu
   .EXAMPLE
   menu @('one', 'two', 'three')
   .EXAMPLE
   menu @('one', 'two', 'three') -Multiselect -ReturnIndex | Sort-Object
   .EXAMPLE
   ,(1,2,3,4,5) | menu
+  .EXAMPLE
+  ,(1,2,3,4,5) | menu -Checkbox
+
+  The Checkbox switch allows for only one item to be selected at a time
   #>
   [CmdletBinding()]
   [Alias('menu')]
@@ -251,6 +254,7 @@ function Invoke-Menu
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [array] $Items,
     [switch] $Multiselect,
+    [switch] $Checkbox,
     [switch] $ReturnIndex = $false
   )
   [console]::CursorVisible = $false
@@ -265,7 +269,7 @@ function Invoke-Menu
   $Position = 0
   $Selection = @()
   if ($Items.Length -gt 0) {
-		Invoke-MenuDraw $Items $Position $Multiselect $Selection
+		Invoke-MenuDraw $Items $Position $Multiselect $Checkbox $Selection
 		While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
 			$Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
       switch ($Keycode) {
@@ -273,7 +277,7 @@ function Invoke-Menu
           $Position = $null
         }
         $Keycodes.space {
-          $Selection = Update-MenuSelection $Position $Selection
+          $Selection = Update-MenuSelection $Position $Checkbox $Selection
         }
         $Keycodes.up {
           $Position = (($Position - 1) + $Items.Length) % $Items.Length
@@ -285,7 +289,7 @@ function Invoke-Menu
       If ($null -ne $Position) {
         $StartPosition = [console]::CursorTop - $Items.Length
         [console]::SetCursorPosition(0, $StartPosition)
-        Invoke-MenuDraw $Items $Position $Multiselect $Selection
+        Invoke-MenuDraw $Items $Position $Multiselect $Checkbox $Selection
       }
 		}
 	} else {
@@ -312,7 +316,8 @@ function Invoke-MenuDraw
   Param (
     [array] $Items, 
     [int] $Position, 
-    [bool] $Multiselect, 
+    [bool] $Multiselect,
+    [bool] $Checkbox,
     [array] $Selection
   )
   $Items | ForEach-Object { $i = 0 } {
@@ -320,15 +325,23 @@ function Invoke-MenuDraw
     if ($null -ne $Item) {
       if ($Multiselect) {
         if ($Selection -contains $i) {
-          $Item = '[x] ' + $Item
+          $Item = "[x] $Item"
         } else {
-          $Item = '[ ] ' + $Item
+          $Item = "[ ] $Item"
+        }
+      } else {
+        if ($Checkbox) {
+          if ($Selection -contains $i) {
+            $Item = "(o) $Item"
+          } else {
+            $Item = "( ) $Item"
+          }
         }
       }
       if ($i -eq $Position) {
-        Write-Host "> $Item" -ForegroundColor Cyan
+        Write-Color "> $Item" -Cyan
       } else {
-        Write-Host "  $Item"
+        Write-Color "  $Item"
       }
     }
     $i++
@@ -359,7 +372,7 @@ function Invoke-RemoteCommand
   [Alias('irc')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Credential")]
-  param(
+  Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
@@ -398,7 +411,7 @@ function Invoke-Speak
   #>
   [CmdletBinding()]
   [Alias('say')]
-  param(
+  Param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Text = "",
     [string] $InputType = "text",
@@ -413,7 +426,7 @@ function Invoke-Speak
   Process {
     Write-Verbose "==> Creating speech synthesizer"
     $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
-    if (-not $Silent) {
+    if (-Not $Silent) {
       switch ($InputType)
       {
         "ssml" {
@@ -467,7 +480,7 @@ function Join-StringsWithGrammar()
   Returns "a, b, and c"
   #>
   [CmdletBinding()]
-  param(
+  Param(
     [Parameter(Mandatory=$true)]
     [string[]] $Items,
     [string] $Delimiter = ","
@@ -486,7 +499,7 @@ function Join-StringsWithGrammar()
         ($Items[0..($NumberOfItems - 2)] -Join ", ") + ","
         "and"
         $Items[$NumberOfItems - 1]
-       ) -Join " "
+      ) -Join " "
     }
   }
 }
@@ -499,7 +512,7 @@ function New-DailyShutdownJob
   New-DailyShutdownJob -At "22:00"
   #>
   [CmdletBinding()]
-  param(
+  Param(
     [Parameter(Mandatory=$true)]
     [string] $At
   )
@@ -522,7 +535,7 @@ function New-File
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   [Alias('touch')]
-  param(
+  Param(
     [Parameter(Mandatory=$true)]
     [string] $Name
   )
@@ -546,7 +559,7 @@ function New-ProxyCommand
   "Invoke-Item" | New-ProxyCommand | Out-File "Invoke-Item-proxy.ps1"
   #>
   [CmdletBinding()]
-  param(
+  Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Name
   )
@@ -560,7 +573,7 @@ function New-ProxyCommand
 function New-SshKey
 {
   [CmdletBinding()]
-  param(
+  Param(
     [string] $Name="id_rsa"
   )
   Write-Verbose "==> Generating SSH key pair"
@@ -619,7 +632,7 @@ function New-Template
   #>
   [CmdletBinding()]
   [Alias('tpl')]
-  param(
+  Param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Template,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -628,7 +641,7 @@ function New-Template
   $script:__template = $Template # This line is super important
   $script:__defaults = $DefaultValues # This line is also super important
   {
-    param(
+    Param(
       [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
       [psobject] $Data,
       [switch] $PassThru
@@ -639,7 +652,7 @@ function New-Template
       $DataVariableName = Get-Variable -Name Data | ForEach-Object{ $_.Name }
       $render = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
-    if (-not $Data) {
+    if (-Not $Data) {
       $Data = $__defaults
     }
     $render = $render -Replace '"', '`"'
@@ -664,7 +677,7 @@ function Open-Session
   #>
   [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
-  param(
+  Param(
     [Parameter(Mandatory=$true)]
     [string] $ComputerName,
     [Parameter()]
@@ -690,7 +703,7 @@ function Out-Default
   .ForwardHelpCategory Function
   #>
   [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=113362', RemotingCapability='None')]
-  param(
+  Param(
     [switch] ${Transcript},
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [psobject] ${InputObject}
@@ -749,7 +762,7 @@ function Remove-DailyShutdownJob
   Remove-DailyShutdownJob
   #>
   [CmdletBinding()]
-  param()
+  Param()
   if (Test-Admin) {
     Unregister-ScheduledJob -Name "DailyShutdown"
   } else {
@@ -766,16 +779,16 @@ function Remove-DirectoryForce
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   [Alias('rf')]
-  param (
+  Param(
     [Parameter(Mandatory=$true)]
     [string] $Name
   )
   $Path = Join-Path (Get-Location) $Name
   if (Test-Path $Path) {
     $Cleaned = Resolve-Path $Path
-    Write-Verbose "=> Deleting $Cleaned"
+    Write-Verbose "==> Deleting $Cleaned"
     Remove-Item -Path $Cleaned -Recurse
-    Write-Verbose "=> Deleted $Cleaned"
+    Write-Verbose "==> Deleted $Cleaned"
   } else {
     Write-Error 'Bad input. No folders/files were deleted'
   }
@@ -791,24 +804,24 @@ function Take
   take <folder name>
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
-  param (
+  Param(
     [Parameter(Mandatory=$true)]
     [string] $Name
   )
   $Path = Join-Path (Get-Location) $Name
   if (Test-Path $Path) {
-    Write-Verbose "=> $Path exists"
-    Write-Verbose "=> Entering $Path"
+    Write-Verbose "==> $Path exists"
+    Write-Verbose "==> Entering $Path"
     Set-Location $Path
   } else {
-    Write-Verbose "=> Creating $Path"
+    Write-Verbose "==> Creating $Path"
     mkdir $Path
     if (Test-Path $Path) {
-      Write-Verbose "=> Entering $Path"
+      Write-Verbose "==> Entering $Path"
       Set-Location $Path
     }
   }
-  Write-Verbose "=> pwd is $(Get-Location)"
+  Write-Verbose "==> pwd is $(Get-Location)"
 }
 function Test-Admin
 {
@@ -820,7 +833,7 @@ function Test-Admin
   #>
   [CmdletBinding()]
   [OutputType([bool])]
-  param ()
+  Param()
   ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
 }
 function Test-Empty
@@ -836,7 +849,7 @@ function Test-Empty
   [CmdletBinding()]
   [ValidateNotNullorEmpty()]
   [OutputType([bool])]
-  param (
+  Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [string] $Name
   )
@@ -846,7 +859,7 @@ function Test-Installed
 {
   [CmdletBinding()]
   [OutputType([bool])]
-  param(
+  Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Name
   )
@@ -861,13 +874,18 @@ function Update-MenuSelection
   [CmdletBinding()]
 	Param (
     [int] $Position,
+    [bool] $Checkbox,
     [array] $Selection
   )
-	if ($Selection -contains $Position) { 
-		$Result = $Selection | Where-Object {$_ -ne $Position}
+	if ($Selection -contains $Position) {
+		$Result = $Selection | Where-Object { $_ -ne $Position }
 	} else {
-		$Selection += $Position
-		$Result = $Selection
+    if ($Multiselect) {
+      $Selection += $Position
+    } else {
+      $Selection = ,$Position
+    }
+    $Result = $Selection
 	}
 	$Result
 }
@@ -895,7 +913,7 @@ function Use-Speech
   [CmdletBinding()]
   Param()
   $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
-  if (-not ($SpeechSynthesizerTypeName -as [type])) {
+  if (-Not ($SpeechSynthesizerTypeName -as [type])) {
     Write-Verbose "==> Adding System.Speech type"
     Add-Type -AssemblyName System.Speech
   } else {
