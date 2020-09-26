@@ -71,6 +71,7 @@ Functions
 - `Find-FirstIndex`
 - `Get-File`
 - `Install-SshServer`
+- `Invoke-Input`
 - `Invoke-Listen`
 - `Invoke-Menu`
 - `Invoke-MenuDraw`
@@ -109,6 +110,7 @@ Aliases
 - `gpom`
 - `grbi`
 - `gsb`
+- `input`
 - `irc`
 - `la`
 - `listen`

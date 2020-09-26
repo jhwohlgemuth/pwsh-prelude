@@ -1,3 +1,86 @@
+function ConvertFrom-Keycodes
+{
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [array] $Text
+  )
+  $Lookup = [PSCustomObject]@{
+    9 = "<TAB>"
+    13 = "<ENTER>"
+    16 = "<SHIFT>"
+    17 = "<CONTROL>"
+    20 = "<CAPSLOCK>"
+    27 = "<ESCAPE>"
+    32 = "<SPACE>"
+    37 = "<LEFT>"
+    38 = "<UP>"
+    39 = "<RIGHT>"
+    40 = "<DOWN>"
+    46 = "<DELETE>"
+    48 = "0"
+    49 = "1"
+    50 = "2"
+    51 = "3"
+    52 = "4"
+    53 = "5"
+    54 = "6"
+    55 = "7"
+    56 = "8"
+    57 = "9"
+    65 = "a"
+    66 = "b"
+    67 = "c"
+    68 = "d"
+    69 = "e"
+    70 = "f"
+    71 = "g"
+    72 = "h"
+    73 = "i"
+    74 = "j"
+    75 = "k"
+    76 = "l"
+    77 = "m"
+    78 = "n"
+    79 = "o"
+    80 = "p"
+    81 = "q"
+    82 = "r"
+    83 = "s"
+    84 = "t"
+    85 = "u"
+    86 = "v"
+    87 = "w"
+    88 = "x"
+    89 = "y"
+    90 = "z"
+    96 = "0"
+    97 = "1"
+    98 = "2"
+    99 = "3"
+    100 = "4"
+    101 = "5"
+    102 = "6"
+    103 = "7"
+    104 = "8"
+    105 = "9"
+  }
+  $Uppercase = $false
+  $Keys = $Text | ForEach-Object {
+    $Key = $Lookup.$_
+    if ($null -ne $Key) {
+      if ($Key -eq "<CAPSLOCK>") {
+        $Uppercase = -Not $Uppercase
+      }
+      if ($Uppercase) {
+        $Key.ToUpper()
+      } else {
+        $Key
+      }
+    }
+  }
+  $Keys -Join ""
+}
 function ConvertTo-PowershellSyntax
 {
   Param(
@@ -190,7 +273,30 @@ function Invoke-GitPushMaster { git push origin master }
 function Invoke-GitStatus { git status -sb }
 function Invoke-GitRebase { git rebase -i $args }
 function Invoke-GitLog { git log --oneline --decorate }
-
+function Invoke-Input
+{
+  <#
+  #>
+  [CmdletBinding()]
+  [Alias('input')]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [string] $Name = 'input',
+    [switch] $Password
+  )
+  $Keycodes = @{
+    enter = 13;
+    escape = 27;
+    space = 32;
+    up = 38;
+    down = 40;
+  }
+  Write-Color "${Name}: " -Cyan -NoNewLine
+  While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
+    $Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
+    Write-Color ($Keycode | ConvertFrom-Keycodes) -NoNewLine
+  }
+}
 function Invoke-Listen
 {
   <#

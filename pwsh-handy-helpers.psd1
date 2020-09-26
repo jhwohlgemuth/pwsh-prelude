@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.3.1'
+    ModuleVersion = '1.0.3.2'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'MyBusiness'
@@ -15,6 +15,7 @@
         'dip',
         'dra',
         'drai',
+        'input',
         'irc',
         'listen',
         'menu',
@@ -41,6 +42,7 @@
         'Invoke-GitStatus',
         'Invoke-GitRebase',
         'Invoke-GitLog',
+        'Invoke-Input',
         'Invoke-Listen',
         'Invoke-Menu',
         'Invoke-MenuDraw',
