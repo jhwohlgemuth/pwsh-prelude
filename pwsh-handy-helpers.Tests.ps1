@@ -1,5 +1,11 @@
 Import-Module ./pwsh-handy-helpers.psm1
 
+Describe "ConvertFrom-Keycodes" {
+    It "can convert array of keycodes" {
+        ,@(65, 66, 67) | ConvertFrom-VirtualKeycodes | Should -Be "abc"
+        ,@(100, 101, 102) | ConvertFrom-VirtualKeycodes | Should -Be "456"
+    }
+}
 Describe "ConvertTo-PowershellSyntax" {
     It "can act as pass-thru for normal strings" {
         $Expected = "normal string with not mustache templates"

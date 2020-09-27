@@ -1,4 +1,4 @@
-function ConvertFrom-Keycodes
+function ConvertFrom-VirtualKeycodes
 {
   [CmdletBinding()]
   Param(
@@ -12,7 +12,7 @@ function ConvertFrom-Keycodes
     17 = "<CONTROL>"
     20 = "<CAPSLOCK>"
     27 = "<ESCAPE>"
-    32 = "<SPACE>"
+    32 = " "
     37 = "<LEFT>"
     38 = "<UP>"
     39 = "<RIGHT>"
@@ -65,18 +65,10 @@ function ConvertFrom-Keycodes
     104 = "8"
     105 = "9"
   }
-  $Uppercase = $false
   $Keys = $Text | ForEach-Object {
     $Key = $Lookup.$_
     if ($null -ne $Key) {
-      if ($Key -eq "<CAPSLOCK>") {
-        $Uppercase = -Not $Uppercase
-      }
-      if ($Uppercase) {
-        $Key.ToUpper()
-      } else {
-        $Key
-      }
+      $Key
     }
   }
   $Keys -Join ""
@@ -281,20 +273,64 @@ function Invoke-Input
   [Alias('input')]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [string] $Name = 'input',
-    [switch] $Password
+    [string] $Label = 'input:',
+    [switch] $Secret,
+    [int] $MaxLength = 0
   )
-  $Keycodes = @{
-    enter = 13;
-    escape = 27;
-    space = 32;
-    up = 38;
-    down = 40;
-  }
-  Write-Color "${Name}: " -Cyan -NoNewLine
-  While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
-    $Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
-    Write-Color ($Keycode | ConvertFrom-Keycodes) -NoNewLine
+  Write-Color "$Label " -Cyan -NoNewLine
+  $Result = ""
+  $StartPosition = [Console]::CursorLeft
+  Do  {
+    $KeyInfo = [Console]::ReadKey($true)
+    $KeyChar = $KeyInfo.KeyChar
+    switch ($KeyInfo.Key) {
+      "Backspace" {
+        $Left = [Console]::CursorLeft
+        if ($Left -gt $StartPosition) {
+          $Updated = $Result.Substring(0, $Result.Length - 1)
+          $Result = $Updated
+          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+          Write-Color ($Updated + " ") -NoNewLine
+          [Console]::SetCursorPosition($StartPosition + $Result.Length, [Console]::CursorTop)
+        } elseif ($Left -eq $StartPosition) {
+          $Result = ""
+          Write-Color " " -NoNewLine -Magenta
+          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+        }
+      }
+      "Enter" {
+        # Do nothing
+      }
+      "LeftArrow" {
+        $Left = [Console]::CursorLeft
+        if ($Left -gt $StartPosition) {
+          [Console]::SetCursorPosition($Left - 1, [Console]::CursorTop)
+        }
+      }
+      "RightArrow" {
+        $Left = [Console]::CursorLeft
+        if ($Left -lt ($StartPosition + $Result.Length)) {
+          [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
+        }
+      }
+      Default {
+        if (($MaxLength -eq 0) -Or [Console]::CursorLeft -lt ($StartPosition + $MaxLength)) {
+          $Result += $KeyChar
+        }
+        if ($Secret) {
+          $Output = "*"
+        } else {
+          $Output = $KeyChar
+        }
+        $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
+        Write-Color $Output -NoNewLine -Red:$ShouldHighlight
+      }
+    }
+  } Until ($KeyInfo.Key -eq 'Enter' -Or $KeyInfo.Key -eq 'Escape')
+  if ($KeyInfo.Key -ne 'Escape') {
+    $Result
+  } else {
+    $null
   }
 }
 function Invoke-Listen
@@ -363,7 +399,7 @@ function Invoke-Menu
     [switch] $SingleSelect,
     [switch] $ReturnIndex = $false
   )
-  [console]::CursorVisible = $false
+  [Console]::CursorVisible = $false
   $Keycodes = @{
     enter = 13;
     escape = 27;
@@ -393,15 +429,15 @@ function Invoke-Menu
         }
       }
       If ($null -ne $Position) {
-        $StartPosition = [console]::CursorTop - $Items.Length
-        [console]::SetCursorPosition(0, $StartPosition)
+        $StartPosition = [Console]::CursorTop - $Items.Length
+        [Console]::SetCursorPosition(0, $StartPosition)
         Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
       }
 		}
 	} else {
 		$Position = $null
 	}
-  [console]::CursorVisible = $true
+  [Console]::CursorVisible = $true
   if ($ReturnIndex -eq $false -and $null -ne $Position) {
 		if ($MultiSelect) {
 			return $Items[$Selection]
@@ -1040,6 +1076,7 @@ function Write-Color
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [AllowEmptyString()]
     [string] $Text,
     [switch] $NoNewLine,
     [switch] $Black,
@@ -1059,23 +1096,27 @@ function Write-Color
     [switch] $Yellow,
     [switch] $White
   )
-  $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
-  $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
-  if ($Index) {
-    $Color = $ColorNames[$Index]
+  if ($Text.Length -eq 0) {
+    Write-Host "" -NoNewline:$NoNewLine
   } else {
-    $Color = "White"
-  }
-  $position = 0
-  $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
-    Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
-    $HelperTemplate = $Text.Substring($_.Index, $_.Length)
-    $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
-    Write-Host $Arr[1] -ForegroundColor $Arr[0] -NoNewline
-    $position = $_.Index + $_.Length
-  }
-  if ($position -lt $Text.Length) {
-    Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline:$NoNewLine
+    $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
+    $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
+    if ($Index) {
+      $Color = $ColorNames[$Index]
+    } else {
+      $Color = "White"
+    }
+    $position = 0
+    $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
+      Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
+      $HelperTemplate = $Text.Substring($_.Index, $_.Length)
+      $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
+      Write-Host $Arr[1] -ForegroundColor $Arr[0] -NoNewline
+      $position = $_.Index + $_.Length
+    }
+    if ($position -lt $Text.Length) {
+      Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline:$NoNewLine
+    }
   }
 }
 #
