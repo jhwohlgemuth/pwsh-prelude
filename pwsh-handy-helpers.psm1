@@ -285,52 +285,135 @@ function Invoke-Input
     $KeyChar = $KeyInfo.KeyChar
     switch ($KeyInfo.Key) {
       "Backspace" {
-        $Left = [Console]::CursorLeft
-        if ($Left -gt $StartPosition) {
-          $Updated = $Result.Substring(0, $Result.Length - 1)
+        if (-Not $Secret) {
+          $Left = [Console]::CursorLeft
+          if ($Left -gt $StartPosition) {
+            [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+            $Updated = $Result | Remove-Character -At ($Left - $StartPosition - 1)
+            $Result = $Updated
+            if ($MaxLength -eq 0) {
+              Write-Color "$Updated " -NoNewLine
+            } else {
+              [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+              if ($Result.Length -le $MaxLength) {
+                Write-Color "$Updated " -NoNewLine
+              } else {
+                Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
+                Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + " ") -NoNewLine -Red
+              }
+            }
+            [Console]::SetCursorPosition([Math]::Max(0, $Left - 1), [Console]::CursorTop)
+          }
+        }
+      }
+      "Delete" {
+        if (-Not $Secret) {
+          $Left = [Console]::CursorLeft
+          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+          $Updated = $Result | Remove-Character -At ($Left - $StartPosition)
           $Result = $Updated
-          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
-          Write-Color ($Updated + " ") -NoNewLine
-          [Console]::SetCursorPosition($StartPosition + $Result.Length, [Console]::CursorTop)
-        } elseif ($Left -eq $StartPosition) {
-          $Result = ""
-          Write-Color " " -NoNewLine -Magenta
-          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+          if ($MaxLength -eq 0) {
+            Write-Color "$Updated " -NoNewLine
+          } else {
+            [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+            if ($Result.Length -le $MaxLength) {
+              Write-Color "$Updated " -NoNewLine
+            } else {
+              Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
+              Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + " ") -NoNewLine -Red
+            }
+          }
+          [Console]::SetCursorPosition([Math]::Max(0, $Left), [Console]::CursorTop)
         }
       }
       "Enter" {
         # Do nothing
       }
       "LeftArrow" {
-        $Left = [Console]::CursorLeft
-        if ($Left -gt $StartPosition) {
-          [Console]::SetCursorPosition($Left - 1, [Console]::CursorTop)
+        if (-Not $Secret) {
+          $Left = [Console]::CursorLeft
+          if ($Left -gt $StartPosition) {
+            [Console]::SetCursorPosition($Left - 1, [Console]::CursorTop)
+          }
         }
       }
       "RightArrow" {
-        $Left = [Console]::CursorLeft
-        if ($Left -lt ($StartPosition + $Result.Length)) {
-          [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
+        if (-Not $Secret) {
+          $Left = [Console]::CursorLeft
+          if ($Left -lt ($StartPosition + $Result.Length)) {
+            [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
+          }
         }
       }
       Default {
-        if (($MaxLength -eq 0) -Or [Console]::CursorLeft -lt ($StartPosition + $MaxLength)) {
+        function Format-Output
+        {
+          Param(
+            [Parameter(Mandatory=$true, Position=0)]
+            [string] $Value
+          )
+          if ($Secret) {
+            "*" * $Value.Length
+          } else {
+            $Value
+          }
+        }
+        function Invoke-OutputDraw
+        {
+          Param(
+            [Parameter(Mandatory=$true, Position=0)]
+            [string] $Output,
+            [int] $Left = 0
+          )
+          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+          if ($MaxLength -gt 0 -And $Output.Length -gt $MaxLength) {
+            Write-Color $Output.Substring(0, $MaxLength) -NoNewLine
+            Write-Color $Output.Substring($MaxLength, $Output.Length - $MaxLength) -NoNewLine -Red
+          } else {
+            Write-Color $Output -NoNewLine
+          }
+          [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
+        }
+        $Left = [Console]::CursorLeft
+        if ($Left -eq $StartPosition) {# prepend character
+          $Result = "${KeyChar}$Result"
+          Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
+        } elseif ($Left -gt $StartPosition -And $Left -lt ($StartPosition + $Result.Length)) {# insert character
+          $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
+          Invoke-OutputDraw -Output $Result -Left $Left
+        } else {# append character
           $Result += $KeyChar
+          $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
+          Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
         }
-        if ($Secret) {
-          $Output = "*"
-        } else {
-          $Output = $KeyChar
-        }
-        $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
-        Write-Color $Output -NoNewLine -Red:$ShouldHighlight
       }
     }
   } Until ($KeyInfo.Key -eq 'Enter' -Or $KeyInfo.Key -eq 'Escape')
   if ($KeyInfo.Key -ne 'Escape') {
-    $Result
+    if ($MaxLength -gt 0) {
+      $Result.Substring(0, [Math]::Min($Result.Length, $MaxLength))
+    } else {
+      $Result
+    }
   } else {
     $null
+  }
+}
+function Invoke-InsertString
+{
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [string] $Value,
+    [Parameter(Mandatory=$true)]
+    [string] $To,
+    [Parameter(Mandatory=$true)]
+    [int] $At
+  )
+  if ($At -lt $To.Length -And $At -ge 0) {
+    $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
+  } else {
+    $To
   }
 }
 function Invoke-Listen
@@ -893,6 +976,27 @@ function Out-Default
     } catch {
       throw
     }
+  }
+}
+function Remove-Character
+{
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [string] $Value,
+    [int] $At,
+    [switch] $First,
+    [switch] $Last
+  )
+  if ($First) {
+    $At = 0
+  } elseif ($Last) {
+    $At = $Value.Length - 1
+  }
+  if ($At -lt $Value.Length -And $At -ge 0) {
+    $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
+  } else {
+    $Value
   }
 }
 function Remove-DailyShutdownJob

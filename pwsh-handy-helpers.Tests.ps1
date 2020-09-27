@@ -47,6 +47,30 @@ Describe "Find-FirstIndex" {
         ,$Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
     }
 }
+Describe "Invoke-InsertString" {
+    It "can insert string into a string at a given index" {
+        Invoke-InsertString -Value "C" -To "ABDE" -At 2 | Should -Be "ABCDE"
+        "C" | Invoke-InsertString -To "ABDE" -At 2 | Should -Be "ABCDE"
+        "234" | Invoke-InsertString -To "15" -At 1 | Should -Be "12345"
+    }
+}
+Describe "Invoke-Speak (say)" {
+    It "can passthru text without speaking" {
+        $Text = "this should not be heard"
+        Invoke-Speak $Text -Silent | Should -Be $null
+        Invoke-Speak $Text -Silent -Output text | Should -Be $Text
+    }
+    It "can output SSML" {
+        $Text = "this should not be heard either"
+        Invoke-Speak $Text -Silent -Output ssml | Should -Match "<p>$Text</p>"
+    }
+    It "can output SSML with custom rate" {
+        $Text = "this should not be heard either"
+        $Rate = 10
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<p>$Text</p>"
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<prosody rate=`"$Rate`">"
+    }
+}
 Describe "Join-StringsWithGrammar" {
     It "accepts one parameter" {
         Join-StringsWithGrammar @("one") | Should -Be "one"
@@ -129,6 +153,22 @@ Describe "New-Template" {
         & $section @{ title = "Title" } | Should -Be $Expected
     }
 }
+Describe "Remove-Character" {
+    It "can remove single character from string" {
+        "012345" | Remove-Character -At 0 | Should -Be "12345"
+        "012345" | Remove-Character -At 2 | Should -Be "01345"
+        "012345" | Remove-Character -At 5 | Should -Be "01234"
+    }
+    It "will return entire string if out-of-bounds index" {
+        "012345" | Remove-Character -At 10 | Should -Be "012345"
+    }
+    It "can remove the first character of a string" {
+        "XOOOOO" | Remove-Character -First | Should -Be "OOOOO"
+    }
+    It "can remove the last character of a string" {
+        "OOOOOX" | Remove-Character -Last | Should -Be "OOOOO"
+    }
+}
 Describe "Remove-DirectoryForce (rf)" {
     It "can create a file" {
         New-File SomeFile
@@ -157,22 +197,5 @@ Describe "Test-Installed" {
     It "should return true if passed module is installed" {
         Test-Installed Pester | Should -Be $true
         Test-Installed NotInstalledModule | Should -Be $false
-    }
-}
-Describe "Invoke-Speak (say)" {
-    It "can passthru text without speaking" {
-        $Text = "this should not be heard"
-        Invoke-Speak $Text -Silent | Should -Be $null
-        Invoke-Speak $Text -Silent -Output text | Should -Be $Text
-    }
-    It "can output SSML" {
-        $Text = "this should not be heard either"
-        Invoke-Speak $Text -Silent -Output ssml | Should -Match "<p>$Text</p>"
-    }
-    It "can output SSML with custom rate" {
-        $Text = "this should not be heard either"
-        $Rate = 10
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<p>$Text</p>"
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<prosody rate=`"$Rate`">"
     }
 }

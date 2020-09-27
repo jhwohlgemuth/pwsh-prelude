@@ -72,6 +72,7 @@ Functions
 - `Get-File`
 - `Install-SshServer`
 - `Invoke-Input`
+- `Invoke-InsertString`
 - `Invoke-Listen`
 - `Invoke-Menu`
 - `Invoke-MenuDraw`
@@ -85,6 +86,7 @@ Functions
 - `New-Template`
 - `Open-Session`
 - `Out-Default`
+- `Remove-Character`
 - `Remove-DailyShutdownJob`
 - `Remove-DirectoryForce`
 - `Take`
