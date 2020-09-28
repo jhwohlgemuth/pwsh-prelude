@@ -330,7 +330,7 @@ function Invoke-Input
       "DownArrow" {
         if ($Number) {
           $Value = ($Result -As [int]) - 1
-          if ($MaxLength -gt 0 -And $Value -gt -[Math]::Pow(10, $MaxLength)) {
+          if (($MaxLength -eq 0) -Or ($MaxLength -gt 0 -And $Value -gt -[Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
             [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -361,7 +361,7 @@ function Invoke-Input
       "UpArrow" {
         if ($Number) {
           $Value = ($Result -As [int]) + 1
-          if ($MaxLength -gt 0 -And $Value -lt [Math]::Pow(10, $MaxLength)) {
+          if (($MaxLength -eq 0) -Or ($MaxLength -gt 0 -And $Value -lt [Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
             [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
