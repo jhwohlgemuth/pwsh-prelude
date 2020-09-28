@@ -275,6 +275,7 @@ function Invoke-Input
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [string] $Label = 'input:',
     [switch] $Secret,
+    [switch] $Number,
     [int] $MaxLength = 0
   )
   Write-Color "$Label " -Cyan -NoNewLine
@@ -326,6 +327,18 @@ function Invoke-Input
           [Console]::SetCursorPosition([Math]::Max(0, $Left), [Console]::CursorTop)
         }
       }
+      "DownArrow" {
+        if ($Number) {
+          $Value = ($Result -As [int]) - 1
+          if ($MaxLength -gt 0 -And $Value -gt -[Math]::Pow(10, $MaxLength)) {
+            $Left = [Console]::CursorLeft
+            $Result = "$Value"
+            [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+            Write-Color $Result -NoNewLine
+            [Console]::SetCursorPosition($Left, [Console]::CursorTop)
+          }
+        }
+      }
       "Enter" {
         # Do nothing
       }
@@ -342,6 +355,18 @@ function Invoke-Input
           $Left = [Console]::CursorLeft
           if ($Left -lt ($StartPosition + $Result.Length)) {
             [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
+          }
+        }
+      }
+      "UpArrow" {
+        if ($Number) {
+          $Value = ($Result -As [int]) + 1
+          if ($MaxLength -gt 0 -And $Value -lt [Math]::Pow(10, $MaxLength)) {
+            $Left = [Console]::CursorLeft
+            $Result = "$Value"
+            [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+            Write-Color "$Result " -NoNewLine
+            [Console]::SetCursorPosition($Left, [Console]::CursorTop)
           }
         }
       }
@@ -390,10 +415,14 @@ function Invoke-Input
     }
   } Until ($KeyInfo.Key -eq 'Enter' -Or $KeyInfo.Key -eq 'Escape')
   if ($KeyInfo.Key -ne 'Escape') {
-    if ($MaxLength -gt 0) {
-      $Result.Substring(0, [Math]::Min($Result.Length, $MaxLength))
+    if ($Number) {
+      $Result -As [int]
     } else {
-      $Result
+      if ($MaxLength -gt 0) {
+        $Result.Substring(0, [Math]::Min($Result.Length, $MaxLength))
+      } else {
+        $Result
+      }
     }
   } else {
     $null
