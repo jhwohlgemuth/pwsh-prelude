@@ -97,6 +97,7 @@ Functions
 - `Use-Grammar`
 - `Use-Speech`
 - `Write-Color`
+- `Write-Label`
 
 Aliases
 -------

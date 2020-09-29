@@ -268,17 +268,25 @@ function Invoke-GitLog { git log --oneline --decorate }
 function Invoke-Input
 {
   <#
+  .DESCRIPTION
+  A fancy Read-Host wrapper meant to be used to make CLI applications.
+  .EXAMPLE
+  $fullname = input "Full Name?" -Indent 4
+  $username = input "Username?" -MaxLength 10 -Indent 4
+  $age = input "Age?" -Number -Indent 4
+  $pass = input "Password?" -Secret -Indent 4
   #>
   [CmdletBinding()]
   [Alias('input')]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [string] $Label = 'input:',
+    [string] $LabelText = 'input:',
     [switch] $Secret,
     [switch] $Number,
+    [int] $Indent,
     [int] $MaxLength = 0
   )
-  Write-Color "$Label " -Cyan -NoNewLine
+  Write-Label -Text $LabelText -Indent $Indent
   $Result = ""
   $StartPosition = [Console]::CursorLeft
   Do  {
@@ -414,6 +422,7 @@ function Invoke-Input
       }
     }
   } Until ($KeyInfo.Key -eq 'Enter' -Or $KeyInfo.Key -eq 'Escape')
+  Write-Color ""
   if ($KeyInfo.Key -ne 'Escape') {
     if ($Number) {
       $Result -As [int]
@@ -509,7 +518,8 @@ function Invoke-Menu
     [array] $Items,
     [switch] $MultiSelect,
     [switch] $SingleSelect,
-    [switch] $ReturnIndex = $false
+    [switch] $ReturnIndex = $false,
+    [int] $Indent = 0
   )
   [Console]::CursorVisible = $false
   $Keycodes = @{
@@ -523,7 +533,7 @@ function Invoke-Menu
   $Position = 0
   $Selection = @()
   if ($Items.Length -gt 0) {
-    Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
+    Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
 		While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
 			$Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
       switch ($Keycode) {
@@ -543,7 +553,7 @@ function Invoke-Menu
       If ($null -ne $Position) {
         $StartPosition = [Console]::CursorTop - $Items.Length
         [Console]::SetCursorPosition(0, $StartPosition)
-        Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
+        Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
       }
 		}
 	} else {
@@ -572,30 +582,31 @@ function Invoke-MenuDraw
     [int] $Position, 
     [array] $Selection,
     [switch] $MultiSelect,
-    [switch] $SingleSelect
+    [switch] $SingleSelect,
+    [int] $Indent = 0
   )
   $Items | ForEach-Object { $i = 0 } {
     $Item = $_
     if ($null -ne $Item) {
       if ($MultiSelect) {
         if ($Selection -contains $i) {
-          $Item = "[x] $Item"
+          $Item = "$(' ' * $Indent)[x] $Item"
         } else {
-          $Item = "[ ] $Item"
+          $Item = "$(' ' * $Indent)[ ] $Item"
         }
       } else {
         if ($SingleSelect) {
           if ($Selection -contains $i) {
-            $Item = "(o) $Item"
+            $Item = "$(' ' * $Indent)(o) $Item"
           } else {
-            $Item = "( ) $Item"
+            $Item = "$(' ' * $Indent)( ) $Item"
           }
         }
       }
       if ($i -eq $Position) {
-        Write-Color "> $Item" -Cyan
+        Write-Color "$(' ' * $Indent)> $Item" -Cyan
       } else {
-        Write-Color "  $Item"
+        Write-Color "$(' ' * $Indent)  $Item"
       }
     }
     $i++
@@ -1251,6 +1262,19 @@ function Write-Color
       Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline:$NoNewLine
     }
   }
+}
+function Write-Label
+{
+  [CmdletBinding()]
+  Param(
+    [Parameter(ValueFromPipeline=$true)]
+    [string] $Text = "label",
+    [int] $Indent = 0,
+    [switch] $NewLine
+  )
+  Write-Color (" " * $Indent) -NoNewLine -Gray
+  Write-Color "$Text " -Cyan -NoNewLine:$(-Not $NewLine)
+
 }
 #
 # Aliases
