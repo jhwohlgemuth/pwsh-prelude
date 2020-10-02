@@ -58,6 +58,22 @@ path/to/some/folder
 ```powershell
 say "Hello World"
 ```
+- Create an interactive CLI app
+```powershell
+$fullname = input "Full Name?" -Indent 4
+$username = input "Username?" -MaxLength 10 -Indent 4
+$age = input "Age?" -Number -Indent 4
+$pass = input "Password?" -Secret -Indent 4
+$word = input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices @(
+    'Goku'
+    'Gohan'
+    'Goten'
+    'Vegeta'
+    'Trunks'
+)
+Write-Label 'Favorite number?' -Indent 4 -NewLine
+$choice = menu @('one'; 'two'; 'three') -Indent 4
+```
 
 ### And much more! Check out the [functions](#Functions) and [aliases](#Aliases) sections below for details
 
@@ -75,7 +91,6 @@ Functions
 - `Invoke-InsertString`
 - `Invoke-Listen`
 - `Invoke-Menu`
-- `Invoke-MenuDraw`
 - `Invoke-RemoteCommand`
 - `Invoke-Speak`
 - `Join-StringsWithGrammar`
@@ -93,7 +108,6 @@ Functions
 - `Test-Admin`
 - `Test-Empty`
 - `Test-Installed`
-- `Update-MenuSelection`
 - `Use-Grammar`
 - `Use-Speech`
 - `Write-Color`

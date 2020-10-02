@@ -1,78 +1,3 @@
-function ConvertFrom-VirtualKeycodes
-{
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [array] $Text
-  )
-  $Lookup = [PSCustomObject]@{
-    9 = "<TAB>"
-    13 = "<ENTER>"
-    16 = "<SHIFT>"
-    17 = "<CONTROL>"
-    20 = "<CAPSLOCK>"
-    27 = "<ESCAPE>"
-    32 = " "
-    37 = "<LEFT>"
-    38 = "<UP>"
-    39 = "<RIGHT>"
-    40 = "<DOWN>"
-    46 = "<DELETE>"
-    48 = "0"
-    49 = "1"
-    50 = "2"
-    51 = "3"
-    52 = "4"
-    53 = "5"
-    54 = "6"
-    55 = "7"
-    56 = "8"
-    57 = "9"
-    65 = "a"
-    66 = "b"
-    67 = "c"
-    68 = "d"
-    69 = "e"
-    70 = "f"
-    71 = "g"
-    72 = "h"
-    73 = "i"
-    74 = "j"
-    75 = "k"
-    76 = "l"
-    77 = "m"
-    78 = "n"
-    79 = "o"
-    80 = "p"
-    81 = "q"
-    82 = "r"
-    83 = "s"
-    84 = "t"
-    85 = "u"
-    86 = "v"
-    87 = "w"
-    88 = "x"
-    89 = "y"
-    90 = "z"
-    96 = "0"
-    97 = "1"
-    98 = "2"
-    99 = "3"
-    100 = "4"
-    101 = "5"
-    102 = "6"
-    103 = "7"
-    104 = "8"
-    105 = "9"
-  }
-  $Keys = $Text | ForEach-Object {
-    $Key = $Lookup.$_
-    if ($null -ne $Key) {
-      $Key
-    }
-  }
-  $Keys -Join ""
-}
 function ConvertTo-PowershellSyntax
 {
   Param(
@@ -269,12 +194,27 @@ function Invoke-Input
 {
   <#
   .DESCRIPTION
-  A fancy Read-Host wrapper meant to be used to make CLI applications.
+  A fancy Read-Host replacement meant to be used to make CLI applications.
   .EXAMPLE
-  $fullname = input "Full Name?" -Indent 4
+  $fullname = input "Full Name?"
   $username = input "Username?" -MaxLength 10 -Indent 4
-  $age = input "Age?" -Number -Indent 4
+  $age = input "Age?" -Number -MaxLength 2 -Indent 4
   $pass = input "Password?" -Secret -Indent 4
+  .EXAMPLE
+  $word = input "Favorite Saiya-jin?" -Indent 4 -Autocomplete -Choices `
+  @(
+      'Goku'
+      'Gohan'
+      'Goten'
+      'Vegeta'
+      'Trunks'
+  )
+
+  Autocomplete will make suggestions. Press tab once to select suggestion, press tab again to cycle through matches.
+  .EXAMPLE
+  $name = input 'What is your {{#blue name}}?'
+
+  Input labels can be customized with mustache color helpers
   #>
   [CmdletBinding()]
   [Alias('input')]
@@ -283,12 +223,74 @@ function Invoke-Input
     [string] $LabelText = 'input:',
     [switch] $Secret,
     [switch] $Number,
+    [switch] $Autocomplete,
+    [array] $Choices,
     [int] $Indent,
     [int] $MaxLength = 0
-  )
+    )
   Write-Label -Text $LabelText -Indent $Indent
+  $global:PreviousRegularExpression = $null
   $Result = ""
+  $CurrentIndex = 0
+  $AutocompleteMatches = @()
   $StartPosition = [Console]::CursorLeft
+  function Format-Output
+  {
+    Param(
+      [Parameter(Mandatory=$true, Position=0)]
+      [string] $Value
+    )
+    if ($Secret) {
+      "*" * $Value.Length
+    } else {
+      $Value
+    }
+  }
+  function Invoke-OutputDraw
+  {
+    Param(
+      [Parameter(Mandatory=$true, Position=0)]
+      [string] $Output,
+      [int] $Left = 0
+    )
+    [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+    if ($MaxLength -gt 0 -And $Output.Length -gt $MaxLength) {
+      Write-Color $Output.Substring(0, $MaxLength) -NoNewLine
+      Write-Color $Output.Substring($MaxLength, $Output.Length - $MaxLength) -NoNewLine -Red
+    } else {
+      Write-Color $Output -NoNewLine
+      if ($Autocomplete) {
+        Update-Autocomplete -Output $Output
+      }
+    }
+    [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
+  }
+  function Update-Autocomplete
+  {
+    Param(
+      [AllowEmptyString()]
+      [string] $Output
+    )
+    $global:PreviousRegularExpression = "^${Output}"
+    $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
+    if ($null -eq $AutocompleteMatches -or $Output.Length -eq 0) {
+      $Left = [Console]::CursorLeft
+      [Console]::SetCursorPosition($Left, [Console]::CursorTop)
+      Write-Color (' ' * 30) -NoNewLine
+      [Console]::SetCursorPosition($Left, [Console]::CursorTop)
+    } else {
+      if ($AutocompleteMatches -is [string]) {
+        $BestMatch = $AutocompleteMatches
+      } else {
+        $BestMatch = $AutocompleteMatches[0]
+      }
+      $Left = [Console]::CursorLeft
+      [Console]::SetCursorPosition($StartPosition + $Output.Length, [Console]::CursorTop)
+      Write-Color $BestMatch.Substring($Output.Length) -NoNewLine -Green
+      Write-Color (' ' * 30) -NoNewLine
+      [Console]::SetCursorPosition($Left, [Console]::CursorTop)
+    }
+  }
   Do  {
     $KeyInfo = [Console]::ReadKey($true)
     $KeyChar = $KeyInfo.KeyChar
@@ -301,7 +303,12 @@ function Invoke-Input
             $Updated = $Result | Remove-Character -At ($Left - $StartPosition - 1)
             $Result = $Updated
             if ($MaxLength -eq 0) {
-              Write-Color "$Updated " -NoNewLine
+              Write-Color $Updated -NoNewLine
+              if ($Autocomplete) {
+                Update-Autocomplete -Output $Updated
+              } else {
+                Write-Color " " -NoNewLine
+              }
             } else {
               [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
               if ($Result.Length -le $MaxLength) {
@@ -331,6 +338,9 @@ function Invoke-Input
               Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
               Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + " ") -NoNewLine -Red
             }
+          }
+          if ($Autocomplete) {
+            Update-Autocomplete -Output $Updated
           }
           [Console]::SetCursorPosition([Math]::Max(0, $Left), [Console]::CursorTop)
         }
@@ -366,6 +376,27 @@ function Invoke-Input
           }
         }
       }
+      "Tab" {
+        if ($Autocomplete -And $Result.Length -gt 0 -And -Not ($Number -Or $Secret) -And $null -ne $AutocompleteMatches) {
+          $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
+          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+          if ($AutocompleteMatches -is [string]) {
+            $Result = $AutocompleteMatches
+          } else {
+            $CurrentMatch = $AutocompleteMatches[$CurrentIndex]
+            if ($Result -eq $PreviousMatch) {
+              $Result = $PreviousSearch[$CurrentIndex]
+            } else {
+              $Result = $CurrentMatch
+              $PreviousMatch = $CurrentMatch
+              $PreviousSearch = $AutocompleteMatches
+            }
+            $CurrentIndex = ($CurrentIndex + 1) % $AutocompleteMatches.Length
+          }
+          Write-Color "$Result $(' ' * 30)" -NoNewLine -Green
+          [Console]::SetCursorPosition($StartPosition + $Result.Length, [Console]::CursorTop)
+        }
+      }
       "UpArrow" {
         if ($Number) {
           $Value = ($Result -As [int]) + 1
@@ -379,34 +410,6 @@ function Invoke-Input
         }
       }
       Default {
-        function Format-Output
-        {
-          Param(
-            [Parameter(Mandatory=$true, Position=0)]
-            [string] $Value
-          )
-          if ($Secret) {
-            "*" * $Value.Length
-          } else {
-            $Value
-          }
-        }
-        function Invoke-OutputDraw
-        {
-          Param(
-            [Parameter(Mandatory=$true, Position=0)]
-            [string] $Output,
-            [int] $Left = 0
-          )
-          [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
-          if ($MaxLength -gt 0 -And $Output.Length -gt $MaxLength) {
-            Write-Color $Output.Substring(0, $MaxLength) -NoNewLine
-            Write-Color $Output.Substring($MaxLength, $Output.Length - $MaxLength) -NoNewLine -Red
-          } else {
-            Write-Color $Output -NoNewLine
-          }
-          [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
-        }
         $Left = [Console]::CursorLeft
         if ($Left -eq $StartPosition) {# prepend character
           $Result = "${KeyChar}$Result"
@@ -418,6 +421,9 @@ function Invoke-Input
           $Result += $KeyChar
           $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
           Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
+          if ($Autocomplete) {
+            Update-Autocomplete -Output ($Result -As [string])
+          }
         }
       }
     }
@@ -521,6 +527,65 @@ function Invoke-Menu
     [switch] $ReturnIndex = $false,
     [int] $Indent = 0
   )
+  function Invoke-MenuDraw
+  {
+    [CmdletBinding()]
+    Param (
+      [array] $Items, 
+      [int] $Position, 
+      [array] $Selection,
+      [switch] $MultiSelect,
+      [switch] $SingleSelect,
+      [int] $Indent = 0
+    )
+    $Items | ForEach-Object { $i = 0 } {
+      $Item = $_
+      if ($null -ne $Item) {
+        if ($MultiSelect) {
+          if ($Selection -contains $i) {
+            $Item = "$(' ' * $Indent)[x] $Item"
+          } else {
+            $Item = "$(' ' * $Indent)[ ] $Item"
+          }
+        } else {
+          if ($SingleSelect) {
+            if ($Selection -contains $i) {
+              $Item = "$(' ' * $Indent)(o) $Item"
+            } else {
+              $Item = "$(' ' * $Indent)( ) $Item"
+            }
+          }
+        }
+        if ($i -eq $Position) {
+          Write-Color "$(' ' * $Indent)> $Item" -Cyan
+        } else {
+          Write-Color "$(' ' * $Indent)  $Item"
+        }
+      }
+      $i++
+    }
+  }
+  function Update-MenuSelection
+  {
+    [CmdletBinding()]
+    Param (
+      [int] $Position,
+      [array] $Selection,
+      [switch] $MultiSelect,
+      [switch] $SingleSelect
+    )
+    if ($Selection -contains $Position) {
+      $Result = $Selection | Where-Object { $_ -ne $Position }
+    } else {
+      if ($MultiSelect) {
+        $Selection += $Position
+      } else {
+        $Selection = ,$Position
+      }
+      $Result = $Selection
+    }
+    $Result
+  }
   [Console]::CursorVisible = $false
   $Keycodes = @{
     enter = 13;
@@ -573,44 +638,6 @@ function Invoke-Menu
 			return $Position
 		}
 	}
-}
-function Invoke-MenuDraw
-{
-  [CmdletBinding()]
-  Param (
-    [array] $Items, 
-    [int] $Position, 
-    [array] $Selection,
-    [switch] $MultiSelect,
-    [switch] $SingleSelect,
-    [int] $Indent = 0
-  )
-  $Items | ForEach-Object { $i = 0 } {
-    $Item = $_
-    if ($null -ne $Item) {
-      if ($MultiSelect) {
-        if ($Selection -contains $i) {
-          $Item = "$(' ' * $Indent)[x] $Item"
-        } else {
-          $Item = "$(' ' * $Indent)[ ] $Item"
-        }
-      } else {
-        if ($SingleSelect) {
-          if ($Selection -contains $i) {
-            $Item = "$(' ' * $Indent)(o) $Item"
-          } else {
-            $Item = "$(' ' * $Indent)( ) $Item"
-          }
-        }
-      }
-      if ($i -eq $Position) {
-        Write-Color "$(' ' * $Indent)> $Item" -Cyan
-      } else {
-        Write-Color "$(' ' * $Indent)  $Item"
-      }
-    }
-    $i++
-  }
 }
 function Invoke-RemoteCommand
 {
@@ -1155,27 +1182,6 @@ function Test-Installed
     $false
   }
 }
-function Update-MenuSelection
-{
-  [CmdletBinding()]
-	Param (
-    [int] $Position,
-    [array] $Selection,
-    [switch] $MultiSelect,
-    [switch] $SingleSelect
-  )
-	if ($Selection -contains $Position) {
-		$Result = $Selection | Where-Object { $_ -ne $Position }
-	} else {
-    if ($MultiSelect) {
-      $Selection += $Position
-    } else {
-      $Selection = ,$Position
-    }
-    $Result = $Selection
-	}
-	$Result
-}
 function Use-Grammar
 {
   [CmdletBinding()]
@@ -1251,7 +1257,7 @@ function Write-Color
       $Color = "White"
     }
     $position = 0
-    $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
+    $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s\?\!\$\/~\>\<=\-]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
       Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
       $HelperTemplate = $Text.Substring($_.Index, $_.Length)
       $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
@@ -1265,6 +1271,17 @@ function Write-Color
 }
 function Write-Label
 {
+  <#
+  .DESCRIPTION
+  Meant to be used with Invoke-Input or Invoke-Menu
+  .EXAMPLE
+  Write-Label 'Favorite number?' -NewLine
+  $choice = menu @('one'; 'two'; 'three')
+  .EXAMPLE
+  Write-Label '{{#red Message? }}' -NewLine
+  
+  Labels can be customized using mustache color helper templates
+  #>
   [CmdletBinding()]
   Param(
     [Parameter(ValueFromPipeline=$true)]
