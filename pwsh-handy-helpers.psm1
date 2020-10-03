@@ -411,18 +411,44 @@ function Invoke-Input
       }
       Default {
         $Left = [Console]::CursorLeft
+        $OnlyNumbers = [regex]'^-?[0-9]*$'
         if ($Left -eq $StartPosition) {# prepend character
-          $Result = "${KeyChar}$Result"
-          Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
+          if ($Number) {
+            if ($KeyChar -Match $OnlyNumbers) {
+              $Result = "${KeyChar}$Result"
+              Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
+            }
+          } else {
+            $Result = "${KeyChar}$Result"
+            Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
+          }
         } elseif ($Left -gt $StartPosition -And $Left -lt ($StartPosition + $Result.Length)) {# insert character
-          $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
-          Invoke-OutputDraw -Output $Result -Left $Left
+          if ($Number) {
+            if ($KeyChar -Match $OnlyNumbers) {
+              $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
+              Invoke-OutputDraw -Output $Result -Left $Left
+            }
+          } else {
+            $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
+            Invoke-OutputDraw -Output $Result -Left $Left
+          }
         } else {# append character
-          $Result += $KeyChar
-          $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
-          Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
-          if ($Autocomplete) {
-            Update-Autocomplete -Output ($Result -As [string])
+          if ($Number) {
+            if ($KeyChar -Match $OnlyNumbers) {
+              $Result += $KeyChar
+              $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
+              Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
+              if ($Autocomplete) {
+                Update-Autocomplete -Output ($Result -As [string])
+              }
+            }
+          } else {
+            $Result += $KeyChar
+            $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
+            Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
+            if ($Autocomplete) {
+              Update-Autocomplete -Output ($Result -As [string])
+            }
           }
         }
       }
@@ -1261,7 +1287,7 @@ function Write-Color
       Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
       $HelperTemplate = $Text.Substring($_.Index, $_.Length)
       $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
-      Write-Host $Arr[1] -ForegroundColor $Arr[0] -NoNewline
+      Write-Host ($Arr[1..$Arr.Length] -Join ' ') -ForegroundColor $Arr[0] -NoNewline
       $position = $_.Index + $_.Length
     }
     if ($position -lt $Text.Length) {
