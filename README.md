@@ -60,6 +60,7 @@ say "Hello World"
 ```
 - Create an interactive CLI app
 ```powershell
+Write-Title "Example"
 $fullname = input "Full Name?" -Indent 4
 $username = input "Username?" -MaxLength 10 -Indent 4
 $age = input "Age?" -Number -Indent 4
@@ -112,6 +113,7 @@ Functions
 - `Use-Speech`
 - `Write-Color`
 - `Write-Label`
+- `Write-Title`
 
 Aliases
 -------

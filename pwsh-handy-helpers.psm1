@@ -193,7 +193,7 @@ function Invoke-GitLog { git log --oneline --decorate }
 function Invoke-Input
 {
   <#
-  .DESCRIPTION
+  .SYNOPSIS
   A fancy Read-Host replacement meant to be used to make CLI applications.
   .EXAMPLE
   $fullname = input "Full Name?"
@@ -1298,7 +1298,7 @@ function Write-Color
 function Write-Label
 {
   <#
-  .DESCRIPTION
+  .SYNOPSIS
   Meant to be used with Invoke-Input or Invoke-Menu
   .EXAMPLE
   Write-Label 'Favorite number?' -NewLine
@@ -1317,7 +1317,103 @@ function Write-Label
   )
   Write-Color (" " * $Indent) -NoNewLine -Gray
   Write-Color "$Text " -Cyan -NoNewLine:$(-Not $NewLine)
+}
+function Write-Repeat
+{
+  [CmdletBinding()]
+  [Alias('repeat')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [string] $Value,
+    [int] $Times = 1
+  )
+  Write-Output ($Value * $Times)
+}
+function Write-Title
+{
+  <#
+  .SYNOPSIS
+  Function to print text with a border. Useful for displaying section titles for CLI apps.
+  .PARAMETER Template
+  Tells Write-Title to expect mustache color templates (see Get-Help Write-Color -Examples)
+  .PARAMETER Fallback
+  Use "+" and "-" to draw title border
+  .PARAMETER Indent
+  Add spaces to left of title box to align with input elements
+  .EXAMPLE
+  "Hello World" | Write-Title
+  .EXAMPLE
+  "Hello World" | Write-Title -Green
 
+  Easily change border and title text color
+  .EXAMPLE
+  "Hello World" | Write-Title -Width 20 -TextColor Red
+
+  Change only the color of title text with -TextColor
+  .EXAMPLE
+  "Hello World" | Write-Title -Width 20
+
+  Titles can have set widths
+  .EXAMPLE
+  "Hello World" | Write-Title -Fallback
+
+  If your terminal does not have the fancy characters needed for a proper border, fallback to "+" and "-"
+  .EXAMPLE
+  "{{#magenta Hello}} World" | Write-Title -Template
+
+  Write-Title accepts same input as Write-Color and can be used to customize title text.
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(ValueFromPipeline=$true)]
+    [string] $Text = "",
+    [string] $TextColor,
+    [switch] $Template,
+    [switch] $Fallback,
+    [switch] $Red,
+    [switch] $Yellow,
+    [switch] $Green,
+    [switch] $Blue,
+    [switch] $Cyan,
+    [int] $Width,
+    [int] $Indent = 0
+  )
+  if ($Template) {
+    $TextLength = ($Text -Replace "{{#\w*\s", "" | ForEach-Object { $_ -Replace "}}", ""}).Length
+  } else {
+    $TextLength = $Text.Length
+  }
+  if ($Width -lt  $TextLength) {
+    $Width = $TextLength + 4
+  }
+  $Space = " "
+  if ($Fallback) {
+    $TopLeft = '+'
+    $TopEdge = '-'
+    $TopRight = '+'
+    $LeftEdge = $RightEdge = '|'
+    $BottomLeft = '+'
+    $BottomEdge = $TopEdge
+    $BottomRight = '+'
+  } else {
+    $TopLeft = [char]9484
+    $TopEdge = [char]9472
+    $TopRight = [char]9488
+    $LeftEdge = $RightEdge = [char]9474
+    $BottomLeft = [char]9492
+    $BottomEdge = $TopEdge
+    $BottomRight = [char]9496
+  }
+  $PaddingLength = [Math]::Floor(($Width - $TextLength - 2) / 2)
+  $Padding = $Space | Write-Repeat -Times $PaddingLength
+  $WidthInside = (2 * $PaddingLength) + $TextLength
+  Write-Color "$(Write-Repeat $Space -Times $Indent)$TopLeft$(Write-Repeat "$TopEdge" -Times $WidthInside)$TopRight" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
+  if ($TextColor) {
+    Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding{{#$TextColor $Text}}$Padding$RightEdge" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
+  } else {
+    Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding$Text$Padding$RightEdge" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
+  }
+  Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times $WidthInside)$BottomRight" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
 }
 #
 # Aliases

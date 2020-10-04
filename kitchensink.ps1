@@ -1,5 +1,6 @@
 Import-Module ./pwsh-handy-helpers.psm1
 
+Write-Title "Kitchen Sink"
 $fullname = input "Full Name?" -Indent 4
 $username = input "Username?" -MaxLength 10 -Indent 4
 $age = input "Age?" -Number -Indent 4
