@@ -569,16 +569,16 @@ function Invoke-Menu
       if ($null -ne $Item) {
         if ($MultiSelect) {
           if ($Selection -contains $i) {
-            $Item = "$(' ' * $Indent)[x] $Item"
+            $Item = "[x] $Item"
           } else {
-            $Item = "$(' ' * $Indent)[ ] $Item"
+            $Item = "[ ] $Item"
           }
         } else {
           if ($SingleSelect) {
             if ($Selection -contains $i) {
-              $Item = "$(' ' * $Indent)(o) $Item"
+              $Item = "(o) $Item"
             } else {
-              $Item = "$(' ' * $Indent)( ) $Item"
+              $Item = "( ) $Item"
             }
           }
         }
@@ -1283,7 +1283,7 @@ function Write-Color
       $Color = "White"
     }
     $position = 0
-    $Text | Select-String -Pattern '(?<HELPER>){{#[\w\s\?\!\$\/~\>\<=\-]*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
+    $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
       Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
       $HelperTemplate = $Text.Substring($_.Index, $_.Length)
       $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }

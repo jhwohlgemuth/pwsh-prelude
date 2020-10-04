@@ -13,7 +13,11 @@ $word = input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices `
     'Trunks'
 )
 Write-Label 'Favorite number?' -Indent 4 -NewLine
-$choice = menu @('one'; 'two'; 'three') -Indent 4
+$choice = menu @('one'; 'two'; 'three') -SingleSelect -Indent 4
+Write-Label 'Known mathematicians?' -Indent 4 -NewLine
+$choice = menu @('Godel'; 'Gauss'; 'Cantor') -MultiSelect -Indent 4
+Write-Label "{{#red Red}}, {{#white White}}, or {{#blue Blue}}?" -Indent 4 -NewLine
+$color = menu @('red', 'white', 'blue') -Indent 4
 
 $fullname
 $username
@@ -21,3 +25,4 @@ $age
 $pass
 $word
 $choice
+$color
