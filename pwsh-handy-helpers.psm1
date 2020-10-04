@@ -1365,8 +1365,8 @@ function Write-Title
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(ValueFromPipeline=$true)]
-    [string] $Text = "",
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [string] $Text,
     [string] $TextColor,
     [switch] $Template,
     [switch] $Fallback,

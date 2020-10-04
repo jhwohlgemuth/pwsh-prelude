@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '1.0.3.9'
+    ModuleVersion = '1.0.3.10'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'MyBusiness'
@@ -68,6 +68,7 @@
         'Use-Speech',
         'Write-Color',
         'Write-Label',
+        'Write-Repeat',
         'Write-Title'
     )
     PrivateData = @{
