@@ -1364,6 +1364,7 @@ function Write-Title
   Write-Title accepts same input as Write-Color and can be used to customize title text.
   #>
   [CmdletBinding()]
+  [Alias('title')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [string] $Text,
