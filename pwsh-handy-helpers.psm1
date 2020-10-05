@@ -1148,6 +1148,63 @@ function Remove-DirectoryForce
     Write-Error 'Bad input. No folders/files were deleted'
   }
 }
+function Show-BarChart
+{
+  <#
+  .SYNOPSIS
+  Function to create horizontal bar chart of passed data object
+  .PARAMETER Width
+  Maximum value used for data normization. Also corresponds to actual width of longest bar (in characters)
+  .PARAMETER Alternate
+  Alternate row color between light and dark.
+  .PARAMETER ShowValues
+  Whether or not to show data values to right of each bar
+  .EXAMPLE
+  @{red = 55; white = 30; blue = 200} | Show-BarChart -WithColor -ShowValues
+  .EXAMPLE
+  Write-Title "Colors"
+  @{red = 55; white = 30; blue = 200} | Show-BarChart -Alternate -ShowValues
+  Write-Color ""
+
+  Can be used with Write-Title to create goo looking reports in the terminal
+  .EXAMPLE
+  Use Invoke-Reduce to shape data for Show-BarChart
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [psobject] $InputObject,
+    [int] $Width = 100,
+    [switch] $ShowValues,
+    [switch] $Alternate,
+    [switch] $WithColor
+  )
+  $Data = [PSCustomObject]$InputObject
+  $Space = " "
+  $Tee = ([char]9508).ToString()
+  $Marker = ([char]9608).ToString()
+  $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
+  $LongestNameLength = ($Data.PSObject.Properties.Name | Sort-Object { $_.Length } -Descending | Select-Object -First 1).Length
+  $Index = 0
+  $Data.PSObject.Properties | Sort-Object { $_.Value } | ForEach-Object {
+    $Name = $_.Name
+    $Value = ($_.Value / $LargestValue) * $Width
+    $IsEven = ($Index % 2) -eq 0
+    $Padding = $Space | Write-Repeat -Times ($LongestNameLength - $Name.Length)
+    $Bar = $Marker | Write-Repeat -Times $Value
+    if ($WithColor) {
+      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -Cyan:$($IsEven -And $Alternate) -DarkCyan:$((-Not $IsEven -And $Alternate) -or (-Not $Alternate)) -NoNewLine
+    } else {
+      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -White:$($IsEven -And $Alternate) -Gray:$(-Not $IsEven -And $Alternate) -NoNewLine
+    }
+    if ($ShowValues) {
+      Write-Color " $($Data.$Name)" -DarkGray
+    } else {
+      Write-Color ""
+    }
+    $Index++
+  }
+}
 function Take
 {
   <#

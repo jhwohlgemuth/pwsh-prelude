@@ -105,6 +105,7 @@ Functions
 - `Remove-Character`
 - `Remove-DailyShutdownJob`
 - `Remove-DirectoryForce`
+- `Show-BarChart`
 - `Take`
 - `Test-Admin`
 - `Test-Empty`
