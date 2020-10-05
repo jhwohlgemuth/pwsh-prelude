@@ -665,6 +665,22 @@ function Invoke-Menu
 		}
 	}
 }
+function Invoke-Reduce
+{
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [array] $Items,
+    [Parameter(Mandatory=$true)]
+    [scriptblock] $Callback,
+    [psobject] $InitialValue = @{}
+  )
+  $Result = $InitialValue
+  $Items | ForEach-Object {
+    & $Callback $Result $_
+  }
+  $Result
+}
 function Invoke-RemoteCommand
 {
   <#

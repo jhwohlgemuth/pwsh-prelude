@@ -48,6 +48,12 @@ Describe "Invoke-InsertString" {
         "234" | Invoke-InsertString -To "15" -At 1 | Should -Be "12345"
     }
 }
+Describe "Invoke-Reduce" {
+    It "can merge a list of objects" {
+        $Items = Get-ChildItem | Where-Object { $_.Directory }
+        $Items | Invoke-Reduce -Callback { $args[0][$args[1].Name] = $args[1].Value } | Should -Be @{}
+    }
+}
 Describe "Invoke-Speak (say)" {
     It "can passthru text without speaking" {
         $Text = "this should not be heard"
