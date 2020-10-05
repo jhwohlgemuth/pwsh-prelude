@@ -75,6 +75,10 @@ $word = input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices @(
 Write-Label 'Favorite number?' -Indent 4 -NewLine
 $choice = menu @('one'; 'two'; 'three') -Indent 4
 ```
+- Visualize file sizes in a directory with one line of code!
+```powershell
+Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
+```
 
 ### And much more! Check out the [functions](#Functions) and [aliases](#Aliases) sections below for details
 
@@ -92,6 +96,7 @@ Functions
 - `Invoke-InsertString`
 - `Invoke-Listen`
 - `Invoke-Menu`
+- `Invoke-Reduce`
 - `Invoke-RemoteCommand`
 - `Invoke-Speak`
 - `Join-StringsWithGrammar`
@@ -136,6 +141,8 @@ Aliases
 - `listen`
 - `ls`
 - `menu`
+- `reduce`
+- `repeat`
 - `rf`
 - `say`
 - `touch`

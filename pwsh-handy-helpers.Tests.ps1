@@ -49,9 +49,34 @@ Describe "Invoke-InsertString" {
     }
 }
 Describe "Invoke-Reduce" {
-    It "can merge a list of objects" {
-        $Items = Get-ChildItem | Where-Object { $_.Directory }
-        $Items | Invoke-Reduce -Callback { $args[0][$args[1].Name] = $args[1].Value } | Should -Be @{}
+    It "can accept strings and integers as initial values" {
+        1,2,3,4,5 | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue 0 | Should -Be 15
+        "a","b","c" | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue "" | Should -Be "abc"
+        "a","b","c" | Invoke-Reduce -InitialValue "initial value" | Should -Be "initial value"
+    }
+    It "can accept objects as initial values" {
+        $a = @{name = "a"; value = 1}
+        $b = @{name = "b"; value = 2}
+        $c = @{name = "c"; value = 3}
+        $Callback = {
+            Param($Acc, $Item)
+            $Acc[$Item.Name] = $Item.Value
+        }
+        # with inline scriptblock
+        $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
+        $Result.Keys | Sort-Object | Should -Be "a","b","c"
+        $Result.Values | Sort-Object | Should -Be 1,2,3
+        # with scriptblock variable
+        $Result = $a,$b,$c | Invoke-Reduce -Callback $Callback
+        $Result.Keys | Sort-Object | Should -Be "a","b","c"
+        $Result.Values | Sort-Object | Should -Be 1,2,3
+    }
+    It "can combine FileInfo objects" {
+        $Result = Get-ChildItem -File | Invoke-Reduce -FileInfo
+        $Result.Keys | Should -Contain "pwsh-handy-helpers.psm1"
+        $Result.Keys | Should -Contain "pwsh-handy-helpers.psd1"
+        $Result.Keys | Should -Contain "pwsh-handy-helpers.Tests.ps1"
+        $Result.Values | ForEach-Object { $_ | Should -BeOfType [long] }
     }
 }
 Describe "Invoke-Speak (say)" {

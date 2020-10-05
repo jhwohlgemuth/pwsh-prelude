@@ -667,19 +667,53 @@ function Invoke-Menu
 }
 function Invoke-Reduce
 {
+  <#
+  .SYNOPSIS
+  Functional helper function intended to approximate some of the capabilities of Reduce (as used in languages like JavaScript and F#)
+  .PARAMETER InitialValue
+  Starting value for reduce. The type of InitialValue will change the operation of Invoke-Reduce.
+  .PARAMETER FileInfo
+  The operation of combining many FileInfo objects into one object is common enough to deserve its own switch (see examples)
+  .EXAMPLE
+  1,2,3,4,5 | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue 0
+
+  Compute sum of array of integers
+  .EXAMPLE
+  "a","b","c" | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue ""
+
+  Concatenate array of strings
+  .EXAMPLE
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
+
+  Combining directory contents into single object and visualize with Show-BarChart - in a single line!
+  #>
   [CmdletBinding()]
+  [Alias('reduce')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [array] $Items,
-    [Parameter(Mandatory=$true)]
-    [scriptblock] $Callback,
-    [psobject] $InitialValue = @{}
+    [scriptblock] $Callback = { $args[0] },
+    [switch] $FileInfo,
+    $InitialValue = @{}
   )
-  $Result = $InitialValue
-  $Items | ForEach-Object {
-    & $Callback $Result $_
+  Begin {
+    $Result = $InitialValue
+    if ($FileInfo) {
+      $Callback = { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
+    }
   }
-  $Result
+  Process {
+    $Items | ForEach-Object {
+      if ($InitialValue -is [int] -or $InitialValue -is [string] -or $InitialValue -is [array]) {
+        $Result = & $Callback $Result $_
+      } else {
+        & $Callback $Result $_
+      }
+    }
+  }
+  End {
+    $Result
+  }
 }
 function Invoke-RemoteCommand
 {
