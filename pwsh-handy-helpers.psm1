@@ -91,7 +91,14 @@ function Find-FirstIndex
     [array] $Values,
     [scriptblock] $Predicate = { $args[0] -eq $true }
   )
-  @($Values | ForEach-Object{ $i = 0 }{ if(& $Predicate $_){ [array]::IndexOf($Values, $_) }; $i++ }).Where({ $_ }, 'First')
+  $i = 0
+  $Indexes = @($Values | ForEach-Object {
+    if (& $Predicate $_) {
+      [array]::IndexOf($Values, $_)
+    }
+    $i++
+  })
+  $Indexes.Where({ $_ }, 'First')
 }
 function Get-File
 {
@@ -126,6 +133,7 @@ function Install-SshServer
   <#
   .SYNOPSIS
   Install OpenSSH server
+  .LINK
   https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
@@ -472,6 +480,7 @@ function Invoke-Input
 function Invoke-InsertString
 {
   [CmdletBinding()]
+  [Alias('insert')]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [string] $Value,
@@ -1017,7 +1026,7 @@ function New-Template
     if ($PassThru) {
       $render = $__template
     } else {
-      $DataVariableName = Get-Variable -Name Data | ForEach-Object{ $_.Name }
+      $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
       $render = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
     if (-Not $Data) {
@@ -1431,6 +1440,7 @@ function Write-Repeat
   [Alias('repeat')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [AllowEmptyString()]
     [string] $Value,
     [int] $Times = 1
   )

@@ -227,3 +227,11 @@ Describe "Test-Installed" {
         Test-Installed NotInstalledModule | Should -Be $false
     }
 }
+Describe "Write-Repeat" {
+    It "can create string of repeated characters and strings" {
+        Write-Repeat "O" | Should -Be "O"
+        Write-Repeat "O" -Times 0 | Should -Be ""
+        Write-Repeat "O" -Times 3 | Should -Be "OOO"
+        Write-Repeat "" -Times 42 | Should -Be ""
+    }
+}
