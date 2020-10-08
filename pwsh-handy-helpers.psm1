@@ -549,6 +549,8 @@ function Invoke-Menu
   <#
   .SYNOPSIS
   Create interactive single, multi-select, or single-select list menu
+  .PARAMETER FolderContent
+  Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
   menu @('one', 'two', 'three')
   .EXAMPLE
@@ -559,16 +561,21 @@ function Invoke-Menu
   ,(1,2,3,4,5) | menu -SingleSelect
 
   The SingleSelect switch allows for only one item to be selected at a time
+  .EXAMPLE
+  Invoke-Menu -FolderContent | Invoke-Item
+
+  Open a folder via an interactive list menu populated with folder content
   #>
   [CmdletBinding()]
   [Alias('menu')]
-  [OutputType([Object[]])]
+  [OutputType([String])]
   Param (
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$true)]
     [Array] $Items,
     [Switch] $MultiSelect,
     [Switch] $SingleSelect,
     [Switch] $ReturnIndex = $false,
+    [Switch] $FolderContent,
     [Int] $Indent = 0
   )
   function Invoke-MenuDraw
@@ -644,6 +651,10 @@ function Invoke-Menu
   $Keycode = 0
   $Position = 0
   $Selection = @()
+  if ($FolderContent) {
+    $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "$_/" }
+    $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
+  }
   if ($Items.Length -gt 0) {
     Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
 		While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
