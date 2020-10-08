@@ -1,4 +1,4 @@
-function ConvertTo-PowershellSyntax
+﻿function ConvertTo-PowershellSyntax
 {
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
@@ -566,8 +566,8 @@ function Invoke-Menu
   {
     [CmdletBinding()]
     Param (
-      [array] $Items, 
-      [int] $Position, 
+      [array] $Items,
+      [int] $Position,
       [array] $Selection,
       [switch] $MultiSelect,
       [switch] $SingleSelect,
@@ -1435,7 +1435,7 @@ function Write-Label
   $choice = menu @('one'; 'two'; 'three')
   .EXAMPLE
   Write-Label '{{#red Message? }}' -NewLine
-  
+
   Labels can be customized using mustache color helper templates
   #>
   [CmdletBinding()]
