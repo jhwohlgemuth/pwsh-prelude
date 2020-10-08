@@ -205,6 +205,10 @@ function Invoke-Input
   <#
   .SYNOPSIS
   A fancy Read-Host replacement meant to be used to make CLI applications.
+  .PARAMETER Secret
+  Displayed characters are replaced with asterisks
+  .PARAMETER Number
+  Switch to designate input is numerical
   .EXAMPLE
   $fullname = input "Full Name?"
   $username = input "Username?" -MaxLength 10 -Indent 4
@@ -221,6 +225,10 @@ function Invoke-Input
   )
 
   Autocomplete will make suggestions. Press tab once to select suggestion, press tab again to cycle through matches.
+  .EXAMPLE
+  Invoke-Input "Folder name?" -Autocomplete -Choices (Get-ChildItem -Directory | Select-Object -ExpandProperty Name)
+
+  Leverage autocomplete to input a folder name
   .EXAMPLE
   $name = input 'What is your {{#blue name}}?'
 
