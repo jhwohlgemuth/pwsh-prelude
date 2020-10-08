@@ -12,7 +12,7 @@ validate:
 	@powershell if ((Write-Output $$ENV:NUGET_API_KEY).Length -eq 46) { Write-Output "Valid: NUGET_API_KEY" }
 
 lint:
-	@powershell Invoke-ScriptAnalyzer -Path .\pwsh-handy-helpers.psm1 -Fix
+	@powershell Invoke-ScriptAnalyzer -Path .\ -Fix
 
 test:
 	@powershell Invoke-Pester
