@@ -560,9 +560,11 @@ function Invoke-Menu
   .PARAMETER FolderContent
   Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
-  menu @('one', 'two', 'three')
+  Invoke-Menu @('one', 'two', 'three')
   .EXAMPLE
-  menu @('one', 'two', 'three') -MultiSelect -ReturnIndex | Sort-Object
+  Invoke-Menu @('one', 'two', 'three') -HighlightColor Blue
+  .EXAMPLE
+  Invoke-Menu @('one', 'two', 'three') -MultiSelect -ReturnIndex | Sort-Object
   .EXAMPLE
   ,(1,2,3,4,5) | menu
   .EXAMPLE
@@ -574,6 +576,7 @@ function Invoke-Menu
 
   Open a folder via an interactive list menu populated with folder content
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'HighlightColor')]
   [CmdletBinding()]
   [Alias('menu')]
   [OutputType([Object[]])]
@@ -582,6 +585,7 @@ function Invoke-Menu
     [Array] $Items,
     [Switch] $MultiSelect,
     [Switch] $SingleSelect,
+    [String] $HighlightColor = "cyan",
     [Switch] $ReturnIndex = $false,
     [Switch] $FolderContent,
     [Int] $Indent = 0
@@ -618,7 +622,7 @@ function Invoke-Menu
           }
         }
         if ($i -eq $Position) {
-          Write-Color "$(' ' * $Indent)> $Item" -Cyan
+          Write-Color "$(' ' * $Indent)> $Item" -Color $HighlightColor
         } else {
           Write-Color "$(' ' * $Indent)  $Item"
         }
@@ -1439,10 +1443,14 @@ function Write-Color
   <#
   .SYNOPSIS
   Basically Write-Host with the ability to color parts of the output by using template strings
+  .PARAMETER Color
+  Performs the function Write-Host's -ForegroundColor. Useful for programmatically setting text color.
   .EXAMPLE
   '{{#red this will be red}} and {{#blue this will be blue}}' | Write-Color
   .EXAMPLE
-  Write-Color 'You can color entire strings using switch parameters' -Green
+  Write-Color 'You can color entire string using switch parameters' -Green
+  .EXAMPLE
+  Write-Color 'You can color entire string using Color parameter' -Color Green
   .EXAMPLE
   '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = "World" } | Write-Color
   #>
@@ -1452,6 +1460,7 @@ function Write-Color
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [AllowEmptyString()]
     [String] $Text,
+    [String] $Color,
     [Switch] $NoNewLine,
     [Switch] $Black,
     [Switch] $DarkBlue,
@@ -1473,12 +1482,14 @@ function Write-Color
   if ($Text.Length -eq 0) {
     Write-Host "" -NoNewline:$NoNewLine
   } else {
-    $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
-    $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
-    if ($Index) {
-      $Color = $ColorNames[$Index]
-    } else {
-      $Color = "White"
+    if (-Not $Color) {
+      $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
+      $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
+      if ($Index) {
+        $Color = $ColorNames[$Index]
+      } else {
+        $Color = "White"
+      }
     }
     $position = 0
     $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
