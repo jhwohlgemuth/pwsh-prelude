@@ -576,7 +576,7 @@ function Invoke-Menu
   #>
   [CmdletBinding()]
   [Alias('menu')]
-  [OutputType([String])]
+  [OutputType([Object[]])]
   Param (
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [Array] $Items,
@@ -785,15 +785,14 @@ function Invoke-RemoteCommand
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
-    [string[]] $ComputerNames,
-    [Parameter()]
+    [String[]] $ComputerNames,
     [String] $Password,
-    [Parameter()]
     [psobject] $Credential
   )
   $User = whoami
   if ($Credential) {
     Write-Verbose "==> Using -Credential for authentication"
+    $Cred = $Credential
   } elseif ($Password) {
     Write-Verbose "==> Creating credential for $User using -Password"
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
@@ -1094,34 +1093,59 @@ function Open-Session
   <#
   .SYNOPSIS
   Create interactive session with remote computer
+  .PARAMETER NoEnter
+  Create session(s) but do not enter a session
   .EXAMPLE
-  Open-Session -ComputerName PCNAME -Password 123456
+  Open-Session -ComputerNames PCNAME -Password 123456
   .EXAMPLE
-  Open-Session -ComputerName PCNAME
+  Open-Session -ComputerNames PCNAME
 
   This will open a prompt for you to input your password
+  .EXAMPLE
+  $Sessions = Open-Session -ComputerNames ServerA,ServerB
+
+  This will open a password prompt and then display an interactive console menu to select ServerA or ServerB.
+  $Sessions will point to an array of sessions for ServerA and ServerB and can be used to make new sessions:
+
+  Enter-PSSession -Session $Sessions[1]
   #>
   [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUsePSCredentialType", '', Scope='Function')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
   Param(
-    [Parameter(Mandatory=$true)]
-    [String] $ComputerName,
-    [Parameter()]
-    [String] $Password
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [String[]] $ComputerNames,
+    [String] $Password,
+    [psobject] $Credential,
+    [Switch] $NoEnter
   )
   $User = whoami
-  Write-Verbose "==> Creating credential for $User"
-  if ($Password) {
+  if ($Credential) {
+    Write-Verbose "==> Using -Credential for authentication"
+    $Cred = $Credential
+  } elseif ($Password) {
+    Write-Verbose "==> Creating credential for $User using -Password"
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
+    $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
   } else {
-    $Credential = Get-Credential -Message "Please provide password to access $ComputerName" -User $User
+    $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerNames)" -User $User
   }
-  Write-Verbose "==> Creating session"
-  $Session = New-PSSession -ComputerName $ComputerName -Credential $Credential
+  Write-Verbose "==> Creating session on $(Join-StringsWithGrammar $ComputerNames)"
+  $Session = New-PSSession -ComputerName $ComputerNames -Credential $Cred
   Write-Verbose "==> Entering session"
-  Enter-PSSession -Session $Session
+  if (-Not $NoEnter) {
+    if ($Session.Length -eq 1) {
+      Enter-PSSession -Session $Session
+    } else {
+      Write-Label '{{#green Enter session?}}' -NewLine
+      $Index = Invoke-Menu -Items $ComputerNames -ReturnIndex
+      if ($null -ne $Index) {
+        Enter-PSSession -Session $Session[$Index]
+      }
+    }
+  }
+  $Session
 }
 function Out-Default
 {
