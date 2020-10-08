@@ -6,7 +6,7 @@ function ConvertTo-PowershellSyntax
     [string] $DataVariableName = "Data"
   )
   Write-Output $Value |
-    ForEach-Object { $_ -Replace '(?<!{{#[\w\s]*)\s*}}', ')' } |
+    ForEach-Object { $_ -Replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
     ForEach-Object { $_ -Replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
 function Enable-Remoting
@@ -1373,9 +1373,11 @@ function Write-Color
   .SYNOPSIS
   Basically Write-Host with the ability to color parts of the output by using template strings
   .EXAMPLE
-  $function:render = '{{#red "this will be red" }} and {{#blue this will be blue" }} | Write-Color
+  '{{#red this will be red}} and {{#blue this will be blue}}' | Write-Color
   .EXAMPLE
-  Write-Color 'You can still color entire strings using switch parameters' -Green
+  Write-Color 'You can color entire strings using switch parameters' -Green
+  .EXAMPLE
+  '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = "World" } | Write-Color
   #>
   [CmdletBinding()]
   Param(
