@@ -141,6 +141,10 @@ Describe "New-Template" {
             & $renderVariable @{ name = "Not Default" } | Should -Be "<div>Hello Not Default</div>"
         }
     }
+    It "can return a string when passed -Data paramter" {
+        'Hello {{ name }}' | New-Template -Data @{ name = "World" } | Should -Be "Hello World"
+        '{{#green Hello}} {{ name }}' | New-Template -Data @{ name = "World" } | Should -Be "{{#green Hello}} World"
+    }
     It "can create function from template string using mustache notation" {
         $Expected = "<div>Hello World!</div>"
         $function:render = New-Template '<div>Hello {{ name }}!</div>'

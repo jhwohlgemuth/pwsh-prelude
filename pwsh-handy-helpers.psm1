@@ -972,6 +972,8 @@ function New-Template
   <#
   .SYNOPSIS
   Create render function that interpolates passed object values
+  .PARAMETER Data
+  Pass template data to New-Template when using New-Template within pipe chain (see examples)
   .EXAMPLE
   $function:render = New-Template '<div>Hello {{ name }}!</div>'
   render @{ name = "World" }
@@ -1006,38 +1008,48 @@ function New-Template
   </section>"
 
   Templates can even be nested!
+  .EXAMPLE
+  '{{#green Hello}} {{ name }}' | tpl -Data @{ name = "World" } | Write-Color
+
+  Use -Data parameter cause template to return formatted string instead of template function
   #>
   [CmdletBinding()]
   [Alias('tpl')]
   Param(
-    [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [string] $Template,
+    [psobject] $Data,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [psobject] $DefaultValues
   )
   $script:__template = $Template # This line is super important
   $script:__defaults = $DefaultValues # This line is also super important
-  {
+  $Renderer = {
     Param(
       [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
       [psobject] $Data,
       [switch] $PassThru
     )
     if ($PassThru) {
-      $render = $__template
+      $StringToRender = $__template
     } else {
       $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
-      $render = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+      $StringToRender = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
     if (-Not $Data) {
       $Data = $__defaults
     }
-    $render = $render -Replace '"', '`"'
-    $importDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
-    $powershell = [powershell]::Create()
-    [void]$powershell.AddScript($importDataVariable).AddScript("Write-Output `"$render`"")
-    $powershell.Invoke()
-    [void]$powershell.Dispose()
+    $StringToRender = $StringToRender -Replace '"', '`"'
+    $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
+    $Powershell = [powershell]::Create()
+    [void]$Powershell.AddScript($ImportDataVariable).AddScript("Write-Output `"$StringToRender`"")
+    $Powershell.Invoke()
+    [void]$Powershell.Dispose()
+  }
+  if ($Data) {
+    & $Renderer $Data
+  } else {
+    $Renderer
   }
 }
 function Open-Session
