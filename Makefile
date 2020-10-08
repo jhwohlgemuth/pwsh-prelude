@@ -1,6 +1,6 @@
-.PHONY: install publish test test-ci validate
+.PHONY: install lint publish test test-ci validate
 
-publish: validate
+publish: validate lint test
 	@powershell Publish-Module -Path (Get-Location) -NuGetApiKey $$ENV:NUGET_API_KEY -Verbose
 
 install:
@@ -12,7 +12,7 @@ validate:
 	@powershell if ((Write-Output $$ENV:NUGET_API_KEY).Length -eq 46) { Write-Output "Valid: NUGET_API_KEY" }
 
 lint:
-	@powershell Invoke-ScriptAnalyzer -Path .\ -Fix
+	@powershell Invoke-ScriptAnalyzer -Path .\ -Settings settings.psd1 -Fix
 
 test:
 	@powershell Invoke-Pester

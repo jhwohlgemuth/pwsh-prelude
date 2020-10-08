@@ -88,7 +88,7 @@ Functions
 
 - `ConvertTo-PowershellSyntax`
 - `Enable-Remoting`
-- `Find-Duplicates`
+- `Find-Duplicate`
 - `Find-FirstIndex`
 - `Get-File`
 - `Install-SshServer`

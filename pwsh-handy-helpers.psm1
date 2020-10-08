@@ -1,9 +1,10 @@
 ﻿function ConvertTo-PowershellSyntax
 {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
-    [string] $Value,
-    [string] $DataVariableName = "Data"
+    [String] $Value,
+    [String] $DataVariableName = "Data"
   )
   Write-Output $Value |
     ForEach-Object { $_ -Replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
@@ -24,7 +25,7 @@ function Enable-Remoting
   #>
   [CmdletBinding()]
   Param(
-    [string] $TrustedHosts = "*"
+    [String] $TrustedHosts = "*"
   )
   if (Test-Admin) {
     Write-Verbose "==> Making network private"
@@ -39,20 +40,20 @@ function Enable-Remoting
     Write-Error "==> Enable-Remoting requires Administrator privileges"
   }
 }
-function Find-Duplicates
+function Find-Duplicate
 {
   <#
   .SYNOPSIS
   Helper function that calculates file hash values to find duplicate files recursively
   .EXAMPLE
-  Find-Duplicates <path to folder>
+  Find-Duplicate <path to folder>
   .EXAMPLE
-  pwd | Find-Duplicates
+  pwd | Find-Duplicate
   #>
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [string] $Name
+    [String] $Name
   )
   Get-Item $Name |
     Get-ChildItem -Recurse |
@@ -85,16 +86,17 @@ function Find-FirstIndex
   ,(1,1,1,2,1,1) | Find-FirstIndex -Predicate { $args[0] -eq 2 }
   # Returns 3
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate')]
   [CmdletBinding()]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [array] $Values,
-    [scriptblock] $Predicate = { $args[0] -eq $true }
+    [Array] $Values,
+    [ScriptBlock] $Predicate = { $args[0] -eq $true }
   )
   $i = 0
   $Indexes = @($Values | ForEach-Object {
     if (& $Predicate $_) {
-      [array]::IndexOf($Values, $_)
+      [Array]::IndexOf($Values, $_)
     }
     $i++
   })
@@ -115,8 +117,8 @@ function Get-File
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [string] $Url,
-    [string] $File="download.txt"
+    [String] $Url,
+    [String] $File="download.txt"
   )
   $client = New-Object System.Net.WebClient
   $client.DownloadFile($Url, $File)
@@ -161,7 +163,7 @@ function Invoke-DockerInspectAddress
   [Alias('dip')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [string] $Name
+    [String] $Name
   )
   docker inspect --format '{{ .NetworkSettings.IPAddress }}' $Name
 }
@@ -178,7 +180,7 @@ function Invoke-DockerRemoveAll
   Param()
   docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 }
-function Invoke-DockerRemoveAllImages
+function Invoke-DockerRemoveAllImage
 {
   <#
   .SYNOPSIS
@@ -224,17 +226,18 @@ function Invoke-Input
 
   Input labels can be customized with mustache color helpers
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:PreviousRegularExpression')]
   [CmdletBinding()]
   [Alias('input')]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [string] $LabelText = 'input:',
-    [switch] $Secret,
-    [switch] $Number,
-    [switch] $Autocomplete,
-    [array] $Choices,
-    [int] $Indent,
-    [int] $MaxLength = 0
+    [String] $LabelText = 'input:',
+    [Switch] $Secret,
+    [Switch] $Number,
+    [Switch] $Autocomplete,
+    [Array] $Choices,
+    [Int] $Indent,
+    [Int] $MaxLength = 0
     )
   Write-Label -Text $LabelText -Indent $Indent
   $global:PreviousRegularExpression = $null
@@ -246,7 +249,7 @@ function Invoke-Input
   {
     Param(
       [Parameter(Mandatory=$true, Position=0)]
-      [string] $Value
+      [String] $Value
     )
     if ($Secret) {
       "*" * $Value.Length
@@ -258,8 +261,8 @@ function Invoke-Input
   {
     Param(
       [Parameter(Mandatory=$true, Position=0)]
-      [string] $Output,
-      [int] $Left = 0
+      [String] $Output,
+      [Int] $Left = 0
     )
     [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
     if ($MaxLength -gt 0 -And $Output.Length -gt $MaxLength) {
@@ -275,9 +278,10 @@ function Invoke-Input
   }
   function Update-Autocomplete
   {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:PreviousRegularExpression')]
     Param(
       [AllowEmptyString()]
-      [string] $Output
+      [String] $Output
     )
     $global:PreviousRegularExpression = "^${Output}"
     $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
@@ -287,7 +291,7 @@ function Invoke-Input
       Write-Color (' ' * 30) -NoNewLine
       [Console]::SetCursorPosition($Left, [Console]::CursorTop)
     } else {
-      if ($AutocompleteMatches -is [string]) {
+      if ($AutocompleteMatches -is [String]) {
         $BestMatch = $AutocompleteMatches
       } else {
         $BestMatch = $AutocompleteMatches[0]
@@ -355,7 +359,7 @@ function Invoke-Input
       }
       "DownArrow" {
         if ($Number) {
-          $Value = ($Result -As [int]) - 1
+          $Value = ($Result -As [Int]) - 1
           if (($MaxLength -eq 0) -Or ($MaxLength -gt 0 -And $Value -gt -[Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
@@ -388,7 +392,7 @@ function Invoke-Input
         if ($Autocomplete -And $Result.Length -gt 0 -And -Not ($Number -Or $Secret) -And $null -ne $AutocompleteMatches) {
           $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
-          if ($AutocompleteMatches -is [string]) {
+          if ($AutocompleteMatches -is [String]) {
             $Result = $AutocompleteMatches
           } else {
             $CurrentMatch = $AutocompleteMatches[$CurrentIndex]
@@ -407,7 +411,7 @@ function Invoke-Input
       }
       "UpArrow" {
         if ($Number) {
-          $Value = ($Result -As [int]) + 1
+          $Value = ($Result -As [Int]) + 1
           if (($MaxLength -eq 0) -Or ($MaxLength -gt 0 -And $Value -lt [Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
@@ -447,7 +451,7 @@ function Invoke-Input
               $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
               Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
               if ($Autocomplete) {
-                Update-Autocomplete -Output ($Result -As [string])
+                Update-Autocomplete -Output ($Result -As [String])
               }
             }
           } else {
@@ -455,7 +459,7 @@ function Invoke-Input
             $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
             Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
             if ($Autocomplete) {
-              Update-Autocomplete -Output ($Result -As [string])
+              Update-Autocomplete -Output ($Result -As [String])
             }
           }
         }
@@ -465,7 +469,7 @@ function Invoke-Input
   Write-Color ""
   if ($KeyInfo.Key -ne 'Escape') {
     if ($Number) {
-      $Result -As [int]
+      $Result -As [Int]
     } else {
       if ($MaxLength -gt 0) {
         $Result.Substring(0, [Math]::Min($Result.Length, $MaxLength))
@@ -481,13 +485,14 @@ function Invoke-InsertString
 {
   [CmdletBinding()]
   [Alias('insert')]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [string] $Value,
+    [String] $Value,
     [Parameter(Mandatory=$true)]
-    [string] $To,
+    [String] $To,
     [Parameter(Mandatory=$true)]
-    [int] $At
+    [Int] $At
   )
   if ($At -lt $To.Length -And $At -ge 0) {
     $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
@@ -509,6 +514,8 @@ function Invoke-Listen
 
   An action will stop listening when it returns a "falsy" value like $true or $null. Conversely, returning "truthy" values will continue the listening loop.
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Continue')]
   [CmdletBinding()]
   [Alias('listen')]
   Param(
@@ -528,7 +535,8 @@ function Invoke-Listen
     if ($Text.Length -gt 0) {
       Write-Verbose "==> Heard `"$Text`""
     }
-    $Triggers | ForEach-Object { $i = 0 } {
+    $i = 0
+    $Triggers | ForEach-Object {
       if ($Text -match $_ -and [double]$Confidence -gt $Threshhold) {
         $Continue = & $Actions[$i]
       }
@@ -554,26 +562,29 @@ function Invoke-Menu
   #>
   [CmdletBinding()]
   [Alias('menu')]
+  [OutputType([Object[]])]
   Param (
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [array] $Items,
-    [switch] $MultiSelect,
-    [switch] $SingleSelect,
-    [switch] $ReturnIndex = $false,
-    [int] $Indent = 0
+    [Array] $Items,
+    [Switch] $MultiSelect,
+    [Switch] $SingleSelect,
+    [Switch] $ReturnIndex = $false,
+    [Int] $Indent = 0
   )
   function Invoke-MenuDraw
   {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
     [CmdletBinding()]
     Param (
-      [array] $Items,
-      [int] $Position,
-      [array] $Selection,
-      [switch] $MultiSelect,
-      [switch] $SingleSelect,
-      [int] $Indent = 0
+      [Array] $Items,
+      [Int] $Position,
+      [Array] $Selection,
+      [Switch] $MultiSelect,
+      [Switch] $SingleSelect,
+      [Int] $Indent = 0
     )
-    $Items | ForEach-Object { $i = 0 } {
+    $i = 0
+    $Items | ForEach-Object {
       $Item = $_
       if ($null -ne $Item) {
         if ($MultiSelect) {
@@ -602,12 +613,13 @@ function Invoke-Menu
   }
   function Update-MenuSelection
   {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SingleSelect')]
     [CmdletBinding()]
     Param (
-      [int] $Position,
-      [array] $Selection,
-      [switch] $MultiSelect,
-      [switch] $SingleSelect
+      [Int] $Position,
+      [Array] $Selection,
+      [Switch] $MultiSelect,
+      [Switch] $SingleSelect
     )
     if ($Selection -contains $Position) {
       $Result = $Selection | Where-Object { $_ -ne $Position }
@@ -700,9 +712,9 @@ function Invoke-Reduce
   [Alias('reduce')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [array] $Items,
-    [scriptblock] $Callback = { $args[0] },
-    [switch] $FileInfo,
+    [Array] $Items,
+    [ScriptBlock] $Callback = { $args[0] },
+    [Switch] $FileInfo,
     $InitialValue = @{}
   )
   Begin {
@@ -713,7 +725,7 @@ function Invoke-Reduce
   }
   Process {
     $Items | ForEach-Object {
-      if ($InitialValue -is [int] -or $InitialValue -is [string] -or $InitialValue -is [array]) {
+      if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Array]) {
         $Result = & $Callback $Result $_
       } else {
         & $Callback $Result $_
@@ -748,14 +760,15 @@ function Invoke-RemoteCommand
   [CmdletBinding()]
   [Alias('irc')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Credential")]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUsePSCredentialType", '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
     [string[]] $ComputerNames,
     [Parameter()]
-    [string] $Password,
+    [String] $Password,
     [Parameter()]
     [psobject] $Credential
   )
@@ -790,11 +803,11 @@ function Invoke-Speak
   [Alias('say')]
   Param(
     [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
-    [string] $Text = "",
-    [string] $InputType = "text",
-    [int] $Rate = 0,
-    [switch] $Silent,
-    [string] $Output = "none"
+    [String] $Text = "",
+    [String] $InputType = "text",
+    [Int] $Rate = 0,
+    [Switch] $Silent,
+    [String] $Output = "none"
   )
   Begin {
     Use-Speech
@@ -856,17 +869,19 @@ function Join-StringsWithGrammar()
 
   Returns "a, b, and c"
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Delimiter')]
   [CmdletBinding()]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true)]
     [string[]] $Items,
-    [string] $Delimiter = ","
+    [String] $Delimiter = ","
   )
   $NumberOfItems = $Items.Length
   switch ($NumberOfItems)
   {
     1 {
-      $Items
+      $Items -Join ""
     }
     2 {
       $Items -Join " and "
@@ -891,7 +906,7 @@ function New-DailyShutdownJob
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true)]
-    [string] $At
+    [String] $At
   )
   if (Test-Admin) {
     $trigger = New-JobTrigger -Daily -At $At
@@ -914,7 +929,7 @@ function New-File
   [Alias('touch')]
   Param(
     [Parameter(Mandatory=$true)]
-    [string] $Name
+    [String] $Name
   )
   if (Test-Path $Name) {
     (Get-ChildItem $Name).LastWriteTime = Get-Date
@@ -938,7 +953,7 @@ function New-ProxyCommand
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [string] $Name
+    [String] $Name
   )
   $metadata = New-Object System.Management.Automation.CommandMetadata (Get-Command $Name)
   Write-Output "
@@ -951,7 +966,7 @@ function New-SshKey
 {
   [CmdletBinding()]
   Param(
-    [string] $Name="id_rsa"
+    [String] $Name="id_rsa"
   )
   Write-Verbose "==> Generating SSH key pair"
   $Path = "~/.ssh/$Name"
@@ -1013,11 +1028,14 @@ function New-Template
 
   Use -Data parameter cause template to return formatted string instead of template function
   #>
-  [CmdletBinding()]
+  [CmdletBinding(DefaultParameterSetName="template")]
   [Alias('tpl')]
+  [OutputType([System.Management.Automation.ScriptBlock], ParameterSetName="template")]
+  [OutputType([String], ParameterSetName="inline")]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
-    [string] $Template,
+    [String] $Template,
+    [Parameter(ParameterSetName="inline")]
     [psobject] $Data,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [psobject] $DefaultValues
@@ -1028,7 +1046,7 @@ function New-Template
     Param(
       [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
       [psobject] $Data,
-      [switch] $PassThru
+      [Switch] $PassThru
     )
     if ($PassThru) {
       $StringToRender = $__template
@@ -1066,11 +1084,12 @@ function Open-Session
   #>
   [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
   Param(
     [Parameter(Mandatory=$true)]
-    [string] $ComputerName,
+    [String] $ComputerName,
     [Parameter()]
-    [string] $Password
+    [String] $Password
   )
   $User = whoami
   Write-Verbose "==> Creating credential for $User"
@@ -1091,9 +1110,12 @@ function Out-Default
   .ForwardHelpTargetName Out-Default
   .ForwardHelpCategory Function
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:LAST')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'LAST')]
   [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=113362', RemotingCapability='None')]
+  [OutputType([System.Diagnostics.Process])]
   Param(
-    [switch] ${Transcript},
+    [Switch] ${Transcript},
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [psobject] ${InputObject}
   )
@@ -1145,12 +1167,13 @@ function Out-Default
 function Remove-Character
 {
   [CmdletBinding()]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [string] $Value,
-    [int] $At,
-    [switch] $First,
-    [switch] $Last
+    [String] $Value,
+    [Int] $At,
+    [Switch] $First,
+    [Switch] $Last
   )
   if ($First) {
     $At = 0
@@ -1191,7 +1214,7 @@ function Remove-DirectoryForce
   [Alias('rf')]
   Param(
     [Parameter(Mandatory=$true)]
-    [string] $Name
+    [String] $Name
   )
   $Path = Join-Path (Get-Location) $Name
   if (Test-Path $Path) {
@@ -1225,14 +1248,15 @@ function Show-BarChart
   .EXAMPLE
   Use Invoke-Reduce to shape data for Show-BarChart
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [psobject] $InputObject,
-    [int] $Width = 100,
-    [switch] $ShowValues,
-    [switch] $Alternate,
-    [switch] $WithColor
+    [Int] $Width = 100,
+    [Switch] $ShowValues,
+    [Switch] $Alternate,
+    [Switch] $WithColor
   )
   $Data = [PSCustomObject]$InputObject
   $Space = " "
@@ -1273,7 +1297,7 @@ function Take
   [CmdletBinding(SupportsShouldProcess=$true)]
   Param(
     [Parameter(Mandatory=$true)]
-    [string] $Name
+    [String] $Name
   )
   $Path = Join-Path (Get-Location) $Name
   if (Test-Path $Path) {
@@ -1318,7 +1342,7 @@ function Test-Empty
   [OutputType([bool])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [string] $Name
+    [String] $Name
   )
   Get-Item $Name | ForEach-Object {$_.psiscontainer -AND $_.GetFileSystemInfos().Count -EQ 0} | Write-Output
 }
@@ -1328,7 +1352,7 @@ function Test-Installed
   [OutputType([bool])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [string] $Name
+    [String] $Name
   )
   if (Get-Module -ListAvailable -Name $Name) {
     $true
@@ -1379,28 +1403,29 @@ function Write-Color
   .EXAMPLE
   '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = "World" } | Write-Color
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [AllowEmptyString()]
-    [string] $Text,
-    [switch] $NoNewLine,
-    [switch] $Black,
-    [switch] $DarkBlue,
-    [switch] $DarkGreen,
-    [switch] $DarkCyan,
-    [switch] $DarkRed,
-    [switch] $DarkMagenta,
-    [switch] $DarkYellow,
-    [switch] $Gray,
-    [switch] $DarkGray,
-    [switch] $Blue,
-    [switch] $Green,
-    [switch] $Cyan,
-    [switch] $Red,
-    [switch] $Magenta,
-    [switch] $Yellow,
-    [switch] $White
+    [String] $Text,
+    [Switch] $NoNewLine,
+    [Switch] $Black,
+    [Switch] $DarkBlue,
+    [Switch] $DarkGreen,
+    [Switch] $DarkCyan,
+    [Switch] $DarkRed,
+    [Switch] $DarkMagenta,
+    [Switch] $DarkYellow,
+    [Switch] $Gray,
+    [Switch] $DarkGray,
+    [Switch] $Blue,
+    [Switch] $Green,
+    [Switch] $Cyan,
+    [Switch] $Red,
+    [Switch] $Magenta,
+    [Switch] $Yellow,
+    [Switch] $White
   )
   if ($Text.Length -eq 0) {
     Write-Host "" -NoNewline:$NoNewLine
@@ -1441,9 +1466,9 @@ function Write-Label
   [CmdletBinding()]
   Param(
     [Parameter(ValueFromPipeline=$true)]
-    [string] $Text = "label",
-    [int] $Indent = 0,
-    [switch] $NewLine
+    [String] $Text = "label",
+    [Int] $Indent = 0,
+    [Switch] $NewLine
   )
   Write-Color (" " * $Indent) -NoNewLine -Gray
   Write-Color "$Text " -Cyan -NoNewLine:$(-Not $NewLine)
@@ -1455,8 +1480,8 @@ function Write-Repeat
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [AllowEmptyString()]
-    [string] $Value,
-    [int] $Times = 1
+    [String] $Value,
+    [Int] $Times = 1
   )
   Write-Output ($Value * $Times)
 }
@@ -1498,17 +1523,17 @@ function Write-Title
   [Alias('title')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [string] $Text,
-    [string] $TextColor,
-    [switch] $Template,
-    [switch] $Fallback,
-    [switch] $Red,
-    [switch] $Yellow,
-    [switch] $Green,
-    [switch] $Blue,
-    [switch] $Cyan,
-    [int] $Width,
-    [int] $Indent = 0
+    [String] $Text,
+    [String] $TextColor,
+    [Switch] $Template,
+    [Switch] $Fallback,
+    [Switch] $Red,
+    [Switch] $Yellow,
+    [Switch] $Green,
+    [Switch] $Blue,
+    [Switch] $Cyan,
+    [Int] $Width,
+    [Int] $Indent = 0
   )
   if ($Template) {
     $TextLength = ($Text -Replace "{{#\w*\s", "" | ForEach-Object { $_ -Replace "}}", ""}).Length

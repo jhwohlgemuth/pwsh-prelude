@@ -31,14 +31,14 @@
     FunctionsToExport = @(
         'ConvertTo-PowershellSyntax'
         'Enable-Remoting',
-        'Find-Duplicates',
+        'Find-Duplicate',
         'Find-FirstIndex',
         'Get-File',
         'Home',
         'Install-SshServer',
         'Invoke-DockerInspectAddress',
         'Invoke-DockerRemoveAll',
-        'Invoke-DockerRemoveAllImages',
+        'Invoke-DockerRemoveAllImage',
         'Invoke-GitCommand',
         'Invoke-GitCommit',
         'Invoke-GitDiff',
