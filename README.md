@@ -95,6 +95,7 @@ Functions
 - `Invoke-Input`
 - `Invoke-InsertString`
 - `Invoke-Listen`
+- `Invoke-ListenForWord`
 - `Invoke-Menu`
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
@@ -141,6 +142,7 @@ Aliases
 - `listen`
 - `ls`
 - `menu`
+- `on`
 - `reduce`
 - `repeat`
 - `rf`

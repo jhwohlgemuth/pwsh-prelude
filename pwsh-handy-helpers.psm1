@@ -510,6 +510,33 @@ function Invoke-InsertString
 }
 function Invoke-Listen
 {
+  [CmdletBinding()]
+  [Alias('on')]
+  Param(
+    [Parameter(Position=0)]
+    [String] $EventName,
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [scriptblock] $Callback,
+    [String] $Namespace = "",
+    [String] $Path,
+    [Switch] $Once
+  )
+  if ($Namespace.Length -gt 0) {
+    $SourceIdentifier = "${Namespace}:${EventName}"
+  } else {
+    $SourceIdentifier = $EventName
+  }
+  if ($Once) {
+    Write-Verbose "==> Creating one-time event listener for event, $SourceIdentifier"
+    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback
+  } else {
+    Write-Verbose "==> Creating event listener for event, $SourceIdentifier"
+    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback
+  }
+  $_Event
+}
+function Invoke-ListenForWord
+{
   <#
   .SYNOPSIS
   Start loop that listens for trigger words and execute passed functions when recognized
