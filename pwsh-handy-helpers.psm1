@@ -527,10 +527,10 @@ function Invoke-Listen
     $SourceIdentifier = $EventName
   }
   if ($Once) {
-    Write-Verbose "==> Creating one-time event listener for event, $SourceIdentifier"
+    Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
     $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback
   } else {
-    Write-Verbose "==> Creating event listener for event, $SourceIdentifier"
+    Write-Verbose "==> Creating event listener for $SourceIdentifier event"
     $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback
   }
   $_Event
