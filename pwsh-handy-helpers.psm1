@@ -514,18 +514,13 @@ function Invoke-Listen
   [Alias('on')]
   Param(
     [Parameter(Position=0)]
-    [String] $EventName,
+    [String] $Name,
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [scriptblock] $Callback,
-    [String] $Namespace = "",
     [String] $Path,
     [Switch] $Once
   )
-  if ($Namespace.Length -gt 0) {
-    $SourceIdentifier = "${Namespace}:${EventName}"
-  } else {
-    $SourceIdentifier = $EventName
-  }
+  $SourceIdentifier = $Name
   if ($Once) {
     Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
     $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback
@@ -906,6 +901,45 @@ function Invoke-Speak
         Write-Verbose "==> $TotalText"
       }
     }
+  }
+}
+function Invoke-StopListen
+{
+  <#
+  .SYNOPSIS
+  Remove event subscriber(s)
+  .EXAMPLE
+  $Listener = $Callback | on -Name "SomeEvent"
+  "SomeEvent" | Invoke-StopListen
+
+  Remove events using event SourceIdentifier (Name)
+  .EXAMPLE
+  $Listener = $Callback | on -Name "Namespace:foo"
+  $Listener = $Callback | on -Name "Namespace:bar"
+  "Namespace:" | Invoke-StopListen
+
+  Remove multiple events using namespace names
+  .EXAMPLE
+  $Listener = $Callback | on -Name "SomeEvent"
+  Invoke-StopListen -EventData $Listener
+
+  Selectively remove a single event by passing its event data
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(ValueFromPipeline=$true)]
+    [String] $Name,
+    [psobject] $EventData
+  )
+  if ($EventData) {
+    Unregister-Event -SubscriptionId $EventData.Id
+  } else {
+    if ($Name) {
+      $Events = Get-EventSubscriber | Where-Object { $_.SourceIdentifier -Match "^$Name" }
+    } else {
+      $Events = Get-EventSubscriber
+    }
+    $Events | ForEach-Object { Unregister-Event -SubscriptionId $_.SubscriptionId }
   }
 }
 function Join-StringsWithGrammar()
