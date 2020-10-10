@@ -193,6 +193,17 @@ function Invoke-DockerRemoveAllImage
   Param()
   docker rmi $(docker images -a -q)
 }
+function Invoke-FireEvent
+{
+  [CmdletBinding()]
+  [Alias('trigger')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [String] $Name,
+    [String] $Data
+  )
+  New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
+}
 function Invoke-GitCommand { git $args }
 function Invoke-GitCommit { git commit -vam $args }
 function Invoke-GitDiff { git diff $args }
@@ -518,15 +529,21 @@ function Invoke-Listen
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [scriptblock] $Callback,
     [String] $Path,
-    [Switch] $Once
+    [Switch] $Once,
+    [Switch] $Exit,
+    [Switch] $Forward
   )
-  $SourceIdentifier = $Name
+  if ($Exit) {
+    $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
+  } else {
+    $SourceIdentifier = $Name
+  }
   if ($Once) {
     Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
-    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback
+    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback -Forward:$Forward
   } else {
     Write-Verbose "==> Creating event listener for $SourceIdentifier event"
-    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback
+    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback -Forward:$Forward
   }
   $_Event
 }
@@ -909,16 +926,16 @@ function Invoke-StopListen
   .SYNOPSIS
   Remove event subscriber(s)
   .EXAMPLE
-  $Listener = $Callback | on -Name "SomeEvent"
+  $Callback | on -Name "SomeEvent"
   "SomeEvent" | Invoke-StopListen
 
-  Remove events using event SourceIdentifier (Name)
+  Remove events using the event "source identifier" (Name)
   .EXAMPLE
-  $Listener = $Callback | on -Name "Namespace:foo"
-  $Listener = $Callback | on -Name "Namespace:bar"
+  $Callback | on -Name "Namespace:foo"
+  $Callback | on -Name "Namespace:bar"
   "Namespace:" | Invoke-StopListen
 
-  Remove multiple events using namespace names
+  Remove multiple events using an event namespace
   .EXAMPLE
   $Listener = $Callback | on -Name "SomeEvent"
   Invoke-StopListen -EventData $Listener
