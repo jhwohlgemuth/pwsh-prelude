@@ -521,6 +521,33 @@ function Invoke-InsertString
 }
 function Invoke-Listen
 {
+  <#
+  .SYNOPSIS
+  Create an event listener ("subscriber"). Basically a wrapper for Register-EngineEvent.
+  .PARAMETER Path
+  Path to file or folder that will be watched for changes
+  .PARAMETER Exit
+  Set event source identifier to Powershell.Exiting
+  .PARAMETER Idle
+  Set event source identifier to Powershell.OnIdle.
+  Warning: It is not advised to write to console in callback of -Idle listeners.
+  .EXAMPLE
+  { Write-Color "Event triggered" -Red } | on "SomeEvent"
+
+  Expressive yet terse syntax for easy event-driven design.
+  .EXAMPLE
+  Invoke-Listen -Name "SomeEvent" -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
+
+  Callbacks hae access to automatic variables such as $Event
+  .EXAMPLE
+  $Callback | on "SomeEvent" -Once
+
+  Create a listener that automatically destroys itself after one event is triggered
+  .EXAMPLE
+  { "EVENT - EXIT" | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
+
+  Execute code when you exit the powershell terminal
+  #>
   [CmdletBinding()]
   [Alias('on')]
   Param(
@@ -531,10 +558,13 @@ function Invoke-Listen
     [String] $Path,
     [Switch] $Once,
     [Switch] $Exit,
+    [Switch] $Idle,
     [Switch] $Forward
   )
   if ($Exit) {
     $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
+  } elseif ($Idle) {
+    $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::OnIdle)
   } else {
     $SourceIdentifier = $Name
   }
