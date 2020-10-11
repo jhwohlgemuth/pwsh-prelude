@@ -59,6 +59,23 @@ Describe "Invoke-InsertString" {
         "234" | Invoke-InsertString -To "15" -At 1 | Should -Be "12345"
     }
 }
+Describe "Invoke-Once" {
+    It "will return a function that will only be executed once" {
+        function Test-Callback {}
+        $function:test = Invoke-Once { Test-Callback }
+        Mock Test-Callback {}
+        1..10 | ForEach-Object { test }
+        Assert-MockCalled Test-Callback -Times 1
+    }
+    It "will return a function that will only be executed a certain number of times" {
+        function Test-Callback {}
+        $Times = 5
+        $function:test = Invoke-Once -Times $Times { Test-Callback }
+        Mock Test-Callback {}
+        1..10 | ForEach-Object { test }
+        Assert-MockCalled Test-Callback -Times $Times
+    }
+}
 Describe "Invoke-Reduce" {
     It "can accept strings and integers as initial values" {
         1,2,3,4,5 | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue 0 | Should -Be 15

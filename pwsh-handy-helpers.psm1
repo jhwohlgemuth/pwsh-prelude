@@ -778,6 +778,42 @@ function Invoke-Menu
 		}
 	}
 }
+function Invoke-Once
+{
+  <#
+  .SYNOPSIS
+  Higher-order function that takes a function and returns a function that can only be executed a certain number of times
+  .PARAMETER Times
+  Number of times passed function can be called (default is 1, hence the name - Once)
+  .EXAMPLE
+  $function:test = Invoke-Once { Write-Color "Should only see this once" -Red }
+  1..10 | ForEach-Object {
+    test
+  }
+  .EXAMPLE
+  $Function:greet = Invoke-Once {
+    Write-Color "Hello $($Args[0])" -Red
+  }
+  greet "World"
+  # no subsequent greet functions are executed
+  greet "Jim"
+  greet "Bob"
+
+  Functions returned by Invoke-Once can accept arguments
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ScriptBlock] $Function,
+    [Int] $Times = 1
+  )
+  {
+    if ($Script:Count -lt $Times) {
+      & $Function @Args
+      $Script:Count++
+    }
+  }.GetNewClosure()
+}
 function Invoke-Reduce
 {
   <#

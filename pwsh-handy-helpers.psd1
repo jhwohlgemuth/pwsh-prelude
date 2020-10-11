@@ -52,6 +52,7 @@
         'Invoke-Listen',
         'Invoke-ListenForWord',
         'Invoke-Menu',
+        'Invoke-Once',
         'Invoke-Reduce',
         'Invoke-RemoteCommand',
         'Invoke-Speak',
