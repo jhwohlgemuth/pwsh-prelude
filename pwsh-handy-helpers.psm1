@@ -548,34 +548,62 @@ function Invoke-Listen
 
   Execute code when you exit the powershell terminal
   #>
-  [CmdletBinding()]
-  [Alias('on')]
+  [CmdletBinding(DefaultParameterSetName = 'custom')]
+  [Alias('on', 'listenTo')]
   Param(
-    [Parameter(Position=0)]
+    [Parameter(ParameterSetName='custom', Position=0)]
     [String] $Name,
-    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [scriptblock] $Callback,
-    [String] $Path,
+    [Parameter(ParameterSetName='custom')]
     [Switch] $Once,
+    [Parameter(ParameterSetName='custom')]
     [Switch] $Exit,
+    [Parameter(ParameterSetName='custom')]
     [Switch] $Idle,
-    [Switch] $Forward
+    [Parameter(ParameterSetName='custom', Mandatory=$true, ValueFromPipeline=$true)]
+    [Parameter(ParameterSetName='filesystem', Mandatory=$true, ValueFromPipeline=$true)]
+    [scriptblock] $Callback,
+    [Parameter(ParameterSetName='custom')]
+    [Parameter(ParameterSetName='filesystem')]
+    [Switch] $Forward,
+    [Parameter(ParameterSetName='filesystem', Mandatory=$true)]
+    [String] $Path,
+    [Parameter(ParameterSetName='filesystem')]
+    [Switch] $IncludeSubDirectories,
+    [Parameter(ParameterSetName='filesystem')]
+    [Switch] $Absolute
   )
-  if ($Exit) {
-    $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
-  } elseif ($Idle) {
-    $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::OnIdle)
-  } else {
-    $SourceIdentifier = $Name
+  if ($Path.Length -gt 0) { # file watcher events
+    if (-Not $Absolute) {
+      $Path = Join-Path (Get-Location) $Path -Resolve
+    }
+    Write-Verbose "==> Creating file system watcher object for `"$Path`""
+    $Watcher = New-Object System.IO.FileSystemWatcher
+    $Watcher.Path = $Path
+    $Watcher.Filter = "*.*"
+    $Watcher.EnableRaisingEvents = $true
+    $Watcher.IncludeSubdirectories = $IncludeSubDirectories
+    Write-Verbose "==> Creating file system watcher events"
+    Register-ObjectEvent $Watcher "Created" -Action $Callback
+    Register-ObjectEvent $Watcher "Changed" -Action $Callback
+    Register-ObjectEvent $Watcher "Deleted" -Action $Callback
+    Register-ObjectEvent $Watcher "Renamed" -Action $Callback
+  } else { # custom and Powershell engine events
+    if ($Exit) {
+      $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
+    } elseif ($Idle) {
+      $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::OnIdle)
+    } else {
+      $SourceIdentifier = $Name
+    }
+    if ($Once) {
+      Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
+      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback -Forward:$Forward
+    } else {
+      Write-Verbose "==> Creating event listener for $SourceIdentifier event"
+      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback -Forward:$Forward
+    }
+    $_Event
   }
-  if ($Once) {
-    Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
-    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback -Forward:$Forward
-  } else {
-    Write-Verbose "==> Creating event listener for $SourceIdentifier event"
-    $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback -Forward:$Forward
-  }
-  $_Event
 }
 function Invoke-ListenForWord
 {
