@@ -572,6 +572,7 @@ function Invoke-Listen
     [Parameter(ParameterSetName='filesystem')]
     [Switch] $Absolute
   )
+  $Action = $Callback
   if ($Path.Length -gt 0) { # file watcher events
     if (-Not $Absolute) {
       $Path = Join-Path (Get-Location) $Path -Resolve
@@ -583,10 +584,9 @@ function Invoke-Listen
     $Watcher.EnableRaisingEvents = $true
     $Watcher.IncludeSubdirectories = $IncludeSubDirectories
     Write-Verbose "==> Creating file system watcher events"
-    Register-ObjectEvent $Watcher "Created" -Action $Callback
-    Register-ObjectEvent $Watcher "Changed" -Action $Callback
-    Register-ObjectEvent $Watcher "Deleted" -Action $Callback
-    Register-ObjectEvent $Watcher "Renamed" -Action $Callback
+    "Created","Changed","Deleted","Renamed" | ForEach-Object {
+      Register-ObjectEvent $Watcher $_ -Action $Action
+    }
   } else { # custom and Powershell engine events
     if ($Exit) {
       $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
@@ -597,10 +597,10 @@ function Invoke-Listen
     }
     if ($Once) {
       Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
-      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Callback -Forward:$Forward
+      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Action -Forward:$Forward
     } else {
       Write-Verbose "==> Creating event listener for $SourceIdentifier event"
-      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Callback -Forward:$Forward
+      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Action -Forward:$Forward
     }
     $_Event
   }
