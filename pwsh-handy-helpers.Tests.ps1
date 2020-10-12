@@ -59,7 +59,7 @@ Describe "Invoke-InsertString" {
         "234" | Invoke-InsertString -To "15" -At 1 | Should -Be "12345"
     }
 }
-Describe "Invoke-Listen" {
+Describe "Invoke-ListenTo" {
     AfterEach {
         "TestEvent" | Invoke-StopListen
     }
@@ -68,7 +68,7 @@ Describe "Invoke-Listen" {
         $EventName = "TestEvent"
         $Times = 5
         Mock Test-Callback {}
-        { Test-Callback } | Invoke-Listen $EventName
+        { Test-Callback } | Invoke-ListenTo $EventName
         1..$Times | ForEach-Object { Invoke-FireEvent $EventName -Data "test" }
         Assert-MockCalled Test-Callback -Times $Times
     }
@@ -76,7 +76,7 @@ Describe "Invoke-Listen" {
         function Test-Callback {}
         $EventName = "TestEvent"
         Mock Test-Callback {}
-        { Test-Callback } | Invoke-Listen $EventName -Once
+        { Test-Callback } | Invoke-ListenTo $EventName -Once
         1..10 | ForEach-Object { Invoke-FireEvent $EventName -Data "test" }
         Assert-MockCalled Test-Callback -Times 1
     }

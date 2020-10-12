@@ -519,7 +519,7 @@ function Invoke-InsertString
     $To
   }
 }
-function Invoke-Listen
+function Invoke-ListenTo
 {
   <#
   .SYNOPSIS
@@ -536,13 +536,23 @@ function Invoke-Listen
 
   Expressive yet terse syntax for easy event-driven design.
   .EXAMPLE
-  Invoke-Listen -Name "SomeEvent" -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
+  Invoke-ListenTo -Name "SomeEvent" -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
 
   Callbacks hae access to automatic variables such as $Event
   .EXAMPLE
   $Callback | on "SomeEvent" -Once
 
   Create a listener that automatically destroys itself after one event is triggered
+  .EXAMPLE
+  $Callback = {
+    $Data = $Args[1]
+    Write-Color "Name ==> $($Data.Name)" -Magenta
+    Write-Color "Event ==> $($Data.ChangeType)" -Green
+    Write-Color "Fullpath ==> $($Data.FullPath)" -Cyan
+  }
+  $Callback | listenTo -Path .
+
+  Watch files and folders for changes (create, edit, rename, delete)
   .EXAMPLE
   { "EVENT - EXIT" | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
 
@@ -622,7 +632,7 @@ function Invoke-ListenForWord
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Continue')]
   [CmdletBinding()]
-  [Alias('listen')]
+  [Alias('listenFor')]
   Param(
     [Parameter(Mandatory=$true)]
     [string[]] $Triggers,
@@ -829,6 +839,7 @@ function Invoke-Once
 
   Functions returned by Invoke-Once can accept arguments
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0)]

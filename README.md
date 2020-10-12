@@ -94,7 +94,7 @@ Functions
 - `Install-SshServer`
 - `Invoke-Input`
 - `Invoke-InsertString`
-- `Invoke-Listen`
+- `Invoke-ListenTo`
 - `Invoke-ListenForWord`
 - `Invoke-Menu`
 - `Invoke-Once`
@@ -140,7 +140,8 @@ Aliases
 - `input`
 - `irc`
 - `la`
-- `listen`
+- `listenFor`
+- `listenTo`
 - `ls`
 - `menu`
 - `on`
