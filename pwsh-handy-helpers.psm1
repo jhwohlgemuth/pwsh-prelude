@@ -1625,6 +1625,8 @@ function Test-Equal
   .SYNOPSIS
   Helper function meant to provide a more robust equality check (beyond just integers and strings)
   #>
+  [CmdletBinding()]
+  [Alias('equals')]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     $Left,
@@ -1637,7 +1639,6 @@ function Test-Installed
 {
   [CmdletBinding()]
   [OutputType([bool])]
-  [Alias('equals')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Name
