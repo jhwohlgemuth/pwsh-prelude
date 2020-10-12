@@ -116,6 +116,7 @@ Functions
 - `Take`
 - `Test-Admin`
 - `Test-Empty`
+- `Test-Equal`
 - `Test-Installed`
 - `Use-Grammar`
 - `Use-Speech`
@@ -131,6 +132,7 @@ Aliases
 - `dip`
 - `dra`
 - `drai`
+- `equals`
 - `g`
 - `gcam`
 - `gd`

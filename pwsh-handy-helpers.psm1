@@ -200,7 +200,7 @@ function Invoke-FireEvent
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Name,
-    [String] $Data
+    [PSObject] $Data
   )
   New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
 }
@@ -519,102 +519,6 @@ function Invoke-InsertString
     $To
   }
 }
-function Invoke-ListenTo
-{
-  <#
-  .SYNOPSIS
-  Create an event listener ("subscriber"). Basically a wrapper for Register-EngineEvent.
-  .PARAMETER Path
-  Path to file or folder that will be watched for changes
-  .PARAMETER Exit
-  Set event source identifier to Powershell.Exiting
-  .PARAMETER Idle
-  Set event source identifier to Powershell.OnIdle.
-  Warning: It is not advised to write to console in callback of -Idle listeners.
-  .EXAMPLE
-  { Write-Color "Event triggered" -Red } | on "SomeEvent"
-
-  Expressive yet terse syntax for easy event-driven design.
-  .EXAMPLE
-  Invoke-ListenTo -Name "SomeEvent" -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
-
-  Callbacks hae access to automatic variables such as $Event
-  .EXAMPLE
-  $Callback | on "SomeEvent" -Once
-
-  Create a listener that automatically destroys itself after one event is triggered
-  .EXAMPLE
-  $Callback = {
-    $Data = $Args[1]
-    Write-Color "Name ==> $($Data.Name)" -Magenta
-    Write-Color "Event ==> $($Data.ChangeType)" -Green
-    Write-Color "Fullpath ==> $($Data.FullPath)" -Cyan
-  }
-  $Callback | listenTo -Path .
-
-  Watch files and folders for changes (create, edit, rename, delete)
-  .EXAMPLE
-  { "EVENT - EXIT" | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
-
-  Execute code when you exit the powershell terminal
-  #>
-  [CmdletBinding(DefaultParameterSetName = 'custom')]
-  [Alias('on', 'listenTo')]
-  Param(
-    [Parameter(ParameterSetName='custom', Position=0)]
-    [String] $Name,
-    [Parameter(ParameterSetName='custom')]
-    [Switch] $Once,
-    [Parameter(ParameterSetName='custom')]
-    [Switch] $Exit,
-    [Parameter(ParameterSetName='custom')]
-    [Switch] $Idle,
-    [Parameter(ParameterSetName='custom', Mandatory=$true, ValueFromPipeline=$true)]
-    [Parameter(ParameterSetName='filesystem', Mandatory=$true, ValueFromPipeline=$true)]
-    [scriptblock] $Callback,
-    [Parameter(ParameterSetName='custom')]
-    [Parameter(ParameterSetName='filesystem')]
-    [Switch] $Forward,
-    [Parameter(ParameterSetName='filesystem', Mandatory=$true)]
-    [String] $Path,
-    [Parameter(ParameterSetName='filesystem')]
-    [Switch] $IncludeSubDirectories,
-    [Parameter(ParameterSetName='filesystem')]
-    [Switch] $Absolute
-  )
-  $Action = $Callback
-  if ($Path.Length -gt 0) { # file watcher events
-    if (-Not $Absolute) {
-      $Path = Join-Path (Get-Location) $Path -Resolve
-    }
-    Write-Verbose "==> Creating file system watcher object for `"$Path`""
-    $Watcher = New-Object System.IO.FileSystemWatcher
-    $Watcher.Path = $Path
-    $Watcher.Filter = "*.*"
-    $Watcher.EnableRaisingEvents = $true
-    $Watcher.IncludeSubdirectories = $IncludeSubDirectories
-    Write-Verbose "==> Creating file system watcher events"
-    "Created","Changed","Deleted","Renamed" | ForEach-Object {
-      Register-ObjectEvent $Watcher $_ -Action $Action
-    }
-  } else { # custom and Powershell engine events
-    if ($Exit) {
-      $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
-    } elseif ($Idle) {
-      $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::OnIdle)
-    } else {
-      $SourceIdentifier = $Name
-    }
-    if ($Once) {
-      Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
-      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Action -Forward:$Forward
-    } else {
-      Write-Verbose "==> Creating event listener for $SourceIdentifier event"
-      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Action -Forward:$Forward
-    }
-    $_Event
-  }
-}
 function Invoke-ListenForWord
 {
   <#
@@ -657,6 +561,145 @@ function Invoke-ListenForWord
       }
       $i++
     }
+  }
+}
+function Invoke-ListenTo
+{
+  <#
+  .SYNOPSIS
+  Create an event listener ("subscriber"). Basically a wrapper for Register-EngineEvent.
+  .PARAMETER Path
+  Path to file or folder that will be watched for changes
+  .PARAMETER Exit
+  Set event source identifier to Powershell.Exiting
+  .PARAMETER Idle
+  Set event source identifier to Powershell.OnIdle.
+  Warning: It is not advised to write to console in callback of -Idle listeners.
+  .EXAMPLE
+  { Write-Color "Event triggered" -Red } | on "SomeEvent"
+
+  Expressive yet terse syntax for easy event-driven design.
+  .EXAMPLE
+  Invoke-ListenTo -Name "SomeEvent" -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
+
+  Callbacks hae access to automatic variables such as $Event
+  .EXAMPLE
+  $Callback | on "SomeEvent" -Once
+
+  Create a listener that automatically destroys itself after one event is triggered
+  .EXAMPLE
+  $Callback = {
+    $Data = $Args[1]
+    Write-Color "Name ==> $($Data.Name)" -Magenta
+    Write-Color "Event ==> $($Data.ChangeType)" -Green
+    Write-Color "Fullpath ==> $($Data.FullPath)" -Cyan
+  }
+  $Callback | listenTo -Path .
+
+  Watch files and folders for changes (create, edit, rename, delete)
+  .EXAMPLE
+  # Declare a value for boot
+  $boot = 42
+
+  # Create a callback
+  $Callback = {
+    $Data = $Event.MessageData
+    say "$($Data.Name) was changed from $($Data.OldValue), to $($Data.Value)"
+  }
+
+  # Start the variable listener
+  $Callback | listenTo "boot" -Variable
+
+  # Change the value of boot and have your computer tell you what changed
+  $boot = 43
+
+  .EXAMPLE
+  { "EVENT - EXIT" | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
+
+  Execute code when you exit the powershell terminal
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')]
+  [CmdletBinding(DefaultParameterSetName = 'custom')]
+  [Alias('on', 'listenTo')]
+  Param(
+    [Parameter(ParameterSetName='custom', Position=0)]
+    [Parameter(ParameterSetName='variable', Position=0)]
+    [String] $Name,
+    [Parameter(ParameterSetName='custom')]
+    [Parameter(ParameterSetName='variable')]
+    [Switch] $Once,
+    [Parameter(ParameterSetName='custom')]
+    [Switch] $Exit,
+    [Parameter(ParameterSetName='custom')]
+    [Switch] $Idle,
+    [Parameter(ParameterSetName='custom', Mandatory=$true, ValueFromPipeline=$true)]
+    [Parameter(ParameterSetName='variable', Mandatory=$true, ValueFromPipeline=$true)]
+    [Parameter(ParameterSetName='filesystem', Mandatory=$true, ValueFromPipeline=$true)]
+    [scriptblock] $Callback,
+    [Parameter(ParameterSetName='custom')]
+    [Parameter(ParameterSetName='filesystem')]
+    [Switch] $Forward,
+    [Parameter(ParameterSetName='filesystem', Mandatory=$true)]
+    [String] $Path,
+    [Parameter(ParameterSetName='filesystem')]
+    [Switch] $IncludeSubDirectories,
+    [Parameter(ParameterSetName='filesystem')]
+    [Switch] $Absolute,
+    [Parameter(ParameterSetName='variable')]
+    [Switch] $Variable
+  )
+  $Action = $Callback
+  if ($Path.Length -gt 0) { # file system watcher events
+    if (-Not $Absolute) {
+      $Path = Join-Path (Get-Location) $Path -Resolve
+    }
+    Write-Verbose "==> Creating file system watcher object for `"$Path`""
+    $Watcher = New-Object System.IO.FileSystemWatcher
+    $Watcher.Path = $Path
+    $Watcher.Filter = "*.*"
+    $Watcher.EnableRaisingEvents = $true
+    $Watcher.IncludeSubdirectories = $IncludeSubDirectories
+    Write-Verbose "==> Creating file system watcher events"
+    "Created","Changed","Deleted","Renamed" | ForEach-Object {
+      Register-ObjectEvent $Watcher $_ -Action $Action
+    }
+  } elseif ($Variable) { # variable change events
+    $VariableNamespace = New-Guid | Select-Object -ExpandProperty Guid | ForEach-Object { $_ -Replace "-", "_" }
+    $global:__NameVariableValue = $Name
+    $global:__NameVariableLabel = "Name_$VariableNamespace"
+    $global:__OldValueVariableLabel = "OldValue_$VariableNamespace"
+    $global:__VariableChangeEventLabel = "VariableChangeEvent_$VariableNamespace"
+    Write-Verbose "Variable name = $global:__NameVariableValue"
+    Write-Verbose "Initial value = $(Get-Variable -Name $Name -ValueOnly)"
+    New-Variable -Name $global:__NameVariableLabel -Value $Name -Scope Global
+    New-Variable -Name $global:__OldValueVariableLabel -Value (Get-Variable -Name $Name -ValueOnly) -Scope Global
+    $UpdateValue = {
+      $Name = Get-Variable -Name $global:__NameVariableLabel -Scope Global -ValueOnly
+      $NewValue = Get-Variable -Name $global:__NameVariableValue -Scope Global -ValueOnly
+      $OldValue = Get-Variable -Name $global:__OldValueVariableLabel -Scope Global -ValueOnly
+      if (-Not (Test-Equal $NewValue $OldValue)) {
+        Invoke-FireEvent $global:__VariableChangeEventLabel -Data @{ Name = $Name; Value = $NewValue; OldValue = $OldValue }
+        Set-Variable -Name $global:__OldValueVariableLabel -Value $NewValue -Scope Global
+      }
+    }
+    $UpdateValue | Invoke-ListenTo -Idle | Out-Null
+    $Action | Invoke-ListenTo $global:__VariableChangeEventLabel | Out-Null
+  } else { # custom and Powershell engine events
+    if ($Exit) {
+      $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
+    } elseif ($Idle) {
+      $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::OnIdle)
+    } else {
+      $SourceIdentifier = $Name
+    }
+    if ($Once) {
+      Write-Verbose "==> Creating one-time event listener for $SourceIdentifier event"
+      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -MaxTriggerCount 1 -Action $Action -Forward:$Forward
+    } else {
+      Write-Verbose "==> Creating event listener for `"$SourceIdentifier`" event"
+      $_Event = Register-EngineEvent -SourceIdentifier $SourceIdentifier -Action $Action -Forward:$Forward
+    }
+    $_Event
   }
 }
 function Invoke-Menu
@@ -1576,10 +1619,25 @@ function Test-Empty
   )
   Get-Item $Name | ForEach-Object {$_.psiscontainer -AND $_.GetFileSystemInfos().Count -EQ 0} | Write-Output
 }
+function Test-Equal
+{
+  <#
+  .SYNOPSIS
+  Helper function meant to provide a more robust equality check (beyond just integers and strings)
+  #>
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    $Left,
+    [Parameter(Position=1)]
+    $Right
+  )
+  $Left -eq $Right
+}
 function Test-Installed
 {
   [CmdletBinding()]
   [OutputType([bool])]
+  [Alias('equals')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Name

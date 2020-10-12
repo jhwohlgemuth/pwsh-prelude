@@ -72,6 +72,7 @@
         'Take',
         'Test-Admin',
         'Test-Empty',
+        'Test-Equal',
         'Test-Installed',
         'Use-Grammar',
         'Use-Speech',

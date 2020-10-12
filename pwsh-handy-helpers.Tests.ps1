@@ -275,6 +275,24 @@ Describe "Test-Empty" {
         Test-Empty "TestDrive:\Foo" | Should -Be $false
     }
 }
+Describe "Test-Equal" {
+    It "can compare numbers" {
+        Test-Equal 0 0 | Should -Be $true
+        Test-Equal 42 42 | Should -Be $true
+        Test-Equal -42 -42 | Should -Be $true
+        # 42 | Test-Equal 42 | Should -Be $true
+        # Test-Equal 42 43 | Should -Be $false
+        # Test-Equal -43 -42 | Should -Be $false
+        # 43 | Test-Equal 42 | Should -Be $false
+    }
+    It "can compare strings" {
+        Test-Equal "" "" | Should -Be $true
+        Test-Equal "foo" "foo" | Should -Be $true
+        # "" | Test-Equal "" | Should -Be $true
+        # "foo" | Test-Equal "foo" | Should -Be $true
+        # "foo" | Test-Equal "bar" | Should -Be $false
+    }
+}
 Describe "Test-Installed" {
     It "should return true if passed module is installed" {
         Test-Installed Pester | Should -Be $true
