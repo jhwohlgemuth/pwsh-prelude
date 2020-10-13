@@ -7,8 +7,8 @@
     [String] $DataVariableName = "Data"
   )
   Write-Output $Value |
-    ForEach-Object { $_ -Replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
-    ForEach-Object { $_ -Replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
+    ForEach-Object { $_ -replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
+    ForEach-Object { $_ -replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
 function Enable-Remoting
 {
@@ -59,7 +59,7 @@ function Find-Duplicate
     Get-ChildItem -Recurse |
     Get-FileHash |
     Group-Object -Property Hash |
-    Where-Object Count -GT 1 |
+    Where-Object Count -gt 1 |
     ForEach-Object { $_.Group | Select-Object Path, Hash } |
     Write-Output
 }
@@ -93,12 +93,10 @@ function Find-FirstIndex
     [Array] $Values,
     [ScriptBlock] $Predicate = { $args[0] -eq $true }
   )
-  $i = 0
   $Indexes = @($Values | ForEach-Object {
     if (& $Predicate $_) {
       [Array]::IndexOf($Values, $_)
     }
-    $i++
   })
   $Indexes.Where({ $_ }, 'First')
 }
@@ -155,7 +153,7 @@ function Invoke-DockerInspectAddress
   .SYNOPSIS
   Get IP address of Docker container at given name (or ID)
   .EXAMPLE
-  dip <container name/id>
+  dip <container name | id>
   .EXAMPLE
   echo <container name/id> | dip
   #>
@@ -173,7 +171,7 @@ function Invoke-DockerRemoveAll
   .SYNOPSIS
   Remove ALL Docker containers
   .EXAMPLE
-  dra <container name/id>
+  dra <container name | id>
   #>
   [CmdletBinding()]
   [Alias('dra')]
@@ -186,7 +184,7 @@ function Invoke-DockerRemoveAllImage
   .SYNOPSIS
   Remove ALL Docker images
   .EXAMPLE
-  drai <container name/id>
+  drai <container name | id>
   #>
   [CmdletBinding()]
   [Alias('drai')]
@@ -257,9 +255,9 @@ function Invoke-Input
     [Array] $Choices,
     [Int] $Indent,
     [Int] $MaxLength = 0
-    )
+  )
   Write-Label -Text $LabelText -Indent $Indent
-  $global:PreviousRegularExpression = $null
+  $Global:PreviousRegularExpression = $null
   $Result = ""
   $CurrentIndex = 0
   $AutocompleteMatches = @()
@@ -302,8 +300,8 @@ function Invoke-Input
       [AllowEmptyString()]
       [String] $Output
     )
-    $global:PreviousRegularExpression = "^${Output}"
-    $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
+    $Global:PreviousRegularExpression = "^${Output}"
+    $AutocompleteMatches = $Choices | Where-Object { $_ -match $Global:PreviousRegularExpression }
     if ($null -eq $AutocompleteMatches -or $Output.Length -eq 0) {
       $Left = [Console]::CursorLeft
       [Console]::SetCursorPosition($Left, [Console]::CursorTop)
@@ -378,7 +376,7 @@ function Invoke-Input
       }
       "DownArrow" {
         if ($Number) {
-          $Value = ($Result -As [Int]) - 1
+          $Value = ($Result -as [Int]) - 1
           if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -gt -[Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
@@ -409,7 +407,7 @@ function Invoke-Input
       }
       "Tab" {
         if ($Autocomplete -and $Result.Length -gt 0 -and -not ($Number -or $Secret) -and $null -ne $AutocompleteMatches) {
-          $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
+          $AutocompleteMatches = $Choices | Where-Object { $_ -match $Global:PreviousRegularExpression }
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
           if ($AutocompleteMatches -is [String]) {
             $Result = $AutocompleteMatches
@@ -430,7 +428,7 @@ function Invoke-Input
       }
       "UpArrow" {
         if ($Number) {
-          $Value = ($Result -As [Int]) + 1
+          $Value = ($Result -as [Int]) + 1
           if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -lt [Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
@@ -442,10 +440,10 @@ function Invoke-Input
       }
       Default {
         $Left = [Console]::CursorLeft
-        $OnlyNumbers = [regex]'^-?[0-9]*$'
+        $OnlyNumbers = [Regex]'^-?[0-9]*$'
         if ($Left -eq $StartPosition) {# prepend character
           if ($Number) {
-            if ($KeyChar -Match $OnlyNumbers) {
+            if ($KeyChar -match $OnlyNumbers) {
               $Result = "${KeyChar}$Result"
               Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
             }
@@ -455,7 +453,7 @@ function Invoke-Input
           }
         } elseif ($Left -gt $StartPosition -and $Left -lt ($StartPosition + $Result.Length)) {# insert character
           if ($Number) {
-            if ($KeyChar -Match $OnlyNumbers) {
+            if ($KeyChar -match $OnlyNumbers) {
               $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
               Invoke-OutputDraw -Output $Result -Left $Left
             }
@@ -465,12 +463,12 @@ function Invoke-Input
           }
         } else {# append character
           if ($Number) {
-            if ($KeyChar -Match $OnlyNumbers) {
+            if ($KeyChar -match $OnlyNumbers) {
               $Result += $KeyChar
               $ShouldHighlight = ($MaxLength -gt 0) -and [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
               Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
               if ($Autocomplete) {
-                Update-Autocomplete -Output ($Result -As [String])
+                Update-Autocomplete -Output ($Result -as [String])
               }
             }
           } else {
@@ -478,7 +476,7 @@ function Invoke-Input
             $ShouldHighlight = ($MaxLength -gt 0) -and [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
             Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
             if ($Autocomplete) {
-              Update-Autocomplete -Output ($Result -As [String])
+              Update-Autocomplete -Output ($Result -as [String])
             }
           }
         }
@@ -488,7 +486,7 @@ function Invoke-Input
   Write-Color ""
   if ($KeyInfo.Key -ne 'Escape') {
     if ($Number) {
-      $Result -As [Int]
+      $Result -as [Int]
     } else {
       if ($MaxLength -gt 0) {
         $Result.Substring(0, [Math]::Min($Result.Length, $MaxLength))
@@ -539,9 +537,9 @@ function Invoke-ListenForWord
   [Alias('listenFor')]
   Param(
     [Parameter(Mandatory=$true)]
-    [string[]] $Triggers,
-    [scriptblock[]] $Actions,
-    [double] $Threshhold = 0.85
+    [String[]] $Triggers,
+    [ScriptBlock[]] $Actions,
+    [Double] $Threshhold = 0.85
   )
   Use-Speech
   $Engine = Use-Grammar -Words $Triggers
@@ -554,12 +552,12 @@ function Invoke-ListenForWord
     if ($Text.Length -gt 0) {
       Write-Verbose "==> Heard `"$Text`""
     }
-    $i = 0
+    $Index = 0
     $Triggers | ForEach-Object {
-      if ($Text -match $_ -and [double]$Confidence -gt $Threshhold) {
-        $Continue = & $Actions[$i]
+      if ($Text -match $_ -and [Double]$Confidence -gt $Threshhold) {
+        $Continue = & $Actions[$Index]
       }
-      $i++
+      $Index++
     }
   }
 }
@@ -664,26 +662,26 @@ function Invoke-ListenTo
       Register-ObjectEvent $Watcher $_ -Action $Action
     }
   } elseif ($Variable) { # variable change events
-    $VariableNamespace = New-Guid | Select-Object -ExpandProperty Guid | ForEach-Object { $_ -Replace "-", "_" }
-    $global:__NameVariableValue = $Name
-    $global:__VariableChangeEventLabel = "VariableChangeEvent_$VariableNamespace"
-    $global:__NameVariableLabel = "Name_$VariableNamespace"
-    $global:__OldValueVariableLabel = "OldValue_$VariableNamespace"
-    New-Variable -Name $global:__NameVariableLabel -Value $Name -Scope Global
-    New-Variable -Name $global:__OldValueVariableLabel -Value (Get-Variable -Name $Name -ValueOnly) -Scope Global
-    Write-Verbose "Variable name = $global:__NameVariableValue"
+    $VariableNamespace = New-Guid | Select-Object -ExpandProperty Guid | ForEach-Object { $_ -replace "-", "_" }
+    $Global:__NameVariableValue = $Name
+    $Global:__VariableChangeEventLabel = "VariableChangeEvent_$VariableNamespace"
+    $Global:__NameVariableLabel = "Name_$VariableNamespace"
+    $Global:__OldValueVariableLabel = "OldValue_$VariableNamespace"
+    New-Variable -Name $Global:__NameVariableLabel -Value $Name -Scope Global
+    New-Variable -Name $Global:__OldValueVariableLabel -Value (Get-Variable -Name $Name -ValueOnly) -Scope Global
+    Write-Verbose "Variable name = $Global:__NameVariableValue"
     Write-Verbose "Initial value = $(Get-Variable -Name $Name -ValueOnly)"
     $UpdateValue = {
-      $Name = Get-Variable -Name $global:__NameVariableLabel -Scope Global -ValueOnly
-      $NewValue = Get-Variable -Name $global:__NameVariableValue -Scope Global -ValueOnly
-      $OldValue = Get-Variable -Name $global:__OldValueVariableLabel -Scope Global -ValueOnly
+      $Name = Get-Variable -Name $Global:__NameVariableLabel -Scope Global -ValueOnly
+      $NewValue = Get-Variable -Name $Global:__NameVariableValue -Scope Global -ValueOnly
+      $OldValue = Get-Variable -Name $Global:__OldValueVariableLabel -Scope Global -ValueOnly
       if (-not (Test-Equal $NewValue $OldValue)) {
-        Invoke-FireEvent $global:__VariableChangeEventLabel -Data @{ Name = $Name; Value = $NewValue; OldValue = $OldValue }
-        Set-Variable -Name $global:__OldValueVariableLabel -Value $NewValue -Scope Global
+        Invoke-FireEvent $Global:__VariableChangeEventLabel -Data @{ Name = $Name; Value = $NewValue; OldValue = $OldValue }
+        Set-Variable -Name $Global:__OldValueVariableLabel -Value $NewValue -Scope Global
       }
     }
     $UpdateValue | Invoke-ListenTo -Idle | Out-Null
-    $Action | Invoke-ListenTo $global:__VariableChangeEventLabel | Out-Null
+    $Action | Invoke-ListenTo $Global:__VariableChangeEventLabel | Out-Null
   } else { # custom and Powershell engine events
     if ($Exit) {
       $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
@@ -752,32 +750,32 @@ function Invoke-Menu
       [Switch] $SingleSelect,
       [Int] $Indent = 0
     )
-    $i = 0
+    $Index = 0
     $Items | ForEach-Object {
       $Item = $_
       if ($null -ne $Item) {
         if ($MultiSelect) {
-          if ($Selection -contains $i) {
+          if ($Selection -contains $Index) {
             $Item = "[x] $Item"
           } else {
             $Item = "[ ] $Item"
           }
         } else {
           if ($SingleSelect) {
-            if ($Selection -contains $i) {
+            if ($Selection -contains $Index) {
               $Item = "(o) $Item"
             } else {
               $Item = "( ) $Item"
             }
           }
         }
-        if ($i -eq $Position) {
+        if ($Index -eq $Position) {
           Write-Color "$(' ' * $Indent)> $Item" -Color $HighlightColor
         } else {
           Write-Color "$(' ' * $Indent)  $Item"
         }
       }
-      $i++
+      $Index++
     }
   }
   function Update-MenuSelection
@@ -867,7 +865,7 @@ function Invoke-Once
   .PARAMETER Times
   Number of times passed function can be called (default is 1, hence the name - Once)
   .EXAMPLE
-  $function:test = Invoke-Once { Write-Color "Should only see this once" -Red }
+  $Function:test = Invoke-Once { Write-Color "Should only see this once" -Red }
   1..10 | ForEach-Object {
     test
   }
@@ -978,7 +976,7 @@ function Invoke-RemoteCommand
     [Parameter(Mandatory=$true)]
     [String[]] $ComputerNames,
     [String] $Password,
-    [psobject] $Credential
+    [PSObject] $Credential
   )
   $User = whoami
   if ($Credential) {
@@ -1011,7 +1009,7 @@ function Invoke-Speak
   [CmdletBinding()]
   [Alias('say')]
   Param(
-    [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
     [String] $Text = "",
     [String] $InputType = "text",
     [Int] $Rate = 0,
@@ -1049,7 +1047,7 @@ function Invoke-Speak
         Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
       }
       "ssml" {
-        $function:render = New-Template `
+        $Function:render = New-Template `
 '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
     <voice xml:lang="en-US">
         <prosody rate="{{ rate }}">
@@ -1094,13 +1092,13 @@ function Invoke-StopListen
   Param(
     [Parameter(ValueFromPipeline=$true)]
     [String] $Name,
-    [psobject] $EventData
+    [PSObject] $EventData
   )
   if ($EventData) {
     Unregister-Event -SubscriptionId $EventData.Id
   } else {
     if ($Name) {
-      $Events = Get-EventSubscriber | Where-Object { $_.SourceIdentifier -Match "^$Name" }
+      $Events = Get-EventSubscriber | Where-Object { $_.SourceIdentifier -match "^$Name" }
     } else {
       $Events = Get-EventSubscriber
     }
@@ -1129,17 +1127,17 @@ function Join-StringsWithGrammar()
   switch ($NumberOfItems)
   {
     1 {
-      $Items -Join ""
+      $Items -join ""
     }
     2 {
-      $Items -Join " and "
+      $Items -join " and "
     }
     Default {
       @(
-        ($Items[0..($NumberOfItems - 2)] -Join ", ") + ","
+        ($Items[0..($NumberOfItems - 2)] -join ", ") + ","
         "and"
         $Items[$NumberOfItems - 1]
-      ) -Join " "
+      ) -join " "
     }
   }
 }
@@ -1157,8 +1155,8 @@ function New-DailyShutdownJob
     [String] $At
   )
   if (Test-Admin) {
-    $trigger = New-JobTrigger -Daily -At $At
-    Register-ScheduledJob -Name "DailyShutdown" -ScriptBlock { Stop-Computer -Force } -Trigger $trigger
+    $Trigger = New-JobTrigger -Daily -At $At
+    Register-ScheduledJob -Name "DailyShutdown" -ScriptBlock { Stop-Computer -Force } -Trigger $Trigger
   } else {
     Write-Error "==> New-DailyShutdownJob requires Administrator privileges"
   }
@@ -1238,19 +1236,19 @@ function New-Template
   .PARAMETER Data
   Pass template data to New-Template when using New-Template within pipe chain (see examples)
   .EXAMPLE
-  $function:render = New-Template '<div>Hello {{ name }}!</div>'
+  $Function:render = New-Template '<div>Hello {{ name }}!</div>'
   render @{ name = "World" }
   # "<div>Hello World!</div>"
 
   Use mustache template syntax! Just like Handlebars.js!
   .EXAMPLE
-  $function:render = 'hello {{ name }}' | New-Template
+  $Function:render = 'hello {{ name }}' | New-Template
   @{ name = "world" } | render
   # "hello world"
 
   New-Template supports idiomatic powershell pipeline syntax
   .EXAMPLE
-  $function:render = New-Template '<div>Hello $($Data.name)!</div>'
+  $Function:render = New-Template '<div>Hello $($Data.name)!</div>'
   render @{ name = "World" }
   # "<div>Hello World!</div>"
 
@@ -1281,19 +1279,19 @@ function New-Template
   [OutputType([System.Management.Automation.ScriptBlock], ParameterSetName="template")]
   [OutputType([String], ParameterSetName="inline")]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
     [String] $Template,
     [Parameter(ParameterSetName="inline")]
-    [psobject] $Data,
+    [PSObject] $Data,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [psobject] $DefaultValues
+    [PSObject] $DefaultValues
   )
-  $script:__template = $Template # This line is super important
-  $script:__defaults = $DefaultValues # This line is also super important
+  $Script:__template = $Template # This line is super important
+  $Script:__defaults = $DefaultValues # This line is also super important
   $Renderer = {
     Param(
-      [Parameter(Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
-      [psobject] $Data,
+      [Parameter(Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+      [PSObject] $Data,
       [Switch] $PassThru
     )
     if ($PassThru) {
@@ -1305,12 +1303,12 @@ function New-Template
     if (-not $Data) {
       $Data = $__defaults
     }
-    $StringToRender = $StringToRender -Replace '"', '`"'
+    $StringToRender = $StringToRender -replace '"', '`"'
     $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
-    $Powershell = [powershell]::Create()
-    [void]$Powershell.AddScript($ImportDataVariable).AddScript("Write-Output `"$StringToRender`"")
+    $Powershell = [Powershell]::Create()
+    [Void]$Powershell.AddScript($ImportDataVariable).AddScript("Write-Output `"$StringToRender`"")
     $Powershell.Invoke()
-    [void]$Powershell.Dispose()
+    [Void]$Powershell.Dispose()
   }
   if ($Data) {
     & $Renderer $Data
@@ -1339,15 +1337,15 @@ function Open-Session
 
   Enter-PSSession -Session $Sessions[1]
   #>
-  [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUsePSCredentialType", '', Scope='Function')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
+  [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String[]] $ComputerNames,
     [String] $Password,
-    [psobject] $Credential,
+    [PSObject] $Credential,
     [Switch] $NoEnter
   )
   $User = whoami
@@ -1390,40 +1388,40 @@ function Out-Default
   Param(
     [Switch] ${Transcript},
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [psobject] ${InputObject}
+    [PSObject] ${InputObject}
   )
   Begin {
     try {
-      $outBuffer = $null
-      if ($PSBoundParameters.TryGetValue('OutBuffer', [ref]$outBuffer)) {
+      $OutBuffer = $null
+      if ($PSBoundParameters.TryGetValue('OutBuffer', [Ref]$OutBuffer)) {
         $PSBoundParameters['OutBuffer'] = 1
       }
-      $wrappedCmd = $ExecutionContext.InvokeCommand.GetCommand('Microsoft.PowerShell.Core\Out-Default', [System.Management.Automation.CommandTypes]::Cmdlet)
-      $scriptCmd = {& $wrappedCmd @PSBoundParameters }
-      $steppablePipeline = $scriptCmd.GetSteppablePipeline()
-      $steppablePipeline.Begin($PSCmdlet)
+      $WrappedCommand = $ExecutionContext.InvokeCommand.GetCommand('Microsoft.PowerShell.Core\Out-Default', [System.Management.Automation.CommandTypes]::Cmdlet)
+      $ScriptCommand = {& $WrappedCommand @PSBoundParameters }
+      $SteppablePipeline = $ScriptCommand.GetSteppablePipeline()
+      $SteppablePipeline.Begin($PSCmdlet)
     } catch {
       throw
     }
   }
   Process {
     try {
-      $do_process = $true
+      $DoProcess = $true
       if ($_ -is [System.Management.Automation.ErrorRecord]) {
         if ($_.Exception -is [System.Management.Automation.CommandNotFoundException]) {
-          $__command = $_.Exception.CommandName
-          if (Test-Path -Path $__command -PathType Container) {
-            Set-Location $__command
-            $do_process = $false
-          } elseif ($__command -match '^https?://|\.(com|org|net|edu|dev|gov|io)$') {
-            [System.Diagnostics.Process]::Start($__command)
-            $do_process = $false
+          $__Command = $_.Exception.CommandName
+          if (Test-Path -Path $__Command -PathType Container) {
+            Set-Location $__Command
+            $DoProcess = $false
+          } elseif ($__Command -match '^https?://|\.(com|org|net|edu|dev|gov|io)$') {
+            [System.Diagnostics.Process]::Start($__Command)
+            $DoProcess = $false
           }
         }
       }
-      if ($do_process) {
-        $global:LAST = $_;
-        $steppablePipeline.Process($_)
+      if ($DoProcess) {
+        $Global:LAST = $_;
+        $SteppablePipeline.Process($_)
       }
     } catch {
       throw
@@ -1431,7 +1429,7 @@ function Out-Default
   }
   End {
     try {
-      $steppablePipeline.End()
+      $SteppablePipeline.End()
     } catch {
       throw
     }
@@ -1519,13 +1517,15 @@ function Show-BarChart
 
   Can be used with Write-Title to create goo looking reports in the terminal
   .EXAMPLE
-  Use Invoke-Reduce to shape data for Show-BarChart
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues -WithColor
+
+  Easily display a bar chart of files using Invoke-Reduce
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [psobject] $InputObject,
+    [PSObject] $InputObject,
     [Int] $Width = 100,
     [Switch] $ShowValues,
     [Switch] $Alternate,
@@ -1533,8 +1533,8 @@ function Show-BarChart
   )
   $Data = [PSCustomObject]$InputObject
   $Space = " "
-  $Tee = ([char]9508).ToString()
-  $Marker = ([char]9608).ToString()
+  $Tee = ([Char]9508).ToString()
+  $Marker = ([Char]9608).ToString()
   $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
   $LongestNameLength = ($Data.PSObject.Properties.Name | Sort-Object { $_.Length } -Descending | Select-Object -First 1).Length
   $Index = 0
@@ -1598,7 +1598,11 @@ function Test-Admin
   [CmdletBinding()]
   [OutputType([Bool])]
   Param()
-  ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
+  if ($IsWindows) {
+    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
+  } else {
+    (whoami) -eq "root"
+  }
 }
 function Test-Empty
 {
@@ -1617,7 +1621,7 @@ function Test-Empty
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [String] $Name
   )
-  Get-Item $Name | ForEach-Object {$_.psiscontainer -AND $_.GetFileSystemInfos().Count -EQ 0} | Write-Output
+  Get-Item $Name | ForEach-Object { $_.psiscontainer -and $_.GetFileSystemInfos().Count -eq 0 } | Write-Output
 }
 function Test-Equal
 {
@@ -1715,15 +1719,15 @@ function Use-Grammar
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true)]
-    [string[]] $Words
+    [String[]] $Words
   )
   Write-Verbose "==> Creating Speech Recognition Engine"
-  $Engine = [System.Speech.Recognition.SpeechRecognitionEngine]::new();
+  $Engine = [System.Speech.Recognition.SpeechRecognitionEngine]::New();
   $Engine.InitialSilenceTimeout = 15
   $Engine.SetInputToDefaultAudioDevice();
   $Words | ForEach-Object {
     Write-Verbose "==> Loading grammar for $_"
-    $Grammar = [System.Speech.Recognition.GrammarBuilder]::new();
+    $Grammar = [System.Speech.Recognition.GrammarBuilder]::New();
     $Grammar.Append($_)
     $Engine.LoadGrammar($Grammar)
   }
@@ -1734,7 +1738,7 @@ function Use-Speech
   [CmdletBinding()]
   Param()
   $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
-  if (-not ($SpeechSynthesizerTypeName -as [type])) {
+  if (-not ($SpeechSynthesizerTypeName -as [Type])) {
     Write-Verbose "==> Adding System.Speech type"
     Add-Type -AssemblyName System.Speech
   } else {
@@ -1794,16 +1798,16 @@ function Write-Color
         $Color = "White"
       }
     }
-    $position = 0
-    $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object matches | ForEach-Object {
-      Write-Host $Text.Substring($position, $_.Index - $position) -ForegroundColor $Color -NoNewline
+    $Position = 0
+    $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object Matches | ForEach-Object {
+      Write-Host $Text.Substring($Position, $_.Index - $Position) -ForegroundColor $Color -NoNewline
       $HelperTemplate = $Text.Substring($_.Index, $_.Length)
-      $Arr = $HelperTemplate | ForEach-Object { $_ -Replace '{{#', '' } | ForEach-Object { $_ -Replace '}}', '' } | ForEach-Object { $_ -Split ' ' }
-      Write-Host ($Arr[1..$Arr.Length] -Join ' ') -ForegroundColor $Arr[0] -NoNewline
-      $position = $_.Index + $_.Length
+      $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace '}}', '' } | ForEach-Object { $_ -split ' ' }
+      Write-Host ($Arr[1..$Arr.Length] -join ' ') -ForegroundColor $Arr[0] -NoNewline
+      $Position = $_.Index + $_.Length
     }
-    if ($position -lt $Text.Length) {
-      Write-Host $Text.Substring($position, $Text.Length - $position) -ForegroundColor $Color -NoNewline:$NoNewLine
+    if ($Position -lt $Text.Length) {
+      Write-Host $Text.Substring($Position, $Text.Length - $Position) -ForegroundColor $Color -NoNewline:$NoNewLine
     }
   }
 }
@@ -1893,7 +1897,7 @@ function Write-Title
     [Int] $Indent = 0
   )
   if ($Template) {
-    $TextLength = ($Text -Replace "{{#\w*\s", "" | ForEach-Object { $_ -Replace "}}", ""}).Length
+    $TextLength = ($Text -replace "{{#\w*\s", "" | ForEach-Object { $_ -replace "}}", "" }).Length
   } else {
     $TextLength = $Text.Length
   }
@@ -1910,13 +1914,13 @@ function Write-Title
     $BottomEdge = $TopEdge
     $BottomRight = '+'
   } else {
-    $TopLeft = [char]9484
-    $TopEdge = [char]9472
-    $TopRight = [char]9488
-    $LeftEdge = $RightEdge = [char]9474
-    $BottomLeft = [char]9492
+    $TopLeft = [Char]9484
+    $TopEdge = [Char]9472
+    $TopRight = [Char]9488
+    $LeftEdge = $RightEdge = [Char]9474
+    $BottomLeft = [Char]9492
     $BottomEdge = $TopEdge
-    $BottomRight = [char]9496
+    $BottomRight = [Char]9496
   }
   $PaddingLength = [Math]::Floor(($Width - $TextLength - 2) / 2)
   $Padding = $Space | Write-Repeat -Times $PaddingLength

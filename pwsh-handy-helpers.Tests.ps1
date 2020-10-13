@@ -84,7 +84,7 @@ Describe "Invoke-ListenTo" {
 Describe "Invoke-Once" {
     It "will return a function that will only be executed once" {
         function Test-Callback {}
-        $function:test = Invoke-Once { Test-Callback }
+        $Function:test = Invoke-Once { Test-Callback }
         Mock Test-Callback {}
         1..10 | ForEach-Object { test }
         Assert-MockCalled Test-Callback -Times 1
@@ -92,7 +92,7 @@ Describe "Invoke-Once" {
     It "will return a function that will only be executed a certain number of times" {
         function Test-Callback {}
         $Times = 5
-        $function:test = Invoke-Once -Times $Times { Test-Callback }
+        $Function:test = Invoke-Once -Times $Times { Test-Callback }
         Mock Test-Callback {}
         1..10 | ForEach-Object { test }
         Assert-MockCalled Test-Callback -Times $Times
@@ -100,13 +100,14 @@ Describe "Invoke-Once" {
 }
 Describe "Invoke-Reduce" {
     It "can accept strings and integers as initial values" {
-        1,2,3,4,5 | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue 0 | Should -Be 15
-        "a","b","c" | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue "" | Should -Be "abc"
+        $Add = { Param($a, $b) $a + $b }
+        1,2,3,4,5 | Invoke-Reduce -Callback $Add -InitialValue 0 | Should -Be 15
+        "a","b","c" | Invoke-Reduce -Callback $Add -InitialValue "" | Should -Be "abc"
         "a","b","c" | Invoke-Reduce -InitialValue "initial value" | Should -Be "initial value"
     }
     It "can accept boolean values" {
-        $Every = { $Args[0] -and $Args[1] }
-        $Some = { $Args[0] -or $Args[1] }
+        $Every = { Param($a, $b) $a -and $b }
+        $Some = { Param($a, $b) $a -or $b }
         $AllTrue = $true,$true,$true
         $OneFalse = $true,$false,$true
         $AllTrue | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $true
@@ -115,13 +116,10 @@ Describe "Invoke-Reduce" {
         $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $false
     }
     It "can accept objects as initial values" {
-        $a = @{name = "a"; value = 1}
-        $b = @{name = "b"; value = 2}
-        $c = @{name = "c"; value = 3}
-        $Callback = {
-            Param($Acc, $Item)
-            $Acc[$Item.Name] = $Item.Value
-        }
+        $a = @{ name = "a"; value = 1 }
+        $b = @{ name = "b"; value = 2 }
+        $c = @{ name = "c"; value = 3 }
+        $Callback = { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
         # with inline scriptblock
         $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
         $Result.Keys | Sort-Object | Should -Be "a","b","c"
@@ -136,7 +134,7 @@ Describe "Invoke-Reduce" {
         $Result.Keys | Should -Contain "pwsh-handy-helpers.psm1"
         $Result.Keys | Should -Contain "pwsh-handy-helpers.psd1"
         $Result.Keys | Should -Contain "pwsh-handy-helpers.Tests.ps1"
-        $Result.Values | ForEach-Object { $_ | Should -BeOfType [long] }
+        $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
     }
 }
 Describe "Invoke-Speak (say)" {
@@ -147,13 +145,13 @@ Describe "Invoke-Speak (say)" {
     }
     It "can output SSML" {
         $Text = "this should not be heard either"
-        Invoke-Speak $Text -Silent -Output ssml | Should -Match "<p>$Text</p>"
+        Invoke-Speak $Text -Silent -Output ssml | Should -match "<p>$Text</p>"
     }
     It "can output SSML with custom rate" {
         $Text = "this should not be heard either"
         $Rate = 10
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<p>$Text</p>"
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<prosody rate=`"$Rate`">"
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<p>$Text</p>"
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
     }
 }
 Describe "Join-StringsWithGrammar" {
@@ -174,7 +172,7 @@ Describe "New-File (touch)" {
     }
     It "can create a file" {
         $Content = "testing"
-        ".\SomeFile" | Should -Not -Exist
+        ".\SomeFile" | Should -not -Exist
         New-File SomeFile
         Write-Output $Content >> .\SomeFile
         ".\SomeFile" | Should -FileContentMatch $Content
@@ -276,7 +274,7 @@ Describe "Remove-DirectoryForce (rf)" {
 # }
 Describe "Test-Empty" {
     It "should return true for directories with no contents" {
-        "TestDrive:\Foo" | Should -Not -Exist
+        "TestDrive:\Foo" | Should -not -Exist
         mkdir "TestDrive:\Foo"
         "TestDrive:\Foo" | Should -Exist
         Test-Empty "TestDrive:\Foo" | Should -Be $true
@@ -321,38 +319,38 @@ Describe "Test-Equal" {
         Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -Be $false
     }
     It "can compare hashtables" {
-        $a = @{a = "A"; b = "B"; c = "C"}
-        $b = @{a = "A"; b = "B"; c = "C"}
-        $c = @{foo = "bar"; bin = "baz";}
-        Test-Equal $a $b | Should -Be $true
-        Test-Equal $a $c | Should -Be $false
+        $A = @{ a = "A"; b = "B"; c = "C" }
+        $B = @{ a = "A"; b = "B"; c = "C" }
+        $C = @{ foo = "bar"; bin = "baz"; }
+        Test-Equal $A $B | Should -Be $true
+        Test-Equal $A $C | Should -Be $false
     }
     It "can compare nested hashtables" {
-        $a = @{a = "A"; b = "B"; c = "C"}
-        $b = @{a = "A"; b = "B"; c = "C"}
-        $c = @{foo = "bar"; bin = "baz";}
-        $m = @{a = $a; b = $b; c = $c}
-        $n = @{a = $a; b = $b; c = $c}
-        $o = @{a = $c; b = $a; c = $b}
-        Test-Equal $m $n | Should -Be $true
-        Test-Equal $m $o | Should -Be $false
+        $A = @{ a = "A"; b = "B"; c = "C" }
+        $B = @{ a = "A"; b = "B"; c = "C" }
+        $C = @{ foo = "bar"; bin = "baz"; }
+        $M = @{ a = $A; b = $B; c = $C }
+        $N = @{ a = $A; b = $B; c = $C }
+        $O = @{ a = $C; b = $A; c = $B }
+        Test-Equal $M $N | Should -Be $true
+        Test-Equal $M $O | Should -Be $false
     }
     It "can compare custom objects" {
-        $a = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
-        $b = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
-        $c = [PSCustomObject]@{foo = "bar"; bin = "baz";}
+        $A = [PSCustomObject]@{ a = "A"; b = "B"; c = "C" }
+        $B = [PSCustomObject]@{ a = "A"; b = "B"; c = "C" }
+        $C = [PSCustomObject]@{ foo = "bar"; bin = "baz" }
         Test-Equal $a $b | Should -Be $true
         Test-Equal $a $c | Should -Be $false
     }
     It "can compare nested custom objects" {
-        $a = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
-        $b = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
-        $c = [PSCustomObject]@{foo = "bar"; bin = "baz";}
-        $m = [PSCustomObject]@{a = $a; b = $b; c = $c}
-        $n = [PSCustomObject]@{a = $a; b = $b; c = $c}
-        $o = [PSCustomObject]@{a = $c; b = $a; c = $b}
-        Test-Equal $m $n | Should -Be $true
-        Test-Equal $m $o | Should -Be $false
+        $A = [PSCustomObject]@{ a = "A"; b = "B"; c = "C" }
+        $B = [PSCustomObject]@{ a = "A"; b = "B"; c = "C" }
+        $C = [PSCustomObject]@{ foo = "bar"; bin = "baz" }
+        $M = [PSCustomObject]@{ a = $A; b = $B; c = $C }
+        $N = [PSCustomObject]@{ a = $A; b = $B; c = $C }
+        $O = [PSCustomObject]@{ a = $C; b = $A; c = $B }
+        Test-Equal $M $N | Should -Be $true
+        Test-Equal $M $O | Should -Be $false
     }
     It "can compare other types" {
         Test-Equal $true $true | Should -Be $true
