@@ -92,6 +92,7 @@ Functions
 - `Find-FirstIndex`
 - `Get-File`
 - `Install-SshServer`
+- `Invoke-FireEvent`
 - `Invoke-Input`
 - `Invoke-InsertString`
 - `Invoke-ListenTo`
@@ -154,3 +155,4 @@ Aliases
 - `say`
 - `touch`
 - `tpl`
+- `trigger`

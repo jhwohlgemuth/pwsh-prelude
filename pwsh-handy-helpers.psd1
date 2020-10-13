@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '1.0.5.2'
+    ModuleVersion = '1.0.5.3'
     RootModule = 'pwsh-handy-helpers.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'MyBusiness'
@@ -29,7 +29,8 @@
         'say',
         'title',
         'touch',
-        'tpl'
+        'tpl',
+        'trigger'
     )
     FunctionsToExport = @(
         'ConvertTo-PowershellSyntax'
@@ -42,6 +43,7 @@
         'Invoke-DockerInspectAddress',
         'Invoke-DockerRemoveAll',
         'Invoke-DockerRemoveAllImage',
+        'Invoke-FireEvent',
         'Invoke-GitCommand',
         'Invoke-GitCommit',
         'Invoke-GitDiff',
