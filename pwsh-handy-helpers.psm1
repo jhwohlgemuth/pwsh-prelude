@@ -1598,10 +1598,10 @@ function Test-Admin
   [CmdletBinding()]
   [OutputType([Bool])]
   Param()
-  if ($IsWindows) {
-    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
-  } else {
+  if ($IsLinux -is [Bool] -and $IsLinux) {
     (whoami) -eq "root"
+  } else {
+    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
   }
 }
 function Test-Empty
