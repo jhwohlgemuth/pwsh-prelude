@@ -708,7 +708,13 @@ function Invoke-Menu
 {
   <#
   .SYNOPSIS
-  Create interactive single, multi-select, or single-select list menu
+  Create interactive single, multi-select, or single-select list menu.
+
+  Controls:
+  - Select item with ENTER key
+  - Move up with up arrow key
+  - Move down with down arrow key or TAB key
+  - Multi-select and single-select with SPACE key
   .PARAMETER FolderContent
   Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
@@ -806,11 +812,12 @@ function Invoke-Menu
   }
   [Console]::CursorVisible = $false
   $Keycodes = @{
-    enter = 13;
-    escape = 27;
-    space = 32;
-    up = 38;
-    down = 40;
+    enter = 13
+    escape = 27
+    space = 32
+    tab = 9
+    up = 38
+    down = 40
   }
   $Keycode = 0
   $Position = 0
@@ -829,6 +836,9 @@ function Invoke-Menu
         }
         $Keycodes.space {
           $Selection = Update-MenuSelection -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
+        }
+        $Keycodes.tab {
+          $Position = ($Position + 1) % $Items.Length
         }
         $Keycodes.up {
           $Position = (($Position - 1) + $Items.Length) % $Items.Length
