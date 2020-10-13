@@ -743,7 +743,7 @@ function Invoke-Menu
     [Array] $Items,
     [Switch] $MultiSelect,
     [Switch] $SingleSelect,
-    [String] $HighlightColor = "cyan",
+    [String] $HighlightColor = 'cyan',
     [Switch] $ReturnIndex = $false,
     [Switch] $FolderContent,
     [Int] $Indent = 0
@@ -986,7 +986,7 @@ function Invoke-RemoteCommand
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [System.Management.Automation.ScriptBlock] $ScriptBlock,
+    [ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
     [String[]] $ComputerNames,
     [String] $Password,
@@ -1134,12 +1134,11 @@ function Join-StringsWithGrammar()
   [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true)]
-    [string[]] $Items,
-    [String] $Delimiter = ","
+    [String[]] $Items,
+    [String] $Delimiter = ','
   )
   $NumberOfItems = $Items.Length
-  switch ($NumberOfItems)
-  {
+  switch ($NumberOfItems) {
     1 {
       $Items -join ""
     }
@@ -1226,7 +1225,7 @@ function New-SshKey
 {
   [CmdletBinding()]
   Param(
-    [String] $Name="id_rsa"
+    [String] $Name = 'id_rsa'
   )
   Write-Verbose "==> Generating SSH key pair"
   $Path = "~/.ssh/$Name"
@@ -1290,7 +1289,7 @@ function New-Template
   #>
   [CmdletBinding(DefaultParameterSetName='template')]
   [Alias('tpl')]
-  [OutputType([System.Management.Automation.ScriptBlock], ParameterSetName='template')]
+  [OutputType([ScriptBlock], ParameterSetName='template')]
   [OutputType([String], ParameterSetName='inline')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
@@ -1400,9 +1399,9 @@ function Out-Default
   [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=113362', RemotingCapability='None')]
   [OutputType([System.Diagnostics.Process])]
   Param(
-    [Switch] ${Transcript},
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [PSObject] ${InputObject}
+    [PSObject] $InputObject,
+    [Switch] $Transcript
   )
   Begin {
     try {
@@ -1434,7 +1433,7 @@ function Out-Default
         }
       }
       if ($DoProcess) {
-        $Global:LAST = $_;
+        $Global:Last = $_;
         $SteppablePipeline.Process($_)
       }
     } catch {
