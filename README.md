@@ -140,6 +140,7 @@ Aliases
 - `grbi`
 - `gsb`
 - `input`
+- `insert`
 - `irc`
 - `la`
 - `listenFor`
