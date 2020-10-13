@@ -1841,8 +1841,8 @@ function Write-Label
   [CmdletBinding()]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [String] $Text = "label",
-    [String] $Color = "Cyan",
+    [String] $Text = 'label',
+    [String] $Color = 'Cyan',
     [Int] $Indent = 0,
     [Switch] $NewLine
   )
