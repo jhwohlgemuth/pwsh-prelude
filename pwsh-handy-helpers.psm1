@@ -2,7 +2,7 @@
 {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Value,
     [String] $DataVariableName = "Data"
   )
@@ -971,7 +971,7 @@ function Invoke-RemoteCommand
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUsePSCredentialType", '', Scope='Function')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
     [Parameter(Mandatory=$true)]
     [String[]] $ComputerNames,
@@ -1009,7 +1009,7 @@ function Invoke-Speak
   [CmdletBinding()]
   [Alias('say')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$true)]
     [String] $Text = "",
     [String] $InputType = "text",
     [Int] $Rate = 0,
@@ -1279,7 +1279,7 @@ function New-Template
   [OutputType([System.Management.Automation.ScriptBlock], ParameterSetName="template")]
   [OutputType([String], ParameterSetName="inline")]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Template,
     [Parameter(ParameterSetName="inline")]
     [PSObject] $Data,
@@ -1290,7 +1290,7 @@ function New-Template
   $Script:__defaults = $DefaultValues # This line is also super important
   $Renderer = {
     Param(
-      [Parameter(Position=0, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true)]
+      [Parameter(Position=0, ValueFromPipeline=$true)]
       [PSObject] $Data,
       [Switch] $PassThru
     )
@@ -1770,17 +1770,17 @@ function Write-Color
     [String] $Color,
     [Switch] $NoNewLine,
     [Switch] $Black,
+    [Switch] $Blue,
     [Switch] $DarkBlue,
     [Switch] $DarkGreen,
     [Switch] $DarkCyan,
+    [Switch] $DarkGray,
     [Switch] $DarkRed,
     [Switch] $DarkMagenta,
     [Switch] $DarkYellow,
-    [Switch] $Gray,
-    [Switch] $DarkGray,
-    [Switch] $Blue,
-    [Switch] $Green,
     [Switch] $Cyan,
+    [Switch] $Gray,
+    [Switch] $Green,
     [Switch] $Red,
     [Switch] $Magenta,
     [Switch] $Yellow,
@@ -1826,13 +1826,14 @@ function Write-Label
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$true)]
     [String] $Text = "label",
+    [String] $Color = "Cyan",
     [Int] $Indent = 0,
     [Switch] $NewLine
   )
-  Write-Color (" " * $Indent) -NoNewLine -Gray
-  Write-Color "$Text " -Cyan -NoNewLine:$(-not $NewLine)
+  Write-Color (" " * $Indent) -NoNewLine
+  Write-Color "$Text " -Color $Color -NoNewLine:$(-not $NewLine)
 }
 function Write-Repeat
 {
@@ -1888,11 +1889,19 @@ function Write-Title
     [String] $TextColor,
     [Switch] $Template,
     [Switch] $Fallback,
-    [Switch] $Red,
-    [Switch] $Yellow,
-    [Switch] $Green,
     [Switch] $Blue,
     [Switch] $Cyan,
+    [Switch] $DarkBlue,
+    [Switch] $DarkCyan,
+    [Switch] $DarkGreen,
+    [Switch] $DarkRed,
+    [Switch] $DarkMagenta,
+    [Switch] $DarkYellow,
+    [Switch] $Green,
+    [Switch] $Magenta,
+    [Switch] $Red,
+    [Switch] $White,
+    [Switch] $Yellow,
     [Int] $Width,
     [Int] $Indent = 0
   )
@@ -1925,13 +1934,28 @@ function Write-Title
   $PaddingLength = [Math]::Floor(($Width - $TextLength - 2) / 2)
   $Padding = $Space | Write-Repeat -Times $PaddingLength
   $WidthInside = (2 * $PaddingLength) + $TextLength
-  Write-Color "$(Write-Repeat $Space -Times $Indent)$TopLeft$(Write-Repeat "$TopEdge" -Times $WidthInside)$TopRight" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
-  if ($TextColor) {
-    Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding{{#$TextColor $Text}}$Padding$RightEdge" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
-  } else {
-    Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding$Text$Padding$RightEdge" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
+  $BorderColor = @{
+    Cyan = $Cyan
+    Red = $Red
+    Blue = $Blue
+    Green = $Green
+    Yellow = $Yellow
+    Magenta = $Magenta
+    White = $White
+    DarkBlue = $DarkBlue
+    DarkGreen = $DarkGreen
+    DarkCyan = $DarkCyan
+    DarkRed = $DarkRed
+    DarkMagenta = $DarkMagenta
+    DarkYellow = $DarkYellow
   }
-  Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times $WidthInside)$BottomRight" -Cyan:$Cyan -Red:$Red -Blue:$Blue -Green:$Green -Yellow:$Yellow
+  Write-Color "$(Write-Repeat $Space -Times $Indent)$TopLeft$(Write-Repeat "$TopEdge" -Times $WidthInside)$TopRight" @BorderColor
+  if ($TextColor) {
+    Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding{{#$TextColor $Text}}$Padding$RightEdge" @BorderColor
+  } else {
+    Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding$Text$Padding$RightEdge" @BorderColor
+  }
+  Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times $WidthInside)$BottomRight" @BorderColor
 }
 #
 # Aliases

@@ -1,11 +1,14 @@
 ﻿Import-Module ./pwsh-handy-helpers.psm1
 
+$Indent = 4
+$Color = "Green"
+
 Write-Title "Kitchen Sink"
-$fullname = Invoke-Input "Full Name?" -Indent 4
-$username = Invoke-Input "Username?" -MaxLength 10 -Indent 4
-$age = Invoke-Input "Age?" -Number -Indent 4
-$pass = Invoke-Input "Password?" -Secret -Indent 4
-$word = Invoke-Input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices `
+$Fullname = Invoke-Input "Full Name?" -Indent $Indent
+$Username = Invoke-Input "Username?" -MaxLength 10 -Indent $Indent
+$Age = Invoke-Input "Age?" -Number -Indent $Indent
+$Pass = Invoke-Input "Password?" -Secret -Indent $Indent
+$FavoriteSaiyajin = Invoke-Input "Favorite Saiya-jin?" -Autocomplete -Indent $Indent -Choices `
 @(
     'Goku'
     'Gohan'
@@ -13,17 +16,21 @@ $word = Invoke-Input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices `
     'Vegeta'
     'Trunks'
 )
-Write-Label 'Favorite number?' -Indent 4 -NewLine
-$choice = Invoke-Menu @('one'; 'two'; 'three') -SingleSelect -Indent 4
-Write-Label 'Known mathematicians?' -Indent 4 -NewLine
-$choice = Invoke-Menu @('Godel'; 'Gauss'; 'Cantor') -MultiSelect -Indent 4
-Write-Label "{{#red Red}}, {{#white White}}, or {{#blue Blue}}?" -Indent 4 -NewLine
-$color = Invoke-Menu @('red', 'white', 'blue') -Indent 4
 
-$fullname
-$username
-$age
-$pass
-$word
-$choice
-$color
+Write-Label 'Favorite number?' -Indent $Indent -NewLine
+$choice = Invoke-Menu @('one'; 'two'; 'three') -SingleSelect -Indent $Indent
+
+Write-Label 'Known mathematicians?' -Indent $Indent -NewLine
+$choice = Invoke-Menu @('Godel'; 'Gauss'; 'Cantor') -MultiSelect -Indent $Indent
+
+Write-Label "{{#red Red}}, {{#white White}}, or {{#blue Blue}}?" -Indent $Indent -NewLine
+$FavoriteColor = Invoke-Menu @('red', 'white', 'blue') -Indent $Indent
+
+Write-Title "Results" -Magenta -TextColor White
+$Fullname | Write-Label -Indent $Indent -Color $Color -NewLine
+$Username | Write-Label -Indent $Indent -Color $Color -NewLine
+$Age | Write-Label -Indent $Indent -Color $Color -NewLine
+$Pass | Write-Label -Indent $Indent -Color $Color -NewLine
+$FavoriteSaiyajin | Write-Label -Indent $Indent -Color $Color -NewLine
+(Join-StringsWithGrammar $choice) | Write-Label -Indent $Indent -Color $Color -NewLine
+$FavoriteColor | Write-Label -Indent $Indent -Color $Color -NewLine
