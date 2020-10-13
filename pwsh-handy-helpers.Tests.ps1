@@ -104,6 +104,16 @@ Describe "Invoke-Reduce" {
         "a","b","c" | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue "" | Should -Be "abc"
         "a","b","c" | Invoke-Reduce -InitialValue "initial value" | Should -Be "initial value"
     }
+    It "can accept boolean values" {
+        $Every = { $Args[0] -and $Args[1] }
+        $Some = { $Args[0] -or $Args[1] }
+        $AllTrue = $true,$true,$true
+        $OneFalse = $true,$false,$true
+        $AllTrue | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $true
+        $OneFalse | Invoke-Reduce -Callback $Some -InitialValue $true | Should -Be $true
+        $AllTrue | Invoke-Reduce -Callback $Some -InitialValue $true | Should -Be $true
+        $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $false
+    }
     It "can accept objects as initial values" {
         $a = @{name = "a"; value = 1}
         $b = @{name = "b"; value = 2}
@@ -280,17 +290,44 @@ Describe "Test-Equal" {
         Test-Equal 0 0 | Should -Be $true
         Test-Equal 42 42 | Should -Be $true
         Test-Equal -42 -42 | Should -Be $true
-        # 42 | Test-Equal 42 | Should -Be $true
-        # Test-Equal 42 43 | Should -Be $false
-        # Test-Equal -43 -42 | Should -Be $false
-        # 43 | Test-Equal 42 | Should -Be $false
+        Test-Equal 42 43 | Should -Be $false
+        Test-Equal -43 -42 | Should -Be $false
     }
     It "can compare strings" {
         Test-Equal "" "" | Should -Be $true
         Test-Equal "foo" "foo" | Should -Be $true
-        # "" | Test-Equal "" | Should -Be $true
-        # "foo" | Test-Equal "foo" | Should -Be $true
-        # "foo" | Test-Equal "bar" | Should -Be $false
+    }
+    It "can compare arrays" {
+        $a = 1,2,3
+        $b = 1,2,3
+        $c = 5,6,7
+        Test-Equal $a $b | Should -Be $true
+        Test-Equal $a $c | Should -Be $false
+        $a = "a","b","c"
+        $b = "a","b","c"
+        $c = "x","y","z"
+        Test-Equal $a $b | Should -Be $true
+        Test-Equal $b $c | Should -Be $false
+    }
+    It "can compare hashtables" {
+        $a = @{a = "A"; b = "B"; c = "C"}
+        $b = @{a = "A"; b = "B"; c = "C"}
+        $c = @{foo = "bar"; bin = "baz";}
+        Test-Equal $a $b | Should -Be $true
+        Test-Equal $a $c | Should -Be $false
+    }
+    It "can compare custom objects" {
+        $a = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
+        $b = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
+        $c = [PSCustomObject]@{foo = "bar"; bin = "baz";}
+        Test-Equal $a $b | Should -Be $true
+        Test-Equal $a $c | Should -Be $false
+    }
+    It "can compare other types" {
+        Test-Equal $true $true | Should -Be $true
+        Test-Equal $false $false | Should -Be $true
+        Test-Equal $true $false | Should -Be $false
+        Test-Equal $null $null | Should -Be $true
     }
 }
 Describe "Test-Installed" {

@@ -284,7 +284,7 @@ function Invoke-Input
       [Int] $Left = 0
     )
     [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
-    if ($MaxLength -gt 0 -And $Output.Length -gt $MaxLength) {
+    if ($MaxLength -gt 0 -and $Output.Length -gt $MaxLength) {
       Write-Color $Output.Substring(0, $MaxLength) -NoNewLine
       Write-Color $Output.Substring($MaxLength, $Output.Length - $MaxLength) -NoNewLine -Red
     } else {
@@ -327,7 +327,7 @@ function Invoke-Input
     $KeyChar = $KeyInfo.KeyChar
     switch ($KeyInfo.Key) {
       "Backspace" {
-        if (-Not $Secret) {
+        if (-not $Secret) {
           $Left = [Console]::CursorLeft
           if ($Left -gt $StartPosition) {
             [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -354,7 +354,7 @@ function Invoke-Input
         }
       }
       "Delete" {
-        if (-Not $Secret) {
+        if (-not $Secret) {
           $Left = [Console]::CursorLeft
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
           $Updated = $Result | Remove-Character -At ($Left - $StartPosition)
@@ -379,7 +379,7 @@ function Invoke-Input
       "DownArrow" {
         if ($Number) {
           $Value = ($Result -As [Int]) - 1
-          if (($MaxLength -eq 0) -Or ($MaxLength -gt 0 -And $Value -gt -[Math]::Pow(10, $MaxLength))) {
+          if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -gt -[Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
             [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -392,7 +392,7 @@ function Invoke-Input
         # Do nothing
       }
       "LeftArrow" {
-        if (-Not $Secret) {
+        if (-not $Secret) {
           $Left = [Console]::CursorLeft
           if ($Left -gt $StartPosition) {
             [Console]::SetCursorPosition($Left - 1, [Console]::CursorTop)
@@ -400,7 +400,7 @@ function Invoke-Input
         }
       }
       "RightArrow" {
-        if (-Not $Secret) {
+        if (-not $Secret) {
           $Left = [Console]::CursorLeft
           if ($Left -lt ($StartPosition + $Result.Length)) {
             [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
@@ -408,7 +408,7 @@ function Invoke-Input
         }
       }
       "Tab" {
-        if ($Autocomplete -And $Result.Length -gt 0 -And -Not ($Number -Or $Secret) -And $null -ne $AutocompleteMatches) {
+        if ($Autocomplete -and $Result.Length -gt 0 -and -not ($Number -or $Secret) -and $null -ne $AutocompleteMatches) {
           $AutocompleteMatches = $Choices | Where-Object { $_ -Match $global:PreviousRegularExpression }
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
           if ($AutocompleteMatches -is [String]) {
@@ -431,7 +431,7 @@ function Invoke-Input
       "UpArrow" {
         if ($Number) {
           $Value = ($Result -As [Int]) + 1
-          if (($MaxLength -eq 0) -Or ($MaxLength -gt 0 -And $Value -lt [Math]::Pow(10, $MaxLength))) {
+          if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -lt [Math]::Pow(10, $MaxLength))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
             [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -453,7 +453,7 @@ function Invoke-Input
             $Result = "${KeyChar}$Result"
             Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
           }
-        } elseif ($Left -gt $StartPosition -And $Left -lt ($StartPosition + $Result.Length)) {# insert character
+        } elseif ($Left -gt $StartPosition -and $Left -lt ($StartPosition + $Result.Length)) {# insert character
           if ($Number) {
             if ($KeyChar -Match $OnlyNumbers) {
               $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
@@ -467,7 +467,7 @@ function Invoke-Input
           if ($Number) {
             if ($KeyChar -Match $OnlyNumbers) {
               $Result += $KeyChar
-              $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
+              $ShouldHighlight = ($MaxLength -gt 0) -and [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
               Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
               if ($Autocomplete) {
                 Update-Autocomplete -Output ($Result -As [String])
@@ -475,7 +475,7 @@ function Invoke-Input
             }
           } else {
             $Result += $KeyChar
-            $ShouldHighlight = ($MaxLength -gt 0) -And [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
+            $ShouldHighlight = ($MaxLength -gt 0) -and [Console]::CursorLeft -gt ($StartPosition + $MaxLength - 1)
             Write-Color (Format-Output $KeyChar) -NoNewLine -Red:$ShouldHighlight
             if ($Autocomplete) {
               Update-Autocomplete -Output ($Result -As [String])
@@ -484,7 +484,7 @@ function Invoke-Input
         }
       }
     }
-  } Until ($KeyInfo.Key -eq 'Enter' -Or $KeyInfo.Key -eq 'Escape')
+  } Until ($KeyInfo.Key -eq 'Enter' -or $KeyInfo.Key -eq 'Escape')
   Write-Color ""
   if ($KeyInfo.Key -ne 'Escape') {
     if ($Number) {
@@ -513,7 +513,7 @@ function Invoke-InsertString
     [Parameter(Mandatory=$true)]
     [Int] $At
   )
-  if ($At -lt $To.Length -And $At -ge 0) {
+  if ($At -lt $To.Length -and $At -ge 0) {
     $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
   } else {
     $To
@@ -589,7 +589,7 @@ function Invoke-ListenTo
   Create a listener that automatically destroys itself after one event is triggered
   .EXAMPLE
   $Callback = {
-    $Data = $Args[1]
+    $Data = $args[1]
     Write-Color "Name ==> $($Data.Name)" -Magenta
     Write-Color "Event ==> $($Data.ChangeType)" -Green
     Write-Color "Fullpath ==> $($Data.FullPath)" -Cyan
@@ -650,7 +650,7 @@ function Invoke-ListenTo
   )
   $Action = $Callback
   if ($Path.Length -gt 0) { # file system watcher events
-    if (-Not $Absolute) {
+    if (-not $Absolute) {
       $Path = Join-Path (Get-Location) $Path -Resolve
     }
     Write-Verbose "==> Creating file system watcher object for `"$Path`""
@@ -677,7 +677,7 @@ function Invoke-ListenTo
       $Name = Get-Variable -Name $global:__NameVariableLabel -Scope Global -ValueOnly
       $NewValue = Get-Variable -Name $global:__NameVariableValue -Scope Global -ValueOnly
       $OldValue = Get-Variable -Name $global:__OldValueVariableLabel -Scope Global -ValueOnly
-      if (-Not (Test-Equal $NewValue $OldValue)) {
+      if (-not (Test-Equal $NewValue $OldValue)) {
         Invoke-FireEvent $global:__VariableChangeEventLabel -Data @{ Name = $Name; Value = $NewValue; OldValue = $OldValue }
         Set-Variable -Name $global:__OldValueVariableLabel -Value $NewValue -Scope Global
       }
@@ -873,7 +873,7 @@ function Invoke-Once
   }
   .EXAMPLE
   $Function:greet = Invoke-Once {
-    Write-Color "Hello $($Args[0])" -Red
+    Write-Color "Hello $($args[0])" -Red
   }
   greet "World"
   # no subsequent greet functions are executed
@@ -935,7 +935,7 @@ function Invoke-Reduce
   }
   Process {
     $Items | ForEach-Object {
-      if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Array]) {
+      if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Bool] -or $InitialValue -is [Array]) {
         $Result = & $Callback $Result $_
       } else {
         & $Callback $Result $_
@@ -1025,7 +1025,7 @@ function Invoke-Speak
   Process {
     Write-Verbose "==> Creating speech synthesizer"
     $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
-    if (-Not $Silent) {
+    if (-not $Silent) {
       switch ($InputType)
       {
         "ssml" {
@@ -1302,7 +1302,7 @@ function New-Template
       $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
       $StringToRender = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
-    if (-Not $Data) {
+    if (-not $Data) {
       $Data = $__defaults
     }
     $StringToRender = $StringToRender -Replace '"', '`"'
@@ -1364,7 +1364,7 @@ function Open-Session
   Write-Verbose "==> Creating session on $(Join-StringsWithGrammar $ComputerNames)"
   $Session = New-PSSession -ComputerName $ComputerNames -Credential $Cred
   Write-Verbose "==> Entering session"
-  if (-Not $NoEnter) {
+  if (-not $NoEnter) {
     if ($Session.Length -eq 1) {
       Enter-PSSession -Session $Session
     } else {
@@ -1453,7 +1453,7 @@ function Remove-Character
   } elseif ($Last) {
     $At = $Value.Length - 1
   }
-  if ($At -lt $Value.Length -And $At -ge 0) {
+  if ($At -lt $Value.Length -and $At -ge 0) {
     $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
   } else {
     $Value
@@ -1545,9 +1545,9 @@ function Show-BarChart
     $Padding = $Space | Write-Repeat -Times ($LongestNameLength - $Name.Length)
     $Bar = $Marker | Write-Repeat -Times $Value
     if ($WithColor) {
-      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -Cyan:$($IsEven -And $Alternate) -DarkCyan:$((-Not $IsEven -And $Alternate) -or (-Not $Alternate)) -NoNewLine
+      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -Cyan:$($IsEven -and $Alternate) -DarkCyan:$((-not $IsEven -and $Alternate) -or (-not $Alternate)) -NoNewLine
     } else {
-      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -White:$($IsEven -And $Alternate) -Gray:$(-Not $IsEven -And $Alternate) -NoNewLine
+      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -White:$($IsEven -and $Alternate) -Gray:$(-not $IsEven -and $Alternate) -NoNewLine
     }
     if ($ShowValues) {
       Write-Color " $($Data.$Name)" -DarkGray
@@ -1624,16 +1624,71 @@ function Test-Equal
   <#
   .SYNOPSIS
   Helper function meant to provide a more robust equality check (beyond just integers and strings)
+  .EXAMPLE
+  Test-Equal 42 43 # False
+  Test-Equal 0 0 # True
+  .EXAMPLE
+  $a = @{a = 1; b = 2; c = 3}
+  $b = @{a = 1; b = 2; c = 3}
+  Test-Equal $a $b # True
   #>
   [CmdletBinding()]
   [Alias('equals')]
+  [OutputType([Bool])]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     $Left,
     [Parameter(Position=1)]
     $Right
   )
-  $Left -eq $Right
+  if ($null -ne $Left -and $null -ne $Right) {
+    try {
+      $Type = $Left.GetType().Name
+      switch -Wildcard ($Type) {
+        "String" { $Left -eq $Right }
+        "Int*" { $Left -eq $Right }
+        "Double" { $Left -eq $Right }
+        "Object*" {
+          $Every = { $args[0] -and $args[1] }
+          $Index = 0
+          $Left | ForEach-Object { $_ -eq $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+        }
+        "PSCustomObject" {
+          $Every = { $args[0] -and $args[1] }
+          $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
+          $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
+          $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
+          $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
+          $Index = 0
+          $HasSameKeys = $LeftKeys | ForEach-Object { $_ -eq $RightKeys[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+          $Index = 0
+          $HasSameValues = $LeftValues | ForEach-Object { $_ -eq $RightValues[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+          $HasSameKeys -and $HasSameValues
+        }
+        "Hashtable" {
+          $Every = { $args[0] -and $args[1] }
+          $Index = 0
+          $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
+          $HasSameKeys = $Left.GetEnumerator() |
+            ForEach-Object { $_.Name -eq $RightKeys[$Index]; $Index++ } |
+            Invoke-Reduce -Callback $Every -InitialValue $true
+          $Index = 0
+          $RightValues = $Right.GetEnumerator() | Select-Object -ExpandProperty Value
+          $HasSameValues = $Left.GetEnumerator() |
+            ForEach-Object { $_.Value -eq $RightValues[$Index]; $Index++ } |
+            Invoke-Reduce -Callback $Every -InitialValue $true
+          $HasSameKeys -and $HasSameValues
+        }
+        Default { $Left -eq $Right }
+      }
+    } catch {
+      Write-Verbose "==> Failed to match type of -Left item"
+      $false
+    }
+  } else {
+    Write-Verbose "==> One or both items are `$null"
+    $Left -eq $Right
+  }
 }
 function Test-Installed
 {
@@ -1673,7 +1728,7 @@ function Use-Speech
   [CmdletBinding()]
   Param()
   $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
-  if (-Not ($SpeechSynthesizerTypeName -as [type])) {
+  if (-not ($SpeechSynthesizerTypeName -as [type])) {
     Write-Verbose "==> Adding System.Speech type"
     Add-Type -AssemblyName System.Speech
   } else {
@@ -1724,7 +1779,7 @@ function Write-Color
   if ($Text.Length -eq 0) {
     Write-Host "" -NoNewline:$NoNewLine
   } else {
-    if (-Not $Color) {
+    if (-not $Color) {
       $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
       $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
       if ($Index) {
@@ -1767,7 +1822,7 @@ function Write-Label
     [Switch] $NewLine
   )
   Write-Color (" " * $Indent) -NoNewLine -Gray
-  Write-Color "$Text " -Cyan -NoNewLine:$(-Not $NewLine)
+  Write-Color "$Text " -Cyan -NoNewLine:$(-not $NewLine)
 }
 function Write-Repeat
 {
