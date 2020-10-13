@@ -666,13 +666,13 @@ function Invoke-ListenTo
   } elseif ($Variable) { # variable change events
     $VariableNamespace = New-Guid | Select-Object -ExpandProperty Guid | ForEach-Object { $_ -Replace "-", "_" }
     $global:__NameVariableValue = $Name
+    $global:__VariableChangeEventLabel = "VariableChangeEvent_$VariableNamespace"
     $global:__NameVariableLabel = "Name_$VariableNamespace"
     $global:__OldValueVariableLabel = "OldValue_$VariableNamespace"
-    $global:__VariableChangeEventLabel = "VariableChangeEvent_$VariableNamespace"
-    Write-Verbose "Variable name = $global:__NameVariableValue"
-    Write-Verbose "Initial value = $(Get-Variable -Name $Name -ValueOnly)"
     New-Variable -Name $global:__NameVariableLabel -Value $Name -Scope Global
     New-Variable -Name $global:__OldValueVariableLabel -Value (Get-Variable -Name $Name -ValueOnly) -Scope Global
+    Write-Verbose "Variable name = $global:__NameVariableValue"
+    Write-Verbose "Initial value = $(Get-Variable -Name $Name -ValueOnly)"
     $UpdateValue = {
       $Name = Get-Variable -Name $global:__NameVariableLabel -Scope Global -ValueOnly
       $NewValue = Get-Variable -Name $global:__NameVariableValue -Scope Global -ValueOnly
@@ -1596,7 +1596,7 @@ function Test-Admin
   Test-Admin
   #>
   [CmdletBinding()]
-  [OutputType([bool])]
+  [OutputType([Bool])]
   Param()
   ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
 }
@@ -1612,7 +1612,7 @@ function Test-Empty
   #>
   [CmdletBinding()]
   [ValidateNotNullorEmpty()]
-  [OutputType([bool])]
+  [OutputType([Bool])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [String] $Name
@@ -1627,13 +1627,15 @@ function Test-Equal
   .EXAMPLE
   Test-Equal 42 43 # False
   Test-Equal 0 0 # True
+
+  Also works with booleans, strings, objects, and arrays
   .EXAMPLE
   $a = @{a = 1; b = 2; c = 3}
   $b = @{a = 1; b = 2; c = 3}
   Test-Equal $a $b # True
   #>
   [CmdletBinding()]
-  [Alias('equals')]
+  [Alias('equal')]
   [OutputType([Bool])]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
@@ -1651,7 +1653,7 @@ function Test-Equal
         "Object*" {
           $Every = { $args[0] -and $args[1] }
           $Index = 0
-          $Left | ForEach-Object { $_ -eq $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+          $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
         }
         "PSCustomObject" {
           $Every = { $args[0] -and $args[1] }
@@ -1660,9 +1662,13 @@ function Test-Equal
           $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
           $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
           $Index = 0
-          $HasSameKeys = $LeftKeys | ForEach-Object { $_ -eq $RightKeys[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+          $HasSameKeys = $LeftKeys |
+            ForEach-Object { Test-Equal $_ $RightKeys[$Index]; $Index++ } |
+            Invoke-Reduce -Callback $Every -InitialValue $true
           $Index = 0
-          $HasSameValues = $LeftValues | ForEach-Object { $_ -eq $RightValues[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+          $HasSameValues = $LeftValues |
+            ForEach-Object { Test-Equal $_ $RightValues[$Index]; $Index++ } |
+            Invoke-Reduce -Callback $Every -InitialValue $true
           $HasSameKeys -and $HasSameValues
         }
         "Hashtable" {
@@ -1670,12 +1676,12 @@ function Test-Equal
           $Index = 0
           $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
           $HasSameKeys = $Left.GetEnumerator() |
-            ForEach-Object { $_.Name -eq $RightKeys[$Index]; $Index++ } |
+            ForEach-Object { Test-Equal $_.Name $RightKeys[$Index]; $Index++ } |
             Invoke-Reduce -Callback $Every -InitialValue $true
           $Index = 0
           $RightValues = $Right.GetEnumerator() | Select-Object -ExpandProperty Value
           $HasSameValues = $Left.GetEnumerator() |
-            ForEach-Object { $_.Value -eq $RightValues[$Index]; $Index++ } |
+            ForEach-Object { Test-Equal $_.Value $RightValues[$Index]; $Index++ } |
             Invoke-Reduce -Callback $Every -InitialValue $true
           $HasSameKeys -and $HasSameValues
         }
@@ -1693,7 +1699,7 @@ function Test-Equal
 function Test-Installed
 {
   [CmdletBinding()]
-  [OutputType([bool])]
+  [OutputType([Bool])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Name

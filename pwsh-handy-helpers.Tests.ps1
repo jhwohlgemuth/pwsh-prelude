@@ -292,10 +292,13 @@ Describe "Test-Equal" {
         Test-Equal -42 -42 | Should -Be $true
         Test-Equal 42 43 | Should -Be $false
         Test-Equal -43 -42 | Should -Be $false
+        Test-Equal 3 "not a number" | Should -Be $false
     }
     It "can compare strings" {
         Test-Equal "" "" | Should -Be $true
         Test-Equal "foo" "foo" | Should -Be $true
+        Test-Equal "foo" "bar" | Should -Be $false
+        Test-Equal "foo" 7 | Should -Be $false
     }
     It "can compare arrays" {
         $a = 1,2,3
@@ -309,6 +312,14 @@ Describe "Test-Equal" {
         Test-Equal $a $b | Should -Be $true
         Test-Equal $b $c | Should -Be $false
     }
+    It "can compare multi-dimensional arrays" {
+        $x = 1,(1,2,3),(4,5,6),7
+        $y = 1,(1,2,3),(4,5,6),7
+        $z = (1,2,3),(1,2,3),(1,2,3)
+        Test-Equal $x $y | Should -Be $true
+        Test-Equal $x $z | Should -Be $false
+        Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -Be $false
+    }
     It "can compare hashtables" {
         $a = @{a = "A"; b = "B"; c = "C"}
         $b = @{a = "A"; b = "B"; c = "C"}
@@ -316,12 +327,32 @@ Describe "Test-Equal" {
         Test-Equal $a $b | Should -Be $true
         Test-Equal $a $c | Should -Be $false
     }
+    It "can compare nested hashtables" {
+        $a = @{a = "A"; b = "B"; c = "C"}
+        $b = @{a = "A"; b = "B"; c = "C"}
+        $c = @{foo = "bar"; bin = "baz";}
+        $m = @{a = $a; b = $b; c = $c}
+        $n = @{a = $a; b = $b; c = $c}
+        $o = @{a = $c; b = $a; c = $b}
+        Test-Equal $m $n | Should -Be $true
+        Test-Equal $m $o | Should -Be $false
+    }
     It "can compare custom objects" {
         $a = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
         $b = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
         $c = [PSCustomObject]@{foo = "bar"; bin = "baz";}
         Test-Equal $a $b | Should -Be $true
         Test-Equal $a $c | Should -Be $false
+    }
+    It "can compare nested custom objects" {
+        $a = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
+        $b = [PSCustomObject]@{a = "A"; b = "B"; c = "C"}
+        $c = [PSCustomObject]@{foo = "bar"; bin = "baz";}
+        $m = [PSCustomObject]@{a = $a; b = $b; c = $c}
+        $n = [PSCustomObject]@{a = $a; b = $b; c = $c}
+        $o = [PSCustomObject]@{a = $c; b = $a; c = $b}
+        Test-Equal $m $n | Should -Be $true
+        Test-Equal $m $o | Should -Be $false
     }
     It "can compare other types" {
         Test-Equal $true $true | Should -Be $true

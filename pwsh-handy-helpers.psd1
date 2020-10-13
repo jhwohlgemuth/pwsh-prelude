@@ -15,6 +15,7 @@
         'dip',
         'dra',
         'drai',
+        'equal',
         'input',
         'insert',
         'irc',

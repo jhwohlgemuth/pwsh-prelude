@@ -132,7 +132,7 @@ Aliases
 - `dip`
 - `dra`
 - `drai`
-- `equals`
+- `equal`
 - `g`
 - `gcam`
 - `gd`
