@@ -4,7 +4,7 @@
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Value,
-    [String] $DataVariableName = "Data"
+    [String] $DataVariableName = 'Data'
   )
   Write-Output $Value |
     ForEach-Object { $_ -replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
@@ -116,7 +116,7 @@ function Get-File
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Url,
-    [String] $File="download.txt"
+    [String] $File = 'download.txt'
   )
   $client = New-Object System.Net.WebClient
   $client.DownloadFile($Url, $File)
@@ -981,9 +981,9 @@ function Invoke-RemoteCommand
   #>
   [CmdletBinding()]
   [Alias('irc')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUsePSCredentialType", '', Scope='Function')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [System.Management.Automation.ScriptBlock] $ScriptBlock,
@@ -1024,11 +1024,11 @@ function Invoke-Speak
   [Alias('say')]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
-    [String] $Text = "",
-    [String] $InputType = "text",
+    [String] $Text = '',
+    [String] $InputType = 'text',
     [Int] $Rate = 0,
     [Switch] $Silent,
-    [String] $Output = "none"
+    [String] $Output = 'none'
   )
   Begin {
     Use-Speech
@@ -1288,14 +1288,14 @@ function New-Template
 
   Use -Data parameter cause template to return formatted string instead of template function
   #>
-  [CmdletBinding(DefaultParameterSetName="template")]
+  [CmdletBinding(DefaultParameterSetName='template')]
   [Alias('tpl')]
-  [OutputType([System.Management.Automation.ScriptBlock], ParameterSetName="template")]
-  [OutputType([String], ParameterSetName="inline")]
+  [OutputType([System.Management.Automation.ScriptBlock], ParameterSetName='template')]
+  [OutputType([String], ParameterSetName='inline')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Template,
-    [Parameter(ParameterSetName="inline")]
+    [Parameter(ParameterSetName='inline')]
     [PSObject] $Data,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [PSObject] $DefaultValues
@@ -1351,9 +1351,9 @@ function Open-Session
 
   Enter-PSSession -Session $Sessions[1]
   #>
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "Password")]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUsePSCredentialType", '', Scope='Function')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')]
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
