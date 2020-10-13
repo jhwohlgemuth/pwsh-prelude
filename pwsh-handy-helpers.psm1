@@ -668,9 +668,13 @@ function Invoke-ListenTo
     $Global:__NameVariableLabel = "Name_$VariableNamespace"
     $Global:__OldValueVariableLabel = "OldValue_$VariableNamespace"
     New-Variable -Name $Global:__NameVariableLabel -Value $Name -Scope Global
-    New-Variable -Name $Global:__OldValueVariableLabel -Value (Get-Variable -Name $Name -ValueOnly) -Scope Global
     Write-Verbose "Variable name = $Global:__NameVariableValue"
-    Write-Verbose "Initial value = $(Get-Variable -Name $Name -ValueOnly)"
+    if ((Get-Variable | Select-Object -ExpandProperty Name) -contains $Name) {
+      New-Variable -Name $Global:__OldValueVariableLabel -Value (Get-Variable -Name $Name -ValueOnly) -Scope Global
+      Write-Verbose "Initial value = $(Get-Variable -Name $Name -ValueOnly)"
+    } else {
+      Write-Error "Variable not found in current scope ==> `"$Name`""
+    }
     $UpdateValue = {
       $Name = Get-Variable -Name $Global:__NameVariableLabel -Scope Global -ValueOnly
       $NewValue = Get-Variable -Name $Global:__NameVariableValue -Scope Global -ValueOnly
@@ -1887,6 +1891,7 @@ function Write-Title
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Text,
     [String] $TextColor,
+    [String] $SubText = "",
     [Switch] $Template,
     [Switch] $Fallback,
     [Switch] $Blue,
@@ -1955,7 +1960,7 @@ function Write-Title
   } else {
     Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding$Text$Padding$RightEdge" @BorderColor
   }
-  Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times $WidthInside)$BottomRight" @BorderColor
+  Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times ($WidthInside - $SubText.Length))$SubText$BottomRight" @BorderColor
 }
 #
 # Aliases
