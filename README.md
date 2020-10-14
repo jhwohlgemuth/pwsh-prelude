@@ -50,6 +50,16 @@ cd path/to/some/folder
 # new hotness
 path/to/some/folder
 ```
+- Perform various operations on strings
+```powershell
+$abc = "b" | insert -To "ac" -At 2
+$abc = "abcd" | Remove-Character -Last
+```
+- Leverage higher-order functions like reduce
+```powershell
+$Add = { Param($a, $b) $a + $b }
+$Sum = 1,2,3,4,5 | Invoke-Reduce -Callback $Add -InitialValue 0
+```
 - Exexute code on a remote computer
 ```powershell
 { whoami } | irc -ComputerNames PCNAME
@@ -58,7 +68,28 @@ path/to/some/folder
 ```powershell
 say "Hello World"
 ```
-- Create an interactive CLI app
+- Make a remote computer talk
+```powershell
+{ say "Hello World" } | irc -ComputerNames PCNAME
+```
+- Use events to communicate within your script/app
+```powershell
+{ Write-Color "Event triggered" -Red } | on "SomeEvent"
+
+# You can even listen to variables!!!
+# Declare a value for boot
+$boot = 42
+# Create a callback
+$Callback = {
+  $Data = $Event.MessageData
+  say "$($Data.Name) was changed from $($Data.OldValue), to $($Data.Value)"
+}
+# Start the variable listener
+$Callback | listenTo "boot" -Variable
+# Change the value of boot and have your computer tell you what changed
+$boot = 43
+```
+- Create an interactive CLI app (see the [./kitchensink.ps1](./kitchensink.ps1) for another example)
 ```powershell
 Write-Title "Example"
 $fullname = input "Full Name?" -Indent 4
