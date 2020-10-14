@@ -591,9 +591,9 @@ function Invoke-ListenTo
   .EXAMPLE
   $Callback = {
     $Data = $args[1]
-    Write-Color "Name ==> $($Data.Name)" -Magenta
-    Write-Color "Event ==> $($Data.ChangeType)" -Green
-    Write-Color "Fullpath ==> $($Data.FullPath)" -Cyan
+    "Name ==> $($Data.Name)" | Write-Color -Magenta
+    "Event ==> $($Data.ChangeType)" | Write-Color -Green
+    "Fullpath ==> $($Data.FullPath)" | Write-Color -Cyan
   }
   $Callback | listenTo -Path .
 
@@ -882,13 +882,13 @@ function Invoke-Once
   .PARAMETER Times
   Number of times passed function can be called (default is 1, hence the name - Once)
   .EXAMPLE
-  $Function:test = Invoke-Once { Write-Color "Should only see this once" -Red }
+  $Function:test = Invoke-Once { "Should only see this once" | Write-Color -Red }
   1..10 | ForEach-Object {
     test
   }
   .EXAMPLE
   $Function:greet = Invoke-Once {
-    Write-Color "Hello $($args[0])" -Red
+    "Hello $($args[0])" | Write-Color -Red
   }
   greet "World"
   # no subsequent greet functions are executed
@@ -925,7 +925,7 @@ function Invoke-Reduce
 
   Compute sum of array of integers
   .EXAMPLE
-  "a","b","c" | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue ""
+  "a","b","c" | reduce -Callback { $args[0] + $args[1] } -InitialValue ""
 
   Concatenate array of strings
   .EXAMPLE
@@ -1019,7 +1019,7 @@ function Invoke-Speak
   .EXAMPLE
   "hello world" | Invoke-Speak -Verbose
   .EXAMPLE
-  1,2,3 | %{ Invoke-Speak $_ }
+  1,2,3 | %{ say $_ }
   .EXAMPLE
   Get-Content .\phrases.csv | Invoke-Speak
   #>
@@ -1089,7 +1089,7 @@ function Invoke-StopListen
   .SYNOPSIS
   Remove event subscriber(s)
   .EXAMPLE
-  $Callback | on -Name "SomeEvent"
+  $Callback | on "SomeEvent"
   "SomeEvent" | Invoke-StopListen
 
   Remove events using the event "source identifier" (Name)
@@ -1100,7 +1100,7 @@ function Invoke-StopListen
 
   Remove multiple events using an event namespace
   .EXAMPLE
-  $Listener = $Callback | on -Name "SomeEvent"
+  $Listener = $Callback | on "SomeEvent"
   Invoke-StopListen -EventData $Listener
 
   Selectively remove a single event by passing its event data
@@ -1454,6 +1454,7 @@ function Out-Default
 function Remove-Character
 {
   [CmdletBinding()]
+  [Alias('remove')]
   [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
@@ -1771,9 +1772,9 @@ function Write-Color
   .EXAMPLE
   '{{#red this will be red}} and {{#blue this will be blue}}' | Write-Color
   .EXAMPLE
-  Write-Color 'You can color entire string using switch parameters' -Green
+  "You can color entire string using switch parameters" | Write-Color -Green
   .EXAMPLE
-  Write-Color 'You can color entire string using Color parameter' -Color Green
+  "You can color entire string using Color parameter" | Write-Color -Color Green
   .EXAMPLE
   '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = "World" } | Write-Color
   #>
@@ -1836,7 +1837,7 @@ function Write-Label
   Write-Label 'Favorite number?' -NewLine
   $choice = menu @('one'; 'two'; 'three')
   .EXAMPLE
-  Write-Label '{{#red Message? }}' -NewLine
+  '{{#red Message? }}' | Write-Label -NewLine
 
   Labels can be customized using mustache color helper templates
   #>

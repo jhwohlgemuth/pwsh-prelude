@@ -50,15 +50,18 @@ cd path/to/some/folder
 # new hotness
 path/to/some/folder
 ```
+- Find duplicate files (based on hash of content)
+```powershell
+Get-Location | Find-Duplicate
+```
 - Perform various operations on strings
 ```powershell
 $abc = "b" | insert -To "ac" -At 2
-$abc = "abcd" | Remove-Character -Last
+$abc = "abcd" | remove -Last
 ```
-- Leverage higher-order functions like reduce
+- Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
 ```powershell
-$Add = { Param($a, $b) $a + $b }
-$Sum = 1,2,3,4,5 | Invoke-Reduce -Callback $Add -InitialValue 0
+$Sum = 1..100 | reduce -Callback { Param($a, $b) $a + $b } -InitialValue 0
 ```
 - Exexute code on a remote computer
 ```powershell
@@ -74,7 +77,7 @@ say "Hello World"
 ```
 - Use events to communicate within your script/app
 ```powershell
-{ Write-Color "Event triggered" -Red } | on "SomeEvent"
+{ "Event triggered" | Write-Color -Red } | on "SomeEvent"
 
 # You can even listen to variables!!!
 # Declare a value for boot
@@ -97,11 +100,11 @@ $username = input "Username?" -MaxLength 10 -Indent 4
 $age = input "Age?" -Number -Indent 4
 $pass = input "Password?" -Secret -Indent 4
 $word = input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices @(
-    'Goku'
-    'Gohan'
-    'Goten'
-    'Vegeta'
-    'Trunks'
+  'Goku'
+  'Gohan'
+  'Goten'
+  'Vegeta'
+  'Trunks'
 )
 Write-Label 'Favorite number?' -Indent 4 -NewLine
 $choice = menu @('one'; 'two'; 'three') -Indent 4
@@ -181,6 +184,7 @@ Aliases
 - `menu`
 - `on`
 - `reduce`
+- `remove`
 - `repeat`
 - `rf`
 - `say`
