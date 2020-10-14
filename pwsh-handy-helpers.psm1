@@ -1136,25 +1136,43 @@ function Join-StringsWithGrammar()
   [CmdletBinding()]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String[]] $Items,
     [String] $Delimiter = ','
   )
-  $NumberOfItems = $Items.Length
-  switch ($NumberOfItems) {
-    1 {
-      $Items -join ""
+  
+  Begin {
+    function Join-Strings
+    {
+      Param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [AllowNull()]
+        [AllowEmptyCollection()]
+        [String[]] $Items
+      )
+      $NumberOfItems = $Items.Length
+      if ($NumberOfItems -gt 0) {
+        switch ($NumberOfItems) {
+          1 {
+            $Items -join ""
+          }
+          2 {
+            $Items -join " and "
+          }
+          Default {
+            @(
+              ($Items[0..($NumberOfItems - 2)] -join ", ") + ","
+              "and"
+              $Items[$NumberOfItems - 1]
+            ) -join " "
+          }
+        }
+      }
     }
-    2 {
-      $Items -join " and "
-    }
-    Default {
-      @(
-        ($Items[0..($NumberOfItems - 2)] -join ", ") + ","
-        "and"
-        $Items[$NumberOfItems - 1]
-      ) -join " "
-    }
+    Join-Strings $Items
+  }
+  End {
+    Join-Strings $Input
   }
 }
 function New-DailyShutdownJob

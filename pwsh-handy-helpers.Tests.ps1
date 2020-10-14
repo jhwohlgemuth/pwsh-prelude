@@ -165,14 +165,25 @@ Describe "Invoke-Speak (say)" {
 }
 Describe "Join-StringsWithGrammar" {
     It "accepts one parameter" {
+        Join-StringsWithGrammar "one" | Should -Be "one"
+        Join-StringsWithGrammar -Items "one" | Should -Be "one"
+        "one" | Join-StringsWithGrammar | Should -Be "one"
         Join-StringsWithGrammar @("one") | Should -Be "one"
     }
     It "accepts two parameter" {
+        Join-StringsWithGrammar "one","two" | Should -Be "one and two"
+        Join-StringsWithGrammar -Items "one","two" | Should -Be "one and two"
+        "one","two" | Join-StringsWithGrammar | Should -Be "one and two"
         Join-StringsWithGrammar @("one", "two") | Should -Be "one and two"
     }
     It "accepts three or more parameters" {
+        Join-StringsWithGrammar "one","two","three" | Should -Be "one, two, and three"
+        Join-StringsWithGrammar -Items "one","two","three" | Should -Be "one, two, and three"
+        Join-StringsWithGrammar "one","two","three","four" | Should -be "one, two, three, and four"
+        "one","two","three" | Join-StringsWithGrammar | Should -Be "one, two, and three"
+        "one","two","three","four" | Join-StringsWithGrammar | Should -be "one, two, three, and four"
         Join-StringsWithGrammar @("one", "two", "three") | Should -Be "one, two, and three"
-        Join-StringsWithGrammar @("one", "two", "three", "four") | Should -be "one, two, three, and four"
+        Join-StringsWithGrammar @("one", "two", "three", "four") | Should -Be "one, two, three, and four"
     }
 }
 Describe "New-File (touch)" {
