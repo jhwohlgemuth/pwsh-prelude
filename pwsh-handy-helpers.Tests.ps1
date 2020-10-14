@@ -36,7 +36,14 @@ Describe "ConvertTo-PowershellSyntax" {
 }
 Describe "Find-Duplicates" {
     It "can identify duplicate files" {
-        # Under construction
+        $Same = "these files have identical content"
+        $Same | Out-File "TestDrive:\foo"
+        "unique" | Out-File "TestDrive:\bar"
+        $Same | Out-File "TestDrive:\baz"
+        mkdir "TestDrive:\sub"
+        $Same | Out-File "TestDrive:\sub\bam"
+        "also unique" | Out-File "TestDrive:\sub\bat"
+        Find-Duplicate "TestDrive:\" | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be "bam","baz","foo"
     }
 }
 Describe "Find-FirstIndex" {
@@ -57,6 +64,8 @@ Describe "Invoke-InsertString" {
         Invoke-InsertString -Value "C" -To "ABDE" -At 2 | Should -Be "ABCDE"
         "C" | Invoke-InsertString -To "ABDE" -At 2 | Should -Be "ABCDE"
         "234" | Invoke-InsertString -To "15" -At 1 | Should -Be "12345"
+        "bar" | Invoke-InsertString -To "foo" -At 3 | Should -Be "foobar"
+        "bar" | Invoke-InsertString -To "foo" -At 4 | Should -Be "foo"
     }
 }
 Describe "Invoke-ListenTo" {

@@ -1,6 +1,7 @@
 ﻿function ConvertTo-PowershellSyntax
 {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Value,
@@ -46,9 +47,9 @@ function Find-Duplicate
   .SYNOPSIS
   Helper function that calculates file hash values to find duplicate files recursively
   .EXAMPLE
-  Find-Duplicate <path to folder>
+  Find-Duplicate "path/to/folder"
   .EXAMPLE
-  pwd | Find-Duplicate
+  Get-Location | Find-Duplicate
   #>
   [CmdletBinding()]
   Param(
@@ -61,6 +62,7 @@ function Find-Duplicate
     Group-Object -Property Hash |
     Where-Object Count -gt 1 |
     ForEach-Object { $_.Group | Select-Object Path, Hash } |
+    Sort-Object -Property Hash |
     Write-Output
 }
 function Find-FirstIndex
@@ -88,6 +90,7 @@ function Find-FirstIndex
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate')]
   [CmdletBinding()]
+  [OutputType([Int])]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [Array] $Values,
@@ -110,7 +113,7 @@ function Get-File
   .EXAMPLE
   Get-File http://example.com/file.txt -File myfile.txt
   .EXAMPLE
-  echo "http://example.com/file.txt" | Get-File
+  "http://example.com/file.txt" | Get-File
   #>
   [CmdletBinding()]
   Param(
@@ -511,7 +514,7 @@ function Invoke-InsertString
     [Parameter(Mandatory=$true)]
     [Int] $At
   )
-  if ($At -lt $To.Length -and $At -ge 0) {
+  if ($At -le $To.Length -and $At -ge 0) {
     $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
   } else {
     $To
