@@ -2,10 +2,9 @@ language: shell
 os:
   - windows
 before_script:
-  - choco install make
   - powershell -Command 'Set-ExecutionPolicy Unrestricted'
   - powershell -Command 'Import-Module -Name PowerShellGet'
   - powershell -Command 'Install-Module -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4 -Scope CurrentUser -Force'
   - powershell -Command 'Import-Module -Name Pester'
 script:
-  - ./build.ps1 -Test -WithCoverage -CI
+  - powershell -File ./build.ps1 -Test -WithCoverage -CI
