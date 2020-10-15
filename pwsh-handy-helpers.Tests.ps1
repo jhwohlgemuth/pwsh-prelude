@@ -1,5 +1,18 @@
-Import-Module ./pwsh-handy-helpers.psm1
+if (Get-Module -Name 'pwsh-handy-helpers') {
+    Remove-Module -Name 'pwsh-handy-helpers'
+}
+Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 
+Describe "Handy Helpers Module" {
+    Context "meta validation" {
+        It "should import exports" {
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 51
+        }
+        It "should import aliases" {
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 21
+        }
+    }
+}
 Describe "ConvertTo-PowershellSyntax" {
     It "can act as pass-thru for normal strings" {
         $Expected = "normal string with not mustache templates"
