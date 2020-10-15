@@ -1140,9 +1140,9 @@ function Join-StringsWithGrammar()
     [String[]] $Items,
     [String] $Delimiter = ','
   )
-  
+
   Begin {
-    function Join-Strings
+    function Join-StringArray
     {
       Param(
         [Parameter(Mandatory=$true, Position=0)]
@@ -1169,10 +1169,10 @@ function Join-StringsWithGrammar()
         }
       }
     }
-    Join-Strings $Items
+    Join-StringArray $Items
   }
   End {
-    Join-Strings $Input
+    Join-StringArray $Input
   }
 }
 function New-DailyShutdownJob

@@ -11,14 +11,5 @@ validate:
 	@powershell Test-ModuleManifest -Path (Join-Path (Get-Location) pwsh-handy-helpers.psd1)
 	@powershell if ((Write-Output $$ENV:NUGET_API_KEY).Length -eq 46) { Write-Output "Valid: NUGET_API_KEY" }
 
-lint:
-	@powershell Invoke-ScriptAnalyzer -Path .\ -Settings settings.psd1 -Fix
-
-test:
-	@powershell Invoke-Pester
-
-coverage:
-	@powershell Invoke-Pester "." -CodeCoverage (Get-ChildItem (Get-Location) -Recurse -Include "*.psm1").FullName
-
 test-ci:
 	@powershell '$$results = Invoke-Pester -PassThru; if ($$results.FailedCount -gt 0) { throw "$$($$results.FailedCount) tests failed." }'
