@@ -272,6 +272,11 @@ Describe "New-Template" {
         </section>"
         & $section @{ title = "Title" } | Should -Be $Expected
     }
+    It "can return pass-thru function that does no string interpolation" {
+        $Function:render = '{{#green Hello}} {{ name }}' | New-Template
+        render -Data @{ name = "Jason" } | Should -Be '{{#green Hello}} Jason'
+        render -Data @{ name = "Jason" } -PassThru | Should -Be '{{#green Hello}} {{ name }}'
+    }
 }
 Describe "Remove-Character" {
     It "can remove single character from string" {
@@ -324,6 +329,9 @@ Describe "Test-Equal" {
         Test-Equal 42 43 | Should -Be $false
         Test-Equal -43 -42 | Should -Be $false
         Test-Equal 3 "not a number" | Should -Be $false
+        Test-Equal 4.2 4.2 | Should -Be $true
+        Test-Equal 4 4.0 | Should -Be $true
+        Test-Equal 4.1 4.2 | Should -Be $false
     }
     It "can compare strings" {
         Test-Equal "" "" | Should -Be $true
