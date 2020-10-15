@@ -5,7 +5,8 @@ Param(
   [Switch] $Lint,
   [Switch] $Test,
   [Switch] $WithCoverage,
-  [Switch] $CI
+  [Switch] $CI,
+  [Switch] $SkipTests
 )
 function Invoke-Lint
 {
@@ -102,11 +103,13 @@ function Invoke-Publish
 if ($Lint) {
   Invoke-Lint
 }
-if ($Test) {
+if ($Test -and -not $SkipTests) {
   Invoke-Test
 }
 if (-not $Lint -and -not $Test) {
-  Invoke-Lint
-  Invoke-Test
+  if (-not $SkipTests) {
+    Invoke-Lint
+    Invoke-Test
+  }
   Invoke-Publish
 }
