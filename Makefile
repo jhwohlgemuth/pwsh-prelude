@@ -17,5 +17,8 @@ lint:
 test:
 	@powershell Invoke-Pester
 
+coverage:
+	@powershell Invoke-Pester "." -CodeCoverage (Get-ChildItem (Get-Location) -Recurse -Include "*.psm1").FullName
+
 test-ci:
 	@powershell '$$results = Invoke-Pester -PassThru; if ($$results.FailedCount -gt 0) { throw "$$($$results.FailedCount) tests failed." }'
