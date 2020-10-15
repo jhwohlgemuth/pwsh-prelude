@@ -8,3 +8,5 @@ before_script:
   - powershell -Command 'Import-Module -Name Pester'
 script:
   - powershell -File ./build.ps1 -Test -CI
+  - powershell -File ./build.ps1 -Test -WithCoverage
+  - bash <(curl -s https://codecov.io/bash) -f coverage.xml
