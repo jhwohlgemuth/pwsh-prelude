@@ -7,4 +7,4 @@ before_script:
   - powershell -Command 'Install-Module -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4 -Scope CurrentUser -Force'
   - powershell -Command 'Import-Module -Name Pester'
 script:
-  - powershell -File ./build.ps1 -Test -WithCoverage -CI
+  - powershell -File ./build.ps1 -Test -CI

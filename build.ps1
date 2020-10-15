@@ -11,7 +11,7 @@ function Invoke-Lint
 {
   [CmdletBinding()]
   Param()
-  "==> Linting code..." | Write-Host -ForegroundColor Green
+  "==> Linting code" | Write-Host -ForegroundColor Cyan
   $Settings = @{
     ExcludeRules = @(
       'PSAvoidUsingWriteHost'
@@ -20,32 +20,36 @@ function Invoke-Lint
       'PSUseShouldProcessForStateChangingFunctions'
     )
   }
-  Invoke-ScriptAnalyzer -Path (Get-Location) -Settings $Settings -Fix -EnableExit:$CI
+  Invoke-ScriptAnalyzer -Path (Get-Location) -Settings $Settings -Fix -EnableExit:$CI -ReportSummary
+  "" | Write-Host
 }
 function Invoke-Test
 {
   [CmdletBinding()]
   Param()
-  "==> Executing tests..." | Write-Host -ForegroundColor Green -NoNewLine
+  "==> Executing tests" | Write-Host -ForegroundColor Cyan -NoNewLine
   if (-not (Get-Module -Name Pester)) {
     Import-Module -Name Pester
   }
   if ($WithCoverage) {
-    "with coverage" | Write-Host -ForegroundColor Green
+    " with coverage" | Write-Host -ForegroundColor Cyan
     $Files = (Get-ChildItem $PSScriptRoot -Recurse -Include "*.psm1").FullName
     $Configuration = [PesterConfiguration]@{
+      Run = @{
+        PassThru = $true
+      }
       CodeCoverage = @{
         Enabled = $true
         Path = $Files
       }
     }
-    Invoke-Pester -Configuration $Configuration
   } elseif ($CI) {
-    "on CI" | Write-Host -ForegroundColor Green
+    " on CI" | Write-Host -ForegroundColor Cyan
     $Files = (Get-ChildItem $PSScriptRoot -Recurse -Include "*.psm1").FullName
     $Configuration = [PesterConfiguration]@{
       Run = @{
         Exit = $true
+        PassThru = $true
       }
       CodeCoverage = @{
         Enabled = $true
@@ -55,31 +59,54 @@ function Invoke-Test
         Enabled = $true
       }
     }
-    Invoke-Pester -Configuration $Configuration
   } else {
     "" | Write-Host
-    $Result = Invoke-Pester -PassThru
-    if ($Result.FailedCount -gt 0) {
-      "`nFAILED - $($Result.FailedCount) tests failed.`n" | Write-Host -ForegroundColor Red
-    } else {
-      "`nSUCCESS`n" | Write-Host -ForegroundColor Green
+    $Configuration = [PesterConfiguration]@{
+      Run = @{
+        PassThru = $true
+      }
+      Debug = @{
+        ShowNavigationMarkers = $true
+        WriteVSCodeMarker = $true
+      }
     }
   }
+  $Result = Invoke-Pester -Configuration $Configuration
+  if ($Result.FailedCount -gt 0) {
+    "`nFAILED - $($Result.FailedCount) tests failed.`n" | Write-Host -ForegroundColor Red
+  } else {
+    "`nSUCCESS`n" | Write-Host -ForegroundColor Green
+  }
 }
-if ($Lint) {
-  Invoke-Lint
-} elseif ($Test) {
-  Invoke-Test
-} else {
-  Invoke-Lint
-  Invoke-Test
-  Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-handy-helpers.psd1')
-  "NUGET_API_KEY ==> " | Write-Host -ForegroundColor Green -NoNewline
-  if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) {
+function Invoke-Publish
+{
+  [CmdletBinding()]
+  Param()
+  "==> Validating module data..." | Write-Host -ForegroundColor Cyan
+  "    Module manifest: " | Write-Host -NoNewline
+  if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-handy-helpers.psd1')) {
     "VALID" | Write-Host -ForegroundColor Green
   } else {
     "INVALID" | Write-Host -ForegroundColor Red
   }
-  "==> Publishing module..." | Write-Host -ForegroundColor Green
-  Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -Verbose
+  "    Nuget API Key: " | Write-Host -NoNewline
+  if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) {
+    "VALID`n" | Write-Host -ForegroundColor Green
+  } else {
+    "INVALID`n" | Write-Host -ForegroundColor Red
+  }
+  "==> Publishing module..." | Write-Host -ForegroundColor Cyan -NoNewline
+  Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY
+  "DONE`n" | Write-Host -ForegroundColor Green
+}
+if ($Lint) {
+  Invoke-Lint
+}
+if ($Test) {
+  Invoke-Test
+}
+if (-not $Lint -and -not $Test) {
+  Invoke-Lint
+  Invoke-Test
+  Invoke-Publish
 }

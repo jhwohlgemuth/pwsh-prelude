@@ -1752,6 +1752,7 @@ function Test-Installed
 function Use-Grammar
 {
   [CmdletBinding()]
+  [OutputType([System.Speech.Recognition.SpeechRecognitionEngine])]
   Param(
     [Parameter(Mandatory=$true)]
     [String[]] $Words
