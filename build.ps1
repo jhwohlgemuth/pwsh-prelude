@@ -21,7 +21,8 @@ function Invoke-Lint
       'PSUseShouldProcessForStateChangingFunctions'
     )
   }
-  Invoke-ScriptAnalyzer -Path (Get-Location) -Settings $Settings -Fix -EnableExit:$CI -ReportSummary
+  $Path = Join-Path (Get-Location) "src"
+  Invoke-ScriptAnalyzer -Path $Path -Settings $Settings -Fix -EnableExit:$CI -ReportSummary
   "" | Write-Host
 }
 function Invoke-Test
