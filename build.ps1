@@ -97,7 +97,7 @@ function Invoke-Publish
     "INVALID`n" | Write-Host -ForegroundColor Red
   }
   "==> Publishing module..." | Write-Host -ForegroundColor Cyan -NoNewline
-  Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -Verbose
+  Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY
   "DONE`n" | Write-Host -ForegroundColor Green
 }
 if ($Lint) {
