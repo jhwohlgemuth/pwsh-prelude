@@ -92,7 +92,7 @@ function Find-FirstIndex
   [CmdletBinding()]
   [OutputType([Int])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [Array] $Values,
     [ScriptBlock] $Predicate = { $args[0] -eq $true }
   )
