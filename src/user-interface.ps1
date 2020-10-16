@@ -501,16 +501,20 @@ function Show-BarChart
     $IsEven = ($Index % 2) -eq 0
     $Padding = $Space | Write-Repeat -Times ($LongestNameLength - $Name.Length)
     $Bar = $Marker | Write-Repeat -Times $Value
+    $ValueLabel = & { if ($ShowValues) { " $($Data.$Name)" } else { "" } }
     if ($WithColor) {
-      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -Cyan:$($IsEven -and $Alternate) -DarkCyan:$((-not $IsEven -and $Alternate) -or (-not $Alternate)) -NoNewLine
+      $Color = @{
+        Cyan = $($IsEven -and $Alternate)
+        DarkCyan = $((-not $IsEven -and $Alternate) -or (-not $Alternate))
+      }
     } else {
-      Write-Color "$Padding{{#white $Name $Tee}}$Bar" -White:$($IsEven -and $Alternate) -Gray:$(-not $IsEven -and $Alternate) -NoNewLine
+      $Color = @{
+        White = $($IsEven -and $Alternate)
+        Gray = $(-not $IsEven -and $Alternate)
+      }
     }
-    if ($ShowValues) {
-      Write-Color " $($Data.$Name)" -DarkGray
-    } else {
-      Write-Color ""
-    }
+    "$Padding{{#white $Name $Tee}}$Bar" | Write-Color @Color -NoNewLine
+    $ValueLabel | Write-Color @Color
     $Index++
   }
 }
