@@ -81,6 +81,25 @@ function Home
   Param()
   Set-Location ~
 }
+function Install-SshServer
+{
+  <#
+  .SYNOPSIS
+  Install OpenSSH server
+  .LINK
+  https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
+  #>
+  [CmdletBinding(SupportsShouldProcess=$true)]
+  Param()
+  Write-Verbose '==> Enabling OpenSSH server'
+  Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+  Write-Verbose '==> Starting sshd service'
+  Start-Service sshd
+  Write-Verbose '==> Setting sshd service to start automatically'
+  Set-Service -Name sshd -StartupType 'Automatic'
+  Write-Verbose '==> Adding firewall rule for sshd'
+  New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+}
 function Invoke-DockerInspectAddress
 {
   <#
@@ -176,25 +195,6 @@ function Invoke-ListenForWord
     }
   }
 }
-function Install-SshServer
-{
-  <#
-  .SYNOPSIS
-  Install OpenSSH server
-  .LINK
-  https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
-  #>
-  [CmdletBinding(SupportsShouldProcess=$true)]
-  Param()
-  Write-Verbose '==> Enabling OpenSSH server'
-  Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-  Write-Verbose '==> Starting sshd service'
-  Start-Service sshd
-  Write-Verbose '==> Setting sshd service to start automatically'
-  Set-Service -Name sshd -StartupType 'Automatic'
-  Write-Verbose '==> Adding firewall rule for sshd'
-  New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-}
 function Invoke-RemoteCommand
 {
   <#
@@ -272,47 +272,55 @@ function Invoke-Speak
     $TotalText = ""
   }
   Process {
-    Write-Verbose "==> Creating speech synthesizer"
-    $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
-    if (-not $Silent) {
-      switch ($InputType)
-      {
-        "ssml" {
-          Write-Verbose "==> Received SSML input"
-          $synthesizer.SpeakSsml($Text)
-        }
-        Default {
-          Write-Verbose "==> Speaking: $Text"
-          $synthesizer.Rate = $Rate
-          $synthesizer.Speak($Text)
+    if ($IsLinux -is [Bool] -and $IsLinux) {
+      Write-Verbose "==> Invoke-Speak is only supported on Windows platform"
+    } else {
+      Write-Verbose "==> Creating speech synthesizer"
+      $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
+      if (-not $Silent) {
+        switch ($InputType)
+        {
+          "ssml" {
+            Write-Verbose "==> Received SSML input"
+            $synthesizer.SpeakSsml($Text)
+          }
+          Default {
+            Write-Verbose "==> Speaking: $Text"
+            $synthesizer.Rate = $Rate
+            $synthesizer.Speak($Text)
+          }
         }
       }
+      $TotalText += "$Text "
     }
-    $TotalText += "$Text "
   }
   End {
-    $TotalText = $TotalText.Trim()
-    switch ($Output)
-    {
-      "file" {
-        Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
-      }
-      "ssml" {
-        $Function:render = New-Template `
-'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
-    <voice xml:lang="en-US">
-        <prosody rate="{{ rate }}">
-            <p>{{ text }}</p>
-        </prosody>
-    </voice>
-</speak>'
-        render @{ rate = $Rate; text = $TotalText } | Write-Output
-      }
-      "text" {
-        Write-Output $TotalText
-      }
-      Default {
-        Write-Verbose "==> $TotalText"
+    if ($IsLinux -is [Bool] -and $IsLinux) {
+      Write-Verbose "==> Invoke-Speak was not executed, no output was created"
+    } else {
+      $TotalText = $TotalText.Trim()
+      switch ($Output)
+      {
+        "file" {
+          Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
+        }
+        "ssml" {
+          $Function:render = New-Template `
+  '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+      <voice xml:lang="en-US">
+          <prosody rate="{{ rate }}">
+              <p>{{ text }}</p>
+          </prosody>
+      </voice>
+  </speak>'
+          render @{ rate = $Rate; text = $TotalText } | Write-Output
+        }
+        "text" {
+          Write-Output $TotalText
+        }
+        Default {
+          Write-Verbose "==> $TotalText"
+        }
       }
     }
   }
@@ -607,11 +615,15 @@ function Use-Speech
 {
   [CmdletBinding()]
   Param()
-  $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
-  if (-not ($SpeechSynthesizerTypeName -as [Type])) {
-    Write-Verbose "==> Adding System.Speech type"
-    Add-Type -AssemblyName System.Speech
+  if ($IsLinux -is [Bool] -and $IsLinux) {
+    Write-Verbose "==> Speech synthesizer can only be used on Windows platform"
   } else {
-    Write-Verbose "==> System.Speech is already loaded"
+    $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
+    if (-not ($SpeechSynthesizerTypeName -as [Type])) {
+      Write-Verbose "==> Adding System.Speech type"
+      Add-Type -AssemblyName System.Speech
+    } else {
+      Write-Verbose "==> System.Speech is already loaded"
+    }
   }
 }
