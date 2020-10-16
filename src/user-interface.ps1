@@ -301,15 +301,15 @@ function Invoke-Menu
   .PARAMETER FolderContent
   Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
-  Invoke-Menu @('one', 'two', 'three')
+  Invoke-Menu "one","two","three" 
   .EXAMPLE
-  Invoke-Menu @('one', 'two', 'three') -HighlightColor Blue
+  Invoke-Menu "one","two","three" -HighlightColor Blue
   .EXAMPLE
-  Invoke-Menu @('one', 'two', 'three') -MultiSelect -ReturnIndex | Sort-Object
+  "one","two","three" | Invoke-Menu -MultiSelect -ReturnIndex | Sort-Object
   .EXAMPLE
-  ,(1,2,3,4,5) | menu
+  1,2,3,4,5 | menu
   .EXAMPLE
-  ,(1,2,3,4,5) | menu -SingleSelect
+  1..10 | menu -SingleSelect
 
   The SingleSelect switch allows for only one item to be selected at a time
   .EXAMPLE
@@ -331,88 +331,93 @@ function Invoke-Menu
     [Switch] $FolderContent,
     [Int] $Indent = 0
   )
-  function Invoke-MenuDraw
-  {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
-    [CmdletBinding()]
-    Param (
-      [Array] $Items,
-      [Int] $Position,
-      [Array] $Selection,
-      [Switch] $MultiSelect,
-      [Switch] $SingleSelect,
-      [Int] $Indent = 0
-    )
-    $Index = 0
-    $Items | ForEach-Object {
-      $Item = $_
-      if ($null -ne $Item) {
-        if ($MultiSelect) {
-          if ($Selection -contains $Index) {
-            $Item = "[x] $Item"
-          } else {
-            $Item = "[ ] $Item"
-          }
-        } else {
-          if ($SingleSelect) {
+  Begin {
+    function Invoke-MenuDraw
+    {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+      [CmdletBinding()]
+      Param (
+        [Array] $Items,
+        [Int] $Position,
+        [Array] $Selection,
+        [Switch] $MultiSelect,
+        [Switch] $SingleSelect,
+        [Int] $Indent = 0
+      )
+      $Index = 0
+      $Items | ForEach-Object {
+        $Item = $_
+        if ($null -ne $Item) {
+          if ($MultiSelect) {
             if ($Selection -contains $Index) {
-              $Item = "(o) $Item"
+              $Item = "[x] $Item"
             } else {
-              $Item = "( ) $Item"
+              $Item = "[ ] $Item"
+            }
+          } else {
+            if ($SingleSelect) {
+              if ($Selection -contains $Index) {
+                $Item = "(o) $Item"
+              } else {
+                $Item = "( ) $Item"
+              }
             }
           }
+          if ($Index -eq $Position) {
+            Write-Color "$(' ' * $Indent)> $Item" -Color $HighlightColor
+          } else {
+            Write-Color "$(' ' * $Indent)  $Item"
+          }
         }
-        if ($Index -eq $Position) {
-          Write-Color "$(' ' * $Indent)> $Item" -Color $HighlightColor
-        } else {
-          Write-Color "$(' ' * $Indent)  $Item"
-        }
+        $Index++
       }
-      $Index++
     }
-  }
-  function Update-MenuSelection
-  {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SingleSelect')]
-    [CmdletBinding()]
-    Param (
-      [Int] $Position,
-      [Array] $Selection,
-      [Switch] $MultiSelect,
-      [Switch] $SingleSelect
-    )
-    if ($Selection -contains $Position) {
-      $Result = $Selection | Where-Object { $_ -ne $Position }
-    } else {
-      if ($MultiSelect) {
-        $Selection += $Position
+    function Update-MenuSelection
+    {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SingleSelect')]
+      [CmdletBinding()]
+      Param (
+        [Int] $Position,
+        [Array] $Selection,
+        [Switch] $MultiSelect,
+        [Switch] $SingleSelect
+      )
+      if ($Selection -contains $Position) {
+        $Result = $Selection | Where-Object { $_ -ne $Position }
       } else {
-        $Selection = ,$Position
+        if ($MultiSelect) {
+          $Selection += $Position
+        } else {
+          $Selection = ,$Position
+        }
+        $Result = $Selection
       }
-      $Result = $Selection
+      $Result
     }
-    $Result
+    [Console]::CursorVisible = $false
+    $Keycodes = @{
+      enter = 13
+      escape = 27
+      space = 32
+      tab = 9
+      up = 38
+      down = 40
+    }
+    $Keycode = 0
+    $Position = 0
+    $Selection = @()
   }
-  [Console]::CursorVisible = $false
-  $Keycodes = @{
-    enter = 13
-    escape = 27
-    space = 32
-    tab = 9
-    up = 38
-    down = 40
-  }
-  $Keycode = 0
-  $Position = 0
-  $Selection = @()
-  if ($FolderContent) {
-    $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "$_/" }
-    $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
-  }
-  if ($Items.Length -gt 0) {
+  End {
+    if ($Input.Length -gt 0) {
+      $Items = $Input
+    }
+    if ($FolderContent) {
+      $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "$_/" }
+      $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
+    }
     Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
-		While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
-			$Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
+    While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
+      $Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
       switch ($Keycode) {
         $Keycodes.escape {
           $Position = $null
@@ -435,24 +440,26 @@ function Invoke-Menu
         [Console]::SetCursorPosition(0, $StartPosition)
         Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
       }
-		}
-	} else {
-		$Position = $null
-	}
-  [Console]::CursorVisible = $true
-  if ($ReturnIndex -eq $false -and $null -ne $Position) {
-		if ($MultiSelect) {
-			return $Items[$Selection]
-		} else {
-			return $Items[$Position]
-		}
-	} else {
-		if ($MultiSelect) {
-			return $Selection
-		} else {
-			return $Position
-		}
-	}
+    }
+    [Console]::CursorVisible = $true
+    if ($ReturnIndex -eq $false -and $null -ne $Position) {
+      if ($MultiSelect -or $SingleSelect) {
+        if ($Selection.Length -gt 0) {
+          return $Items[$Selection]
+        } else {
+          return $null
+        }
+      } else {
+        return $Items[$Position]
+      }
+    } else {
+      if ($MultiSelect -or $SingleSelect) {
+        return $Selection
+      } else {
+        return $Position
+      }
+    }
+  }
 }
 function Show-BarChart
 {

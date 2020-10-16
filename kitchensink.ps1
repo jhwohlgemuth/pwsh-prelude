@@ -20,13 +20,13 @@ $FavoriteSaiyajin = Invoke-Input "Favorite Saiya-jin?" -Autocomplete -Indent $In
 )
 
 'Favorite number?' | Write-Label -Indent $Indent -NewLine
-$choice = ,("one","two","three") | Invoke-Menu -SingleSelect -Indent $Indent
+$FavoriteNumber = "one","two","three" | Invoke-Menu -SingleSelect -Indent $Indent
 
 'Known mathematicians?' | Write-Label -Indent $Indent -NewLine
-$choice = ,("Godel","Gauss","Cantor") | Invoke-Menu -MultiSelect -Indent $Indent
+$choice = "Godel","Gauss","Cantor" | Invoke-Menu -MultiSelect -Indent $Indent
 
 "{{#red Red}}, {{#white White}}, or {{#blue Blue}}?" | Write-Label -Indent $Indent -NewLine
-$FavoriteColor = ,("red","white","blue") | Invoke-Menu -Indent $Indent
+$FavoriteColor = "red","white","blue" | Invoke-Menu -Indent $Indent
 
 $Space
 
@@ -36,13 +36,14 @@ $Username | Write-Label -Indent $Indent -Color $Color -NewLine
 $Age | Write-Label -Indent $Indent -Color $Color -NewLine
 $Pass | Write-Label -Indent $Indent -Color $Color -NewLine
 $FavoriteSaiyajin | Write-Label -Indent $Indent -Color $Color -NewLine
+$FavoriteNumber | Write-Label -Indent $Indent -Color $Color -NewLine
 (Join-StringsWithGrammar $choice) | Write-Label -Indent $Indent -Color $Color -NewLine
 $FavoriteColor | Write-Label -Indent $Indent -Color $Color -NewLine
 
 $Space
 
 "Show bar charts?" | Write-Label -NewLine
-$Choice = ,("yes","no") | menu
+$Choice = "yes","no" | Invoke-Menu
 if ($Choice -eq "yes") {
     "Bar Charts" | Write-Title -Blue
     Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
