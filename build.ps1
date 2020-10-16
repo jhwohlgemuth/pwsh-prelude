@@ -5,9 +5,11 @@ Param(
   [Switch] $Lint,
   [Switch] $Test,
   [Switch] $WithCoverage,
+  [Switch] $ShowCoverageReport,
   [Switch] $CI,
   [Switch] $SkipTests
 )
+$SourceDirectory = "src"
 function Invoke-Lint
 {
   [CmdletBinding()]
@@ -21,7 +23,7 @@ function Invoke-Lint
       'PSUseShouldProcessForStateChangingFunctions'
     )
   }
-  $Path = Join-Path (Get-Location) "src"
+  $Path = Join-Path (Get-Location) $SourceDirectory
   Invoke-ScriptAnalyzer -Path $Path -Settings $Settings -Fix -EnableExit:$CI -ReportSummary
   "" | Write-Host
 }
@@ -33,7 +35,7 @@ function Invoke-Test
   if (-not (Get-Module -Name Pester)) {
     Import-Module -Name Pester
   }
-  $Root = Join-Path $PSScriptRoot "src"
+  $Root = Join-Path $PSScriptRoot $SourceDirectory
   $Files = (Get-ChildItem $Root -Recurse -Include "*.ps1").FullName
   if ($WithCoverage) {
     " with coverage" | Write-Host -ForegroundColor Cyan
@@ -106,6 +108,11 @@ if ($Lint) {
 }
 if ($Test -and -not $SkipTests) {
   Invoke-Test
+  if ($WithCoverage -and $ShowCoverageReport) {
+    $ReportTypes = "Html;HtmlSummary;HtmlChart"
+    reportgenerator.exe -reports:coverage.xml -targetdir:coverage -sourcedirs:$SourceDirectory -historydir:.history -reporttypes:$ReportTypes
+    Invoke-Item ".\coverage\index.htm"
+  }
 }
 if (-not $Lint -and -not $Test) {
   if (-not $SkipTests) {
