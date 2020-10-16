@@ -1,6 +1,5 @@
 
-function Enable-Remoting
-{
+function Enable-Remoting {
   <#
   .SYNOPSIS
   Function to enable Powershell remoting for workgroup computer
@@ -29,8 +28,7 @@ function Enable-Remoting
     Write-Error "==> Enable-Remoting requires Administrator privileges"
   }
 }
-function Find-Duplicate
-{
+function Find-Duplicate {
   <#
   .SYNOPSIS
   Helper function that calculates file hash values to find duplicate files recursively
@@ -53,8 +51,7 @@ function Find-Duplicate
     Sort-Object -Property Hash |
     Write-Output
 }
-function Get-File
-{
+function Get-File {
   <#
   .SYNOPSIS
   Download a file from an internet endpoint (ex: http://example.com/file.txt)
@@ -74,15 +71,13 @@ function Get-File
   $client = New-Object System.Net.WebClient
   $client.DownloadFile($Url, $File)
 }
-function Home
-{
+function Home {
   [CmdletBinding()]
   [Alias('~')]
   Param()
   Set-Location ~
 }
-function Install-SshServer
-{
+function Install-SshServer {
   <#
   .SYNOPSIS
   Install OpenSSH server
@@ -100,8 +95,7 @@ function Install-SshServer
   Write-Verbose '==> Adding firewall rule for sshd'
   New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
 }
-function Invoke-DockerInspectAddress
-{
+function Invoke-DockerInspectAddress {
   <#
   .SYNOPSIS
   Get IP address of Docker container at given name (or ID)
@@ -118,8 +112,7 @@ function Invoke-DockerInspectAddress
   )
   docker inspect --format '{{ .NetworkSettings.IPAddress }}' $Name
 }
-function Invoke-DockerRemoveAll
-{
+function Invoke-DockerRemoveAll {
   <#
   .SYNOPSIS
   Remove ALL Docker containers
@@ -131,8 +124,7 @@ function Invoke-DockerRemoveAll
   Param()
   docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
 }
-function Invoke-DockerRemoveAllImage
-{
+function Invoke-DockerRemoveAllImage {
   <#
   .SYNOPSIS
   Remove ALL Docker images
@@ -151,8 +143,7 @@ function Invoke-GitPushMaster { git push origin master }
 function Invoke-GitStatus { git status -sb }
 function Invoke-GitRebase { git rebase -i $args }
 function Invoke-GitLog { git log --oneline --decorate }
-function Invoke-ListenForWord
-{
+function Invoke-ListenForWord {
   <#
   .SYNOPSIS
   Start loop that listens for trigger words and execute passed functions when recognized
@@ -195,8 +186,7 @@ function Invoke-ListenForWord
     }
   }
 }
-function Invoke-RemoteCommand
-{
+function Invoke-RemoteCommand {
   <#
   .SYNOPSIS
   Execute script block on remote computer (like Invoke-Command, but remote)
@@ -243,8 +233,7 @@ function Invoke-RemoteCommand
   Write-Verbose "==> Running command on $(Join-StringsWithGrammar $ComputerNames)"
   Invoke-Command -ComputerName $ComputerNames -Credential $Cred -ScriptBlock $ScriptBlock
 }
-function Invoke-Speak
-{
+function Invoke-Speak {
   <#
   .SYNOPSIS
   Use Windows Speech Synthesizer to speak input text
@@ -325,8 +314,7 @@ function Invoke-Speak
     }
   }
 }
-function New-DailyShutdownJob
-{
+function New-DailyShutdownJob {
   <#
   .SYNOPSIS
   Create job to shutdown computer at a certain time every day
@@ -345,8 +333,7 @@ function New-DailyShutdownJob
     Write-Error "==> New-DailyShutdownJob requires Administrator privileges"
   }
 }
-function New-File
-{
+function New-File {
   <#
   .SYNOPSIS
   Powershell equivalent of linux "touch" command (includes "touch" alias)
@@ -367,8 +354,7 @@ function New-File
     New-Item -Path . -Name $Name -ItemType "file" -Value ""
   }
 }
-function New-ProxyCommand
-{
+function New-ProxyCommand {
   <#
   .SYNOPSIS
   Create function template for proxy function
@@ -392,8 +378,7 @@ function New-ProxyCommand
     $([System.Management.Automation.ProxyCommand]::Create($metadata))
   }"
 }
-function New-SshKey
-{
+function New-SshKey {
   [CmdletBinding()]
   Param(
     [String] $Name = 'id_rsa'
@@ -412,8 +397,7 @@ function New-SshKey
     Write-Error "==> Failed to create SSH key"
   }
 }
-function Open-Session
-{
+function Open-Session {
   <#
   .SYNOPSIS
   Create interactive session with remote computer
@@ -471,8 +455,7 @@ function Open-Session
   }
   $Session
 }
-function Remove-DailyShutdownJob
-{
+function Remove-DailyShutdownJob {
   <#
   .SYNOPSIS
   Remove job created with New-DailyShutdownJob
@@ -487,8 +470,7 @@ function Remove-DailyShutdownJob
     Write-Error "==> Remove-DailyShutdownJob requires Administrator privileges"
   }
 }
-function Remove-DirectoryForce
-{
+function Remove-DirectoryForce {
   <#
   .SYNOPSIS
   Powershell equivalent of linux "rm -frd"
@@ -511,8 +493,7 @@ function Remove-DirectoryForce
     Write-Error 'Bad input. No folders/files were deleted'
   }
 }
-function Take
-{
+function Take {
   <#
   .SYNOPSIS
   Powershell equivalent of oh-my-zsh take function
@@ -541,8 +522,7 @@ function Take
   }
   Write-Verbose "==> pwd is $(Get-Location)"
 }
-function Test-Admin
-{
+function Test-Admin {
   <#
   .SYNOPSIS
   Helper function that returns true if user is in the "built-in" "admin" group, false otherwise
@@ -558,8 +538,7 @@ function Test-Admin
     ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
   }
 }
-function Test-Empty
-{
+function Test-Empty {
   <#
   .SYNOPSIS
   Helper function that returns true if directory is empty, false otherwise
@@ -577,8 +556,7 @@ function Test-Empty
   )
   Get-Item $Name | ForEach-Object { $_.psiscontainer -and $_.GetFileSystemInfos().Count -eq 0 } | Write-Output
 }
-function Test-Installed
-{
+function Test-Installed {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
@@ -591,8 +569,7 @@ function Test-Installed
     $false
   }
 }
-function Use-Grammar
-{
+function Use-Grammar {
   [CmdletBinding()]
   [OutputType([System.Speech.Recognition.SpeechRecognitionEngine])]
   Param(
@@ -611,8 +588,7 @@ function Use-Grammar
   }
   $Engine
 }
-function Use-Speech
-{
+function Use-Speech {
   [CmdletBinding()]
   Param()
   if ($IsLinux -is [Bool] -and $IsLinux) {

@@ -1,5 +1,4 @@
-﻿function ConvertTo-PowershellSyntax
-{
+﻿function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(
@@ -11,8 +10,7 @@
     ForEach-Object { $_ -replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
     ForEach-Object { $_ -replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
-function Invoke-FireEvent
-{
+function Invoke-FireEvent {
   [CmdletBinding()]
   [Alias('trigger')]
   Param(
@@ -22,8 +20,7 @@ function Invoke-FireEvent
   )
   New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
 }
-function Find-FirstIndex
-{
+function Find-FirstIndex {
   <#
   .SYNOPSIS
   Helper function to return index of first array item that returns true for a given predicate
@@ -60,8 +57,7 @@ function Find-FirstIndex
   })
   $Indexes.Where({ $_ }, 'First')
 }
-function Invoke-InsertString
-{
+function Invoke-InsertString {
   [CmdletBinding()]
   [Alias('insert')]
   [OutputType([String])]
@@ -79,8 +75,7 @@ function Invoke-InsertString
     $To
   }
 }
-function Invoke-ListenTo
-{
+function Invoke-ListenTo {
   <#
   .SYNOPSIS
   Create an event listener ("subscriber"). Basically a wrapper for Register-EngineEvent.
@@ -222,8 +217,7 @@ function Invoke-ListenTo
     $_Event
   }
 }
-function Invoke-Once
-{
+function Invoke-Once {
   <#
   .SYNOPSIS
   Higher-order function that takes a function and returns a function that can only be executed a certain number of times
@@ -259,8 +253,7 @@ function Invoke-Once
     }
   }.GetNewClosure()
 }
-function Invoke-Reduce
-{
+function Invoke-Reduce {
   <#
   .SYNOPSIS
   Functional helper function intended to approximate some of the capabilities of Reduce (as used in languages like JavaScript and F#)
@@ -309,8 +302,7 @@ function Invoke-Reduce
     $Result
   }
 }
-function Invoke-StopListen
-{
+function Invoke-StopListen {
   <#
   .SYNOPSIS
   Remove event subscriber(s)
@@ -348,8 +340,7 @@ function Invoke-StopListen
     $Events | ForEach-Object { Unregister-Event -SubscriptionId $_.SubscriptionId }
   }
 }
-function Join-StringsWithGrammar()
-{
+function Join-StringsWithGrammar {
   <#
   .SYNOPSIS
   Helper function that creates a string out of a list that properly employs commands and "and"
@@ -368,8 +359,7 @@ function Join-StringsWithGrammar()
   )
 
   Begin {
-    function Join-StringArray
-    {
+    function Join-StringArray {
       Param(
         [Parameter(Mandatory=$true, Position=0)]
         [AllowNull()]
@@ -401,8 +391,7 @@ function Join-StringsWithGrammar()
     Join-StringArray $Input
   }
 }
-function New-Template
-{
+function New-Template {
   <#
   .SYNOPSIS
   Create render function that interpolates passed object values
@@ -489,8 +478,7 @@ function New-Template
     $Renderer
   }
 }
-function Remove-Character
-{
+function Remove-Character {
   [CmdletBinding()]
   [Alias('remove')]
   [OutputType([String])]
@@ -512,8 +500,7 @@ function Remove-Character
     $Value
   }
 }
-function Test-Equal
-{
+function Test-Equal {
   <#
   .SYNOPSIS
   Helper function meant to provide a more robust equality check (beyond just integers and strings)

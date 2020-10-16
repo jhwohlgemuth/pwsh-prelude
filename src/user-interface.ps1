@@ -1,5 +1,4 @@
-function Invoke-Input
-{
+function Invoke-Input {
   <#
   .SYNOPSIS
   A fancy Read-Host replacement meant to be used to make CLI applications.
@@ -51,8 +50,7 @@ function Invoke-Input
   $CurrentIndex = 0
   $AutocompleteMatches = @()
   $StartPosition = [Console]::CursorLeft
-  function Format-Output
-  {
+  function Format-Output {
     Param(
       [Parameter(Mandatory=$true, Position=0)]
       [String] $Value
@@ -63,8 +61,7 @@ function Invoke-Input
       $Value
     }
   }
-  function Invoke-OutputDraw
-  {
+  function Invoke-OutputDraw {
     Param(
       [Parameter(Mandatory=$true, Position=0)]
       [String] $Output,
@@ -82,8 +79,7 @@ function Invoke-Input
     }
     [Console]::SetCursorPosition($Left + 1, [Console]::CursorTop)
   }
-  function Update-Autocomplete
-  {
+  function Update-Autocomplete {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:PreviousRegularExpression')]
     Param(
       [AllowEmptyString()]
@@ -287,8 +283,7 @@ function Invoke-Input
     $null
   }
 }
-function Invoke-Menu
-{
+function Invoke-Menu {
   <#
   .SYNOPSIS
   Create interactive single, multi-select, or single-select list menu.
@@ -332,8 +327,7 @@ function Invoke-Menu
     [Int] $Indent = 0
   )
   Begin {
-    function Invoke-MenuDraw
-    {
+    function Invoke-MenuDraw {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
       [CmdletBinding()]
       Param (
@@ -372,8 +366,7 @@ function Invoke-Menu
         $Index++
       }
     }
-    function Update-MenuSelection
-    {
+    function Update-MenuSelection {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SingleSelect')]
       [CmdletBinding()]
       Param (
@@ -461,8 +454,7 @@ function Invoke-Menu
     }
   }
 }
-function Show-BarChart
-{
+function Show-BarChart {
   <#
   .SYNOPSIS
   Function to create horizontal bar chart of passed data object
@@ -525,8 +517,7 @@ function Show-BarChart
     $Index++
   }
 }
-function Write-Color
-{
+function Write-Color {
   <#
   .SYNOPSIS
   Basically Write-Host with the ability to color parts of the output by using template strings
@@ -591,8 +582,7 @@ function Write-Color
     }
   }
 }
-function Write-Label
-{
+function Write-Label {
   <#
   .SYNOPSIS
   Meant to be used with Invoke-Input or Invoke-Menu
@@ -615,8 +605,7 @@ function Write-Label
   Write-Color (" " * $Indent) -NoNewLine
   Write-Color "$Text " -Color $Color -NoNewLine:$(-not $NewLine)
 }
-function Write-Repeat
-{
+function Write-Repeat {
   [CmdletBinding()]
   [Alias('repeat')]
   Param(
@@ -627,8 +616,7 @@ function Write-Repeat
   )
   Write-Output ($Value * $Times)
 }
-function Write-Title
-{
+function Write-Title {
   <#
   .SYNOPSIS
   Function to print text with a border. Useful for displaying section titles for CLI apps.

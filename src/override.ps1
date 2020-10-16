@@ -1,5 +1,4 @@
-function Out-Default
-{
+function Out-Default {
   <#
   .ForwardHelpTargetName Out-Default
   .ForwardHelpCategory Function
