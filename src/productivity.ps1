@@ -1,31 +1,30 @@
-
 function Enable-Remoting {
   <#
   .SYNOPSIS
   Function to enable Powershell remoting for workgroup computer
   .PARAMETER TrustedHosts
   Comma-separated list of trusted host names
-  example: "RED,WHITE,BLUE"
+  example: 'RED,WHITE,BLUE'
   .EXAMPLE
   Enable-Remoting
   .EXAMPLE
-  Enable-Remoting -TrustedHosts "MARIO,LUIGI"
+  Enable-Remoting -TrustedHosts 'MARIO,LUIGI'
   #>
   [CmdletBinding()]
   Param(
-    [String] $TrustedHosts = "*"
+    [String] $TrustedHosts = '*'
   )
   if (Test-Admin) {
-    Write-Verbose "==> Making network private"
+    Write-Verbose '==> Making network private'
     Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
-    $Path = "WSMan:\localhost\Client\TrustedHosts"
-    Write-Verbose "==> Enabling Powershell remoting"
+    $Path = 'WSMan:\localhost\Client\TrustedHosts'
+    Write-Verbose '==> Enabling Powershell remoting'
     Enable-PSRemoting -Force -SkipNetworkProfileCheck
-    Write-Verbose "==> Updated trusted hosts"
+    Write-Verbose '==> Updated trusted hosts'
     Set-Item $Path -Value $TrustedHosts -Force
     Get-Item $Path
   } else {
-    Write-Error "==> Enable-Remoting requires Administrator privileges"
+    Write-Error '==> Enable-Remoting requires Administrator privileges'
   }
 }
 function Find-Duplicate {
@@ -33,7 +32,7 @@ function Find-Duplicate {
   .SYNOPSIS
   Helper function that calculates file hash values to find duplicate files recursively
   .EXAMPLE
-  Find-Duplicate "path/to/folder"
+  Find-Duplicate 'path/to/folder'
   .EXAMPLE
   Get-Location | Find-Duplicate
   #>
@@ -60,7 +59,7 @@ function Get-File {
   .EXAMPLE
   Get-File http://example.com/file.txt -File myfile.txt
   .EXAMPLE
-  "http://example.com/file.txt" | Get-File
+  'http://example.com/file.txt' | Get-File
   #>
   [CmdletBinding()]
   Param(
@@ -150,9 +149,9 @@ function Invoke-ListenForWord {
   .DESCRIPTION
   This function uses the Windows Speech Recognition. For best results, you should first improve speech recognition via Speech Recognition Voice Training.
   .EXAMPLE
-  Invoke-Listen -Triggers "hello" -Actions { Write-Color 'Welcome' -Green }
+  Invoke-Listen -Triggers 'hello' -Actions { Write-Color 'Welcome' -Green }
   .EXAMPLE
-  Invoke-Listen -Triggers "hello","quit" -Actions { say 'Welcome' | Out-Null; $true }, { say 'Goodbye' | Out-Null; $false }
+  Invoke-Listen -Triggers 'hello','quit' -Actions { say 'Welcome' | Out-Null; $true }, { say 'Goodbye' | Out-Null; $false }
 
   An action will stop listening when it returns a "falsy" value like $true or $null. Conversely, returning "truthy" values will continue the listening loop.
   #>
@@ -221,7 +220,7 @@ function Invoke-RemoteCommand {
   )
   $User = whoami
   if ($Credential) {
-    Write-Verbose "==> Using -Credential for authentication"
+    Write-Verbose '==> Using -Credential for authentication'
     $Cred = $Credential
   } elseif ($Password) {
     Write-Verbose "==> Creating credential for $User using -Password"
@@ -238,9 +237,9 @@ function Invoke-Speak {
   .SYNOPSIS
   Use Windows Speech Synthesizer to speak input text
   .EXAMPLE
-  Invoke-Speak "hello world"
+  Invoke-Speak 'hello world'
   .EXAMPLE
-  "hello world" | Invoke-Speak -Verbose
+  'hello world' | Invoke-Speak -Verbose
   .EXAMPLE
   1,2,3 | %{ say $_ }
   .EXAMPLE
@@ -258,19 +257,19 @@ function Invoke-Speak {
   )
   Begin {
     Use-Speech
-    $TotalText = ""
+    $TotalText = ''
   }
   Process {
     if ($IsLinux -is [Bool] -and $IsLinux) {
-      Write-Verbose "==> Invoke-Speak is only supported on Windows platform"
+      Write-Verbose '==> Invoke-Speak is only supported on Windows platform'
     } else {
-      Write-Verbose "==> Creating speech synthesizer"
+      Write-Verbose '==> Creating speech synthesizer'
       $synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
       if (-not $Silent) {
         switch ($InputType)
         {
-          "ssml" {
-            Write-Verbose "==> Received SSML input"
+          'ssml' {
+            Write-Verbose '==> Received SSML input'
             $synthesizer.SpeakSsml($Text)
           }
           Default {
@@ -285,15 +284,15 @@ function Invoke-Speak {
   }
   End {
     if ($IsLinux -is [Bool] -and $IsLinux) {
-      Write-Verbose "==> Invoke-Speak was not executed, no output was created"
+      Write-Verbose '==> Invoke-Speak was not executed, no output was created'
     } else {
       $TotalText = $TotalText.Trim()
       switch ($Output)
       {
-        "file" {
-          Write-Verbose "==> [UNDER CONSTRUCTION] save as .WAV file"
+        'file' {
+          Write-Verbose '==> [UNDER CONSTRUCTION] save as .WAV file'
         }
-        "ssml" {
+        'ssml' {
           $Function:render = New-Template `
   '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
       <voice xml:lang="en-US">
@@ -304,7 +303,7 @@ function Invoke-Speak {
   </speak>'
           render @{ rate = $Rate; text = $TotalText } | Write-Output
         }
-        "text" {
+        'text' {
           Write-Output $TotalText
         }
         Default {
@@ -319,7 +318,7 @@ function New-DailyShutdownJob {
   .SYNOPSIS
   Create job to shutdown computer at a certain time every day
   .EXAMPLE
-  New-DailyShutdownJob -At "22:00"
+  New-DailyShutdownJob -At '22:00'
   #>
   [CmdletBinding()]
   Param(
@@ -328,9 +327,9 @@ function New-DailyShutdownJob {
   )
   if (Test-Admin) {
     $Trigger = New-JobTrigger -Daily -At $At
-    Register-ScheduledJob -Name "DailyShutdown" -ScriptBlock { Stop-Computer -Force } -Trigger $Trigger
+    Register-ScheduledJob -Name 'DailyShutdown' -ScriptBlock { Stop-Computer -Force } -Trigger $Trigger
   } else {
-    Write-Error "==> New-DailyShutdownJob requires Administrator privileges"
+    Write-Error '==> New-DailyShutdownJob requires Administrator privileges'
   }
 }
 function New-File {
@@ -351,7 +350,7 @@ function New-File {
   if (Test-Path $Name) {
     (Get-ChildItem $Name).LastWriteTime = Get-Date
   } else {
-    New-Item -Path . -Name $Name -ItemType "file" -Value ""
+    New-Item -Path . -Name $Name -ItemType 'file' -Value ''
   }
 }
 function New-ProxyCommand {
@@ -362,9 +361,9 @@ function New-ProxyCommand {
   This function can be used to create a framework for a proxy function. If you want to create a proxy function for a command named Some-Command,
   you should pass "Some-Command" as the Name attribute - New-ProxyCommand -Name Some-Command
   .EXAMPLE
-  New-ProxyCommand -Name "Out-Default" | Out-File "Out-Default.ps1"
+  New-ProxyCommand -Name 'Out-Default' | Out-File 'Out-Default.ps1'
   .EXAMPLE
-  "Invoke-Item" | New-ProxyCommand | Out-File "Invoke-Item-proxy.ps1"
+  'Invoke-Item' | New-ProxyCommand | Out-File 'Invoke-Item-proxy.ps1'
   #>
   [CmdletBinding()]
   Param(
@@ -383,18 +382,18 @@ function New-SshKey {
   Param(
     [String] $Name = 'id_rsa'
   )
-  Write-Verbose "==> Generating SSH key pair"
+  Write-Verbose '==> Generating SSH key pair'
   $Path = "~/.ssh/$Name"
-  ssh-keygen --% -q -b 4096 -t rsa -N "" -f TEMPORARY_FILE_NAME
+  ssh-keygen --% -q -b 4096 -t rsa -N '' -f TEMPORARY_FILE_NAME
   Move-Item -Path TEMPORARY_FILE_NAME -Destination $Path
   Move-Item -Path TEMPORARY_FILE_NAME.pub -Destination "$Path.pub"
   if (Test-Path "$Path.pub") {
     Write-Verbose "==> $Name SSH private key saved to $Path"
-    Write-Verbose "==> Saving SSH public key to clipboard"
+    Write-Verbose '==> Saving SSH public key to clipboard'
     Get-Content "$Path.pub" | Set-Clipboard
-    Write-Output "==> Public key saved to clipboard"
+    Write-Output '==> Public key saved to clipboard'
   } else {
-    Write-Error "==> Failed to create SSH key"
+    Write-Error '==> Failed to create SSH key'
   }
 }
 function Open-Session {
@@ -430,7 +429,7 @@ function Open-Session {
   )
   $User = whoami
   if ($Credential) {
-    Write-Verbose "==> Using -Credential for authentication"
+    Write-Verbose '==> Using -Credential for authentication'
     $Cred = $Credential
   } elseif ($Password) {
     Write-Verbose "==> Creating credential for $User using -Password"
@@ -441,7 +440,7 @@ function Open-Session {
   }
   Write-Verbose "==> Creating session on $(Join-StringsWithGrammar $ComputerNames)"
   $Session = New-PSSession -ComputerName $ComputerNames -Credential $Cred
-  Write-Verbose "==> Entering session"
+  Write-Verbose '==> Entering session'
   if (-not $NoEnter) {
     if ($Session.Length -eq 1) {
       Enter-PSSession -Session $Session
@@ -465,9 +464,9 @@ function Remove-DailyShutdownJob {
   [CmdletBinding()]
   Param()
   if (Test-Admin) {
-    Unregister-ScheduledJob -Name "DailyShutdown"
+    Unregister-ScheduledJob -Name 'DailyShutdown'
   } else {
-    Write-Error "==> Remove-DailyShutdownJob requires Administrator privileges"
+    Write-Error '==> Remove-DailyShutdownJob requires Administrator privileges'
   }
 }
 function Remove-DirectoryForce {
@@ -533,7 +532,7 @@ function Test-Admin {
   [OutputType([Bool])]
   Param()
   if ($IsLinux -is [Bool] -and $IsLinux) {
-    (whoami) -eq "root"
+    (whoami) -eq 'root'
   } else {
     ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
   }
@@ -576,7 +575,7 @@ function Use-Grammar {
     [Parameter(Mandatory=$true)]
     [String[]] $Words
   )
-  Write-Verbose "==> Creating Speech Recognition Engine"
+  Write-Verbose '==> Creating Speech Recognition Engine'
   $Engine = [System.Speech.Recognition.SpeechRecognitionEngine]::New();
   $Engine.InitialSilenceTimeout = 15
   $Engine.SetInputToDefaultAudioDevice();
@@ -592,14 +591,14 @@ function Use-Speech {
   [CmdletBinding()]
   Param()
   if ($IsLinux -is [Bool] -and $IsLinux) {
-    Write-Verbose "==> Speech synthesizer can only be used on Windows platform"
+    Write-Verbose '==> Speech synthesizer can only be used on Windows platform'
   } else {
     $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
     if (-not ($SpeechSynthesizerTypeName -as [Type])) {
-      Write-Verbose "==> Adding System.Speech type"
+      Write-Verbose '==> Adding System.Speech type'
       Add-Type -AssemblyName System.Speech
     } else {
-      Write-Verbose "==> System.Speech is already loaded"
+      Write-Verbose '==> System.Speech is already loaded'
     }
   }
 }

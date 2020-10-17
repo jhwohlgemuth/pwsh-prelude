@@ -57,8 +57,8 @@ Get-Location | Find-Duplicate
 ```
 - Perform various operations on strings
 ```powershell
-$abc = "b" | insert -To "ac" -At 2
-$abc = "abcd" | remove -Last
+$abc = 'b' | insert -To 'ac' -At 2
+$abc = 'abcd' | remove -Last
 ```
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
 ```powershell
@@ -70,15 +70,15 @@ $Sum = 1..100 | reduce -Callback { Param($a, $b) $a + $b } -InitialValue 0
 ```
 - Make your computer talk
 ```powershell
-say "Hello World"
+say 'Hello World'
 ```
 - Make a remote computer talk
 ```powershell
-{ say "Hello World" } | irc -ComputerNames PCNAME
+{ say 'Hello World' } | irc -ComputerNames PCNAME
 ```
 - Use events to communicate within your script/app
 ```powershell
-{ "Event triggered" | Write-Color -Red } | on "SomeEvent"
+{ 'Event triggered' | Write-Color -Red } | on 'SomeEvent'
 
 # You can even listen to variables!!!
 # Declare a value for boot
@@ -89,18 +89,18 @@ $Callback = {
   say "$($Data.Name) was changed from $($Data.OldValue), to $($Data.Value)"
 }
 # Start the variable listener
-$Callback | listenTo "boot" -Variable
+$Callback | listenTo 'boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $boot = 43
 ```
 - Create an interactive CLI app (see the [./kitchensink.ps1](./kitchensink.ps1) for another example)
 ```powershell
-Write-Title "Example"
-$fullname = input "Full Name?" -Indent 4
-$username = input "Username?" -MaxLength 10 -Indent 4
-$age = input "Age?" -Number -Indent 4
-$pass = input "Password?" -Secret -Indent 4
-$word = input "Favorite Saiya-jin?" -Autocomplete -Indent 4 -Choices @(
+Write-Title 'Example'
+$fullname = input 'Full Name?' -Indent 4
+$username = input 'Username?' -MaxLength 10 -Indent 4
+$age = input 'Age?' -Number -Indent 4
+$pass = input 'Password?' -Secret -Indent 4
+$word = input 'Favorite Saiya-jin?' -Autocomplete -Indent 4 -Choices @(
   'Goku'
   'Gohan'
   'Goten'

@@ -3,8 +3,8 @@ function Out-Default {
   .ForwardHelpTargetName Out-Default
   .ForwardHelpCategory Function
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:LAST')]
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'LAST')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'global:Last')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Last')]
   [CmdletBinding(HelpUri='http://go.microsoft.com/fwlink/?LinkID=113362', RemotingCapability='None')]
   [OutputType([System.Diagnostics.Process])]
   Param(

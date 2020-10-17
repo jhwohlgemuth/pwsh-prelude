@@ -1,7 +1,7 @@
 ﻿#
 # Functions
 #
-$Root = Join-Path $PSScriptRoot "src"
+$Root = Join-Path $PSScriptRoot 'src'
 Get-ChildItem -Path $Root -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
 #
 # Aliases

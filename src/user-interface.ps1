@@ -7,12 +7,12 @@ function Invoke-Input {
   .PARAMETER Number
   Switch to designate input is numerical
   .EXAMPLE
-  $fullname = input "Full Name?"
-  $username = input "Username?" -MaxLength 10 -Indent 4
-  $age = input "Age?" -Number -MaxLength 2 -Indent 4
-  $pass = input "Password?" -Secret -Indent 4
+  $fullname = input 'Full Name?'
+  $username = input 'Username?' -MaxLength 10 -Indent 4
+  $age = input 'Age?' -Number -MaxLength 2 -Indent 4
+  $pass = input 'Password?' -Secret -Indent 4
   .EXAMPLE
-  $word = input "Favorite Saiya-jin?" -Indent 4 -Autocomplete -Choices `
+  $word = input 'Favorite Saiya-jin?' -Indent 4 -Autocomplete -Choices `
   @(
       'Goku'
       'Gohan'
@@ -23,7 +23,7 @@ function Invoke-Input {
 
   Autocomplete will make suggestions. Press tab once to select suggestion, press tab again to cycle through matches.
   .EXAMPLE
-  Invoke-Input "Folder name?" -Autocomplete -Choices (Get-ChildItem -Directory | Select-Object -ExpandProperty Name)
+  Invoke-Input 'Folder name?' -Autocomplete -Choices (Get-ChildItem -Directory | Select-Object -ExpandProperty Name)
 
   Leverage autocomplete to input a folder name
   .EXAMPLE
@@ -46,7 +46,7 @@ function Invoke-Input {
   )
   Write-Label -Text $LabelText -Indent $Indent
   $Global:PreviousRegularExpression = $null
-  $Result = ""
+  $Result = ''
   $CurrentIndex = 0
   $AutocompleteMatches = @()
   $StartPosition = [Console]::CursorLeft
@@ -56,7 +56,7 @@ function Invoke-Input {
       [String] $Value
     )
     if ($Secret) {
-      "*" * $Value.Length
+      '*' * $Value.Length
     } else {
       $Value
     }
@@ -109,7 +109,7 @@ function Invoke-Input {
     $KeyInfo = [Console]::ReadKey($true)
     $KeyChar = $KeyInfo.KeyChar
     switch ($KeyInfo.Key) {
-      "Backspace" {
+      'Backspace' {
         if (-not $Secret) {
           $Left = [Console]::CursorLeft
           if ($Left -gt $StartPosition) {
@@ -121,7 +121,7 @@ function Invoke-Input {
               if ($Autocomplete) {
                 Update-Autocomplete -Output $Updated
               } else {
-                Write-Color " " -NoNewLine
+                Write-Color ' ' -NoNewLine
               }
             } else {
               [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -129,14 +129,14 @@ function Invoke-Input {
                 Write-Color "$Updated " -NoNewLine
               } else {
                 Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
-                Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + " ") -NoNewLine -Red
+                Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + ' ') -NoNewLine -Red
               }
             }
             [Console]::SetCursorPosition([Math]::Max(0, $Left - 1), [Console]::CursorTop)
           }
         }
       }
-      "Delete" {
+      'Delete' {
         if (-not $Secret) {
           $Left = [Console]::CursorLeft
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -150,7 +150,7 @@ function Invoke-Input {
               Write-Color "$Updated " -NoNewLine
             } else {
               Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
-              Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + " ") -NoNewLine -Red
+              Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + ' ') -NoNewLine -Red
             }
           }
           if ($Autocomplete) {
@@ -159,7 +159,7 @@ function Invoke-Input {
           [Console]::SetCursorPosition([Math]::Max(0, $Left), [Console]::CursorTop)
         }
       }
-      "DownArrow" {
+      'DownArrow' {
         if ($Number) {
           $Value = ($Result -as [Int]) - 1
           if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -gt -[Math]::Pow(10, $MaxLength))) {
@@ -171,10 +171,10 @@ function Invoke-Input {
           }
         }
       }
-      "Enter" {
+      'Enter' {
         # Do nothing
       }
-      "LeftArrow" {
+      'LeftArrow' {
         if (-not $Secret) {
           $Left = [Console]::CursorLeft
           if ($Left -gt $StartPosition) {
@@ -182,7 +182,7 @@ function Invoke-Input {
           }
         }
       }
-      "RightArrow" {
+      'RightArrow' {
         if (-not $Secret) {
           $Left = [Console]::CursorLeft
           if ($Left -lt ($StartPosition + $Result.Length)) {
@@ -190,7 +190,7 @@ function Invoke-Input {
           }
         }
       }
-      "Tab" {
+      'Tab' {
         if ($Autocomplete -and $Result.Length -gt 0 -and -not ($Number -or $Secret) -and $null -ne $AutocompleteMatches) {
           $AutocompleteMatches = $Choices | Where-Object { $_ -match $Global:PreviousRegularExpression }
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -211,7 +211,7 @@ function Invoke-Input {
           [Console]::SetCursorPosition($StartPosition + $Result.Length, [Console]::CursorTop)
         }
       }
-      "UpArrow" {
+      'UpArrow' {
         if ($Number) {
           $Value = ($Result -as [Int]) + 1
           if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -lt [Math]::Pow(10, $MaxLength))) {
@@ -268,7 +268,7 @@ function Invoke-Input {
       }
     }
   } Until ($KeyInfo.Key -eq 'Enter' -or $KeyInfo.Key -eq 'Escape')
-  Write-Color ""
+  Write-Color ''
   if ($KeyInfo.Key -ne 'Escape') {
     if ($Number) {
       $Result -as [Int]
@@ -296,11 +296,11 @@ function Invoke-Menu {
   .PARAMETER FolderContent
   Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
-  Invoke-Menu "one","two","three" 
+  Invoke-Menu 'one','two','three' 
   .EXAMPLE
-  Invoke-Menu "one","two","three" -HighlightColor Blue
+  Invoke-Menu 'one','two','three' -HighlightColor Blue
   .EXAMPLE
-  "one","two","three" | Invoke-Menu -MultiSelect -ReturnIndex | Sort-Object
+  'one','two','three' | Invoke-Menu -MultiSelect -ReturnIndex | Sort-Object
   .EXAMPLE
   1,2,3,4,5 | menu
   .EXAMPLE
@@ -410,7 +410,7 @@ function Invoke-Menu {
     }
     Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
     While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
-      $Keycode = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").virtualkeycode
+      $Keycode = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').virtualkeycode
       switch ($Keycode) {
         $Keycodes.escape {
           $Position = $null
@@ -467,9 +467,9 @@ function Show-BarChart {
   .EXAMPLE
   @{red = 55; white = 30; blue = 200} | Show-BarChart -WithColor -ShowValues
   .EXAMPLE
-  Write-Title "Colors"
+  Write-Title 'Colors'
   @{red = 55; white = 30; blue = 200} | Show-BarChart -Alternate -ShowValues
-  Write-Color ""
+  Write-Color ''
 
   Can be used with Write-Title to create goo looking reports in the terminal
   .EXAMPLE
@@ -488,7 +488,7 @@ function Show-BarChart {
     [Switch] $WithColor
   )
   $Data = [PSCustomObject]$InputObject
-  $Space = " "
+  $Space = ' '
   $Tee = ([Char]9508).ToString()
   $Marker = ([Char]9608).ToString()
   $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
@@ -500,7 +500,7 @@ function Show-BarChart {
     $IsEven = ($Index % 2) -eq 0
     $Padding = $Space | Write-Repeat -Times ($LongestNameLength - $Name.Length)
     $Bar = $Marker | Write-Repeat -Times $Value
-    $ValueLabel = & { if ($ShowValues) { " $($Data.$Name)" } else { "" } }
+    $ValueLabel = & { if ($ShowValues) { " $($Data.$Name)" } else { '' } }
     if ($WithColor) {
       $Color = @{
         Cyan = $($IsEven -and $Alternate)
@@ -526,11 +526,11 @@ function Write-Color {
   .EXAMPLE
   '{{#red this will be red}} and {{#blue this will be blue}}' | Write-Color
   .EXAMPLE
-  "You can color entire string using switch parameters" | Write-Color -Green
+  'You can color entire string using switch parameters' | Write-Color -Green
   .EXAMPLE
-  "You can color entire string using Color parameter" | Write-Color -Color Green
+  'You can color entire string using Color parameter' | Write-Color -Color Green
   .EXAMPLE
-  '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = "World" } | Write-Color
+  '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = 'World' } | Write-Color
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
@@ -558,15 +558,15 @@ function Write-Color {
     [Switch] $White
   )
   if ($Text.Length -eq 0) {
-    Write-Host "" -NoNewline:$NoNewLine
+    Write-Host '' -NoNewline:$NoNewLine
   } else {
     if (-not $Color) {
-      $ColorNames = "Black", "DarkBlue", "DarkGreen", "DarkCyan", "DarkRed", "DarkMagenta", "DarkYellow", "Gray", "DarkGray", "Blue", "Green", "Cyan", "Red", "Magenta", "Yellow", "White"
+      $ColorNames = 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White'
       $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
       if ($Index) {
         $Color = $ColorNames[$Index]
       } else {
-        $Color = "White"
+        $Color = 'White'
       }
     }
     $Position = 0
@@ -602,7 +602,7 @@ function Write-Label {
     [Int] $Indent = 0,
     [Switch] $NewLine
   )
-  Write-Color (" " * $Indent) -NoNewLine
+  Write-Color (' ' * $Indent) -NoNewLine
   Write-Color "$Text " -Color $Color -NoNewLine:$(-not $NewLine)
 }
 function Write-Repeat {
@@ -627,25 +627,25 @@ function Write-Title {
   .PARAMETER Indent
   Add spaces to left of title box to align with input elements
   .EXAMPLE
-  "Hello World" | Write-Title
+  'Hello World' | Write-Title
   .EXAMPLE
-  "Hello World" | Write-Title -Green
+  'Hello World' | Write-Title -Green
 
   Easily change border and title text color
   .EXAMPLE
-  "Hello World" | Write-Title -Width 20 -TextColor Red
+  'Hello World' | Write-Title -Width 20 -TextColor Red
 
   Change only the color of title text with -TextColor
   .EXAMPLE
-  "Hello World" | Write-Title -Width 20
+  'Hello World' | Write-Title -Width 20
 
   Titles can have set widths
   .EXAMPLE
-  "Hello World" | Write-Title -Fallback
+  'Hello World' | Write-Title -Fallback
 
   If your terminal does not have the fancy characters needed for a proper border, fallback to "+" and "-"
   .EXAMPLE
-  "{{#magenta Hello}} World" | Write-Title -Template
+  '{{#magenta Hello}} World' | Write-Title -Template
 
   Write-Title accepts same input as Write-Color and can be used to customize title text.
   #>
@@ -655,7 +655,7 @@ function Write-Title {
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Text,
     [String] $TextColor,
-    [String] $SubText = "",
+    [String] $SubText = '',
     [Switch] $Template,
     [Switch] $Fallback,
     [Switch] $Blue,
@@ -675,14 +675,14 @@ function Write-Title {
     [Int] $Indent = 0
   )
   if ($Template) {
-    $TextLength = ($Text -replace "{{#\w*\s", "" | ForEach-Object { $_ -replace "}}", "" }).Length
+    $TextLength = ($Text -replace '{{#\w*\s', '' | ForEach-Object { $_ -replace '}}', '' }).Length
   } else {
     $TextLength = $Text.Length
   }
   if ($Width -lt  $TextLength) {
     $Width = $TextLength + 4
   }
-  $Space = " "
+  $Space = ' '
   if ($Fallback) {
     $TopLeft = '+'
     $TopEdge = '-'

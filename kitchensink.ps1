@@ -1,18 +1,18 @@
 ﻿Import-Module ./pwsh-handy-helpers.psm1
 
-$Space = " "
+$Space = ' '
 $Indent = 4
-$Color = "Green"
+$Color = 'Green'
 
-Write-Title "   Kitchen Sink   " -SubText "#allthethings" -Yellow
+Write-Title '   Kitchen Sink   ' -SubText '#allthethings' -Yellow
 
 $Space
 
-$Fullname = Invoke-Input "Full Name?" -Indent $Indent
-$Username = Invoke-Input "Username?" -MaxLength 10 -Indent $Indent
-$Age = Invoke-Input "Age?" -Number -Indent $Indent
-$Pass = Invoke-Input "Password?" -Secret -Indent $Indent
-$FavoriteSaiyajin = Invoke-Input "Favorite Saiya-jin?" -Autocomplete -Indent $Indent -Choices `
+$Fullname = Invoke-Input 'Full Name?' -Indent $Indent
+$Username = Invoke-Input 'Username?' -MaxLength 10 -Indent $Indent
+$Age = Invoke-Input 'Age?' -Number -Indent $Indent
+$Pass = Invoke-Input 'Password?' -Secret -Indent $Indent
+$FavoriteSaiyajin = Invoke-Input 'Favorite Saiya-jin?' -Autocomplete -Indent $Indent -Choices `
 @(
   'Goku'
   'Gohan'
@@ -22,17 +22,17 @@ $FavoriteSaiyajin = Invoke-Input "Favorite Saiya-jin?" -Autocomplete -Indent $In
 )
 
 'Favorite number?' | Write-Label -Indent $Indent -NewLine
-$FavoriteNumber = "one","two","three" | Invoke-Menu -SingleSelect -Indent $Indent
+$FavoriteNumber = 'one','two','three' | Invoke-Menu -SingleSelect -Indent $Indent
 
 'Known mathematicians?' | Write-Label -Indent $Indent -NewLine
-$Choice = "Godel","Gauss","Cantor" | Invoke-Menu -MultiSelect -Indent $Indent
+$Choice = 'Godel','Gauss','Cantor' | Invoke-Menu -MultiSelect -Indent $Indent
 
-"{{#red Red}}, {{#white White}}, or {{#blue Blue}}?" | Write-Label -Indent $Indent -NewLine
-$FavoriteColor = "red","white","blue" | Invoke-Menu -Indent $Indent
+'{{#red Red}}, {{#white White}}, or {{#blue Blue}}?' | Write-Label -Indent $Indent -NewLine
+$FavoriteColor = 'red','white','blue' | Invoke-Menu -Indent $Indent
 
 $Space
 
-"Results" | Write-Title -Magenta -TextColor White
+'Results' | Write-Title -Magenta -TextColor White
 $Fullname | Write-Label -Indent $Indent -Color $Color -NewLine
 $Username | Write-Label -Indent $Indent -Color $Color -NewLine
 $Age | Write-Label -Indent $Indent -Color $Color -NewLine
@@ -44,10 +44,10 @@ $FavoriteColor | Write-Label -Indent $Indent -Color $Color -NewLine
 
 $Space
 
-"Show bar charts?" | Write-Label -NewLine
-$Choice = "yes","no" | Invoke-Menu
-if ($Choice -eq "yes") {
-  "Bar Charts" | Write-Title -Blue
+'Show bar charts?' | Write-Label -NewLine
+$Choice = 'yes','no' | Invoke-Menu
+if ($Choice -eq 'yes') {
+  'Bar Charts' | Write-Title -Blue
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -Alternate
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues

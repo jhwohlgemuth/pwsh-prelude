@@ -87,15 +87,15 @@ function Invoke-ListenTo {
   Set event source identifier to Powershell.OnIdle.
   Warning: It is not advised to write to console in callback of -Idle listeners.
   .EXAMPLE
-  { Write-Color "Event triggered" -Red } | on "SomeEvent"
+  { Write-Color 'Event triggered' -Red } | on 'SomeEvent'
 
   Expressive yet terse syntax for easy event-driven design.
   .EXAMPLE
-  Invoke-ListenTo -Name "SomeEvent" -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
+  Invoke-ListenTo -Name 'SomeEvent' -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
 
   Callbacks hae access to automatic variables such as $Event
   .EXAMPLE
-  $Callback | on "SomeEvent" -Once
+  $Callback | on 'SomeEvent' -Once
 
   Create a listener that automatically destroys itself after one event is triggered
   .EXAMPLE
@@ -119,13 +119,13 @@ function Invoke-ListenTo {
   }
 
   # Start the variable listener
-  $Callback | listenTo "boot" -Variable
+  $Callback | listenTo 'boot' -Variable
 
   # Change the value of boot and have your computer tell you what changed
   $boot = 43
 
   .EXAMPLE
-  { "EVENT - EXIT" | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
+  { 'EVENT - EXIT' | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
 
   Execute code when you exit the powershell terminal
   #>
@@ -167,11 +167,11 @@ function Invoke-ListenTo {
     Write-Verbose "==> Creating file system watcher object for `"$Path`""
     $Watcher = New-Object System.IO.FileSystemWatcher
     $Watcher.Path = $Path
-    $Watcher.Filter = "*.*"
+    $Watcher.Filter = '*.*'
     $Watcher.EnableRaisingEvents = $true
     $Watcher.IncludeSubdirectories = $IncludeSubDirectories
-    Write-Verbose "==> Creating file system watcher events"
-    "Created","Changed","Deleted","Renamed" | ForEach-Object {
+    Write-Verbose '==> Creating file system watcher events'
+    'Created','Changed','Deleted','Renamed' | ForEach-Object {
       Register-ObjectEvent $Watcher $_ -Action $Action
     }
   } elseif ($Variable) { # variable change events
@@ -224,7 +224,7 @@ function Invoke-Once {
   .PARAMETER Times
   Number of times passed function can be called (default is 1, hence the name - Once)
   .EXAMPLE
-  $Function:test = Invoke-Once { "Should only see this once" | Write-Color -Red }
+  $Function:test = Invoke-Once { 'Should only see this once' | Write-Color -Red }
   1..10 | ForEach-Object {
     test
   }
@@ -232,10 +232,10 @@ function Invoke-Once {
   $Function:greet = Invoke-Once {
     "Hello $($args[0])" | Write-Color -Red
   }
-  greet "World"
+  greet 'World'
   # no subsequent greet functions are executed
-  greet "Jim"
-  greet "Bob"
+  greet 'Jim'
+  greet 'Bob'
 
   Functions returned by Invoke-Once can accept arguments
   #>
@@ -266,7 +266,7 @@ function Invoke-Reduce {
 
   Compute sum of array of integers
   .EXAMPLE
-  "a","b","c" | reduce -Callback { $args[0] + $args[1] } -InitialValue ""
+  'a','b','c' | reduce -Callback { $args[0] + $args[1] } -InitialValue ''
 
   Concatenate array of strings
   .EXAMPLE
@@ -307,18 +307,18 @@ function Invoke-StopListen {
   .SYNOPSIS
   Remove event subscriber(s)
   .EXAMPLE
-  $Callback | on "SomeEvent"
-  "SomeEvent" | Invoke-StopListen
+  $Callback | on 'SomeEvent'
+  'SomeEvent' | Invoke-StopListen
 
   Remove events using the event "source identifier" (Name)
   .EXAMPLE
-  $Callback | on -Name "Namespace:foo"
-  $Callback | on -Name "Namespace:bar"
-  "Namespace:" | Invoke-StopListen
+  $Callback | on -Name 'Namespace:foo'
+  $Callback | on -Name 'Namespace:bar'
+  'Namespace:' | Invoke-StopListen
 
   Remove multiple events using an event namespace
   .EXAMPLE
-  $Listener = $Callback | on "SomeEvent"
+  $Listener = $Callback | on 'SomeEvent'
   Invoke-StopListen -EventData $Listener
 
   Selectively remove a single event by passing its event data
@@ -345,7 +345,7 @@ function Join-StringsWithGrammar {
   .SYNOPSIS
   Helper function that creates a string out of a list that properly employs commands and "and"
   .EXAMPLE
-  Join-StringsWithGrammar @("a", "b", "c")
+  Join-StringsWithGrammar @('a', 'b', 'c')
 
   Returns "a, b, and c"
   #>
@@ -370,17 +370,17 @@ function Join-StringsWithGrammar {
       if ($NumberOfItems -gt 0) {
         switch ($NumberOfItems) {
           1 {
-            $Items -join ""
+            $Items -join ''
           }
           2 {
-            $Items -join " and "
+            $Items -join ' and '
           }
           Default {
             @(
-              ($Items[0..($NumberOfItems - 2)] -join ", ") + ","
-              "and"
+              ($Items[0..($NumberOfItems - 2)] -join ', ') + ','
+              'and'
               $Items[$NumberOfItems - 1]
-            ) -join " "
+            ) -join ' '
           }
         }
       }
@@ -399,40 +399,40 @@ function New-Template {
   Pass template data to New-Template when using New-Template within pipe chain (see examples)
   .EXAMPLE
   $Function:render = New-Template '<div>Hello {{ name }}!</div>'
-  render @{ name = "World" }
-  # "<div>Hello World!</div>"
+  render @{ name = 'World' }
+  # '<div>Hello World!</div>'
 
   Use mustache template syntax! Just like Handlebars.js!
   .EXAMPLE
   $Function:render = 'hello {{ name }}' | New-Template
-  @{ name = "world" } | render
-  # "hello world"
+  @{ name = 'world' } | render
+  # 'hello world'
 
   New-Template supports idiomatic powershell pipeline syntax
   .EXAMPLE
   $Function:render = New-Template '<div>Hello $($Data.name)!</div>'
-  render @{ name = "World" }
-  # "<div>Hello World!</div>"
+  render @{ name = 'World' }
+  # '<div>Hello World!</div>'
 
   Or stick to plain Powershell syntax...this is a little more verbose ($Data is required)
   .EXAMPLE
-  $title = New-Template -Template '<h1>{{ text }}</h1>' -DefaultValues @{ text = "Default" }
+  $title = New-Template -Template '<h1>{{ text }}</h1>' -DefaultValues @{ text = 'Default' }
   & $title
-  # "<h1>Default</h1>"
-  & $title @{ text = "Hello World" }
-  # "<h1>Hello World</h1>"
+  # '<h1>Default</h1>'
+  & $title @{ text = 'Hello World' }
+  # '<h1>Hello World</h1>'
 
   Provide default values for your templates!
   .EXAMPLE
   $div = New-Template -Template '<div>{{ text }}</div>'
   $section = New-Template "<section>
       <h1>{{ title }}</h1>
-      $(& $div @{ text = "Hello World!" })
+      $(& $div @{ text = 'Hello World!' })
   </section>"
 
   Templates can even be nested!
   .EXAMPLE
-  '{{#green Hello}} {{ name }}' | tpl -Data @{ name = "World" } | Write-Color
+  '{{#green Hello}} {{ name }}' | tpl -Data @{ name = 'World' } | Write-Color
 
   Use -Data parameter cause template to return formatted string instead of template function
   #>
@@ -527,15 +527,15 @@ function Test-Equal {
     try {
       $Type = $Left.GetType().Name
       switch -Wildcard ($Type) {
-        "String" { $Left -eq $Right }
-        "Int*" { $Left -eq $Right }
-        "Double" { $Left -eq $Right }
-        "Object*" {
+        'String' { $Left -eq $Right }
+        'Int*' { $Left -eq $Right }
+        'Double' { $Left -eq $Right }
+        'Object*' {
           $Every = { $args[0] -and $args[1] }
           $Index = 0
           $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
         }
-        "PSCustomObject" {
+        'PSCustomObject' {
           $Every = { $args[0] -and $args[1] }
           $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
           $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
@@ -551,7 +551,7 @@ function Test-Equal {
             Invoke-Reduce -Callback $Every -InitialValue $true
           $HasSameKeys -and $HasSameValues
         }
-        "Hashtable" {
+        'Hashtable' {
           $Every = { $args[0] -and $args[1] }
           $Index = 0
           $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
@@ -568,11 +568,11 @@ function Test-Equal {
         Default { $Left -eq $Right }
       }
     } catch {
-      Write-Verbose "==> Failed to match type of -Left item"
+      Write-Verbose '==> Failed to match type of -Left item'
       $false
     }
   } else {
-    Write-Verbose "==> One or both items are `$null"
+    Write-Verbose '==> One or both items are $null'
     $Left -eq $Right
   }
 }

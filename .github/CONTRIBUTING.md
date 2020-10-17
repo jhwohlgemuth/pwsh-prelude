@@ -59,7 +59,7 @@ Project Standards
   - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...)
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
   - Do not use aliases (they will be replaced by `./build.ps1 -Lint` anyways)
-  - Use single quotes in function "headers", prefer double quotes elsewhere
+  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...)
   - Single space after higher-order functions like `ForEach-Object` and `Where-Object`
   - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket
     ```Powershell
