@@ -9,7 +9,7 @@ Describe 'Handy Helpers Module' {
             (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 52
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 21
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 22
         }
     }
 }
