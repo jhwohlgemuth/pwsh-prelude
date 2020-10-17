@@ -6,7 +6,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 51
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 52
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 21
@@ -70,6 +70,47 @@ Describe 'Find-FirstIndex' {
         Find-FirstIndex -Values $Arr | Should -Be $null
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
         ,$Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
+    }
+}
+Describe 'ConvertTo-MoneyString' {
+    It 'can convert numbers' {
+        0 | ConvertTo-MoneyString | Should -Be '$0.00'
+        0.0 | ConvertTo-MoneyString | Should -Be '$0.00'
+        1 | ConvertTo-MoneyString | Should -Be '$1.00'
+        42 | ConvertTo-MoneyString | Should -Be '$42.00'
+        42.75 | ConvertTo-MoneyString | Should -Be '$42.75'
+        42.00 | ConvertTo-MoneyString | Should -Be '$42.00'
+        100 | ConvertTo-MoneyString | Should -Be '$100.00'
+        123.45 | ConvertTo-MoneyString | Should -Be '$123.45'
+        700 | ConvertTo-MoneyString | Should -Be '$700.00'
+        1042 | ConvertTo-MoneyString | Should -Be '$1,042.00'
+        1255532042 | ConvertTo-MoneyString | Should -Be '$1,255,532,042.00'
+        1042.00 | ConvertTo-MoneyString | Should -Be '$1,042.00'
+        432565.55 | ConvertTo-MoneyString | Should -Be '$432,565.55'
+        55000042.10 | ConvertTo-MoneyString | Should -Be '$55,000,042.10'
+        -42 | ConvertTo-MoneyString | Should -Be '-$42.00'
+        -42.75 | ConvertTo-MoneyString | Should -Be '-$42.75'
+        -42.00 | ConvertTo-MoneyString | Should -Be '-$42.00'
+        -1042.00 | ConvertTo-MoneyString | Should -Be '-$1,042.00'
+        -55000042.10 | ConvertTo-MoneyString | Should -Be '-$55,000,042.10'
+    }
+    It 'can convert strings' {
+        '0' | ConvertTo-MoneyString | Should -Be '$0.00'
+        '-0' | ConvertTo-MoneyString | Should -Be '$0.00'
+        '$100.00' | ConvertTo-MoneyString | Should -Be '$100.00'
+        '$100' | ConvertTo-MoneyString | Should -Be '$100.00'
+        '100' | ConvertTo-MoneyString | Should -Be '$100.00'
+        '-$100.00' | ConvertTo-MoneyString | Should -Be '-$100.00'
+        '-$100' | ConvertTo-MoneyString | Should -Be '-$100.00'
+        '-100' | ConvertTo-MoneyString | Should -Be '-$100.00'
+    }
+    It 'supports custom currency symbols' {
+        55000123.50 | ConvertTo-MoneyString -Symbol ¥ | Should -Be '¥55,000,123.50'
+        700 | ConvertTo-MoneyString -Symbol £ -Postfix | Should -Be '700.00£'
+        123.45 | ConvertTo-MoneyString -Symbol £ -Postfix | Should -Be '123.45£'
+    }
+    It 'will throw an error if input is not a string or number' {
+        { $false | ConvertTo-MoneyString } | Should -Throw 'ConvertTo-MoneyString only accepts strings and numbers'
     }
 }
 Describe 'Invoke-InsertString' {

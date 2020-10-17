@@ -1,4 +1,4 @@
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CI')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CI')]
 [CmdletBinding()]
 Param(
   [Switch] $Lint,
@@ -22,7 +22,7 @@ function Invoke-Lint
       'PSUseShouldProcessForStateChangingFunctions'
     )
   }
-  Invoke-ScriptAnalyzer -Path $PSScriptRoot -Settings $Settings -Fix -EnableExit:$CI -ReportSummary
+  Invoke-ScriptAnalyzer -Path $PSScriptRoot -Settings $Settings -Fix -EnableExit:$CI -ReportSummary -Recurse
   '' | Write-Host
 }
 function Invoke-Test

@@ -1,4 +1,4 @@
-function Invoke-Input {
+﻿function Invoke-Input {
   <#
   .SYNOPSIS
   A fancy Read-Host replacement meant to be used to make CLI applications.
@@ -296,7 +296,7 @@ function Invoke-Menu {
   .PARAMETER FolderContent
   Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
-  Invoke-Menu 'one','two','three' 
+  Invoke-Menu 'one','two','three'
   .EXAMPLE
   Invoke-Menu 'one','two','three' -HighlightColor Blue
   .EXAMPLE
