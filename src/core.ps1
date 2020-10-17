@@ -14,6 +14,7 @@ function ConvertTo-MoneyString {
   # Returns '700.00£'
   #>
   [CmdletBinding()]
+  [Alias('money')]
   [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]

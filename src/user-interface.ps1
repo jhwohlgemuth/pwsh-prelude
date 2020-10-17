@@ -313,9 +313,9 @@ function Invoke-Menu {
   Open a folder via an interactive list menu populated with folder content
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'HighlightColor')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '')]
   [CmdletBinding()]
   [Alias('menu')]
-  [OutputType([Object[]])]
   Param (
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [Array] $Items,

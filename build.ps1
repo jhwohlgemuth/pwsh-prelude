@@ -17,6 +17,7 @@ function Invoke-Lint
   $Settings = @{
     ExcludeRules = @(
       'PSAvoidUsingWriteHost'
+      'PSUseBOMForUnicodeEncodedFile'
       'PSAvoidOverwritingBuiltInCmdlets'
       'PSUseProcessBlockForPipelineCommand'
       'PSUseShouldProcessForStateChangingFunctions'
