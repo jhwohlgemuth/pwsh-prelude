@@ -32,6 +32,7 @@
     'title'
     'touch'
     'tpl'
+    'transform'
     'trigger'
   )
   FunctionsToExport = @(
@@ -60,6 +61,7 @@
     'Invoke-ListenForWord'
     'Invoke-Menu'
     'Invoke-Once'
+    'Invoke-PropertyTransform'
     'Invoke-Reduce'
     'Invoke-RemoteCommand'
     'Invoke-Speak'

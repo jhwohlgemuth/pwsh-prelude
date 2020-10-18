@@ -6,10 +6,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 52
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 53
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 22
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 23
         }
     }
 }
@@ -159,6 +159,21 @@ Describe 'Invoke-Once' {
         Mock Test-Callback {}
         1..10 | ForEach-Object { test }
         Assert-MockCalled Test-Callback -Times $Times
+    }
+}
+Describe "Invoke-PropertyTransform" {
+    It "can transform property names and values" {
+        $Data = @{}
+        $Data | Add-member -NotePropertyName 'fighter_power_level' -NotePropertyValue 90
+        $Lookup = @{
+          level = 'fighter_power_level'
+        }
+        $Reducer = {
+          Param($Value)
+          ($Value * 100) + 1
+        }
+        $Result = $Data | Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer
+        $Result.level | Should -Be 9001
     }
 }
 Describe 'Invoke-Reduce' {

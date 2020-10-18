@@ -134,6 +134,7 @@ Functions
 - `Invoke-ListenForWord`
 - `Invoke-Menu`
 - `Invoke-Once`
+- `Invoke-PropertyTransform`
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
 - `Invoke-Speak`
@@ -191,4 +192,5 @@ Aliases
 - `say`
 - `touch`
 - `tpl`
+- `transform`
 - `trigger`
