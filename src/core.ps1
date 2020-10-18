@@ -576,11 +576,7 @@ function Remove-Character {
     [Switch] $First,
     [Switch] $Last
   )
-  if ($First) {
-    $At = 0
-  } elseif ($Last) {
-    $At = $Value.Length - 1
-  }
+  $At = if ($First) { 0 } elseif ($Last) { $Value.Length - 1 } else { $At }
   if ($At -lt $Value.Length -and $At -ge 0) {
     $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
   } else {

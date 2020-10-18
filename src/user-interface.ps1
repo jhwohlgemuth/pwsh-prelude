@@ -343,18 +343,10 @@ function Invoke-Menu {
         $Item = $_
         if ($null -ne $Item) {
           if ($MultiSelect) {
-            if ($Selection -contains $Index) {
-              $Item = "[x] $Item"
-            } else {
-              $Item = "[ ] $Item"
-            }
+            $Item = if ($Selection -contains $Index) { "[x] $Item" } else { "[ ] $Item" }
           } else {
             if ($SingleSelect) {
-              if ($Selection -contains $Index) {
-                $Item = "(o) $Item"
-              } else {
-                $Item = "( ) $Item"
-              }
+              $Item = if ($Selection -contains $Index) { "(o) $Item" } else { "( ) $Item" }
             }
           }
           if ($Index -eq $Position) {
