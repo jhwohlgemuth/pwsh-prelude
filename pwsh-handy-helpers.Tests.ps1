@@ -162,7 +162,7 @@ Describe 'Invoke-Once' {
     }
 }
 Describe "Invoke-PropertyTransform" {
-    It "can transform property names and values" {
+    It "can transform hashtable property names and values" {
         $Data = @{}
         $Data | Add-member -NotePropertyName 'fighter_power_level' -NotePropertyValue 90
         $Lookup = @{
@@ -173,6 +173,20 @@ Describe "Invoke-PropertyTransform" {
           ($Value * 100) + 1
         }
         $Result = $Data | Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer
+        $Result.level | Should -Be 9001
+    }
+    It "can transform custom objects property names and values" {
+        $Data = @{
+            fighter_power_level = 90
+        }
+        $Lookup = @{
+            level = 'fighter_power_level'
+        }
+        $Reducer = {
+            Param($Name, $Value)
+            ($Value * 100) + 1
+        }
+        $Result = $Data | transform $Lookup $Reducer
         $Result.level | Should -Be 9001
     }
 }
