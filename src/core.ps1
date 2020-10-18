@@ -127,6 +127,7 @@ function Format-MoneyValue {
       }
     }
     'String' {
+      $Value = $Value -replace ',', ''
       $Sign = if (([Regex]'\-\$').Match($Value).Success) { -1 } else { 1 }
       if (([Regex]'\$').Match($Value).Success) {
         $Output = (([Regex]'(?<=(\$))[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
