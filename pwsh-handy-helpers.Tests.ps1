@@ -174,8 +174,8 @@ Describe 'Invoke-Once' {
         Assert-MockCalled Test-Callback -Times $Times
     }
 }
-Describe "Invoke-PropertyTransform" {
-    It "can transform hashtable property names and values" {
+Describe 'Invoke-PropertyTransform' {
+    It 'can transform hashtable property names and values' {
         $Data = @{}
         $Data | Add-member -NotePropertyName 'fighter_power_level' -NotePropertyValue 90
         $Lookup = @{
@@ -188,7 +188,7 @@ Describe "Invoke-PropertyTransform" {
         $Result = $Data | Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer
         $Result.level | Should -Be 9001
     }
-    It "can transform custom objects property names and values" {
+    It 'can transform custom objects property names and values' {
         $Data = @{
             fighter_power_level = 90
         }
