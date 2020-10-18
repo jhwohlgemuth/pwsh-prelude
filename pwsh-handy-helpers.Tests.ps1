@@ -196,7 +196,7 @@ Describe "Invoke-PropertyTransform" {
             level = 'fighter_power_level'
         }
         $Reducer = {
-            Param($Name, $Value)
+            Param($Value)
             ($Value * 100) + 1
         }
         $Result = $Data | Invoke-PropertyTransform $Lookup $Reducer
