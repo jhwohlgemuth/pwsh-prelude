@@ -1,13 +1,13 @@
-function Invoke-PropertyTransform {
+﻿function Invoke-PropertyTransform {
     <#
     .SYNOPSIS
     Helper function that can be used to rename object keys and transform values.
     .PARAMETER Transform
     The Transform function that can be a simple identity function or complex reducer (as used by Redux.js and React.js)
     The Transform function can use pipeline values or the automatice variables, $Name and $Value which represent the associated old key name and original value, respectively.
-  
+
     A reducer that would transform the values with the keys, 'foo' or 'bar', migh look something like this:
-  
+
     $Reducer = {
       Param($Name, $Value)
       switch ($Name) {
@@ -18,9 +18,9 @@ function Invoke-PropertyTransform {
     }
     .PARAMETER Lookup
     Dictionary lookup object that will map old key names to new key names.
-  
+
     Example:
-  
+
     $Lookup = @{
       foobar = 'foo_bar'
       Name = 'first_name'

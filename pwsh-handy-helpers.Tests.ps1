@@ -1,4 +1,4 @@
-if (Get-Module -Name 'pwsh-handy-helpers') {
+﻿if (Get-Module -Name 'pwsh-handy-helpers') {
     Remove-Module -Name 'pwsh-handy-helpers'
 }
 Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
@@ -186,7 +186,7 @@ Describe "Invoke-PropertyTransform" {
             Param($Name, $Value)
             ($Value * 100) + 1
         }
-        $Result = $Data | transform $Lookup $Reducer
+        $Result = $Data | Invoke-PropertyTransform $Lookup $Reducer
         $Result.level | Should -Be 9001
     }
 }
