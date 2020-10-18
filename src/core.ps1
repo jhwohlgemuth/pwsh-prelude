@@ -123,7 +123,7 @@ function Format-MoneyValue {
           "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol$Output"
         }
       } else {
-        ($Value.ToString() -as [Int]) | ConvertTo-MoneyString
+        ($Value.ToString() -as [Int]) | Format-MoneyValue
       }
     }
     'String' {
@@ -134,19 +134,12 @@ function Format-MoneyValue {
       } else {
         $Output = (([Regex]'[\-]?[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
       }
-      if ($Output.Contains('.')) {
-        if ($AsNumber) {
-          $Sign * ($Output -as [Double])
-        } else {
-          $Sign * ($Output -as [Double]) | ConvertTo-MoneyString
-        }
-      } else {
-        if ($AsNumber) {
-          $Sign * ($Output -as [Int])
-        } else {
-          $Sign * ($Output -as [Int]) | ConvertTo-MoneyString
-        }
+      $Type = if ($Output.Contains('.')) { [Double] } else { [Int] }
+      $Output = $Sign * ($Output -as $Type)
+      if (-not $AsNumber) {
+        $Output = $Output | Format-MoneyValue
       }
+      $Output
     }
     Default { throw 'Format-MoneyValue only accepts strings and numbers' }
   }
