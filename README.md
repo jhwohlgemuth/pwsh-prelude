@@ -125,6 +125,7 @@ Functions
 - `Enable-Remoting`
 - `Find-Duplicate`
 - `Find-FirstIndex`
+- `Format-MoneyValue`
 - `Get-File`
 - `Install-SshServer`
 - `Invoke-FireEvent`

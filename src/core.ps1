@@ -1,89 +1,4 @@
-﻿
-function ConvertTo-MoneyString {
-  <#
-  .SYNOPSIS
-  Helper function to create human-readable money (USD) values as strings.
-  .EXAMPLE
-  42 | ConvertTo-MoneyString
-  # Returns "$42.00"
-  .EXAMPLE
-  55000123.50 | ConvertTo-MoneyString -Symbol ¥
-  # Returns '¥55,000,123.50'
-  .EXAMPLE
-  700 | ConvertTo-MoneyString -Symbol £ -Postfix
-  # Returns '700.00£'
-  #>
-  [CmdletBinding()]
-  [Alias('money')]
-  [OutputType([String])]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    $Value,
-    [String] $Symbol = '$',
-    [Switch] $Postfix
-  )
-  $Function:GetMagnitude = { [Math]::Log([Math]::Abs($args[0]), 10) }
-  switch -Wildcard ($Value.GetType()) {
-    'Int*' {
-      $Sign = [Math]::Sign($Value)
-      $Output = [Math]::Abs($Value).ToString()
-      $OrderOfMagnitude = GetMagnitude $Value
-      if ($OrderOfMagnitude -gt 3) {
-        $Position = 3
-        $Length = $Output.Length
-        1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
-          $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
-          $Position += 3
-        }
-      }
-      if ($Postfix) {
-        "$(if ($Sign -lt 0) { '-' } else { '' })${Output}.00$Symbol"
-      } else {
-        "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol${Output}.00"
-      }
-    }
-    'Double' {
-      $Sign = [Math]::Sign($Value)
-      $Output = [Math]::Abs($Value).ToString('#.##')
-      $OrderOfMagnitude = GetMagnitude $Value
-      if (($Output | ForEach-Object { $_ -split '\.' } | Select-Object -Skip 1).Length -eq 1) {
-        $Output += '0'
-      }
-      if (($Value - [Math]::Truncate($Value)) -ne 0) {
-        if ($OrderOfMagnitude -gt 3) {
-          $Position = 6
-          $Length = $Output.Length
-          1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
-            $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
-            $Position += 3
-          }
-        }
-        if ($Postfix) {
-          "$(if ($Sign -lt 0) { '-' } else { '' })$Output$Symbol"
-        } else {
-          "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol$Output"
-        }
-      } else {
-        ($Value.ToString() -as [Int]) | ConvertTo-MoneyString
-      }
-    }
-    'String' {
-      $Sign = if (([Regex]'\-\$').Match($Value).Success) { -1 } else { 1 }
-      if (([Regex]'\$').Match($Value).Success) {
-        $Output = (([Regex]'(?<=(\$))[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
-      } else {
-        $Output = (([Regex]'[\-]?[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
-      }
-      if ($Output.Contains('.')) {
-        $Sign * ($Output -as [Double]) | ConvertTo-MoneyString
-      } else {
-        $Sign * ($Output -as [Int]) | ConvertTo-MoneyString
-      }
-    }
-    Default { throw 'ConvertTo-MoneyString only accepts strings and numbers' }
-  }
-}
-function ConvertTo-PowershellSyntax {
+﻿function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(
@@ -141,6 +56,99 @@ function Find-FirstIndex {
     }
   })
   $Indexes.Where({ $_ }, 'First')
+}
+function Format-MoneyValue {
+  <#
+  .SYNOPSIS
+  Helper function to create human-readable money (USD) values as strings.
+  .EXAMPLE
+  42 | ConvertTo-MoneyString
+  # Returns "$42.00"
+  .EXAMPLE
+  55000123.50 | ConvertTo-MoneyString -Symbol ¥
+  # Returns '¥55,000,123.50'
+  .EXAMPLE
+  700 | ConvertTo-MoneyString -Symbol £ -Postfix
+  # Returns '700.00£'
+  #>
+  [CmdletBinding()]
+  [Alias('money')]
+  [OutputType([String])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    $Value,
+    [String] $Symbol = '$',
+    [Switch] $AsNumber,
+    [Switch] $Postfix
+  )
+  $Function:GetMagnitude = { [Math]::Log([Math]::Abs($args[0]), 10) }
+  switch -Wildcard ($Value.GetType()) {
+    'Int*' {
+      $Sign = [Math]::Sign($Value)
+      $Output = [Math]::Abs($Value).ToString()
+      $OrderOfMagnitude = GetMagnitude $Value
+      if ($OrderOfMagnitude -gt 3) {
+        $Position = 3
+        $Length = $Output.Length
+        1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
+          $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
+          $Position += 3
+        }
+      }
+      if ($Postfix) {
+        "$(if ($Sign -lt 0) { '-' } else { '' })${Output}.00$Symbol"
+      } else {
+        "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol${Output}.00"
+      }
+    }
+    'Double' {
+      $Sign = [Math]::Sign($Value)
+      $Output = [Math]::Abs($Value).ToString('#.##')
+      $OrderOfMagnitude = GetMagnitude $Value
+      if (($Output | ForEach-Object { $_ -split '\.' } | Select-Object -Skip 1).Length -eq 1) {
+        $Output += '0'
+      }
+      if (($Value - [Math]::Truncate($Value)) -ne 0) {
+        if ($OrderOfMagnitude -gt 3) {
+          $Position = 6
+          $Length = $Output.Length
+          1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
+            $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
+            $Position += 3
+          }
+        }
+        if ($Postfix) {
+          "$(if ($Sign -lt 0) { '-' } else { '' })$Output$Symbol"
+        } else {
+          "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol$Output"
+        }
+      } else {
+        ($Value.ToString() -as [Int]) | ConvertTo-MoneyString
+      }
+    }
+    'String' {
+      $Sign = if (([Regex]'\-\$').Match($Value).Success) { -1 } else { 1 }
+      if (([Regex]'\$').Match($Value).Success) {
+        $Output = (([Regex]'(?<=(\$))[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
+      } else {
+        $Output = (([Regex]'[\-]?[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
+      }
+      if ($Output.Contains('.')) {
+        if ($AsNumber) {
+          $Sign * ($Output -as [Double])
+        } else {
+          $Sign * ($Output -as [Double]) | ConvertTo-MoneyString
+        }
+      } else {
+        if ($AsNumber) {
+          $Sign * ($Output -as [Int])
+        } else {
+          $Sign * ($Output -as [Int]) | ConvertTo-MoneyString
+        }
+      }
+    }
+    Default { throw 'Format-MoneyValue only accepts strings and numbers' }
+  }
 }
 function Invoke-InsertString {
   [CmdletBinding()]
