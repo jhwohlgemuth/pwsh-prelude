@@ -138,6 +138,7 @@ Functions
 - `Invoke-PropertyTransform`
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
+- `Invoke-RunApplication`
 - `Invoke-Speak`
 - `Join-StringsWithGrammar`
 - `New-DailyShutdownJob`
