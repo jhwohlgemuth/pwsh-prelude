@@ -29,17 +29,15 @@ function Find-FirstIndex {
   Find-FirstIndex -Values $false,$true,$false
   # Returns 1
   .EXAMPLE
-  $Values = 1,1,1,2,1,1
-  Find-FirstIndex -Values $Values -Predicate { $args[0] -eq 2 }
+  Find-FirstIndex -Values 1,1,1,2,1,1 -Predicate { $args[0] -eq 2 }
   # Returns 3
   .EXAMPLE
-  $Values = 1,1,1,2,1,1
-  ,$Values | Find-FirstIndex -Predicate { $args[0] -eq 2 }
+  1,1,1,2,1,1 | Find-FirstIndex -Predicate { $args[0] -eq 2 }
   # Returns 3
 
   Note the use of the unary comma operator
   .EXAMPLE
-  ,(1,1,1,2,1,1) | Find-FirstIndex -Predicate { $args[0] -eq 2 }
+  1,1,1,2,1,1 | Find-FirstIndex -Predicate { $args[0] -eq 2 }
   # Returns 3
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate')]
@@ -50,12 +48,17 @@ function Find-FirstIndex {
     [Array] $Values,
     [ScriptBlock] $Predicate = { $args[0] -eq $true }
   )
-  $Indexes = @($Values | ForEach-Object {
-    if (& $Predicate $_) {
-      [Array]::IndexOf($Values, $_)
+  End {
+    if ($Input.Length -gt 0) {
+      $Values = $Input
     }
-  })
-  $Indexes.Where({ $_ }, 'First')
+    $Indexes = @($Values | ForEach-Object {
+      if (& $Predicate $_) {
+        [Array]::IndexOf($Values, $_)
+      }
+    })
+    $Indexes.Where({ $_ }, 'First')
+  }
 }
 function Invoke-InsertString {
   [CmdletBinding()]

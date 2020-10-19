@@ -151,6 +151,7 @@ Functions
 - `Remove-Character`
 - `Remove-DailyShutdownJob`
 - `Remove-DirectoryForce`
+- `Rename-FileExtension`
 - `Show-BarChart`
 - `Take`
 - `Test-Admin`

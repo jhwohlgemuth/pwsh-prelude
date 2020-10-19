@@ -6,7 +6,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 54
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 55
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 23
@@ -62,14 +62,14 @@ Describe 'Find-Duplicates' {
 Describe 'Find-FirstIndex' {
     It 'can determine index of first item that satisfies default predicate' {
         Find-FirstIndex -Values $false,$true,$false | Should -Be 1
-        ,($false, $true, $false) | Find-FirstIndex | Should -Be 1
+        $false,$true,$false | Find-FirstIndex | Should -Be 1
     }
     It 'can determine index of first item that satisfies passed predicate' {
         $Arr = 1,1,1,1,2,1,1
         $Predicate = { $args[0] -eq 2 }
         Find-FirstIndex -Values $Arr | Should -Be $null
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
-        ,$Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
+        $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
     }
 }
 Describe 'Format-MoneyValue' {
@@ -396,6 +396,66 @@ Describe 'Remove-DirectoryForce (rf)' {
         '.\SomeFile' | Should -Exist
         Remove-DirectoryForce .\SomeFile
         '.\SomeFile' | Should -Not -Exist
+    }
+}
+Describe 'Rename-FileExtension' {
+    It 'can rename file extensions using -TXT switch' {
+        $Path = Join-Path $TestDrive 'foo.bar'
+        New-Item $Path
+        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
+        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -txt
+        Get-ChildItem -Path $TestDrive -Name '*.txt' -File | Should -Be 'foo.txt'
+        Remove-Item (Join-Path $TestDrive 'foo.txt')
+    }
+    It 'can rename file extensions using -PNG switch' {
+        $Path = Join-Path $TestDrive 'foo.bar'
+        New-Item $Path
+        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
+        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -png
+        Get-ChildItem -Path $TestDrive -Name '*.png' -File | Should -Be 'foo.png'
+        Remove-Item (Join-Path $TestDrive 'foo.png')
+    }
+    It 'can rename file extensions using -GIF switch' {
+        $Path = Join-Path $TestDrive 'foo.bar'
+        New-Item $Path
+        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
+        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -gif
+        Get-ChildItem -Path $TestDrive -Name '*.gif' -File | Should -Be 'foo.gif'
+        Remove-Item (Join-Path $TestDrive 'foo.gif')
+    }
+    It 'can rename file extensions with custom value using -To parameter' {
+        $Path = Join-Path $TestDrive 'foo.bar'
+        New-Item $Path
+        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
+        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -To baz
+        Get-ChildItem -Path $TestDrive -Name '*.baz' -File | Should -Be 'foo.baz'
+        Remove-Item (Join-Path $TestDrive 'foo.baz')
+    }
+    It 'can rename file extensions with custom value using -To parameter (pipeline syntax)' {
+        $Path = Join-Path $TestDrive 'foo.bar'
+        New-Item $Path
+        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
+        (Join-Path $TestDrive 'foo.bar') | Rename-FileExtension -To baz
+        Get-ChildItem -Path $TestDrive -Name '*.baz' -File | Should -Be 'foo.baz'
+        Remove-Item (Join-Path $TestDrive 'foo.baz')
+    }
+    It 'can rename files extension of multiple files using pipeline' {
+        $ExtBefore = 'pre'
+        $ExtAfter = 'post'
+        $Files = @(
+            (Join-Path $TestDrive "bar.$ExtBefore")
+            (Join-Path $TestDrive "baz.$ExtBefore")
+            (Join-Path $TestDrive "foo.$ExtBefore")
+        )
+        $Expected = @(
+            "bar.$ExtAfter"
+            "baz.$ExtAfter"
+            "foo.$ExtAfter"
+        )
+        $Files | ForEach-Object { New-Item $_ }
+        $Files | Rename-FileExtension -To 'post'
+        Get-ChildItem -Path $TestDrive -Name "*.$ExtAfter" -File | Should -Be $Expected
+        $Expected | ForEach-Object { Remove-Item (Join-Path $TestDrive $_) }
     }
 }
 # Describe 'Test-Admin' {

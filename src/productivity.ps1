@@ -492,6 +492,36 @@ function Remove-DirectoryForce {
     Write-Error 'Bad input. No folders/files were deleted'
   }
 }
+function Rename-FileExtension {
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [CmdletBinding(SupportsShouldProcess=$true)]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [String] $Path,
+    [String] $To,
+    [Switch] $TXT,
+    [Switch] $JPG,
+    [Switch] $PNG,
+    [Switch] $GIF,
+    [Switch] $MD
+  )
+  Process {
+    $ExtensionTypes = 'TXT','JPG','PNG','GIF','MD'
+    $Index = $ExtensionTypes | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
+    $NewExtension = if ($To.Length -gt 0) {
+      $To
+    } else {
+      if ($Index) { $ExtensionTypes[$Index] } else { 'TXT' }
+    }
+    $NewName = [System.IO.Path]::ChangeExtension($Path, $NewExtension.ToLower())
+    if ($PSCmdlet.ShouldProcess($Path)) {
+      Rename-Item -Path $Path -NewName $NewName
+      "==> Renamed $Path to $NewName" | Write-Verbose
+    } else {
+      "==> Rename $Path to $NewName" | Write-Color -Yellow
+    }
+  }
+}
 function Take {
   <#
   .SYNOPSIS

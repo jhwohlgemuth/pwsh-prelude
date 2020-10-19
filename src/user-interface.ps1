@@ -553,13 +553,9 @@ function Write-Color {
     Write-Host '' -NoNewline:$NoNewLine
   } else {
     if (-not $Color) {
-      $ColorNames = 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow', 'White'
-      $Index = ,($ColorNames | Get-Variable | Select-Object -ExpandProperty Value) | Find-FirstIndex
-      if ($Index) {
-        $Color = $ColorNames[$Index]
-      } else {
-        $Color = 'White'
-      }
+      $ColorNames = 'Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow','White'
+      $Index = $ColorNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
+      $Color = if ($Index) { $ColorNames[$Index] } else { 'White' }
     }
     $Position = 0
     $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object Matches | ForEach-Object {
