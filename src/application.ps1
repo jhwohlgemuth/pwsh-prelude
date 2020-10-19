@@ -10,6 +10,7 @@ function Invoke-RunApplication {
     Code to execute at the end of each application loop. It should be used to update the return of ShouldContinue.
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Continue')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:Continue')]
     [CmdletBinding()]
     Param(
       [Parameter(Mandatory=$true, Position=0)]
