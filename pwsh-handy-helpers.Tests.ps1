@@ -6,7 +6,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 55
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 57
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 23
@@ -292,6 +292,16 @@ Describe 'Join-StringsWithGrammar' {
         Join-StringsWithGrammar @('one', 'two', 'three', 'four') | Should -Be 'one, two, three, and four'
     }
 }
+Describe 'New-ApplicationTemplate' {
+    It 'can interpolate values into template string' {
+        New-ApplicationTemplate | Should -Match 'app.ps1'
+        New-ApplicationTemplate | Should -Match '\$Init = {'
+        New-ApplicationTemplate | Should -Match '\$Init \$Loop \$State'
+        New-ApplicationTemplate | Should -not -Match '  \$State = {'
+        New-ApplicationTemplate -Name 'awesome.app' | Should -Match 'awesome.app'
+        New-ApplicationTemplate -Name 'awesome.app' | Should -not -Match 'app.ps1'
+    }
+}
 Describe 'New-File (touch)' {
     AfterAll {
         Remove-Item -Path .\SomeFile
@@ -456,6 +466,18 @@ Describe 'Rename-FileExtension' {
         $Files | Rename-FileExtension -To 'post'
         Get-ChildItem -Path $TestDrive -Name "*.$ExtAfter" -File | Should -Be $Expected
         $Expected | ForEach-Object { Remove-Item (Join-Path $TestDrive $_) }
+    }
+}
+Describe 'Remove-Indent' {
+    It 'can remove leading spaces from single-line strings' {
+        '' | Remove-Indent | Should -Be ''
+        '  foobar' | Remove-Indent | Should -Be 'foobar'
+        '     foobar' | Remove-Indent -Size 5 | Should -Be 'foobar'
+        'foobar' | Remove-Indent -Size 0 | Should -Be 'foobar'
+    }
+    It 'can remove leading spaces from multi-line strings' {
+        "`n  foo`n  bar`n" | Remove-Indent | Should -Be "`nfoo`nbar"
+        "`n    foo`n    bar`n" | Remove-Indent -Size 4 | Should -Be "`nfoo`nbar"
     }
 }
 # Describe 'Test-Admin' {

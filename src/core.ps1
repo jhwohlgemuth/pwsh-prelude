@@ -450,6 +450,28 @@ function Remove-Character {
     $Value
   }
 }
+function Remove-Indent {
+  <#
+  .SYNOPSIS
+  Remove indentation of multi-line (or single line) strings
+  ==> Good for removing spaces added to template strings because of alignment with code.
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Size')]
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [AllowEmptyString()]
+    [String] $From,
+    [Int] $Size = 2
+  )
+  $Lines = $From -split '\n'
+  $Delimiter = if($Lines.Count -eq 1) { '' } else { "`n" }
+  $Callback = { $args[0],$args[1] -join $Delimiter }
+  $Lines |
+    Where-Object { $_.Length -ge $Size } |
+    ForEach-Object { $_.SubString($Size) } |
+    Invoke-Reduce -Callback $Callback -InitialValue ''
+}
 function Test-Equal {
   <#
   .SYNOPSIS
