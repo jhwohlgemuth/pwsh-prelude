@@ -11,19 +11,19 @@
   )
   $Template = "
   {{ Dollar }}State = @{}
-  
+
   {{ Dollar }}Init = {
     Clear-Host
     'Gettings things ready for `"{{#green {{ Name }}}}`"...' | Write-Color -Gray
     Start-Sleep 1
   }
-  
+
   {{ Dollar }}Loop = {
     Clear-Host
     'Doing something super {{#magenta awesome}}...' | Write-Color -Cyan
     Start-Sleep 1
   }
-  
+
   Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}State
   " | New-Template -Data @{ Name = $Name; Dollar = '$' } | Remove-Indent
   if ($Save) {
