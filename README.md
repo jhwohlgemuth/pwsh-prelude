@@ -141,6 +141,7 @@ Functions
 - `Invoke-RunApplication`
 - `Invoke-Speak`
 - `Join-StringsWithGrammar`
+- `New-ApplicationTemplate`
 - `New-DailyShutdownJob`
 - `New-File`
 - `New-ProxyCommand`

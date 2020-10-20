@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '1.0.7.11'
+  ModuleVersion = '1.0.7.12'
   RootModule = 'pwsh-handy-helpers.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'MyBusiness'
@@ -67,6 +67,7 @@
     'Invoke-RunApplication'
     'Invoke-Speak'
     'Join-StringsWithGrammar'
+    'New-ApplicationTemplate'
     'New-DailyShutdownJob'
     'New-File'
     'New-ProxyCommand'
