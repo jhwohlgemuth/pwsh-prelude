@@ -298,8 +298,8 @@ function Invoke-Operator {
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     $InputObject,
     [Parameter(Mandatory=$true, Position=0)]
-    [ValidatePattern('^-?\w+$')]
-    [ValidateLength(2,12)]
+    [ValidatePattern('^-?[\w%\+-\/\*]+$')]
+    [ValidateLength(1,12)]
     [String] $Name,
     [Parameter(Mandatory=$true, Position=1)]
     [Array] $Arguments
@@ -307,7 +307,7 @@ function Invoke-Operator {
   Process {
     try {
       if ($Arguments.Count -eq 1) {
-        $Expression = "`$InputObject -$Name `"``$Arguments`""
+        $Expression = "`$InputObject $(if ($Name.Length -eq 1) { '' } else { '-' })$Name `"``$Arguments`""
         "==> Executing: $Expression" | Write-Verbose
         Invoke-Expression $Expression
       } else {

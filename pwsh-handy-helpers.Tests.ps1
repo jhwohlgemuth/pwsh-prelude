@@ -202,13 +202,17 @@ Describe 'Invoke-Once' {
     }
 }
 Describe 'Invoke-Operator' {
-    It 'can use an operator within a pipeline' {
+    It 'can use operators within a pipeline' {
         'one,two' | Invoke-Operator 'split' ',' | Should -Be 'one','two'
         ,(1,2,3) | Invoke-Operator 'join' ',' | Should -Be '1,2,3'
         ,(1,2,3) | Invoke-Operator 'join' "'" | Should -Be "1'2'3"
         ,(1,2,3) | Invoke-Operator 'join' "`"" | Should -Be '1"2"3'
         ,(1,2,3) | Invoke-Operator 'join' '"' | Should -Be '1"2"3'
         'abd' | Invoke-Operator 'replace' 'd','c' | Should -Be 'abc'
+    }
+    It 'can use arithmetic operators within a pipeline' {
+        1,2,3,4,5 | Invoke-Operator '%' 2 | Should -Be 1,0,1,0,1
+        1,2,3,4,5 | Invoke-Operator '+' 1 | Should -Be 2,3,4,5,6
     }
     It 'only applies valid operators' {
         'foobar' | Invoke-Operator 'fake' 'operator' | Should -Be 'foobar'
