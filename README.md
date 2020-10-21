@@ -63,6 +63,9 @@ $abc = 'abcd' | remove -Last
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
 ```powershell
 $Sum = 1..100 | reduce -Callback { Param($a, $b) $a + $b } -InitialValue 0
+
+# or with the -Add switch
+$Sum = 1..100 | reduce -Add -InitialValue 0
 ```
 - Exexute code on a remote computer
 ```powershell

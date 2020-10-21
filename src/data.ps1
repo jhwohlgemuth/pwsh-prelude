@@ -206,6 +206,11 @@ function Invoke-Reduce {
 
   Concatenate array of strings
   .EXAMPLE
+  1..100 | reduce -InitialValue 0 -Add
+  # 5050
+
+  Invoke-Reduce has switches for common callbacks - Add, Every, and Some
+  .EXAMPLE
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
 
   Combining directory contents into single object and visualize with Show-BarChart - in a single line!
