@@ -6,10 +6,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 57
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 59
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 23
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 25
         }
     }
 }
@@ -167,6 +167,23 @@ Describe 'Invoke-InsertString' {
 #         Assert-MockCalled Test-Callback -Times 1
 #     }
 # }
+Describe 'Invoke-Method' {
+    It 'can apply a method within a pipeline' {
+        '  foo','  bar','  baz' | Invoke-Method 'TrimStart' | Should -Be 'foo','bar','baz'
+        $true,$false,42 | Invoke-Method 'ToString' | Should -Be 'True','False','42'
+    }
+    It 'can apply a method with arguments within a pipeline' {
+        'a','b','c' | Invoke-Method 'StartsWith' 'b' | Should -Be $false,$true,$false
+        1,2,3 | Invoke-Method 'CompareTo' 2 | Should -Be -1,0,1
+        @{ x = 1 } | Invoke-Method 'ContainsKey' 'x' | Should -Be $true
+        @{ x = 1 } | Invoke-Method 'ContainsKey' 'y' | Should -Be $false
+        @{ x = 1 },@{ x = 2 },@{ x = 3 } | Invoke-Method 'Item' 'x' | Should -Be 1,2,3
+    }
+    It 'only applies valid methods' {
+        'foobar' | Invoke-Method 'FakeMethod' | Should -Be 'foobar'
+        { 'foobar' | Invoke-Method 'Fake-Method' } | Should -Throw
+    }
+}
 Describe 'Invoke-Once' {
     It 'will return a function that will only be executed once' {
         function Test-Callback {}
@@ -182,6 +199,21 @@ Describe 'Invoke-Once' {
         Mock Test-Callback {}
         1..10 | ForEach-Object { test }
         Assert-MockCalled Test-Callback -Times $Times
+    }
+}
+Describe 'Invoke-Operator' {
+    It 'can use an operator within a pipeline' {
+        'one,two' | Invoke-Operator 'split' ',' | Should -Be 'one','two'
+        ,(1,2,3) | Invoke-Operator 'join' ',' | Should -Be '1,2,3'
+        ,(1,2,3) | Invoke-Operator 'join' "'" | Should -Be "1'2'3"
+        ,(1,2,3) | Invoke-Operator 'join' "`"" | Should -Be '1"2"3'
+        ,(1,2,3) | Invoke-Operator 'join' '"' | Should -Be '1"2"3'
+        'abd' | Invoke-Operator 'replace' 'd','c' | Should -Be 'abc'
+    }
+    It 'only applies valid operators' {
+        'foobar' | Invoke-Operator 'fake' 'operator' | Should -Be 'foobar'
+        { 'foobar' | Invoke-Operator 'WayTooLongForAn' 'operator' } | Should -Throw
+        { 'foobar' | Invoke-Operator 'has space' 'operator' } | Should -Throw
     }
 }
 Describe 'Invoke-PropertyTransform' {

@@ -134,7 +134,9 @@ Functions
 - `Invoke-ListenTo`
 - `Invoke-ListenForWord`
 - `Invoke-Menu`
+- `Invoke-Method`
 - `Invoke-Once`
+- `Invoke-Operator`
 - `Invoke-PropertyTransform`
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
@@ -189,7 +191,9 @@ Aliases
 - `listenTo`
 - `ls`
 - `menu`
+- `method`
 - `on`
+- `op`
 - `reduce`
 - `remove`
 - `repeat`

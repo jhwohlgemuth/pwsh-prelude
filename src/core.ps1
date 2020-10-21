@@ -220,6 +220,40 @@ function Invoke-ListenTo {
     $_Event
   }
 }
+function Invoke-Method {
+  [CmdletBinding()]
+  [Alias('method')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    $InputObject,
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidatePattern('^-?\w+$')]
+    [String] $Name,
+    [Parameter(Position=1)]
+    [Array] $Arguments
+  )
+  Process {
+    $Methods = $InputObject | Get-Member -MemberType Method | Select-Object -ExpandProperty Name
+    $ParameterizedProperties = $InputObject | Get-Member -MemberType ParameterizedProperty | Select-Object -ExpandProperty Name
+    if ($Methods -contains $Name -or $ParameterizedProperties -contains $Name) {
+      if ($null -ne $Arguments) {
+        function Format-Input {
+          Param(
+            [Parameter(Mandatory=$true, Position=0)]
+            $Values
+          )
+          $Values
+        }
+        $InputObject.$Name((Format-Input @Arguments))
+      } else {
+        $InputObject.$Name()
+      }
+    } else {
+      "==> $InputObject does not have a(n) `"$Name`" method" | Write-Verbose
+      $InputObject
+    }
+  }
+}
 function Invoke-Once {
   <#
   .SYNOPSIS
@@ -255,6 +289,39 @@ function Invoke-Once {
       $Script:Count++
     }
   }.GetNewClosure()
+}
+function Invoke-Operator {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope='Function')]
+  [CmdletBinding()]
+  [Alias('op')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    $InputObject,
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidatePattern('^-?\w+$')]
+    [ValidateLength(2,12)]
+    [String] $Name,
+    [Parameter(Mandatory=$true, Position=1)]
+    [Array] $Arguments
+  )
+  Process {
+    try {
+      if ($Arguments.Count -eq 1) {
+        $Expression = "`$InputObject -$Name `"``$Arguments`""
+        "==> Executing: $Expression" | Write-Verbose
+        Invoke-Expression $Expression
+      } else {
+        $Arguments = $Arguments | ForEach-Object { "`"``$_`"" }
+        $Expression = "`$InputObject -$Name $($Arguments -join ',')"
+        "==> Executing: $Expression" | Write-Verbose
+        $Expression | Write-Verbose
+        Invoke-Expression $Expression
+      }
+    } catch {
+      "==> $InputObject does not support the `"$Name`" operator" | Write-Verbose
+      $InputObject
+    }
+  }
 }
 function Invoke-StopListen {
   <#
