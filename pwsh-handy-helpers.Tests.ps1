@@ -65,13 +65,15 @@ Describe 'Find-FirstIndex' {
         $false,$true,$false | Find-FirstIndex | Should -Be 1
         Find-FirstIndex -Values $true,$true,$false | Should -Be 0
         $true,$true,$false | Find-FirstIndex | Should -Be 0
+        $true,$false,$false | Find-FirstIndex | Should -Be 0
     }
     It 'can determine index of first item that satisfies passed predicate' {
-        $Arr = 0,0,0,0,,2,0,0
+        $Arr = 0,0,0,0,2,0,0
         $Predicate = { $args[0] -eq 2 }
         Find-FirstIndex -Values $Arr | Should -Be $null
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
         $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
+        Find-FirstIndex -Values 2,0,0,0,2,0,0 -Predicate $Predicate | Should -Be 0
     }
 }
 Describe 'Format-MoneyValue' {
@@ -267,8 +269,8 @@ Describe 'Invoke-Reduce' {
         1,2,3,4,5 | Invoke-Reduce $Add 0 | Should -Be 15
         'a','b','c' | Invoke-Reduce $Add '' | Should -Be 'abc'
         'a','b','c' | Invoke-Reduce -InitialValue 'initial value' | Should -Be 'initial value'
-        # 1,2,3,4,5 | Invoke-Reduce -Add -InitialValue 0 | Should -Be 15
-        # 'a','b','c' | Invoke-Reduce -Add -InitialValue '' | Should -Be 'abc'
+        1,2,3,4,5 | Invoke-Reduce -Add -InitialValue 0 | Should -Be 15
+        'a','b','c' | Invoke-Reduce -Add -InitialValue '' | Should -Be 'abc'
     }
     It 'can accept boolean values' {
         $Every = { Param($a, $b) $a -and $b }

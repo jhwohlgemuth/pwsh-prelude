@@ -210,6 +210,7 @@ function Invoke-Reduce {
 
   Combining directory contents into single object and visualize with Show-BarChart - in a single line!
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   [Alias('reduce')]
   Param(
@@ -219,6 +220,7 @@ function Invoke-Reduce {
     [ScriptBlock] $Callback = { Param($a) $a },
     [Parameter(Position=1)]
     $InitialValue = @{},
+    [Switch] $Identity,
     [Switch] $Add,
     [Switch] $Every,
     [Switch] $Some,
@@ -226,9 +228,9 @@ function Invoke-Reduce {
   )
   Begin {
     $Result = $InitialValue
-    $CallbackNames = 'Add','Every','Some','FileInfo'
+    $CallbackNames = 'Identity','Add','Every','Some','FileInfo'
     $Index = $CallbackNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
-    $CallbackName = if ($Index) { $CallbackNames[$Index] } else { 'Default' }
+    $CallbackName = if ($Index) { $CallbackNames[$Index] } else { 'Identity' }
     $Callback = switch ($CallbackName) {
       'Add' { { Param($a, $b) $a + $b } }
       'Every' { { Param($a, $b) $a -and $b } }
