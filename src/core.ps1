@@ -60,6 +60,25 @@ function Find-FirstIndex {
     $Indexes.Where({ $_ }, 'First')
   }
 }
+function Invoke-GetProperty {
+  [CmdletBinding()]
+  [Alias('prop')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    $InputObject,
+    [Parameter(Position=0)]
+    [ValidatePattern('^-?\w+$')]
+    [String] $Name
+  )
+  Process {
+    $Properties = $InputObject | Get-Member -MemberType Property | Select-Object -ExpandProperty Name
+    if ($Properties -contains $Name) {
+      $InputObject.$Name
+    } else {
+      $InputObject
+    }
+  }
+}
 function Invoke-InsertString {
   [CmdletBinding()]
   [Alias('insert')]

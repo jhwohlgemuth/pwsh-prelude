@@ -6,10 +6,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 59
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 60
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 25
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 26
         }
     }
 }
@@ -134,6 +134,13 @@ Describe 'Format-MoneyValue' {
     }
     It 'will throw an error if input is not a string or number' {
         { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
+    }
+}
+Describe 'Invoke-GetProperty' {
+    It 'can get object properties within a pipeline' {
+        'foo','bar','baz' | Invoke-GetProperty 'Length' | Should -Be 3,3,3
+        'a','ab','abc' | Invoke-GetProperty 'Length' | Should -Be 1,2,3
+        @{ a = 1; b = 2; c = 3 } | Invoke-GetProperty 'Keys' | Should -Be 'c','b','a'
     }
 }
 Describe 'Invoke-InsertString' {

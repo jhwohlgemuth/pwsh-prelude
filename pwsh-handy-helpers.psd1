@@ -26,6 +26,7 @@
     'money'
     'on'
     'op'
+    'prop'
     'reduce'
     'remove'
     'repeat'
@@ -50,6 +51,7 @@
     'Invoke-DockerRemoveAll'
     'Invoke-DockerRemoveAllImage'
     'Invoke-FireEvent'
+    'Invoke-GetProperty'
     'Invoke-GitCommand'
     'Invoke-GitCommit'
     'Invoke-GitDiff'
@@ -99,7 +101,7 @@
   )
   PrivateData = @{
     PSData = @{
-      Tags = @('dev', 'helpers', 'git', 'docker')
+      Tags = @('dev', 'helpers', 'git', 'docker', 'fp', 'cli', 'app', 'scrapp')
       LicenseUri = 'https://github.com/jhwohlgemuth/pwsh-handy-helpers/blob/master/LICENSE'
       ProjectUri = 'https://github.com/jhwohlgemuth/pwsh-handy-helpers'
     }

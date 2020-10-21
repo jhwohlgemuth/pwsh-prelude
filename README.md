@@ -129,6 +129,7 @@ Functions
 - `Get-File`
 - `Install-SshServer`
 - `Invoke-FireEvent`
+- `Invoke-GetProperty`
 - `Invoke-Input`
 - `Invoke-InsertString`
 - `Invoke-ListenTo`
@@ -194,6 +195,7 @@ Aliases
 - `method`
 - `on`
 - `op`
+- `prop`
 - `reduce`
 - `remove`
 - `repeat`
