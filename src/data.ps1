@@ -198,11 +198,11 @@ function Invoke-Reduce {
   .PARAMETER FileInfo
   The operation of combining many FileInfo objects into one object is common enough to deserve its own switch (see examples)
   .EXAMPLE
-  1,2,3,4,5 | Invoke-Reduce -Callback { $args[0] + $args[1] } -InitialValue 0
+  1,2,3,4,5 | Invoke-Reduce -Callback { Param($a, $b) $a + $b } -InitialValue 0
 
   Compute sum of array of integers
   .EXAMPLE
-  'a','b','c' | reduce -Callback { $args[0] + $args[1] } -InitialValue ''
+  'a','b','c' | reduce { Param($a, $b) $a + $b } ''
 
   Concatenate array of strings
   .EXAMPLE
@@ -213,16 +213,28 @@ function Invoke-Reduce {
   [CmdletBinding()]
   [Alias('reduce')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [Array] $Items,
-    [ScriptBlock] $Callback = { $args[0] },
-    [Switch] $FileInfo,
-    $InitialValue = @{}
+    [Parameter(Position=0)]
+    [ScriptBlock] $Callback = { Param($a) $a },
+    [Parameter(Position=1)]
+    $InitialValue = @{},
+    [Switch] $Add,
+    [Switch] $Every,
+    [Switch] $Some,
+    [Switch] $FileInfo
   )
   Begin {
     $Result = $InitialValue
-    if ($FileInfo) {
-      $Callback = { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
+    $CallbackNames = 'Add','Every','Some','FileInfo'
+    $Index = $CallbackNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
+    $CallbackName = if ($Index) { $CallbackNames[$Index] } else { 'Default' }
+    $Callback = switch ($CallbackName) {
+      'Add' { { Param($a, $b) $a + $b } }
+      'Every' { { Param($a, $b) $a -and $b } }
+      'Some' { { Param($a, $b) $a -or $b } }
+      'FileInfo' { { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length } }
+      Default { $Callback }
     }
   }
   Process {

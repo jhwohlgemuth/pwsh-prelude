@@ -63,9 +63,11 @@ Describe 'Find-FirstIndex' {
     It 'can determine index of first item that satisfies default predicate' {
         Find-FirstIndex -Values $false,$true,$false | Should -Be 1
         $false,$true,$false | Find-FirstIndex | Should -Be 1
+        Find-FirstIndex -Values $true,$true,$false | Should -Be 0
+        $true,$true,$false | Find-FirstIndex | Should -Be 0
     }
     It 'can determine index of first item that satisfies passed predicate' {
-        $Arr = 1,1,1,1,2,1,1
+        $Arr = 0,0,0,0,,2,0,0
         $Predicate = { $args[0] -eq 2 }
         Find-FirstIndex -Values $Arr | Should -Be $null
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
@@ -262,6 +264,11 @@ Describe 'Invoke-Reduce' {
         1,2,3,4,5 | Invoke-Reduce -Callback $Add -InitialValue 0 | Should -Be 15
         'a','b','c' | Invoke-Reduce -Callback $Add -InitialValue '' | Should -Be 'abc'
         'a','b','c' | Invoke-Reduce -InitialValue 'initial value' | Should -Be 'initial value'
+        1,2,3,4,5 | Invoke-Reduce $Add 0 | Should -Be 15
+        'a','b','c' | Invoke-Reduce $Add '' | Should -Be 'abc'
+        'a','b','c' | Invoke-Reduce -InitialValue 'initial value' | Should -Be 'initial value'
+        # 1,2,3,4,5 | Invoke-Reduce -Add -InitialValue 0 | Should -Be 15
+        # 'a','b','c' | Invoke-Reduce -Add -InitialValue '' | Should -Be 'abc'
     }
     It 'can accept boolean values' {
         $Every = { Param($a, $b) $a -and $b }
@@ -272,6 +279,10 @@ Describe 'Invoke-Reduce' {
         $OneFalse | Invoke-Reduce -Callback $Some -InitialValue $true | Should -Be $true
         $AllTrue | Invoke-Reduce -Callback $Some -InitialValue $true | Should -Be $true
         $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $false
+        $AllTrue | Invoke-Reduce -Every -InitialValue $true | Should -Be $true
+        $AllTrue | Invoke-Reduce -Some -InitialValue $true | Should -Be $true
+        $OneFalse | Invoke-Reduce -Every -InitialValue $true | Should -Be $false
+        $OneFalse | Invoke-Reduce -Some -InitialValue $true | Should -Be $true
     }
     It 'can accept objects as initial values' {
         $a = @{ name = 'a'; value = 1 }
@@ -283,7 +294,7 @@ Describe 'Invoke-Reduce' {
         $Result.Keys | Sort-Object | Should -Be 'a','b','c'
         $Result.Values | Sort-Object | Should -Be 1,2,3
         # with scriptblock variable
-        $Result = $a,$b,$c | Invoke-Reduce -Callback $Callback
+        $Result = $a,$b,$c | Invoke-Reduce $Callback
         $Result.Keys | Sort-Object | Should -Be 'a','b','c'
         $Result.Values | Sort-Object | Should -Be 1,2,3
     }

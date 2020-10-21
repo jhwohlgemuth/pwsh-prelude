@@ -57,7 +57,16 @@ function Find-FirstIndex {
         [Array]::IndexOf($Values, $_)
       }
     })
-    $Indexes.Where({ $_ }, 'First')
+    if ($Indexes.Count -eq 0) {
+      $null
+    } else {
+      $Result = $Indexes.Where({ $_ }, 'First')
+      if ($Result) {
+        $Result
+      } else {
+        0
+      }
+    }
   }
 }
 function Invoke-GetProperty {
