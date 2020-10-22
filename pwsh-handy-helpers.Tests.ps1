@@ -6,7 +6,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 60
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 61
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 26
@@ -138,6 +138,20 @@ Describe 'Format-MoneyValue' {
     }
     It 'will throw an error if input is not a string or number' {
         { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
+    }
+}
+Describe 'Import-Html' {
+    It 'can import local HTML file' {
+        $Path = Join-Path $TestDrive 'foo.html'
+        '<html>
+            <body>
+                <a href="#">foo</a>
+                <a href="#">bar</a>
+                <a href="#">baz</a>
+            </body>
+        </html>' | Out-File $Path
+        $Html = Import-Html -Path $Path
+        $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
     }
 }
 Describe 'Invoke-GetProperty' {

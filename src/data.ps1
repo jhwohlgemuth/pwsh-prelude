@@ -85,6 +85,26 @@
     Default { throw 'Format-MoneyValue only accepts strings and numbers' }
   }
 }
+function Import-Html {
+  <#
+  .SYNOPSIS
+  Import and parse an a local HTML file or web page.
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Alias('Uri')]
+    [String] $Path
+  )
+  if (Test-Path $Path) {
+    $Content = Get-Content -Path $Path -Raw
+  } else {
+    $Content = (Invoke-WebRequest -Uri $Path).Content
+  }
+  $Html = New-Object -ComObject "HTMLFile"
+  $Html.IHTMLDocument2_write($Content)
+  $Html
+}
 function Invoke-PropertyTransform {
   <#
   .SYNOPSIS

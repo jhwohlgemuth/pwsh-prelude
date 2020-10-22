@@ -130,6 +130,7 @@ Functions
 - `Find-FirstIndex`
 - `Format-MoneyValue`
 - `Get-File`
+- `Import-Html`
 - `Install-SshServer`
 - `Invoke-FireEvent`
 - `Invoke-GetProperty`

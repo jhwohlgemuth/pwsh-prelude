@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '1.0.7.14'
+  ModuleVersion = '1.0.7.15'
   RootModule = 'pwsh-handy-helpers.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'MyBusiness'
@@ -46,6 +46,7 @@
     'Format-MoneyValue'
     'Get-File'
     'Home'
+    'Import-Html'
     'Install-SshServer'
     'Invoke-DockerInspectAddress'
     'Invoke-DockerRemoveAll'
