@@ -11,6 +11,12 @@
     ForEach-Object { $_ -replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
 function Invoke-FireEvent {
+  <#
+  .SYNOPSIS
+  Create event
+  .EXAMPLE
+  'eventName' | Invoke-FireEvent
+  #>
   [CmdletBinding()]
   [Alias('trigger')]
   Param(

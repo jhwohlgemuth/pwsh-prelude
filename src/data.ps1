@@ -89,6 +89,10 @@ function Import-Html {
   <#
   .SYNOPSIS
   Import and parse an a local HTML file or web page.
+  .EXAMPLE
+  Import-Html example.com | ForEach-Object { $_.body.innerHTML }
+  .EXAMPLE
+  Import-Html .\bookmarks.html | ForEach-Object { $_.all.tags('a') } | Selelct-Object -ExpandProperty textContent
   #>
   [CmdletBinding()]
   Param(

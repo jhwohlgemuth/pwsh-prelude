@@ -6,7 +6,7 @@
   [CmdletBinding()]
   Param(
     [Parameter(Position=0)]
-    [String] $Name = 'app.ps1',
+    [String] $Name = 'app',
     [Switch] $Save
   )
   $Template = "
@@ -15,6 +15,12 @@
   {{ Dollar }}Init = {
     Clear-Host
     'Gettings things ready for `"{{#green {{ Name }}}}`"...' | Write-Color -Gray
+    {
+      Invoke-Speak 'Goodbye'
+      {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
+      `"`{{ Grave }}nApplication ID: {{ Dollar }}Id`{{ Grave }}n`" | Write-Color -Magenta
+    } | Invoke-ListenTo 'application:exit' | Out-Null
+    '' | Write-Color
     Start-Sleep 1
   }
 
@@ -25,9 +31,9 @@
   }
 
   Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}State
-  " | New-Template -Data @{ Name = $Name; Dollar = '$' } | Remove-Indent
+  " | New-Template -Data @{ Name = $Name; Dollar = '$'; Grave = '`' } | Remove-Indent
   if ($Save) {
-    $Template | Out-File $Name
+    $Template | Out-File "${Name}.ps1"
   } else {
     $Template
   }
@@ -44,6 +50,9 @@ function Invoke-RunApplication {
   Code to execute at the end of each application loop. It should be used to update the return of ShouldContinue.
   .PARAMETER SingleRun
   As its name implies - use this flag to execute one loop of the application
+  .PARAMETER NoCleanup
+  Use this switch to disable removing the application event listeners when the application exits.
+  Application event listeners can be removed manually with: 'application:' | Invoke-StopListen
   .EXAMPLE
   # Make a simple app
 
@@ -79,6 +88,20 @@ function Invoke-RunApplication {
   }
   Invoke-RunApplication $Init $Loop $State
 
+  .EXAMPLE
+  # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
+  { say 'Hello' } | on 'application:init'
+  { say 'Wax on' } | on 'application:loop:before'
+  { say 'Wax off' } | on 'application:loop:after'
+  { say 'Goodbye' } | on 'application:exit'
+
+  # The triggered event will include State as MessageData
+  { 
+
+    $Id = $Event.MessageData.State.Id
+    "`nApplication ID: $Id" | Write-Color -Green
+
+  } | Invoke-ListenTo 'application:init'
   #>
   [CmdletBinding()]
   Param(
@@ -90,7 +113,8 @@ function Invoke-RunApplication {
     [ApplicationState] $State,
     [ScriptBlock] $ShouldContinue,
     [ScriptBlock] $BeforeNext,
-    [Switch] $SingleRun
+    [Switch] $SingleRun,
+    [Switch] $NoCleanup
   )
   if (-not $State) {
     $State = [ApplicationState]@{}
@@ -104,16 +128,24 @@ function Invoke-RunApplication {
       $State.Continue = ('yes','no' | Invoke-Menu) -eq 'yes'
     }
   }
+  "Application ID: $($State.Id)" | Write-Verbose
+  'application:init' | Invoke-FireEvent
   & $Init
   if ($SingleRun) {
+    'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
     & $Loop
-    $State.Id | Write-Verbose
+    'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
   } else {
     While (& $ShouldContinue) {
+      'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
       & $Loop
-      $State.Id | Write-Verbose
+      'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
       & $BeforeNext
     }
+  }
+  'application:exit' | Invoke-FireEvent -Data @{ State = $State }
+  if (-not $NoCleanup) {
+    'application:' | Invoke-StopListen
   }
 }
 enum ApplicationStatus { Init; Busy; Idle; Done }
