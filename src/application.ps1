@@ -11,13 +11,17 @@
   )
   $Data = @{ Name = $Name; Dollar = '$'; Grave = '`' }
   $Template = "  [CmdletBinding()]
-  Param()
+  Param(
+    [String] {{ Dollar }}Id,
+    [Switch] {{ Dollar }}Clear
+  )
   $Empty
-  {{ Dollar }}State = @{}
+  {{ Dollar }}InitialState = @{ Data = 0 }
   $Empty
   {{ Dollar }}Init = {
     Clear-Host
-    {{ Dollar }}Id = {{ Dollar }}args[0].Id
+    {{ Dollar }}State = {{ Dollar }}args[0]
+    {{ Dollar }}Id = {{ Dollar }}State.Id
     'Application Information:' | Write-Color
     `"ID = {{#green {{ Dollar }}Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
     'Name = {{#green {{ Name }}}}' | Write-Label -Color Gray -Indent 2 -NewLine
@@ -32,11 +36,15 @@
   $Empty
   {{ Dollar }}Loop = {
     Clear-Host
-    'Doing something super {{#magenta awesome}}...' | Write-Color -Cyan
+    {{ Dollar }}State = {{ Dollar }}args[0]
+    {{ Dollar }}Count = {{ Dollar }}State.Data
+    `"Current count is {{#green {{ Dollar }}Count}}`" | Write-Color -Cyan
+    {{ Dollar }}State.Data++
+    Save-State {{ Dollar }}State.Id {{ Dollar }}State | Out-Null
     Start-Sleep 1
   }
   $Empty
-  Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}State
+  Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}InitialState -Id {{ Dollar }}Id -ClearState:{{ Dollar }}Clear
   " | New-Template -Data $Data | Remove-Indent
   if ($Save) {
     $Template | Out-File "${Name}.ps1"
@@ -78,23 +86,10 @@ function Invoke-RunApplication {
   Invoke-RunApplication $Init $Loop
 
   .EXAMPLE
-  # Make a simple app with state that counts the number of times $Loop is executed.
+  # Make a simple app with state
   # Note: State is passed to Init, Loop, ShouldContinue, and BeforeNext
 
-  $State = @{ Data = 0 }
-  $Render = 'Current count is {{#green {{ Data }}}}' | New-Template
-  $Init = {
-    Clear-Host
-    "Application ID: $($args[0].Id)" | Write-Color -Gray
-    'Getting things ready...' | Write-Color -Gray
-    Start-Sleep 1
-  }
-  $Loop = {
-    Clear-Host
-    & $Render $State | Write-Color
-    $State.Data++
-  }
-  Invoke-RunApplication $Init $Loop $State
+  New-ApplicationTemplate -Save
 
   .EXAMPLE
   # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
@@ -122,15 +117,26 @@ function Invoke-RunApplication {
     [String] $Id,
     [ScriptBlock] $ShouldContinue,
     [ScriptBlock] $BeforeNext,
+    [Switch] $ClearState,
     [Switch] $SingleRun,
     [Switch] $NoCleanup
   )
-  if (Test-Path (Join-Path $Env:temp "state-$Id.xml")) {
-    "==> Resolved state with ID: $Id" | Write-Verbose
-    try {
-      $State = Get-State $Id
-    } catch {
-      "==> Failed to get state with ID: $Id" | Write-Verbose
+  if ($Id.Length -gt 0) {
+    $Path = Join-Path $Env:temp "state-$Id.xml"
+    if ($ClearState -and (Test-Path $Path)) {
+      Remove-Item $Path
+    }
+    if (Test-Path $Path) {
+      "==> Resolved state with ID: $Id" | Write-Verbose
+      try {
+        [ApplicationState]$State = Get-State $Id
+        $State.Id = $Id
+      } catch {
+        "==> Failed to get state with ID: $Id" | Write-Verbose
+        $State = [ApplicationState]@{ Id = $Id }
+      }
+    } else {
+      $State = [ApplicationState]@{ Id = $Id }
     }
   }
   if (-not $State) {
@@ -146,20 +152,17 @@ function Invoke-RunApplication {
     }
   }
   "Application ID: $($State.Id)" | Write-Verbose
-  Save-State $State.Id $State
   'application:init' | Invoke-FireEvent
   & $Init $State
   if ($SingleRun) {
     'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
     & $Loop $State
     'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
-    Save-State $State.Id $State
   } else {
     While (& $ShouldContinue $State) {
       'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
       & $Loop $State
       'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
-      Save-State $State.Id $State
       & $BeforeNext $State
     }
   }
@@ -167,11 +170,12 @@ function Invoke-RunApplication {
   if (-not $NoCleanup) {
     'application:' | Invoke-StopListen
   }
+  $State.Id
 }
 enum ApplicationStatus { Init; Busy; Idle; Done }
 class ApplicationState {
-  hidden [String] $Id = (New-Guid)
-  hidden [ApplicationStatus] $Status = 0
+  [String] $Id = (New-Guid)
+  [ApplicationStatus] $Status = 0
   [Bool] $Continue = $true
   [String] $Name = 'Application Name'
   $Data
@@ -194,7 +198,7 @@ function Save-State {
   Param(
     [Parameter(Mandatory=$true, Position=0)]
     [String] $Id,
-    [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=1)]
     [ApplicationState] $State,
     [String] $Path
   )
