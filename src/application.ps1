@@ -119,11 +119,20 @@ function Invoke-RunApplication {
     [ScriptBlock] $Loop,
     [Parameter(Position=2)]
     [ApplicationState] $State,
+    [String] $Id,
     [ScriptBlock] $ShouldContinue,
     [ScriptBlock] $BeforeNext,
     [Switch] $SingleRun,
     [Switch] $NoCleanup
   )
+  if (Test-Path (Join-Path $Env:temp "state-$Id.xml")) {
+    "==> Resolved state with ID: $Id" | Write-Verbose
+    try {
+      $State = Get-State $Id
+    } catch {
+      "==> Failed to get state with ID: $Id" | Write-Verbose
+    }
+  }
   if (-not $State) {
     $State = [ApplicationState]@{}
   }
@@ -137,17 +146,20 @@ function Invoke-RunApplication {
     }
   }
   "Application ID: $($State.Id)" | Write-Verbose
+  Save-State $State.Id $State
   'application:init' | Invoke-FireEvent
   & $Init $State
   if ($SingleRun) {
     'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
     & $Loop $State
     'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
+    Save-State $State.Id $State
   } else {
     While (& $ShouldContinue $State) {
       'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
       & $Loop $State
       'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
+      Save-State $State.Id $State
       & $BeforeNext $State
     }
   }
@@ -163,4 +175,63 @@ class ApplicationState {
   [Bool] $Continue = $true
   [String] $Name = 'Application Name'
   $Data
+}
+function Save-State {
+  <#
+  .SYNOPSIS
+
+  .EXAMPLE
+  Set-State -Id 'abc-def-ghi' -State @{ Data = 0 }
+
+  .EXAMPLE
+  Set-State 'abc-def-ghi' @{ Data = 0 }
+
+  .EXAMPLE
+  [ApplicationState]@{ Data = 0 } | Set-State 'abc-def-ghi'
+
+  #>
+  [CmdletBinding(SupportsShouldProcess=$true)]
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [String] $Id,
+    [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+    [ApplicationState] $State,
+    [String] $Path
+  )
+  if (-not $Path) {
+    $Path = Join-Path $Env:temp "state-$Id.xml"
+  }
+  if ($PSCmdlet.ShouldProcess($Path)) {
+    $State | Export-Clixml -Path $Path
+    "==> Saved state to $Path" | Write-Verbose
+  } else {
+    "==> Would have saved state to $Path" | Write-Verbose
+  }
+  $Path
+}
+function Get-State {
+  <#
+  .SYNOPSIS
+
+  .EXAMPLE
+  $State = Get-State -Id 'abc-def-ghi'
+
+  .EXAMPLE
+  $State = 'abc-def-ghi' | Get-State
+
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [String] $Id,
+    [AllowEmptyString()]
+    [String] $Path
+  )
+  if ($Path.Length -gt 0 -and (Test-Path $Path)) {
+    "==> Resolved $Path" | Write-Verbose
+  } else {
+    $Path = Join-Path $Env:temp "state-$Id.xml"
+  }
+  "==> Loading state from $Path" | Write-Verbose
+  Import-Clixml -Path $Path
 }

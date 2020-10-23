@@ -130,6 +130,7 @@ Functions
 - `Find-FirstIndex`
 - `Format-MoneyValue`
 - `Get-File`
+- `Get-State`
 - `Import-Html`
 - `Install-SshServer`
 - `Invoke-FireEvent`
@@ -161,6 +162,7 @@ Functions
 - `Remove-DirectoryForce`
 - `Remove-Indent`
 - `Rename-FileExtension`
+- `Save-State`
 - `Show-BarChart`
 - `Take`
 - `Test-Admin`
