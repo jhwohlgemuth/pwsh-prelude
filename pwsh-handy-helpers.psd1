@@ -1,11 +1,11 @@
 ﻿@{
-  ModuleVersion = '1.0.7.16'
+  ModuleVersion = '1.0.7.17'
   RootModule = 'pwsh-handy-helpers.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'MyBusiness'
   Author = 'Jason Wohlgemuth'
   Copyright = '(c) 2020 Jason Wohlgemuth. All rights reserved.'
-  Description = 'Helper functions, aliases and more'
+  Description = 'Helper functions, aliases, application frameworks, and more'
   PowerShellVersion = '5.0'
   FileList = @()
   CmdletsToExport = @()

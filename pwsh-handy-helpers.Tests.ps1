@@ -366,7 +366,7 @@ Describe 'New-ApplicationTemplate' {
     It 'can interpolate values into template string' {
         New-ApplicationTemplate | Should -Match 'app'
         New-ApplicationTemplate | Should -Match '\$Init = {'
-        New-ApplicationTemplate | Should -Match '\$Init \$Loop \$State'
+        New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
         New-ApplicationTemplate | Should -not -Match '  \$State = {'
         New-ApplicationTemplate -Name 'awesome.app' | Should -Match 'awesome.app'
         New-ApplicationTemplate -Name 'awesome.app' | Should -not -Match 'app.ps1'
