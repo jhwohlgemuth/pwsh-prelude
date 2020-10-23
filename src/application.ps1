@@ -183,15 +183,12 @@ class ApplicationState {
 function Save-State {
   <#
   .SYNOPSIS
-
+  Save state object as CliXml in temp directory
   .EXAMPLE
   Set-State -Id 'abc-def-ghi' -State @{ Data = 0 }
 
   .EXAMPLE
   Set-State 'abc-def-ghi' @{ Data = 0 }
-
-  .EXAMPLE
-  [ApplicationState]@{ Data = 0 } | Set-State 'abc-def-ghi'
 
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
@@ -216,7 +213,7 @@ function Save-State {
 function Get-State {
   <#
   .SYNOPSIS
-
+  Load state from file
   .EXAMPLE
   $State = Get-State -Id 'abc-def-ghi'
 
