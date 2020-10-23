@@ -364,7 +364,7 @@ Describe 'Join-StringsWithGrammar' {
 }
 Describe 'New-ApplicationTemplate' {
     It 'can interpolate values into template string' {
-        New-ApplicationTemplate | Should -Match 'app.ps1'
+        New-ApplicationTemplate | Should -Match 'app'
         New-ApplicationTemplate | Should -Match '\$Init = {'
         New-ApplicationTemplate | Should -Match '\$Init \$Loop \$State'
         New-ApplicationTemplate | Should -not -Match '  \$State = {'

@@ -9,29 +9,35 @@
     [String] $Name = 'app',
     [Switch] $Save
   )
-  $Template = "
+  $Data = @{ Name = $Name; Dollar = '$'; Grave = '`' }
+  $Template = "  [CmdletBinding()]
+  Param()
+  $Empty
   {{ Dollar }}State = @{}
-
+  $Empty
   {{ Dollar }}Init = {
     Clear-Host
-    'Gettings things ready for `"{{#green {{ Name }}}}`"...' | Write-Color -Gray
+    {{ Dollar }}Id = {{ Dollar }}args[0].Id
+    'Application Information:' | Write-Color
+    `"ID = {{#green {{ Dollar }}Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
+    'Name = {{#green {{ Name }}}}' | Write-Label -Color Gray -Indent 2 -NewLine
     {
       Invoke-Speak 'Goodbye'
       {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
       `"`{{ Grave }}nApplication ID: {{ Dollar }}Id`{{ Grave }}n`" | Write-Color -Magenta
     } | Invoke-ListenTo 'application:exit' | Out-Null
     '' | Write-Color
-    Start-Sleep 1
+    Start-Sleep 2
   }
-
+  $Empty
   {{ Dollar }}Loop = {
     Clear-Host
     'Doing something super {{#magenta awesome}}...' | Write-Color -Cyan
     Start-Sleep 1
   }
-
+  $Empty
   Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}State
-  " | New-Template -Data @{ Name = $Name; Dollar = '$'; Grave = '`' } | Remove-Indent
+  " | New-Template -Data $Data | Remove-Indent
   if ($Save) {
     $Template | Out-File "${Name}.ps1"
   } else {
@@ -58,7 +64,7 @@ function Invoke-RunApplication {
 
   # Initialize your app - $Init is only run once
   $Init = {
-    'Setting up application...' | Write-Color -Green
+    'Getting things ready...' | Write-Color -Green
   }
 
   # Define what your app should do every iteration - $Loop is executed until ShouldContinue returns False
@@ -73,11 +79,13 @@ function Invoke-RunApplication {
 
   .EXAMPLE
   # Make a simple app with state that counts the number of times $Loop is executed.
+  # Note: State is passed to Init, Loop, ShouldContinue, and BeforeNext
 
   $State = @{ Data = 0 }
   $Render = 'Current count is {{#green {{ Data }}}}' | New-Template
   $Init = {
     Clear-Host
+    "Application ID: $($args[0].Id)" | Write-Color -Gray
     'Getting things ready...' | Write-Color -Gray
     Start-Sleep 1
   }
@@ -96,7 +104,7 @@ function Invoke-RunApplication {
   { say 'Goodbye' } | on 'application:exit'
 
   # The triggered event will include State as MessageData
-  { 
+  {
 
     $Id = $Event.MessageData.State.Id
     "`nApplication ID: $Id" | Write-Color -Green
@@ -130,17 +138,17 @@ function Invoke-RunApplication {
   }
   "Application ID: $($State.Id)" | Write-Verbose
   'application:init' | Invoke-FireEvent
-  & $Init
+  & $Init $State
   if ($SingleRun) {
     'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
-    & $Loop
+    & $Loop $State
     'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
   } else {
-    While (& $ShouldContinue) {
+    While (& $ShouldContinue $State) {
       'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
-      & $Loop
+      & $Loop $State
       'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
-      & $BeforeNext
+      & $BeforeNext $State
     }
   }
   'application:exit' | Invoke-FireEvent -Data @{ State = $State }
