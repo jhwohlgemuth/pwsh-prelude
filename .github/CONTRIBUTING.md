@@ -26,6 +26,7 @@ The main module file, [pwsh-handy-helpers.psm1](../pwsh-handy-helpers.psm1), sim
 - `core.ps1`: Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
 - `user-interface.ps1`: Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
 - `productivity.ps1`: A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
+- `web.ps1`: Functions for working with web technology
 - `override.ps1`: Functions that "clobber" existing functions like `Out-Default` (which enables one to omit `cd` when changing directories)
 
 Project Setup
