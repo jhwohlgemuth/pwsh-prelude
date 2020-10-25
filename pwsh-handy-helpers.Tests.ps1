@@ -258,20 +258,22 @@ Describe 'Invoke-GetProperty' {
         @{ a = 1; b = 2; c = 3 } | Invoke-GetProperty 'Keys' | Should -Be 'c','b','a'
     }
 }
-# Describe 'Import-Html' {
-#     It 'can import local HTML file' {
-#         $Path = Join-Path $TestDrive 'foo.html'
-#         '<html>
-#             <body>
-#                 <a href="#">foo</a>
-#                 <a href="#">bar</a>
-#                 <a href="#">baz</a>
-#             </body>
-#         </html>' | Out-File $Path
-#         $Html = Import-Html -Path $Path
-#         $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
-#     }
-# }
+Describe 'Import-Html' {
+    It 'can import local HTML file' {
+        if ($null -ne (New-Object -ComObject "HTMLFile")) {
+            $Path = Join-Path $TestDrive 'foo.html'
+            '<html>
+                <body>
+                    <a href="#">foo</a>
+                    <a href="#">bar</a>
+                    <a href="#">baz</a>
+                </body>
+            </html>' | Out-File $Path
+            $Html = Import-Html -Path $Path
+            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
+        }
+    }
+}
 Describe 'Invoke-InsertString' {
     It 'can insert string into a string at a given index' {
         Invoke-InsertString -Value 'C' -To 'ABDE' -At 2 | Should -Be 'ABCDE'
