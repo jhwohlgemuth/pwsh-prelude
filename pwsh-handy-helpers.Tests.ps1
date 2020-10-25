@@ -260,7 +260,12 @@ Describe 'Invoke-GetProperty' {
 }
 Describe 'Import-Html' {
     It 'can import local HTML file' {
-        if ($null -ne (New-Object -ComObject "HTMLFile")) {
+        try {
+            $Supported = New-Object -ComObject "HTMLFile"
+        } catch {
+            $Supported = $null
+        }
+        if ($null -ne $Supported) {
             $Path = Join-Path $TestDrive 'foo.html'
             '<html>
                 <body>
