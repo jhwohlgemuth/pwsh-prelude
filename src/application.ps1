@@ -2,12 +2,20 @@
   <#
   .SYNOPSIS
   Create new application template file for writing a new "scrapp" (script + application)
+  .PARAMETER Root
+  Root directory where application file will be saved to. Default is current directory. Must be used with -Save switch.
+  .EXAMPLE
+  New-ApplicationTemplate -Name 'Invoke-Awesome' -Save
+  
   #>
-  [CmdletBinding()]
+  [CmdletBinding(DefaultParameterSetName='string')]
   Param(
-    [Parameter(Position=0)]
-    [String] $Name = 'app',
-    [Switch] $Save
+    [Parameter(ParameterSetName='file', Position=0)]
+    [String] $Name = 'Start-App',
+    [Parameter(ParameterSetName='file')]
+    [Switch] $Save,
+    [Parameter(ParameterSetName='file')]
+    [String] $Root = (Get-Location)
   )
   $Data = @{ Name = $Name; Dollar = '$'; Grave = '`' }
   $Template = "  [CmdletBinding()]
@@ -47,7 +55,7 @@
   Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}InitialState -Id {{ Dollar }}Id -ClearState:{{ Dollar }}Clear
   " | New-Template -Data $Data | Remove-Indent
   if ($Save) {
-    $Template | Out-File "${Name}.ps1"
+    $Template | Out-File (Join-Path $Root "${Name}.ps1")
   } else {
     $Template
   }
@@ -185,24 +193,31 @@ function Save-State {
   .SYNOPSIS
   Save state object as CliXml in temp directory
   .EXAMPLE
-  Set-State -Id 'abc-def-ghi' -State @{ Data = 0 }
+  Set-State -Id 'my-app -State @{ Data = 42 }
 
   .EXAMPLE
-  Set-State 'abc-def-ghi' @{ Data = 0 }
+  Set-State 'my-app' @{ Data = 42 }
+
+  .EXAMPLE
+  @{ Data = 42 } | Set-State 'my-app'
 
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   Param(
-    [Parameter(Mandatory=$true, Position=0)]
+    [Parameter(Position=0)]
     [String] $Id,
-    [Parameter(Mandatory=$true, Position=1)]
-    [ApplicationState] $State,
+    [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+    [PSObject] $State,
     [String] $Path
   )
   if (-not $Path) {
     $Path = Join-Path $Env:temp "state-$Id.xml"
   }
   if ($PSCmdlet.ShouldProcess($Path)) {
+    $State = [ApplicationState]$State
+    if ($Id) {
+      $State.Id = $Id
+    }
     $State | Export-Clixml -Path $Path
     "==> Saved state to $Path" | Write-Verbose
   } else {

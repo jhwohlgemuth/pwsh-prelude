@@ -13,6 +13,35 @@ Describe 'Handy Helpers Module' {
         }
     }
 }
+Describe 'Application State' {
+    It 'can save and get state using ID' {
+        $Id = 'pester-test'
+        $Value = (New-Guid).Guid
+        $State = @{ Data = @{ Value = $Value }}
+        $Path = $State | Save-State $Id
+        $Expected = Get-State $Id
+        $Expected.Id | Should -Be $Id
+        $Expected.Data.Value | Should -Be $Value
+        Remove-Item $Path
+    }
+    It 'can save and get state using path' {
+        $Path = Join-Path $TestDrive 'state.xml'
+        $Id = (New-Guid).Guid
+        $Value = (New-Guid).Guid
+        $State = @{ Id = $Id; Data = @{ Value = $Value }}
+        $State | Save-State -Path $Path
+        $Expected = Get-State -Path $Path
+        $Expected.Id | Should -Be $Id
+        $Expected.Data.Value | Should -Be $Value
+        Remove-Item $Path
+    }
+    It 'can test save using -WhatIf switch' {
+        Mock Write-Verbose {}
+        $Path = Join-Path $TestDrive 'test.xml'
+        @{ Data = 42 } | Save-State -Path $Path -WhatIf
+        (Test-Path $Path) | Should -Be $false
+    }
+}
 Describe 'ConvertTo-PowershellSyntax' {
     It 'can act as pass-thru for normal strings' {
         $Expected = 'normal string with not mustache templates'
@@ -138,6 +167,88 @@ Describe 'Format-MoneyValue' {
     }
     It 'will throw an error if input is not a string or number' {
         { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
+    }
+}
+Describe 'Invoke-RunApplication' {
+    It 'can pass state to Init/Loop functions and execute Loop one time' {
+        $Script:Count = 0
+        $Init = {
+            $State = $args[0]
+            $State.Id.Length | Should -Be 36
+            $State.Data = 'hello world'
+            $Script:Count++
+        }
+        $Loop = {
+            $State = $args[0]
+            $State.Data | Should -Be 'hello world'
+            $Script:Count++
+        }
+        Invoke-RunApplication $Init $Loop -SingleRun
+        $Script:Count | Should -Be 2
+    }
+    It 'can persist state with -Id switch and clear state with -ClearState switch' {
+        # First run with initial state passed to Invoke-RunApplication
+        $Script:Count = 0
+        $Script:Value = (New-Guid).Guid
+        $InitialState = @{ Data = @{ Value = $Script:Value }}
+        $Init = {
+            $Script:Count++
+        }
+        $Loop = {
+            $State = $args[0]
+            $State | Save-State $State.Id | Out-Null
+            $Script:Count++
+        }
+        $Script:ApplicationId = Invoke-RunApplication $Init $Loop $InitialState -SingleRun
+        $Script:Count | Should -Be 2
+        # Second run that loads state with Get-State
+        $Init = {
+            $State = $args[0]
+            $State.Id | Should -Be $Script:ApplicationId
+            $State.Data.Value | Should -Be $Script:Value
+            $Script:Count++
+        }
+        $Loop = {
+            $State = $args[0]
+            $State.Id | Should -Be $Script:ApplicationId
+            $State.Data.Value | Should -Be $Script:Value
+            $Script:Count++
+        }
+        Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId
+        $Script:Count | Should -Be 4
+        # Third run that should clear state
+        $Init = {
+            $State = $args[0]
+            $State.Id | Should -Be $Script:ApplicationId
+            $State.Data.Value | Should -Be $null
+            $Script:Count++
+        }
+        $Loop = {
+            $Script:Count++
+        }
+        $Path = Join-Path $Env:temp "state-$Script:ApplicationId.xml"
+        (Test-Path $Path) | Should -Be $true
+        Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId -ClearState
+        (Test-Path $Path) | Should -Be $false
+        $Script:Count | Should -Be 6
+    }
+    It 'can accept initial state value' {
+        $Script:Count = 0
+        $Script:Value = (New-Guid).Guid
+        $Init = {
+            $State = $args[0]
+            $State.Id.Length | Should -Be 36
+            $State.Data.Value | Should -Be $Script:Value
+            $Script:Count++
+        }
+        $Loop = {
+            $State = $args[0]
+            $State.Data.Value | Should -Be $Script:Value
+            $Script:Count++
+        }
+        $InitialState = @{ Data = @{ Value = $Script:Value }}
+        Invoke-RunApplication $Init $Loop $InitialState -SingleRun
+        $Script:Count | Should -Be 2
     }
 }
 Describe 'Import-Html' {
@@ -364,12 +475,19 @@ Describe 'Join-StringsWithGrammar' {
 }
 Describe 'New-ApplicationTemplate' {
     It 'can interpolate values into template string' {
-        New-ApplicationTemplate | Should -Match 'app'
+        New-ApplicationTemplate | Should -Match 'Start-App'
         New-ApplicationTemplate | Should -Match '\$Init = {'
         New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
         New-ApplicationTemplate | Should -not -Match '  \$State = {'
-        New-ApplicationTemplate -Name 'awesome.app' | Should -Match 'awesome.app'
-        New-ApplicationTemplate -Name 'awesome.app' | Should -not -Match 'app.ps1'
+        New-ApplicationTemplate -Name 'Invoke-Awesome' | Should -Match 'Invoke-Awesome'
+        New-ApplicationTemplate -Name 'Invoke-Awesome' | Should -not -Match 'Start-App.ps1'
+    }
+    It 'can be saved to disk' {
+        $Name = 'Invoke-Awesome'
+        $Path = Join-Path $TestDrive "${Name}.ps1"
+        (Test-Path $Path) | Should -Be $false
+        New-ApplicationTemplate -Name $Name -Save -Root $TestDrive
+        (Test-Path $Path) | Should -Be $true
     }
 }
 Describe 'New-File (touch)' {
