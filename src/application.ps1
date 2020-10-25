@@ -6,7 +6,7 @@
   Root directory where application file will be saved to. Default is current directory. Must be used with -Save switch.
   .EXAMPLE
   New-ApplicationTemplate -Name 'Invoke-Awesome' -Save
-  
+
   #>
   [CmdletBinding(DefaultParameterSetName='string')]
   Param(
