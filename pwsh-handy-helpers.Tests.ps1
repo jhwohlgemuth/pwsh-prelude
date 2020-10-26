@@ -459,18 +459,18 @@ Describe 'Invoke-Reduce' {
     }
     It 'should pass item index to -Callback function' {
         $Callback = {
-            Param($Acc, $Item, $Index, $Items)
-            $Acc + $Index
+            Param($Acc, $Item, $Index)
+            $Acc + $Item +  $Index
         }
-        1,2,3 | Invoke-Reduce $Callback 0 | Should -Be 3
+        1,2,3 | Invoke-Reduce $Callback 0 | Should -Be 9
     }
     It 'should pass -Items value to -Callback function' {
         $Callback = {
             Param($Acc, $Item, $Index, $Items)
             $Items.Length | Should -Be 3
-            $Acc + $Item
+            $Acc + $Item +  $Index
         }
-        Invoke-Reduce -Items 1,2,3 $Callback 0 | Should -Be 6
+        Invoke-Reduce -Items 1,2,3 $Callback 0 | Should -Be 9
     }
     It 'can combine FileInfo objects' {
         $Result = Get-ChildItem -File | Invoke-Reduce -FileInfo

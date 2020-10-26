@@ -12,6 +12,7 @@ function ConvertTo-QueryString {
   Returns URL-encoded query string
   #>
   [CmdletBinding()]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [PSObject] $InputObject,
@@ -65,11 +66,12 @@ function Invoke-WebRequestWithBasicAuth {
   - 'Github'
   - 'none' [Default]
   .EXAMPLE
-  $Uri = 'https://api.github.com/notifications' 
+  $Uri = 'https://api.github.com/notifications'
   $Query = @{ per_page = 100; page = 1 }
   $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query
   $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
     [Parameter(Position=0)]
@@ -114,5 +116,5 @@ function Invoke-WebRequestWithBasicAuth {
 function Invoke-WebRequestWithOAuth {
   [CmdletBinding()]
   Param()
-  
+
 }
