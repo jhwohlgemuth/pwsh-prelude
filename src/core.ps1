@@ -591,6 +591,7 @@ function Invoke-Reduce {
     [Switch] $FileInfo
   )
   Begin {
+    $Index = 0
     $Result = $InitialValue
     $CallbackNames = 'Identity','Add','Every','Some','FileInfo'
     $Index = $CallbackNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
@@ -606,10 +607,11 @@ function Invoke-Reduce {
   Process {
     $Items | ForEach-Object {
       if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Bool] -or $InitialValue -is [Array]) {
-        $Result = & $Callback $Result $_
+        $Result = & $Callback $Result $_ $Index $Items
       } else {
-        & $Callback $Result $_
+        & $Callback $Result $_ $Index $Items
       }
+      $Index++
     }
   }
   End {

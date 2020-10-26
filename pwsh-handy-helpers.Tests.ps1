@@ -6,7 +6,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 66
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 67
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 26
@@ -74,6 +74,31 @@ Describe 'ConvertTo-PowershellSyntax' {
         '{{#green Hello}} {{#red {{a}}b{{c}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)}}'
         '{{#green Hello}} {{#red {{ a }} b {{ c }} d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) d}}'
         '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
+    }
+}
+Describe 'ConvertTo-Iso8601' {
+    It 'can convert values to ISO-8601 format' {
+        $Expected = '2020-07-04T00:00:00.000Z'
+        'July 4, 2020' | ConvertTo-Iso8601 | Should -Be $Expected
+        '07/04/2020' | ConvertTo-Iso8601 | Should -Be $Expected
+        '04JUL20' | ConvertTo-Iso8601 | Should -Be $Expected
+        '2020-07-04' | ConvertTo-Iso8601 | Should -Be $Expected
+    }
+}
+Describe 'ConvertTo-QueryString' {
+    It 'can convert objects into URL-encoded query strings' {
+        @{} | ConvertTo-QueryString | Should -Be ''
+        @{ foo = '' } | ConvertTo-QueryString | Should -Be 'foo='
+        @{ foo = 'bar' } | ConvertTo-QueryString | Should -Be 'foo=bar'
+        @{ a = 1; b = 2; c = 3 } | ConvertTo-QueryString | Should -Be 'a=1&b=2&c=3'
+        @{ per_page = 100; page = 3 } | ConvertTo-QueryString  | Should -Be 'page=3&per_page=100'
+    }
+    It 'can convert objects into query strings' {
+        @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
+        @{ foo = '' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3d'
+        @{ foo = 'bar' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3dbar'
+        @{ a = 1; b = 2; c = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'a%3d1%26b%3d2%26c%3d3'
+        @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
     }
 }
 Describe 'Find-Duplicates' {
@@ -432,6 +457,21 @@ Describe 'Invoke-Reduce' {
         $Result.Keys | Sort-Object | Should -Be 'a','b','c'
         $Result.Values | Sort-Object | Should -Be 1,2,3
     }
+    It 'should pass item index to -Callback function' {
+        $Callback = {
+            Param($Acc, $Item, $Index, $Items)
+            $Acc + $Index
+        }
+        1,2,3 | Invoke-Reduce $Callback 0 | Should -Be 3
+    }
+    It 'should pass -Items value to -Callback function' {
+        $Callback = {
+            Param($Acc, $Item, $Index, $Items)
+            $Items.Length | Should -Be 3
+            $Acc + $Item
+        }
+        Invoke-Reduce -Items 1,2,3 $Callback 0 | Should -Be 6
+    }
     It 'can combine FileInfo objects' {
         $Result = Get-ChildItem -File | Invoke-Reduce -FileInfo
         $Result.Keys | Should -Contain 'pwsh-handy-helpers.psm1'
@@ -455,6 +495,43 @@ Describe 'Invoke-Speak (say)' {
         $Rate = 10
         Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<p>$Text</p>"
         Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
+    }
+}
+InModuleScope pwsh-handy-helpers {
+    Describe 'Invoke-WebRequestWithBasicAuth' {
+        It 'can make a simple request' {
+            Mock Invoke-WebRequest { $args }
+            $Username = 'user'
+            $Token = 'token'
+            $Uri = 'https://example.com/'
+            $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri
+            # Headers
+            $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
+            # Method
+            $Request[3] | Should -Be 'Get'
+            # Uri
+            $Request[5] | Should -Be $Uri
+        }
+        It 'can make a simple request with query parameters' {
+            Mock Invoke-WebRequest { $args }
+            $Username = 'user'
+            $Token = 'token'
+            $Uri = 'https://example.com/'
+            $Query = @{ foo = 'bar' }
+            $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query
+            $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
+            $Request[5] | Should -Be "${Uri}?foo=bar"
+        }
+        It 'can make a simple request with URL-encoded query parameters' {
+            Mock Invoke-WebRequest { $args }
+            $Username = 'user'
+            $Token = 'token'
+            $Uri = 'https://example.com/'
+            $Query = @{ answer = 42 }
+            $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query -UrlEncode
+            $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
+            $Request[5] | Should -Be "${Uri}?answer=42"
+        }
     }
 }
 Describe 'Join-StringsWithGrammar' {

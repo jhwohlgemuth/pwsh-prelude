@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '1.0.7.18'
+  ModuleVersion = '1.0.7.19'
   RootModule = 'pwsh-handy-helpers.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'MyBusiness'
@@ -40,6 +40,8 @@
   )
   FunctionsToExport = @(
     'ConvertTo-PowershellSyntax'
+    'ConvertTo-Iso8601'
+    'ConvertTo-QueryString'
     'Enable-Remoting'
     'Find-Duplicate'
     'Find-FirstIndex'
@@ -74,6 +76,7 @@
     'Invoke-RemoteCommand'
     'Invoke-RunApplication'
     'Invoke-Speak'
+    'Invoke-WebRequestWithBasicAuth'
     'Join-StringsWithGrammar'
     'New-ApplicationTemplate'
     'New-DailyShutdownJob'

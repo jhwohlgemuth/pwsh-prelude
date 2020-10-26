@@ -125,6 +125,8 @@ Functions
 > Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
 
 - `ConvertTo-PowershellSyntax`
+- `ConvertTo-Iso8601`
+- `ConvertTo-QueryString`
 - `Enable-Remoting`
 - `Find-Duplicate`
 - `Find-FirstIndex`
@@ -148,6 +150,7 @@ Functions
 - `Invoke-RemoteCommand`
 - `Invoke-RunApplication`
 - `Invoke-Speak`
+- `Invoke-WebRequestWithBasicAuth`
 - `Join-StringsWithGrammar`
 - `New-ApplicationTemplate`
 - `New-DailyShutdownJob`

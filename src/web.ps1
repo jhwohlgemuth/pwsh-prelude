@@ -6,6 +6,31 @@
   )
   $Value | Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
 }
+function ConvertTo-QueryString {
+  <#
+  .SYNOPSIS
+  Returns URL-encoded query string
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [PSObject] $InputObject,
+    [Switch] $UrlEncode
+  )
+  $Callback = {
+    Param($Acc, $Item)
+    $Key = $Item.Name
+    $Value = $Item.Value
+    "${Acc}$(if ($Acc -ne '') { '&' } else { '' })${Key}=${Value}"
+  }
+  $QueryString = $InputObject.GetEnumerator() | Sort-Object Name | Invoke-Reduce $Callback ''
+  if ($UrlEncode) {
+    Add-Type -AssemblyName System.Web
+    [System.Web.HttpUtility]::UrlEncode($QueryString)
+  } else {
+    $QueryString
+  }
+}
 function Import-Html {
   <#
   .SYNOPSIS
@@ -41,7 +66,7 @@ function Invoke-WebRequestWithBasicAuth {
   - 'none' [Default]
   .EXAMPLE
   $Uri = 'https://api.github.com/notifications' 
-  $Query = @{ 'per_page' = 100; page = 1}
+  $Query = @{ per_page = 100; page = 1 }
   $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query
   $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
   #>
@@ -51,16 +76,24 @@ function Invoke-WebRequestWithBasicAuth {
     [String] $Username,
     [Parameter(Position=1)]
     [String] $Token,
-    [Uri] $Uri,
-    [PSObject] $Query,
+    [UriBuilder] $Uri,
+    [PSObject] $Query = @{},
+    [Switch] $UrlEncode,
     [PSObject] $Data,
-    [String] $TwoFactorAuthentication = 'none'
+    [String] $TwoFactorAuthentication = 'none',
+    [Switch] $Get,
+    [Switch] $Post,
+    [Switch] $Put,
+    [Switch] $Delete
   )
+  $MethodNames = 'Get','Post','Put','Delete'
+  $Index = $MethodNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
+  $MethodName = if ($Index) { $MethodNames[$Index] } else { 'Get' }
   $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Token}"))
   $Headers = @{
     Authorization = "Basic $Credential"
   }
-  switch ($TwoFactorAuthentication.ToLower()) {
+  switch ($TwoFactorAuthentication) {
     'github' {
       $Code = '2FA Code:' | Invoke-Input -Number
       $Headers.Accept = 'application/vnd.github.v3+json'
@@ -70,9 +103,11 @@ function Invoke-WebRequestWithBasicAuth {
       # Do nothing
     }
   }
+  $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
   $Parameters = @{
-    Uri = $Uri
     Headers = $Headers
+    Method = $MethodName
+    Uri = $Uri.Uri
   }
   Invoke-WebRequest @Parameters
 }
