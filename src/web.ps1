@@ -62,20 +62,33 @@ function Invoke-WebRequestBasicAuth {
   Invoke-WebRequest wrapper that makes it easier to use basic authentication
   .PARAMETER TwoFactorAuthentication
   Name of API that requires 2FA. Use 'none' when 2FA is not required.
+
   Possible values:
   - 'Github'
   - 'none' [Default]
+
+  .PARAMETER Data
+  Data (Body) payload for HTTP request. Will only function with PUT and POST requests.
+  ==> Analogous to the '-d' cURL flag
+  ==> Data object will be converted to JSON string
   .EXAMPLE
+  # Authenticate a GET request with a token
   $Uri = 'https://api.github.com/notifications'
   $Query = @{ per_page = 100; page = 1 }
   $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
   $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
 
   .EXAMPLE
+  # Use basic authentication with a username and password
   $Uri = 'https://api.github.com/notifications'
   $Query = @{ per_page = 100; page = 1 }
   $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri -Query $Query
   $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
+
+  .EXAMPLE
+  # Execute a PUT request with a data payload
+  $Uri = 'https://api.github.com/notifications'
+  @{ last_read_at = '' } | Invoke-WebRequestBasicAuth $Token -Uri $Uri -Put
 
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
@@ -103,37 +116,39 @@ function Invoke-WebRequestBasicAuth {
     [Parameter(ValueFromPipeline=$true)]
     [PSObject] $Data = @{}
   )
-  $Authorization = if ($Token.Length -gt 0) {
-    "Bearer $Token"
-  } else {
-    $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
-    "Basic $Credential"
-  }
-  $Headers = @{
-    Authorization = $Authorization
-  }
-  switch ($TwoFactorAuthentication) {
-    'github' {
-      'GitHub 2FA' | Write-Title -Green
-      $Code = 'Code:' | Invoke-Input -Number -Indent 4
-      $Headers.Accept = 'application/vnd.github.v3+json'
-      $Headers['x-github-otp'] = $Code
+  Process {
+    $Authorization = if ($Token.Length -gt 0) {
+      "Bearer $Token"
+    } else {
+      $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
+      "Basic $Credential"
     }
-    Default {
-      # Do nothing
+    $Headers = @{
+      Authorization = $Authorization
     }
+    switch ($TwoFactorAuthentication) {
+      'github' {
+        'GitHub 2FA' | Write-Title -Green
+        $Code = 'Code:' | Invoke-Input -Number -Indent 4
+        $Headers.Accept = 'application/vnd.github.v3+json'
+        $Headers['x-github-otp'] = $Code
+      }
+      Default {
+        # Do nothing
+      }
+    }
+    $Method = Find-FirstTrueVariable 'Get','Post','Put','Delete'
+    $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
+    $Parameters = @{
+      Headers = $Headers
+      Method = $Method
+      Uri = $Uri.Uri
+    }
+    if ($Method -in 'Post','Put') {
+      $Parameters.Body = $Data | ConvertTo-Json
+    }
+    Invoke-WebRequest @Parameters
   }
-  $Method = Find-FirstTrueVariable 'Get','Post','Put','Delete'
-  $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
-  $Parameters = @{
-    Headers = $Headers
-    Method = $Method
-    Uri = $Uri.Uri
-  }
-  if ($Method -in 'Post','Put') {
-    $Parameters.Body = $Data | ConvertTo-Json
-  }
-  Invoke-WebRequest @Parameters
 }
 function Invoke-WebRequestOAuth {
   [CmdletBinding()]
