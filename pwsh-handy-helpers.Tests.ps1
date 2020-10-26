@@ -14,7 +14,7 @@ Describe 'Handy Helpers Module' {
             (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 68
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 26
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 28
         }
     }
 }
@@ -535,13 +535,25 @@ Describe 'Invoke-Speak (say)' {
     }
 }
 InModuleScope pwsh-handy-helpers {
-    Describe 'Invoke-WebRequestWithBasicAuth' {
+    Describe 'Invoke-WebRequestBasicAuth' {
         It 'can make a simple request' {
+            Mock Invoke-WebRequest { $args }
+            $Token = 'token'
+            $Uri = 'https://example.com/'
+            $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
+            # Headers
+            $Request[1].Authorization | Should -Be "Bearer $Token"
+            # Method
+            $Request[3] | Should -Be 'Get'
+            # Uri
+            $Request[5] | Should -Be $Uri
+        }
+        It 'can make a simple request with a username and password' {
             Mock Invoke-WebRequest { $args }
             $Username = 'user'
             $Token = 'token'
             $Uri = 'https://example.com/'
-            $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri
+            $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
             # Headers
             $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
             # Method
@@ -551,22 +563,20 @@ InModuleScope pwsh-handy-helpers {
         }
         It 'can make a simple request with query parameters' {
             Mock Invoke-WebRequest { $args }
-            $Username = 'user'
             $Token = 'token'
             $Uri = 'https://example.com/'
             $Query = @{ foo = 'bar' }
-            $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query
-            $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
+            $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
+            $Request[1].Authorization | Should -Be "Bearer $Token"
             $Request[5] | Should -Be "${Uri}?foo=bar"
         }
         It 'can make a simple request with URL-encoded query parameters' {
             Mock Invoke-WebRequest { $args }
-            $Username = 'user'
             $Token = 'token'
             $Uri = 'https://example.com/'
             $Query = @{ answer = 42 }
-            $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query -UrlEncode
-            $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
+            $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
+            $Request[1].Authorization | Should -Be "Bearer $Token"
             $Request[5] | Should -Be "${Uri}?answer=42"
         }
     }

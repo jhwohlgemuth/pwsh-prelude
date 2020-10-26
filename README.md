@@ -150,7 +150,8 @@ Functions
 - `Invoke-RemoteCommand`
 - `Invoke-RunApplication`
 - `Invoke-Speak`
-- `Invoke-WebRequestWithBasicAuth`
+- `Invoke-WebRequestBasicAuth`
+- `Invoke-WebRequestOAuth`
 - `Join-StringsWithGrammar`
 - `New-ApplicationTemplate`
 - `New-DailyShutdownJob`

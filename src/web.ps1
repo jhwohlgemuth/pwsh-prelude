@@ -56,7 +56,7 @@ function Import-Html {
   $Html.IHTMLDocument2_write($Content)
   $Html
 }
-function Invoke-WebRequestWithBasicAuth {
+function Invoke-WebRequestBasicAuth {
   <#
   .SYNOPSIS
   Invoke-WebRequest wrapper that makes it easier to use basic authentication
@@ -68,33 +68,54 @@ function Invoke-WebRequestWithBasicAuth {
   .EXAMPLE
   $Uri = 'https://api.github.com/notifications'
   $Query = @{ per_page = 100; page = 1 }
-  $Request = Invoke-WebRequestWithBasicAuth $Username $Token -Uri $Uri -Query $Query
+  $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
   $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
+
+  .EXAMPLE
+  $Uri = 'https://api.github.com/notifications'
+  $Query = @{ per_page = 100; page = 1 }
+  $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri -Query $Query
+  $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
+
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
-  [CmdletBinding()]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
+  [CmdletBinding(DefaultParameterSetName='token')]
+  [Alias('iwrba')]
   Param(
-    [Parameter(Position=0)]
+    [Parameter(ParameterSetName='basic', Position=0)]
     [String] $Username,
-    [Parameter(Position=1)]
+    [Parameter(ParameterSetName='basic')]
+    [String] $Password,
+    [Parameter(ParameterSetName='token', Position=0)]
     [String] $Token,
+    [Parameter(Mandatory=$true)]
     [UriBuilder] $Uri,
     [PSObject] $Query = @{},
     [Switch] $UrlEncode,
-    [PSObject] $Data,
+    [Alias('OTP')]
     [String] $TwoFactorAuthentication = 'none',
     [Switch] $Get,
     [Switch] $Post,
     [Switch] $Put,
-    [Switch] $Delete
+    [Switch] $Delete,
+    [Parameter(ValueFromPipeline=$true)]
+    [PSObject] $Data = @{}
   )
-  $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Token}"))
+  $Authorization = if ($Token.Length -gt 0) {
+    "Bearer $Token"
+  } else {
+    $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
+    "Basic $Credential"
+  }
   $Headers = @{
-    Authorization = "Basic $Credential"
+    Authorization = $Authorization
   }
   switch ($TwoFactorAuthentication) {
     'github' {
-      $Code = '2FA Code:' | Invoke-Input -Number
+      'GitHub 2FA' | Write-Title -Green
+      $Code = 'Code:' | Invoke-Input -Number -Indent 4
       $Headers.Accept = 'application/vnd.github.v3+json'
       $Headers['x-github-otp'] = $Code
     }
@@ -102,16 +123,21 @@ function Invoke-WebRequestWithBasicAuth {
       # Do nothing
     }
   }
+  $Method = Find-FirstTrueVariable 'Get','Post','Put','Delete'
   $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
   $Parameters = @{
     Headers = $Headers
-    Method = (Find-FirstTrueVariable 'Get','Post','Put','Delete')
+    Method = $Method
     Uri = $Uri.Uri
+  }
+  if ($Method -in 'Post','Put') {
+    $Parameters.Body = $Data | ConvertTo-Json
   }
   Invoke-WebRequest @Parameters
 }
-function Invoke-WebRequestWithOAuth {
+function Invoke-WebRequestOAuth {
   [CmdletBinding()]
+  [Alias('iwroa')]
   Param()
 
 }
