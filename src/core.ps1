@@ -58,20 +58,25 @@ function Find-FirstIndex {
     if ($Input.Length -gt 0) {
       $Values = $Input
     }
-    $Indexes = @($Values | ForEach-Object {
-      if (& $Predicate $_) {
-        [Array]::IndexOf($Values, $_)
-      }
-    })
-    if ($Indexes.Count -eq 0) {
-      $null
+    $Values | ForEach-Object { if (& $Predicate $_) { [Array]::IndexOf($Values, $_) } } | Select-Object -First 1
+  }
+}
+function Find-FirstTrueVariable {
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [Array] $VariableNames,
+    [Int] $DefaultIndex = 0,
+    $DefaultValue = $null
+  )
+  $Index = $VariableNames | Get-Variable -ValueOnly | Find-FirstIndex
+  if ($Index -is [Int]) {
+    $VariableNames[$Index]
+  } else {
+    if ($null -ne $DefaultValue) {
+      $DefaultValue
     } else {
-      $Result = $Indexes.Where({ $_ }, 'First')
-      if ($Result) {
-        $Result
-      } else {
-        0
-      }
+      $VariableNames[$DefaultIndex]
     }
   }
 }
@@ -593,10 +598,8 @@ function Invoke-Reduce {
   Begin {
     $Index = 0
     $Result = $InitialValue
-    $CallbackNames = 'Identity','Add','Every','Some','FileInfo'
-    $Index = $CallbackNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
-    $CallbackName = if ($Index) { $CallbackNames[$Index] } else { 'Identity' }
-    $Callback = switch ($CallbackName) {
+    $Callback = switch ((Find-FirstTrueVariable 'Identity','Add','Every','Some','FileInfo')) {
+      'Identity' { $Callback }
       'Add' { { Param($a, $b) $a + $b } }
       'Every' { { Param($a, $b) $a -and $b } }
       'Some' { { Param($a, $b) $a -or $b } }

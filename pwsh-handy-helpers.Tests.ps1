@@ -1,4 +1,9 @@
-﻿if (Get-Module -Name 'pwsh-handy-helpers') {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:foo')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:bar')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
+Param()
+
+if (Get-Module -Name 'pwsh-handy-helpers') {
     Remove-Module -Name 'pwsh-handy-helpers'
 }
 Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
@@ -6,7 +11,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 67
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 68
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 26
@@ -128,6 +133,38 @@ Describe 'Find-FirstIndex' {
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
         $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
         Find-FirstIndex -Values 2,0,0,0,2,0,0 -Predicate $Predicate | Should -Be 0
+    }
+}
+Describe 'Find-FirstTrueVariable' {
+    It 'should support default value' {
+        $Global:foo = $false
+        $Global:bar = $true
+        $Global:baz = $false
+        $Names = 'foo','bar','baz'
+        Find-FirstTrueVariable $Names | Should -Be 'bar'
+        Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'bar'
+        Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'bar'
+    }
+    It 'should support default value' {
+        $Global:foo = $false
+        $Global:bar = $false
+        $Global:baz = $false
+        $Names = 'foo','bar','baz'
+        Find-FirstTrueVariable $Names | Should -Be 'foo'
+    }
+    It 'should support default value passed as index' {
+        $Global:foo = $false
+        $Global:bar = $false
+        $Global:baz = $false
+        $Names = 'foo','bar','baz'
+        Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'baz'
+    }
+    It 'should support default value passed as value' {
+        $Global:foo = $false
+        $Global:bar = $false
+        $Global:baz = $false
+        $Names = 'foo','bar','baz'
+        Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
     }
 }
 Describe 'Format-MoneyValue' {

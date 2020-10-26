@@ -88,9 +88,6 @@ function Invoke-WebRequestWithBasicAuth {
     [Switch] $Put,
     [Switch] $Delete
   )
-  $MethodNames = 'Get','Post','Put','Delete'
-  $Index = $MethodNames | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
-  $MethodName = if ($Index) { $MethodNames[$Index] } else { 'Get' }
   $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Token}"))
   $Headers = @{
     Authorization = "Basic $Credential"
@@ -108,7 +105,7 @@ function Invoke-WebRequestWithBasicAuth {
   $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
   $Parameters = @{
     Headers = $Headers
-    Method = $MethodName
+    Method = (Find-FirstTrueVariable 'Get','Post','Put','Delete')
     Uri = $Uri.Uri
   }
   Invoke-WebRequest @Parameters

@@ -506,12 +506,10 @@ function Rename-FileExtension {
     [Switch] $MD
   )
   Process {
-    $ExtensionTypes = 'TXT','JPG','PNG','GIF','MD'
-    $Index = $ExtensionTypes | Get-Variable | Select-Object -ExpandProperty Value | Find-FirstIndex
     $NewExtension = if ($To.Length -gt 0) {
       $To
     } else {
-      if ($Index) { $ExtensionTypes[$Index] } else { 'TXT' }
+      Find-FirstTrueVariable 'TXT','JPG','PNG','GIF','MD'
     }
     $NewName = [System.IO.Path]::ChangeExtension($Path, $NewExtension.ToLower())
     if ($PSCmdlet.ShouldProcess($Path)) {
