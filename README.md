@@ -184,6 +184,7 @@ Aliases
 > Use `Get-Alias <Name>` to see alias details. **Example**: `Get-Alias dra`
 
 - `~`
+- `basicauth`
 - `dip`
 - `dra`
 - `drai`
@@ -203,6 +204,7 @@ Aliases
 - `ls`
 - `menu`
 - `method`
+- `oauth`
 - `on`
 - `op`
 - `prop`

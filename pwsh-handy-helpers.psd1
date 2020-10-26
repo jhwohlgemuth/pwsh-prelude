@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '1.0.7.21'
+  ModuleVersion = '1.0.7.22'
   RootModule = 'pwsh-handy-helpers.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'MyBusiness'
@@ -12,6 +12,7 @@
   VariablesToExport = @()
   AliasesToExport = @(
     '~'
+    'basicauth'
     'dip'
     'dra'
     'drai'
@@ -26,6 +27,7 @@
     'menu'
     'method'
     'money'
+    'oauth'
     'on'
     'op'
     'prop'

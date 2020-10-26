@@ -88,14 +88,14 @@ function Invoke-WebRequestBasicAuth {
   .EXAMPLE
   # Execute a PUT request with a data payload
   $Uri = 'https://api.github.com/notifications'
-  @{ last_read_at = '' } | Invoke-WebRequestBasicAuth $Token -Uri $Uri -Put
+  @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put
 
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
   [CmdletBinding(DefaultParameterSetName='token')]
-  [Alias('iwrba')]
+  [Alias('basicauth')]
   Param(
     [Parameter(ParameterSetName='basic', Position=0)]
     [String] $Username,
@@ -144,15 +144,19 @@ function Invoke-WebRequestBasicAuth {
       Method = $Method
       Uri = $Uri.Uri
     }
+    "==> Headers: $($Parameters.Headers | ConvertTo-Json)" | Write-Verbose
+    "==> Method: $($Parameters.Method)" | Write-Verbose
+    "==> URI: $($Parameters.Uri)" | Write-Verbose
     if ($Method -in 'Post','Put') {
       $Parameters.Body = $Data | ConvertTo-Json
+      "==> Data: $($Data | ConvertTo-Json)" | Write-Verbose
     }
     Invoke-WebRequest @Parameters
   }
 }
 function Invoke-WebRequestOAuth {
   [CmdletBinding()]
-  [Alias('iwroa')]
+  [Alias('oauth')]
   Param()
 
 }
