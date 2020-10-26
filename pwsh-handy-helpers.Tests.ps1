@@ -579,6 +579,16 @@ InModuleScope pwsh-handy-helpers {
             $Request[1].Authorization | Should -Be "Bearer $Token"
             $Request[5] | Should -Be "${Uri}?answer=42"
         }
+        It 'can make a simple PUT request' {
+            Mock Invoke-WebRequest { $args }
+            $Token = 'token'
+            $Uri = 'https://example.com/'
+            $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data @{ answer = 42 }
+            $Request[1] | Should -Match '"answer": '
+            $Request[3].Authorization | Should -Be "Bearer $Token"
+            $Request[5] | Should -Be 'Put'
+            $Request[7] | Should -Be $Uri
+        }
     }
 }
 Describe 'Join-StringsWithGrammar' {
