@@ -20,8 +20,6 @@
     'input'
     'insert'
     'irc'
-    'iwrba'
-    'iwroa'
     'listenFor'
     'listenTo'
     'menu'
