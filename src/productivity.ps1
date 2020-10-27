@@ -616,6 +616,10 @@ function Use-Grammar {
   $Engine
 }
 function Use-Speech {
+  <#
+  .SYNOPSIS
+  Load System.Speech type if it is not already loaded.
+  #>
   [CmdletBinding()]
   Param()
   if ($IsLinux -is [Bool] -and $IsLinux) {

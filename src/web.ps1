@@ -42,6 +42,9 @@ function ConvertFrom-QueryString {
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Query
   )
+  Begin {
+    Use-Web
+  }
   Process {
     $Decoded = [System.Web.HttpUtility]::UrlDecode($Query)
     if ($Decoded -match '=') {
@@ -77,6 +80,9 @@ function ConvertTo-QueryString {
     [PSObject] $InputObject,
     [Switch] $UrlEncode
   )
+  Begin {
+    Use-Web
+  }
   Process {
     $Callback = {
       Param($Acc, $Item)
@@ -226,4 +232,18 @@ function Invoke-WebRequestOAuth {
   [Alias('oauth')]
   Param()
 
+}
+function Use-Web {
+  <#
+  .SYNOPSIS
+  Load System.Web type if it is not already loaded.
+  #>
+  [CmdletBinding()]
+  Param()
+  if (-not ('System.Web.HttpUtility' -as [Type])) {
+    '==> Adding System.Web type' | Write-Verbose
+    Add-Type -AssemblyName System.Web
+  } else {
+    '==> System.Web is already loaded' | Write-Verbose
+  }
 }

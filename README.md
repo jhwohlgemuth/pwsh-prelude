@@ -177,6 +177,7 @@ Functions
 - `Test-Installed`
 - `Use-Grammar`
 - `Use-Speech`
+- `Use-Web`
 - `Write-Color`
 - `Write-Label`
 - `Write-Title`
