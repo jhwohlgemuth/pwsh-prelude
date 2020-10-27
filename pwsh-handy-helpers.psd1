@@ -44,6 +44,7 @@
   )
   FunctionsToExport = @(
     'ConvertFrom-ByteArray'
+    'ConvertFrom-Html'
     'ConvertFrom-QueryString'
     'ConvertTo-PowershellSyntax'
     'ConvertTo-Iso8601'

@@ -30,6 +30,24 @@ function ConvertFrom-ByteArray {
     Invoke-Convert $Input
   }
 }
+function ConvertFrom-Html {
+  <#
+  .SYNOPSIS
+  Convert HTML string into object.
+  .EXAMPLE
+  '<html><body><h1>hello</h1></body></html>' | ConvertFrom-Html
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [String] $Value
+  )
+  $Html = New-Object -ComObject 'HTMLFile'
+  if ($null -ne $Html) {
+    $Html.IHTMLDocument2_write($Value)
+  }
+  $Html
+}
 function ConvertFrom-QueryString {
   <#
   .SYNOPSIS
@@ -119,9 +137,7 @@ function Import-Html {
   } else {
     $Content = (Invoke-WebRequest -Uri $Path).Content
   }
-  $Html = New-Object -ComObject "HTMLFile"
-  $Html.IHTMLDocument2_write($Content)
-  $Html
+  ConvertFrom-Html $Content
 }
 function Invoke-WebRequestBasicAuth {
   <#

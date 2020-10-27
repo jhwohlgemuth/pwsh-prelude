@@ -125,6 +125,7 @@ Functions
 > Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
 
 - `ConvertFrom-ByteArray`
+- `ConvertFrom-Html`
 - `ConvertFrom-QueryString`
 - `ConvertTo-PowershellSyntax`
 - `ConvertTo-Iso8601`

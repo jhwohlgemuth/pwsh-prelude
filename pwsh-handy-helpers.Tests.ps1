@@ -11,7 +11,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 71
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 72
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 28
@@ -58,6 +58,44 @@ Describe 'ConvertFrom-ByteArray' {
         $Expected = 'hello world'
         $Expected | ConvertFrom-ByteArray | Should -Be $Expected
         ConvertFrom-ByteArray -Data $Expected | Should -Be $Expected
+    }
+}
+Describe 'ConvertFrom-Html / Import-Html' {
+    It 'can convert HTML strings' {
+        try {
+            $Supported = New-Object -ComObject "HTMLFile"
+        } catch {
+            $Supported = $null
+        }
+        if ($null -ne $Supported) {
+            $Html = '<html>
+                <body>
+                    <a href="#">foo</a>
+                    <a href="#">bar</a>
+                    <a href="#">baz</a>
+                </body>
+            </html>' | ConvertFrom-Html
+            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
+        }
+    }
+    It 'can import local HTML file' {
+        try {
+            $Supported = New-Object -ComObject "HTMLFile"
+        } catch {
+            $Supported = $null
+        }
+        if ($null -ne $Supported) {
+            $Path = Join-Path $TestDrive 'foo.html'
+            '<html>
+                <body>
+                    <a href="#">foo</a>
+                    <a href="#">bar</a>
+                    <a href="#">baz</a>
+                </body>
+            </html>' | Out-File $Path
+            $Html = Import-Html -Path $Path
+            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
+        }
     }
 }
 Describe 'ConvertFrom-QueryString' {
@@ -356,27 +394,6 @@ Describe 'Invoke-GetProperty' {
         'foo','bar','baz' | Invoke-GetProperty 'Length' | Should -Be 3,3,3
         'a','ab','abc' | Invoke-GetProperty 'Length' | Should -Be 1,2,3
         @{ a = 1; b = 2; c = 3 } | Invoke-GetProperty 'Keys' | Should -Be 'c','b','a'
-    }
-}
-Describe 'Import-Html' {
-    It 'can import local HTML file' {
-        try {
-            $Supported = New-Object -ComObject "HTMLFile"
-        } catch {
-            $Supported = $null
-        }
-        if ($null -ne $Supported) {
-            $Path = Join-Path $TestDrive 'foo.html'
-            '<html>
-                <body>
-                    <a href="#">foo</a>
-                    <a href="#">bar</a>
-                    <a href="#">baz</a>
-                </body>
-            </html>' | Out-File $Path
-            $Html = Import-Html -Path $Path
-            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
-        }
     }
 }
 Describe 'Invoke-InsertString' {
