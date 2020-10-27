@@ -135,6 +135,7 @@ Functions
 - `Find-FirstIndex`
 - `Format-MoneyValue`
 - `Get-File`
+- `Get-GithubOAuthToken`
 - `Get-State`
 - `Import-Html`
 - `Install-SshServer`
@@ -154,7 +155,6 @@ Functions
 - `Invoke-RunApplication`
 - `Invoke-Speak`
 - `Invoke-WebRequestBasicAuth`
-- `Invoke-WebRequestOAuth`
 - `Join-StringsWithGrammar`
 - `New-ApplicationTemplate`
 - `New-DailyShutdownJob`

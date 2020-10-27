@@ -526,6 +526,8 @@ function Write-Color {
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
+  [OutputType([Void])]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [AllowEmptyString()]
@@ -547,7 +549,8 @@ function Write-Color {
     [Switch] $Red,
     [Switch] $Magenta,
     [Switch] $Yellow,
-    [Switch] $White
+    [Switch] $White,
+    [Switch] $PassThru
   )
   if ($Text.Length -eq 0) {
     Write-Host '' -NoNewline:$NoNewLine
@@ -566,6 +569,9 @@ function Write-Color {
     if ($Position -lt $Text.Length) {
       Write-Host $Text.Substring($Position, $Text.Length - $Position) -ForegroundColor $Color -NoNewline:$NoNewLine
     }
+  }
+  if ($PassThru) {
+    $Text
   }
 }
 function Write-Label {
@@ -637,6 +643,8 @@ function Write-Title {
   #>
   [CmdletBinding()]
   [Alias('title')]
+  [OutputType([Void])]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Text,
@@ -658,7 +666,8 @@ function Write-Title {
     [Switch] $White,
     [Switch] $Yellow,
     [Int] $Width,
-    [Int] $Indent = 0
+    [Int] $Indent = 0,
+    [Switch] $PassThru
   )
   if ($Template) {
     $TextLength = ($Text -replace '{{#\w*\s', '' | ForEach-Object { $_ -replace '}}', '' }).Length
@@ -711,4 +720,7 @@ function Write-Title {
     Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding$Text$Padding$RightEdge" @BorderColor
   }
   Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times ($WidthInside - $SubText.Length))$SubText$BottomRight" @BorderColor
+  if ($PassThru) {
+    $Text
+  }
 }
