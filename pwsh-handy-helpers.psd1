@@ -43,6 +43,8 @@
     'trigger'
   )
   FunctionsToExport = @(
+    'ConvertFrom-ByteArray'
+    'ConvertFrom-QueryString'
     'ConvertTo-PowershellSyntax'
     'ConvertTo-Iso8601'
     'ConvertTo-QueryString'

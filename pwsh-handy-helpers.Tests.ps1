@@ -11,7 +11,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 68
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 70
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 28
@@ -45,6 +45,43 @@ Describe 'Application State' {
         $Path = Join-Path $TestDrive 'test.xml'
         @{ Data = 42 } | Save-State -Path $Path -WhatIf
         (Test-Path $Path) | Should -Be $false
+    }
+}
+Describe 'ConvertFrom-ByteArray' {
+    it 'can convert an array of bytes to text' {
+        $Expected = 'hello world'
+        $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Expected)
+        $Bytes | ConvertFrom-ByteArray | Should -Be $Expected
+        ConvertFrom-ByteArray -Data $Bytes | Should -Be $Expected
+    }
+    it 'can provide pass-thru for string values' {
+        $Expected = 'hello world'
+        $Expected | ConvertFrom-ByteArray | Should -Be $Expected
+        ConvertFrom-ByteArray -Data $Expected | Should -Be $Expected
+    }
+}
+Describe 'ConvertFrom-QueryString' {
+    It 'can parse single-value inputs as strings' {
+        $Expected = 'hello world'
+        $Expected | ConvertFrom-QueryString | Should -Be $Expected
+        'foo','bar','baz' | ConvertFrom-QueryString | Should -Be 'foo','bar','baz'
+    }
+    It 'can parse complex query strings as objects' {
+        $DeviceCode = 'ac921e83b6d04d0709a627f4ede70dee1f86204f'
+        $UserCode = '7B7F-4F10'
+        $InputString = "device_code=${DeviceCode}&expires_in=8999&interval=5&user_code=${UserCode}&verification_uri=https%3A%2F%2Fgithub.com%2Flogin%2Fdevice"
+        $Result = $InputString | ConvertFrom-QueryString
+        $Result['device_code'] | Should -Be $DeviceCode
+        $Result['expires_in'] | Should -Be '8999'
+        $Result['user_code'] | Should -Be $UserCode
+    }
+    it 'can easily be chained with other conversions' {
+        $Result = [System.Text.Encoding]::Unicode.GetBytes('first=1&second=2&third=last') |
+            ConvertFrom-ByteArray |
+            ConvertFrom-QueryString
+        $Result.first | Should -Be '1'
+        $Result.second | Should -Be '2'
+        $Result.third | Should -Be 'last'
     }
 }
 Describe 'ConvertTo-PowershellSyntax' {
@@ -101,6 +138,7 @@ Describe 'ConvertTo-QueryString' {
     It 'can convert objects into query strings' {
         @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
         @{ foo = '' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3d'
+        @{ foo = 'a' },@{ bar = 'b'} | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3da','bar%3db'
         @{ foo = 'bar' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3dbar'
         @{ a = 1; b = 2; c = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'a%3d1%26b%3d2%26c%3d3'
         @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'

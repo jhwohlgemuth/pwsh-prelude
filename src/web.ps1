@@ -1,10 +1,69 @@
-﻿function ConvertTo-Iso8601 {
+﻿
+
+function ConvertFrom-ByteArray {
+  <#
+  .SYNOPSIS
+  Converts bytes to human-readable text
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Data
+  )
+  Begin {
+    function Invoke-Convert {
+      Param(
+        [Parameter(Position=0)]
+        $Data
+      )
+      if ($Data.Length -gt 0) {
+        if ($Data -is [Byte] -or $Data[0] -is [Byte]) {
+          [System.Text.Encoding]::ASCII.GetString($Data)
+        } else {
+          $Data
+        }
+      }
+    }
+    Invoke-Convert $Data
+  }
+  End {
+    Invoke-Convert $Input
+  }
+}
+function ConvertFrom-QueryString {
+  <#
+  .SYNOPSIS
+  Returns parsed query parameters
+  #>
+  [CmdletBinding()]
+  [OutputType([Object[]])]
+  [OutputType([String])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [String] $Query
+  )
+  Process {
+    $Decoded = [System.Web.HttpUtility]::UrlDecode($Query)
+    if ($Decoded -match '=') {
+      $Decoded -split '&' | Invoke-Reduce {
+        Param($Acc, $Item)
+        $Key,$Value = $Item -split '='
+        $Acc.$Key = $Value
+      }
+    } else {
+      $Decoded
+    }
+  }
+}
+function ConvertTo-Iso8601 {
   [CmdletBinding()]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [String] $Value
   )
-  $Value | Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
+  Process {
+    $Value | Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
+  }
 }
 function ConvertTo-QueryString {
   <#
@@ -18,18 +77,20 @@ function ConvertTo-QueryString {
     [PSObject] $InputObject,
     [Switch] $UrlEncode
   )
-  $Callback = {
-    Param($Acc, $Item)
-    $Key = $Item.Name
-    $Value = $Item.Value
-    "${Acc}$(if ($Acc -ne '') { '&' } else { '' })${Key}=${Value}"
-  }
-  $QueryString = $InputObject.GetEnumerator() | Sort-Object Name | Invoke-Reduce $Callback ''
-  if ($UrlEncode) {
-    Add-Type -AssemblyName System.Web
-    [System.Web.HttpUtility]::UrlEncode($QueryString)
-  } else {
-    $QueryString
+  Process {
+    $Callback = {
+      Param($Acc, $Item)
+      $Key = $Item.Name
+      $Value = $Item.Value
+      "${Acc}$(if ($Acc -ne '') { '&' } else { '' })${Key}=${Value}"
+    }
+    $QueryString = $InputObject.GetEnumerator() | Sort-Object Name | Invoke-Reduce $Callback ''
+    if ($UrlEncode) {
+      Add-Type -AssemblyName System.Web
+      [System.Web.HttpUtility]::UrlEncode($QueryString)
+    } else {
+      $QueryString
+    }
   }
 }
 function Import-Html {
@@ -107,6 +168,7 @@ function Invoke-WebRequestBasicAuth {
     [UriBuilder] $Uri,
     [PSObject] $Query = @{},
     [Switch] $UrlEncode,
+    [Switch] $ParseContent,
     [Alias('OTP')]
     [String] $TwoFactorAuthentication = 'none',
     [Switch] $Get,
@@ -151,7 +213,12 @@ function Invoke-WebRequestBasicAuth {
       $Parameters.Body = $Data | ConvertTo-Json
       "==> Data: $($Data | ConvertTo-Json)" | Write-Verbose
     }
-    Invoke-WebRequest @Parameters
+    $Request = Invoke-WebRequest @Parameters
+    if ($ParseContent) {
+      $Request | Invoke-GetProperty Content | ConvertFrom-Json
+    } else {
+      $Request
+    }
   }
 }
 function Invoke-WebRequestOAuth {
