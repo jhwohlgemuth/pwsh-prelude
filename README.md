@@ -1,24 +1,17 @@
-Powershell Handy Helpers Module
-===============================
+Powershell Prelude <sup>[†](#footnotes)</sup>
+==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-handy-helpers/badge)](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-handy-helpers)
 [![Build Status](https://travis-ci.com/jhwohlgemuth/pwsh-handy-helpers.svg?branch=master)](https://travis-ci.com/jhwohlgemuth/pwsh-handy-helpers)
 [![codecov](https://codecov.io/gh/jhwohlgemuth/pwsh-handy-helpers/branch/master/graph/badge.svg?token=3NMKOGN0Q8)](https://codecov.io/gh/jhwohlgemuth/pwsh-handy-helpers/)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-handy-helpers)](https://www.powershellgallery.com/packages/pwsh-handy-helpers)
-> Useful helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
+> A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and others. It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
-Imagine you are trying to perform some technical task on Windows, like executing commands on remote computers. And then you think:
-- It should be easier to enable remoting...
-- ...and to execute commands on other computers
-- ...by passing idiomatic scriptblocks,
-- ...to functions that do stuff like shutdown the remote computer
-- ...and speak to me
-- ...and other totally reasonable stuff ([see function section](#Functions))
-
-If you have ever had a similar thought train, this module might be for you!
+If you love functional programming patterns, scripting languages, and [ubiquitous terminals](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)...this module might have something for you!
 
 > "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
 *- Probably some people that are reading this README*
 
+On the positive side, it has ***ZERO external dependencies*** ;)
 
 Quick Start
 -----------
@@ -96,22 +89,16 @@ $Callback | listenTo 'boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $boot = 43
 ```
-- Create an interactive CLI app (see the [./kitchensink.ps1](./kitchensink.ps1) for another example)
+- Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for another example)
 ```powershell
-Write-Title 'Example'
-$fullname = input 'Full Name?' -Indent 4
-$username = input 'Username?' -MaxLength 10 -Indent 4
-$age = input 'Age?' -Number -Indent 4
-$pass = input 'Password?' -Secret -Indent 4
-$word = input 'Favorite Saiya-jin?' -Autocomplete -Indent 4 -Choices @(
-  'Goku'
-  'Gohan'
-  'Goten'
-  'Vegeta'
-  'Trunks'
-)
-Write-Label 'Favorite number?' -Indent 4 -NewLine
-$choice = menu @('one'; 'two'; 'three') -Indent 4
+'Example' | Write-Title
+$Fullname = input 'Full Name?' -Indent 4
+$Username = input 'Username?' -MaxLength 10 -Indent 4
+$Age = input 'Age?' -Number -Indent 4
+$Pass = input 'Password?' -Secret -Indent 4
+$Word = input 'Favorite Saiya-jin?' -Autocomplete -Indent 4 -Choices @('Goku','Gohan','Goten','Vegeta','Trunks')
+'Favorite number?' | Write-Label -Indent 4 -NewLine
+$Choice = menu @('one'; 'two'; 'three') -Indent 4
 ```
 - Visualize file sizes in a directory with one line of code!
 ```powershell
@@ -208,7 +195,6 @@ Aliases
 - `ls`
 - `menu`
 - `method`
-- `oauth`
 - `on`
 - `op`
 - `prop`
@@ -221,3 +207,8 @@ Aliases
 - `tpl`
 - `transform`
 - `trigger`
+
+
+Footnotes
+---------
+> ***†*** This module is ***NOT*** an "official" Microsoft Powershell prelude module
