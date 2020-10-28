@@ -11,7 +11,7 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 74
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 76
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 29
@@ -609,6 +609,15 @@ Describe 'Invoke-TakeWhile' {
         Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1,2
         13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13,12,11
         Invoke-TakeWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 13,12,11
+    }
+}
+Describe 'Invoke-Zip(With)' {
+    It 'can zip two arrays' {
+        # @('a','b','c'),@(1,2,3) | Invoke-Zip | Should -Be @('a',1),@('b',2),@('c',3)
+    }
+    It 'can zip two arrays with iteratee function' {
+        $Add = { Param($a,$b) $a + $b }
+
     }
 }
 InModuleScope pwsh-handy-helpers {

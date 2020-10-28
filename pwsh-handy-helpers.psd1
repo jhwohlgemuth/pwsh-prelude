@@ -86,6 +86,8 @@
     'Invoke-Speak'
     'Invoke-TakeWhile'
     'Invoke-WebRequestBasicAuth'
+    'Invoke-Zip'
+    'Invoke-ZipWith'
     'Join-StringsWithGrammar'
     'New-ApplicationTemplate'
     'New-DailyShutdownJob'

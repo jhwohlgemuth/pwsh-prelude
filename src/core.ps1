@@ -519,6 +519,27 @@ function Invoke-TakeWhile {
     Invoke-InternalTakeWhile $Input $Predicate
   }
 }
+function Invoke-Zip {
+  [CmdletBinding()]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Array] $Left,
+    [Parameter(Position=1)]
+    [Array] $Right
+  )
+
+}
+function Invoke-ZipWith {
+  [CmdletBinding()]
+  Param(
+    [Parameter(ValueFromPipeline=$true)]
+    [Array] $Left,
+    [Array] $Right,
+    [Parameter(Position=0)]
+    [ScriptBlock] $Iteratee
+  )
+  
+}
 function Join-StringsWithGrammar {
   <#
   .SYNOPSIS

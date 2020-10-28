@@ -604,6 +604,7 @@ function Write-Repeat {
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [AllowEmptyString()]
     [String] $Value,
+    [Parameter(Position=1)]
     [Int] $Times = 1
   )
   Write-Output ($Value * $Times)
