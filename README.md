@@ -11,7 +11,7 @@ This module is meant to be a generic tool that you add to your Windows Terminal 
 If you love functional programming patterns, scripting languages, and [ubiquitous terminals](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)...this module might have something for you!
 
 > "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
-*- Probably some people that are reading this README*
+*- Probably some people after reading this README*
 
 Quick Start
 -----------
