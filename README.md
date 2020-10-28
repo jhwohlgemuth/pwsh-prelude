@@ -219,6 +219,8 @@ Aliases
 - `tpl`
 - `transform`
 - `trigger`
+- `zip`
+- `zipWhile`
 
 
 Footnotes

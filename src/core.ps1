@@ -624,6 +624,7 @@ function Invoke-Zip {
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'EmptyValue')]
   [CmdletBinding()]
+  [Alias('zip')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [Array] $InputObject,
@@ -672,6 +673,7 @@ function Invoke-ZipWith {
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Iteratee')]
   [CmdletBinding()]
+  [Alias('zipWith')]
   Param(
     [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
     [Array] $InputObject,

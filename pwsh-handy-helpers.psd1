@@ -42,6 +42,8 @@
     'tpl'
     'transform'
     'trigger'
+    'zip'
+    'zipWhile'
   )
   FunctionsToExport = @(
     'ConvertFrom-ByteArray'
