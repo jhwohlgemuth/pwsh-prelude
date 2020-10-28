@@ -604,6 +604,53 @@ function Invoke-TakeWhile {
     Invoke-InternalTakeWhile $Input $Predicate
   }
 }
+function Invoke-Tap {
+  <#
+  .SYNOPSIS
+  Runs the passed function with the piped object, then returns the object.
+
+  .DESCRIPTION
+  Intercepts pipeline value, executes Callback with value as argument. If the Callback returns a non-null value, that value is returned; otherwise, the original value is passed thru the pipeline.
+  The purpose of this function is to "tap into" a pipeline chain sequence in order to modify the results or view the intermediate values in the pipeline.
+  
+  This function is mostly meant for testing and development, but could also be used as a "map" function - a simpler alternative to ForEach-Object.
+  
+  .EXAMPLE
+  1..10 | Invoke-Tap { $args[0] | Write-Color -Green } | Invoke-Reduce -Add -InitialValue 0
+  # Returns sum of first ten integers and writes each value to the terminal
+
+  .EXAMPLE
+  # Use Invoke-Tap as "map" function to add one to every value
+  1..10 | Invoke-Tap { Param($x) $x + 1 }
+
+  .EXAMPLE
+  # Allows you to see the values as they are passed through the pipeline
+  1..10 | Invoke-Tap -Verbose | Do-Something
+
+  #>
+  [CmdletBinding()]
+  [Alias('tap')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    $InputObject,
+    [Parameter(Position=0)]
+    [ScriptBlock] $Callback
+  )
+  Process {
+    if ($Callback -and $Callback -is [ScriptBlock]) {
+      $CallbackResult = & $Callback $InputObject
+      if ($null -ne $CallbackResult) {
+        $Result = $CallbackResult
+      } else {
+        $Result = $InputObject
+      }
+    } else {
+      "[tap] `$PSItem = $InputObject" | Write-Verbose
+      $Result = $InputObject
+    }
+    $Result
+  }
+}
 function Invoke-Zip {
   <#
   .SYNOPSIS

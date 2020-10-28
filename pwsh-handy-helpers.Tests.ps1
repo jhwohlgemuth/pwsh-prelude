@@ -11,10 +11,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 79
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 80
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 33
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 34
         }
     }
 }
@@ -639,6 +639,16 @@ Describe 'Invoke-TakeWhile' {
         Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1,2
         13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13,12,11
         Invoke-TakeWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 13,12,11
+    }
+}
+Describe 'Invoke-Tap' {
+    It 'can execute a scriptblock and passthru values' {
+        function Test-Function {}
+        Mock Test-Function { $args }
+        $Times = 10
+        1..$Times | Invoke-Tap { Test-Function } | Should -Be (1..$Times)
+        Assert-MockCalled Test-Function -Times $Times
+        1,2,3 | Invoke-Tap { Param($x) $x + 1 } | Should -Be 2,3,4
     }
 }
 Describe 'Invoke-Zip(With)' {

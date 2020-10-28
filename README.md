@@ -146,6 +146,7 @@ Functions
 - `Invoke-RunApplication`
 - `Invoke-Speak`
 - `Invoke-TakeWhile`
+- `Invoke-Tap`
 - `Invoke-WebRequestBasicAuth`
 - `Invoke-Zip`
 - `Invoke-ZipWith`
@@ -215,6 +216,7 @@ Aliases
 - `rf`
 - `say`
 - `takeWhile`
+- `tap`
 - `touch`
 - `tpl`
 - `transform`
