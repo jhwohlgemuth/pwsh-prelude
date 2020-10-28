@@ -126,6 +126,7 @@ Functions
 - `Get-State`
 - `Import-Html`
 - `Install-SshServer`
+- `Invoke-DropWhile`
 - `Invoke-FireEvent`
 - `Invoke-GetProperty`
 - `Invoke-Input`
@@ -141,6 +142,7 @@ Functions
 - `Invoke-RemoteCommand`
 - `Invoke-RunApplication`
 - `Invoke-Speak`
+- `Invoke-TakeWhile`
 - `Invoke-WebRequestBasicAuth`
 - `Join-StringsWithGrammar`
 - `New-ApplicationTemplate`
@@ -179,6 +181,7 @@ Aliases
 - `dip`
 - `dra`
 - `drai`
+- `dropWhile`
 - `equal`
 - `g`
 - `gcam`
@@ -203,6 +206,7 @@ Aliases
 - `repeat`
 - `rf`
 - `say`
+- `takeWhile`
 - `touch`
 - `tpl`
 - `transform`

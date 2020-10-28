@@ -139,6 +139,40 @@ function Format-MoneyValue {
     Default { throw 'Format-MoneyValue only accepts strings and numbers' }
   }
 }
+function Invoke-DropWhile {
+  [CmdletBinding()]
+  [Alias('dropwhile')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Mandatory=$true, Position=0)]
+    [ScriptBlock] $Predicate
+  )
+  Begin {
+    function Invoke-InternalDropWhile {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject,
+        [Parameter(Position=1)]
+        [scriptblock] $Predicate
+      )
+      if ($InputObject.Count -gt 0) {
+        $Continue = $false
+        $InputObject | ForEach-Object {
+          if (-not (& $Predicate $_) -or $Continue) {
+            $Continue = $true
+            $_
+          }
+        }
+      }
+    }
+    Invoke-InternalDropWhile $InputObject $Predicate
+  }
+  End {
+    Invoke-InternalDropWhile $Input $Predicate
+  }
+}
 function Invoke-GetProperty {
   [CmdletBinding()]
   [Alias('prop')]
@@ -449,6 +483,40 @@ function Invoke-Reduce {
   }
   End {
     $Result
+  }
+}
+function Invoke-TakeWhile {
+  [CmdletBinding()]
+  [Alias('takewhile')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Mandatory=$true, Position=0)]
+    [ScriptBlock] $Predicate
+  )
+  Begin {
+    function Invoke-InternalTakeWhile {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject,
+        [Parameter(Position=1)]
+        [scriptblock] $Predicate
+      )
+      if ($InputObject.Count -gt 0) {
+        $InputObject | ForEach-Object {
+          if (& $Predicate $_) {
+            $_
+          } else {
+            break
+          }
+        }
+      }
+    }
+    Invoke-InternalTakeWhile $InputObject $Predicate
+  }
+  End {
+    Invoke-InternalTakeWhile $Input $Predicate
   }
 }
 function Join-StringsWithGrammar {

@@ -11,10 +11,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 72
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 74
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 27
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 29
         }
     }
 }
@@ -307,6 +307,17 @@ Describe 'Format-MoneyValue' {
         { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
     }
 }
+Describe 'Invoke-DropWhile' {
+    It 'can drop elements until passed predicate is False' {
+        $LessThan3 = { Param($x) $x -lt 3 }
+        $GreaterThan10 = { Param($x) $x -gt 10 }
+        1..5 | Invoke-DropWhile $LessThan3 | Should -Be 3,4,5
+        1,2,3,4,5,1,1,1 | Invoke-DropWhile $LessThan3 | Should -Be 3,4,5,1,1,1
+        Invoke-DropWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 3,4,5
+        1..5 | Invoke-DropWhile $GreaterThan10 | Should -Be 1,2,3,4,5
+        Invoke-DropWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 1,2,3,4,5
+    }
+}
 Describe 'Invoke-RunApplication' {
     It 'can pass state to Init/Loop functions and execute Loop one time' {
         $Script:Count = 0
@@ -587,6 +598,17 @@ Describe 'Invoke-Speak (say)' {
         $Rate = 10
         Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<p>$Text</p>"
         Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
+    }
+}
+Describe 'Invoke-TakeWhile' {
+    It 'can take elements until passed predicate is False' {
+        $LessThan3 = { Param($x) $x -lt 3 }
+        $GreaterThan10 = { Param($x) $x -gt 10 }
+        1..5 | Invoke-TakeWhile $LessThan3 | Should -Be 1,2
+        1,2,3,4,5,1,1 | Invoke-TakeWhile $LessThan3 | Should -Be 1,2
+        Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1,2
+        13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13,12,11
+        Invoke-TakeWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 13,12,11
     }
 }
 InModuleScope pwsh-handy-helpers {
