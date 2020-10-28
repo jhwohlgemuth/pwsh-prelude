@@ -121,8 +121,11 @@ Functions
 - `Find-Duplicate`
 - `Find-FirstIndex`
 - `Format-MoneyValue`
+- `Get-Extremum`
 - `Get-File`
 - `Get-GithubOAuthToken`
+- `Get-Maximum`
+- `Get-Minimum`
 - `Get-State`
 - `Import-Html`
 - `Install-SshServer`
@@ -198,8 +201,11 @@ Aliases
 - `listenFor`
 - `listenTo`
 - `ls`
+- `max`
 - `menu`
 - `method`
+- `min`
+- `money`
 - `on`
 - `op`
 - `prop`

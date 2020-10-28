@@ -11,10 +11,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 76
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 79
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 29
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 31
         }
     }
 }
@@ -305,6 +305,36 @@ Describe 'Format-MoneyValue' {
     }
     It 'will throw an error if input is not a string or number' {
         { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
+    }
+}
+Describe 'Get-Extremum' {
+    It 'can return maximum value from array of numbers' {
+        $Max = 5
+        $Values = 1,2,2,1,$Max,2,3
+        $Values | Get-Extremum -Max | Should -Be $Max
+        Get-Extremum -Max $Values | Should -Be $Max
+        0,-1,4,2,7,2,0 | Get-Extremum -Max | Should -Be 7
+    }
+    It 'can return minimum value from array of numbers' {
+        $Min = 0
+        $Values = 1,2,2,1,$Min,2,3
+        $Values | Get-Extremum -Min | Should -Be $Min
+        Get-Extremum -Min $Values | Should -Be $Min
+        0,-1,4,2,7,2,0 | Get-Extremum -Min | Should -Be -1
+    }
+    It 'Get-Maximum' {
+        $Max = 5
+        $Values = 1,2,2,1,$Max,2,3
+        $Values | Get-Maximum | Should -Be $Max
+        Get-Maximum $Values | Should -Be $Max
+        0,-1,4,2,7,2,0 | Get-Maximum | Should -Be 7
+    }
+    It 'Get-Minimum' {
+        $Min = 0
+        $Values = 1,2,2,1,$Min,2,3
+        $Values | Get-Minimum | Should -Be $Min
+        Get-Minimum $Values | Should -Be $Min
+        0,-1,4,2,7,2,0 | Get-Minimum | Should -Be -1
     }
 }
 Describe 'Invoke-DropWhile' {
@@ -613,11 +643,46 @@ Describe 'Invoke-TakeWhile' {
 }
 Describe 'Invoke-Zip(With)' {
     It 'can zip two arrays' {
-        # @('a','b','c'),@(1,2,3) | Invoke-Zip | Should -Be @('a',1),@('b',2),@('c',3)
+        $Zipped = @('a'),@(1) | Invoke-Zip
+        $Zipped.Length | Should -Be 2
+        $Zipped[0] | Should -Be 'a'
+        $Zipped[1] | Should -Be 1
+        @('x'),@('a','b','c') | Invoke-Zip | Should -Be @('x','a'),@('empty','b'),@('empty','c')
+        @('x'),@('a','b','c') | Invoke-Zip -EmptyValue '?' | Should -Be @('x','a'),@('?','b'),@('?','c')
+        @(1),@(1,2,3) | Invoke-Zip -EmptyValue 0 | Should -Be @(1,1),@(0,2),@(0,3)
+        @('a','b','c'),@('x') | Invoke-Zip | Should -Be @('a','x'),@('b','empty'),@('c','empty')
+        @('a','b','c'),@(1,2,3) | Invoke-Zip | Should -Be @('a',1),@('b',2),@('c',3)
+        Invoke-Zip @('x'),@('a','b','c') | Should -Be @('x','a'),@('empty','b'),@('empty','c')
+        Invoke-Zip @('a','b','c'),@('x') | Should -Be @('a','x'),@('b','empty'),@('c','empty')
+        Invoke-Zip @('a','b','c'),@(1,2,3) | Should -Be @('a',1),@('b',2),@('c',3)
     }
-    It 'can zip two arrays with iteratee function' {
+    It 'can zip more than two arrays' {
+        $Zipped = @('a'),@('b'),@('c') | Invoke-Zip
+        $Zipped.Length | Should -Be 3
+        $Zipped[0] | Should -Be 'a'
+        $Zipped[1] | Should -Be 'b'
+        $Zipped[2] | Should -Be 'c'
+        @(1,2),@(1,2),@(1,2) | Invoke-Zip | Should -Be @(1,1,1),@(2,2,2)
+        @(1,1,1),@(2,2,2),@(3,3,3) | Invoke-Zip | Should -Be @(1,2,3),@(1,2,3),@(1,2,3)
+        @(1),@(2,2),@(3,3,3) | Invoke-Zip | Should -Be @(1,2,3),@('empty',2,3),@('empty','empty',3)
+    }
+    It 'can zip two arrays with an iteratee function' {
         $Add = { Param($a,$b) $a + $b }
-
+        @(1,2),@(1,2) | Invoke-ZipWith $Add | Should -Be @(2,4)
+        Invoke-ZipWith $Add @(1,2),@(1,2) | Should -Be @(2,4)
+        @('a','a'),@('b','b') | Invoke-ZipWith $Add | Should -Be @('ab','ab')
+        Invoke-ZipWith $Add @('a','a'),@('b','b') | Should -Be @('ab','ab')
+        @(2,2,2),@(2,2,2) | Invoke-ZipWith $Add | Should -Be @(4,4,4)
+    }
+    It 'can zip more than two arrays with an iteratee function' {
+        $Add = { Param($a,$b) $a + $b }
+        @('1','1'),@('2','2'),@('3','3') | Invoke-ZipWith $Add | Should -Be @('123','123')
+        @(1,1,1),@(2,2,2),@(3,3,3),@(4,4,4) | Invoke-ZipWith $Add | Should -Be @(10,10,10)
+        @(1,1,1,1),@(2,2,2,2),@(3,3,3,3),@(4,4,4,4) | Invoke-ZipWith $Add | Should -Be @(10,10,10,10)
+        Invoke-ZipWith $Add @(1,2),@(1,2),@(1,2) | Should -Be @(3,6)
+        Invoke-ZipWith $Add @('a','a'),@('b','b'),@('c','c') | Should -Be @('abc','abc')
+        Invoke-ZipWith $Add @('a','a'),@('b','b'),@('c','c','c') | Should -Be @('abc','abc', 'c')
+        Invoke-ZipWith $Add @('a','a'),@('b','b'),@('c','c','c') -EmptyValue '#' | Should -Be @('abc','abc', '##c')
     }
 }
 InModuleScope pwsh-handy-helpers {

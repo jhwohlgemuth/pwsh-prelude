@@ -139,6 +139,91 @@ function Format-MoneyValue {
     Default { throw 'Format-MoneyValue only accepts strings and numbers' }
   }
 }
+function Get-Extremum {
+  <#
+  .SYNOPSIS
+  Function to return extremum (maximum or minimum) of an array of numbers
+  .EXAMPLE
+  $Maximum = 1,2,3,4,5 | Get-Extremum -Max
+  # 5
+
+  .EXAMPLE
+  $Minimum = 1,2,3,4,5 | Get-Extremum -Min
+  # 1
+
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Maximum')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Minimum')]
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Alias('Max')]
+    [Switch] $Maximum,
+    [Alias('Min')]
+    [Switch] $Minimum
+  )
+  Begin {
+    function Invoke-GetExtremum {
+      param (
+        [Parameter(Position=0)]
+        [Array] $Values
+      )
+      if ($Values.Count -gt 0) {
+        $Type = Find-FirstTrueVariable 'Maximum','Minimum'
+        $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | Invoke-GetProperty $Type
+      }
+    }
+    Invoke-GetExtremum $InputObject
+  }
+  End {
+    Invoke-GetExtremum $Input
+  }
+}
+function Get-Maximum {
+  <#
+  .SYNOPSIS
+  Wrapper for Get-Extremum with the -Maximum switch
+  #>
+  [CmdletBinding()]
+  [Alias('max')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Values
+  )
+  Begin {
+    if ($Values.Count -gt 0) {
+      Get-Extremum -Maximum $Values
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Get-Extremum -Maximum
+    }
+  }
+}
+function Get-Minimum {
+  <#
+  .SYNOPSIS
+  Wrapper for Get-Extremum with the -Minimum switch
+  #>
+  [CmdletBinding()]
+  [Alias('min')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Values
+  )
+  Begin {
+    if ($Values.Count -gt 0) {
+      Get-Extremum -Minimum $Values
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Get-Extremum -Minimum
+    }
+  }
+}
 function Invoke-DropWhile {
   [CmdletBinding()]
   [Alias('dropwhile')]
@@ -520,25 +605,94 @@ function Invoke-TakeWhile {
   }
 }
 function Invoke-Zip {
+  <#
+  .SYNOPSIS
+  Creates an array of grouped elements, the first of which contains the first elements of the given arrays, the second of which contains the second elements of the given arrays, and so on...
+  .EXAMPLE
+  @('a','a','a'),@('b','b','b'),@('c','c','c') | Invoke-Zip
+  # Returns @('a','b','c'),@('a','b','c'),@('a','b','c')
+
+  .EXAMPLE
+  # EmptyValue is inserted when passed arrays of different orders
+
+  @(1),@(2,2),@(3,3,3) | Invoke-Zip -EmptyValue 0
+  # Returns @(1,2,3),@(0,2,3),@(0,0,3)
+
+  @(3,3,3),@(2,2),@(1) | Invoke-Zip -EmptyValue 0
+  # Returns @(3,2,1),@(3,2,0),@(3,0,0)
+
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'EmptyValue')]
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
-    [Array] $Left,
-    [Parameter(Position=1)]
-    [Array] $Right
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [String] $EmptyValue = 'empty'
   )
-
+  Begin {
+    function Invoke-InternalZip {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject
+      )
+      if ($InputObject.Count -gt 0) {
+        $Arrays = [System.Collections.ArrayList]::New()
+        $MaxLength = $InputObject | ForEach-Object { $_.Count } | Get-Maximum
+        $InputObject | ForEach-Object {
+          $Initial = $_
+          $Offset = $MaxLength - $Initial.Count
+          if ($Offset -gt 0) {
+            1..$Offset | ForEach-Object { $Initial += $EmptyValue }
+          }
+          [Void]$Arrays.Add($Initial)
+        }
+        $Result = [System.Collections.ArrayList]::New()
+        0..($MaxLength - 1) | ForEach-Object {
+          $Index = $_
+          $Current = $Arrays | ForEach-Object { $_[$Index] }
+          [Void]$Result.Add($Current)
+        }
+        $Result
+      }
+    }
+    Invoke-InternalZip $InputObject
+  }
+  End {
+    Invoke-InternalZip $Input
+  }
 }
 function Invoke-ZipWith {
+  <#
+  .SYNOPSIS
+  Like Invoke-Zip except that it accepts -Iteratee to specify how grouped values should be combined (via Invoke-Reduce).
+  .EXAMPLE
+  @(1,1),@(2,2) | Invoke-ZipWith { Param($a,$b) $a + $b }
+  # Returns @(3,3)
+
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Iteratee')]
   [CmdletBinding()]
   Param(
-    [Parameter(ValueFromPipeline=$true)]
-    [Array] $Left,
-    [Array] $Right,
-    [Parameter(Position=0)]
-    [ScriptBlock] $Iteratee
+    [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Mandatory=$true, Position=0)]
+    [ScriptBlock] $Iteratee,
+    [String] $EmptyValue = ''
   )
-  
+  Begin {
+    if ($InputObject.Count -gt 0) {
+      Invoke-Zip $InputObject -EmptyValue $EmptyValue | ForEach-Object {
+        $_[1..$_.Count] | Invoke-Reduce -Callback $Iteratee -InitialValue $_[0]
+      }
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Invoke-Zip -EmptyValue $EmptyValue | ForEach-Object {
+        $_[1..$_.Count] | Invoke-Reduce -Callback $Iteratee -InitialValue $_[0]
+      }
+    }
+  }
 }
 function Join-StringsWithGrammar {
   <#
