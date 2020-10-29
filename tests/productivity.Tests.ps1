@@ -3,7 +3,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
 Param()
 
-& (Join-Path $PSScriptRoot "_setup.ps1")
+& (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
 Describe 'Find-Duplicates' {
     It 'can identify duplicate files' {

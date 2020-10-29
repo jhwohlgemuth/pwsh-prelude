@@ -1,7 +1,7 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'repeat')]
 Param()
 
-& (Join-Path $PSScriptRoot "_setup.ps1")
+& (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
 Describe 'Write-Repeat' {
     It 'can create string of repeated characters and strings' {

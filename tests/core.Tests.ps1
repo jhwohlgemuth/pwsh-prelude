@@ -1,7 +1,7 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
 Param()
 
-& (Join-Path $PSScriptRoot "_setup.ps1")
+& (Join-Path $PSScriptRoot '_setup.ps1') 'core'
 
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
