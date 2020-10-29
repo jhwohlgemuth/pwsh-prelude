@@ -87,7 +87,7 @@ function Invoke-Publish
   Param()
   '==> Validating module data...' | Write-Host -ForegroundColor Cyan
   '    Module manifest: ' | Write-Host -NoNewline
-  if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-handy-helpers.psd1')) {
+  if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-prelude.psd1')) {
     'VALID' | Write-Host -ForegroundColor Green
   } else {
     'INVALID' | Write-Host -ForegroundColor Red

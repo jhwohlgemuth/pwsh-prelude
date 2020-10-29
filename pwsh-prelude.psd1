@@ -1,11 +1,11 @@
 ﻿@{
-  ModuleVersion = '1.0.7.26'
-  RootModule = 'pwsh-handy-helpers.psm1'
+  ModuleVersion = '0.0.0.1'
+  RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
-  CompanyName = 'MyBusiness'
+  CompanyName = 'Wolf Technology Foundation'
   Author = 'Jason Wohlgemuth'
   Copyright = '(c) 2020 Jason Wohlgemuth. All rights reserved.'
-  Description = 'Helper functions, aliases, application frameworks, and more'
+  Description = 'A "standard" library for PowerShell inspired by the preludes of other languages'
   PowerShellVersion = '5.0'
   FileList = @()
   CmdletsToExport = @()
@@ -131,8 +131,8 @@
   PrivateData = @{
     PSData = @{
       Tags = @('dev', 'helpers', 'git', 'docker', 'fp', 'cli', 'app', 'scrapp')
-      LicenseUri = 'https://github.com/jhwohlgemuth/pwsh-handy-helpers/blob/master/LICENSE'
-      ProjectUri = 'https://github.com/jhwohlgemuth/pwsh-handy-helpers'
+      LicenseUri = 'https://github.com/jhwohlgemuth/pwsh-prelude/blob/master/LICENSE'
+      ProjectUri = 'https://github.com/jhwohlgemuth/pwsh-prelude'
     }
   }
 }

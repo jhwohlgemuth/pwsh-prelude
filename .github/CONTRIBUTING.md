@@ -13,7 +13,7 @@ Code of Conduct
 
 Introduction
 ------------
-> First off, thank you for considering contributing to `pwsh-handy-helpers`!
+> First off, thank you for considering contributing to `pwsh-prelude`!
 
 If you would like to make a feature request or enhancement suggestion, please open an issue.
 
@@ -22,7 +22,7 @@ If you would like to generously provide a pull request to correct a verified iss
 Project Architecture
 --------------------
 
-The main module file, [pwsh-handy-helpers.psm1](../pwsh-handy-helpers.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
+The main module file, [pwsh-prelude.psm1](../pwsh-prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
 - `core.ps1`: Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
 - `events.ps1`: Functions needed for event-driven operations (inspired by `Backbone.Events`)
 - `user-interface.ps1`: Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
@@ -34,7 +34,7 @@ Project Setup
 -------------
 > Friends don't let friends use Powershell without [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab). Please follow [these instructions](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal) to customize your terminal and achieve new levels of epic productivity — *"I can't believe it's not Linux!"* ™
 
-As a Powershell module, all that is really required for developing `pwsh-handy-helpers` is that Powershell be installed (on Windows or [Linux](https://github.com/PowerShell/PowerShell))
+As a Powershell module, all that is really required for developing `pwsh-prelude` is that Powershell be installed (on Windows or [Linux](https://github.com/PowerShell/PowerShell))
 
 > ***NOTE***: Although almost all functions work on Windows and Linux, certain functions (like `Invoke-Speak` are intrinsically dependent on Windows DLLs and therefor do not work on Linux Powershell installations)
 
@@ -51,7 +51,7 @@ Project Standards
 -----------------
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
 - Running `./build.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
-- Running `./build.ps1 -Test` should have no failures (local and [CI](https://travis-ci.com/github/jhwohlgemuth/pwsh-handy-helpers))
+- Running `./build.ps1 -Test` should have no failures (local and [CI](https://travis-ci.com/github/jhwohlgemuth/pwsh-prelude))
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
 - Beyond the rules identified by `./build.ps1 -Lint`, all code additions should adhere to the following:
   - Use two-spaces for indentation

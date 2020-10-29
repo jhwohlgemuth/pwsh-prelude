@@ -2,7 +2,7 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "name": "Powershell Handy Helpers",
+    "name": "Powershell Prelude",
     "extensions": [
         "ms-vscode.atom-keybindings",
         "wmaurer.change-case",

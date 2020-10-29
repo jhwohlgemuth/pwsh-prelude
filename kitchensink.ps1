@@ -1,4 +1,4 @@
-﻿Import-Module ./pwsh-handy-helpers.psm1
+﻿Import-Module './pwsh-prelude.psm1'
 
 $Space = ' '
 $Indent = 4

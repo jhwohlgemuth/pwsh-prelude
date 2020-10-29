@@ -3,18 +3,18 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
 Param()
 
-if (Get-Module -Name 'pwsh-handy-helpers') {
-    Remove-Module -Name 'pwsh-handy-helpers'
+if (Get-Module -Name 'pwsh-prelude') {
+    Remove-Module -Name 'pwsh-prelude'
 }
-Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
+Import-Module "${PSScriptRoot}\pwsh-prelude.psm1" -Force
 
-Describe 'Handy Helpers Module' {
+Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 81
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 81
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 35
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 35
         }
     }
 }
@@ -625,9 +625,9 @@ Describe 'Invoke-Reduce' {
     }
     It 'can combine FileInfo objects' {
         $Result = Get-ChildItem -File | Invoke-Reduce -FileInfo
-        $Result.Keys | Should -Contain 'pwsh-handy-helpers.psm1'
-        $Result.Keys | Should -Contain 'pwsh-handy-helpers.psd1'
-        $Result.Keys | Should -Contain 'pwsh-handy-helpers.Tests.ps1'
+        $Result.Keys | Should -Contain 'pwsh-prelude.psm1'
+        $Result.Keys | Should -Contain 'pwsh-prelude.psd1'
+        $Result.Keys | Should -Contain 'pwsh-prelude.Tests.ps1'
         $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
     }
 }
@@ -713,7 +713,7 @@ Describe 'Invoke-Zip(With)' {
         Invoke-ZipWith $Add @('a','a'),@('b','b'),@('c','c','c') -EmptyValue '#' | Should -Be @('abc','abc', '##c')
     }
 }
-InModuleScope pwsh-handy-helpers {
+InModuleScope pwsh-prelude {
     Describe 'Invoke-WebRequestBasicAuth' {
         It 'can make a simple request' {
             Mock Invoke-WebRequest { $args }
