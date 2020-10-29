@@ -183,49 +183,10 @@ Aliases
 -------
 > Use `Get-Alias <Name>` to see alias details. **Example**: `Get-Alias dra`
 
-- `~`
-- `basicauth`
-- `chunk`
-- `dip`
-- `dra`
-- `drai`
-- `dropWhile`
-- `equal`
-- `g`
-- `gcam`
-- `gd`
-- `gpom`
-- `grbi`
-- `gsb`
-- `input`
-- `insert`
-- `irc`
-- `la`
-- `listenFor`
-- `listenTo`
-- `ls`
-- `max`
-- `menu`
-- `method`
-- `min`
-- `money`
-- `on`
-- `op`
-- `prop`
-- `reduce`
-- `remove`
-- `repeat`
-- `rf`
-- `say`
-- `takeWhile`
-- `tap`
-- `touch`
-- `tpl`
-- `transform`
-- `trigger`
-- `zip`
-- `zipWith`
-
+```Powershell
+# View all pwsh-prelude aliases
+Get-Alias | Where-Object { $_.Source -eq 'pwsh-prelude' }
+```
 
 Footnotes
 ---------
