@@ -3,11 +3,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
 Param()
 
-if (Get-Module -Name 'pwsh-prelude') {
-    Remove-Module -Name 'pwsh-prelude'
-}
-$Path = Join-Path $PSScriptRoot '..\pwsh-prelude.psm1'
-Import-Module $Path -Force
+& (Join-Path $PSScriptRoot "_setup.ps1") 
 
 Describe 'Find-Duplicates' {
     It 'can identify duplicate files' {
