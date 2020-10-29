@@ -129,6 +129,7 @@ Functions
 - `Get-State`
 - `Import-Html`
 - `Install-SshServer`
+- `Invoke-Chunk`
 - `Invoke-DropWhile`
 - `Invoke-FireEvent`
 - `Invoke-GetProperty`
@@ -184,6 +185,7 @@ Aliases
 
 - `~`
 - `basicauth`
+- `chunk`
 - `dip`
 - `dra`
 - `drai`

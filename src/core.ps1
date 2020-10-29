@@ -224,6 +224,44 @@ function Get-Minimum {
     }
   }
 }
+function Invoke-Chunk {
+  [CmdletBinding()]
+  [Alias('chunk')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Position=1)]
+    [Int] $Size = 0
+  )
+  Begin {
+    function Invoke-InternalChunk {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject,
+        [Parameter(Position=1)]
+        [Int] $Size = 0
+      )
+      $InputSize = $InputObject.Count
+      if ($InputSize -gt 0) {
+        if ($Size -gt 0 -and $Size -lt $InputSize) {
+          $Index = 0
+          $Arrays = [System.Collections.ArrayList]::New()
+          1..[Math]::Ceiling($InputSize / $Size) | ForEach-Object {
+            [Void]$Arrays.Add($InputObject[$Index..($Index + $Size - 1)])
+            $Index += $Size
+          }
+          $Arrays
+        } else {
+          $InputObject
+        }
+      }
+    }
+    Invoke-InternalChunk $InputObject $Size
+  }
+  End {
+    Invoke-InternalChunk $Input $Size
+  }
+}
 function Invoke-DropWhile {
   [CmdletBinding()]
   [Alias('dropwhile')]
@@ -612,9 +650,9 @@ function Invoke-Tap {
   .DESCRIPTION
   Intercepts pipeline value, executes Callback with value as argument. If the Callback returns a non-null value, that value is returned; otherwise, the original value is passed thru the pipeline.
   The purpose of this function is to "tap into" a pipeline chain sequence in order to modify the results or view the intermediate values in the pipeline.
-  
+
   This function is mostly meant for testing and development, but could also be used as a "map" function - a simpler alternative to ForEach-Object.
-  
+
   .EXAMPLE
   1..10 | Invoke-Tap { $args[0] | Write-Color -Green } | Invoke-Reduce -Add -InitialValue 0
   # Returns sum of first ten integers and writes each value to the terminal

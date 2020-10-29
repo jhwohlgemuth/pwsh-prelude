@@ -11,10 +11,10 @@ Import-Module "${PSScriptRoot}\pwsh-handy-helpers.psm1" -Force
 Describe 'Handy Helpers Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 80
+            (Get-Module -Name pwsh-handy-helpers).ExportedFunctions.Count | Should -Be 81
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 34
+            (Get-Module -Name pwsh-handy-helpers).ExportedAliases.Count | Should -Be 35
         }
     }
 }
@@ -335,6 +335,24 @@ Describe 'Get-Extremum' {
         $Values | Get-Minimum | Should -Be $Min
         Get-Minimum $Values | Should -Be $Min
         0,-1,4,2,7,2,0 | Get-Minimum | Should -Be -1
+    }
+}
+Describe 'Invoke-Chunk' {
+    It 'should passthru input object when size is 0 or bigger than the input size' {
+        1..10 | Invoke-Chunk -Size 0 | Should -Be (1..10)
+        1..10 | Invoke-Chunk -Size 10 | Should -Be (1..10)
+        1..10 | Invoke-Chunk -Size 11 | SHould -Be (1..10)
+    }
+    It 'can break an array into smaller arrays of a given size' {
+        1,2,3 | Invoke-Chunk -Size 1 | Should -Be @(1),@(2),@(3)
+        1,1,2,2,3,3 | Invoke-Chunk -Size 2 | Should -Be @(1,1),@(2,2),@(3,3)
+        1,2,3,1,2 | Invoke-Chunk -Size 3 | Should -Be @(1,2,3),@(1,2)
+        Invoke-Chunk 1,2,3 -Size 1 | Should -Be @(1),@(2),@(3)
+        Invoke-Chunk 1,1,2,2,3,3 -Size 2 | Should -Be @(1,1),@(2,2),@(3,3)
+        Invoke-Chunk 1,2,3,1,2 -Size 3 | Should -Be @(1,2,3),@(1,2)
+        Invoke-Chunk @(1,2,3) 1 | Should -Be @(1),@(2),@(3)
+        Invoke-Chunk @(1,1,2,2,3,3) 2 | Should -Be @(1,1),@(2,2),@(3,3)
+        Invoke-Chunk @(1,2,3,1,2) 3 | Should -Be @(1,2,3),@(1,2)
     }
 }
 Describe 'Invoke-DropWhile' {
