@@ -206,6 +206,15 @@ function Get-Minimum {
   }
 }
 function Invoke-Chunk {
+  <#
+  .SYNOPSIS
+  Creates an array of elements split into groups the length of Size. If array can't be split evenly, the final chunk will be the remaining elements.
+
+  .EXAMPLE
+  1..10 | chunk -s 3
+  # @(1,2,3),@(4,5,6),@(7,8,9),@(10)
+
+  #>
   [CmdletBinding()]
   [Alias('chunk')]
   Param(
