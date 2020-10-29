@@ -1,9 +1,4 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:foo')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:bar')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
-Param()
-
-if (Get-Module -Name 'pwsh-prelude') {
+﻿if (Get-Module -Name 'pwsh-prelude') {
     Remove-Module -Name 'pwsh-prelude'
 }
 $Path = Join-Path $PSScriptRoot '..\pwsh-prelude.psm1'
@@ -17,153 +12,6 @@ Describe 'Powershell Prelude Module' {
         It 'should import aliases' {
             (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 35
         }
-    }
-}
-Describe 'ConvertFrom-ByteArray' {
-    it 'can convert an array of bytes to text' {
-        $Expected = 'hello world'
-        $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Expected)
-        $Bytes | ConvertFrom-ByteArray | Should -Be $Expected
-        ConvertFrom-ByteArray -Data $Bytes | Should -Be $Expected
-    }
-    it 'can provide pass-thru for string values' {
-        $Expected = 'hello world'
-        $Expected | ConvertFrom-ByteArray | Should -Be $Expected
-        ConvertFrom-ByteArray -Data $Expected | Should -Be $Expected
-    }
-}
-Describe 'ConvertFrom-Html / Import-Html' {
-    It 'can convert HTML strings' {
-        try {
-            $Supported = New-Object -ComObject "HTMLFile"
-        } catch {
-            $Supported = $null
-        }
-        if ($null -ne $Supported) {
-            $Html = '<html>
-                <body>
-                    <a href="#">foo</a>
-                    <a href="#">bar</a>
-                    <a href="#">baz</a>
-                </body>
-            </html>' | ConvertFrom-Html
-            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
-        }
-    }
-    It 'can import local HTML file' {
-        try {
-            $Supported = New-Object -ComObject "HTMLFile"
-        } catch {
-            $Supported = $null
-        }
-        if ($null -ne $Supported) {
-            $Path = Join-Path $TestDrive 'foo.html'
-            '<html>
-                <body>
-                    <a href="#">foo</a>
-                    <a href="#">bar</a>
-                    <a href="#">baz</a>
-                </body>
-            </html>' | Out-File $Path
-            $Html = Import-Html -Path $Path
-            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
-        }
-    }
-}
-Describe 'ConvertFrom-QueryString' {
-    It 'can parse single-value inputs as strings' {
-        $Expected = 'hello world'
-        $Expected | ConvertFrom-QueryString | Should -Be $Expected
-        'foo','bar','baz' | ConvertFrom-QueryString | Should -Be 'foo','bar','baz'
-    }
-    It 'can parse complex query strings as objects' {
-        $DeviceCode = 'ac921e83b6d04d0709a627f4ede70dee1f86204f'
-        $UserCode = '7B7F-4F10'
-        $InputString = "device_code=${DeviceCode}&expires_in=8999&interval=5&user_code=${UserCode}&verification_uri=https%3A%2F%2Fgithub.com%2Flogin%2Fdevice"
-        $Result = $InputString | ConvertFrom-QueryString
-        $Result['device_code'] | Should -Be $DeviceCode
-        $Result['expires_in'] | Should -Be '8999'
-        $Result['user_code'] | Should -Be $UserCode
-    }
-    it 'can easily be chained with other conversions' {
-        $Result = [System.Text.Encoding]::Unicode.GetBytes('first=1&second=2&third=last') |
-            ConvertFrom-ByteArray |
-            ConvertFrom-QueryString
-        $Result.first | Should -Be '1'
-        $Result.second | Should -Be '2'
-        $Result.third | Should -Be 'last'
-    }
-}
-Describe 'ConvertTo-PowershellSyntax' {
-    It 'can act as pass-thru for normal strings' {
-        $Expected = 'normal string with not mustache templates'
-        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
-    }
-    It 'can convert strings with single mustache template' {
-        $InputString = 'Hello {{ world }}'
-        $Expected = 'Hello $($Data.world)'
-        $InputString | ConvertTo-PowershellSyntax | Should -Be $Expected
-    }
-    It 'can convert strings with multiple mustache templates without regard to spaces' {
-        $Expected = '$($Data.hello) $($Data.world)'
-        '{{ hello }} {{ world }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-        '{{ hello }} {{ world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-        '{{hello }} {{world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-    }
-    It 'will not convert mustache helper templates' {
-        $Expected = 'The sky is {{#blue blue }}'
-        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
-        $Expected = '{{#red greet }}, my name $($Data.foo) $($Data.foo) is $($Data.name)'
-        '{{#red greet }}, my name {{foo }} {{foo}} is {{ name }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-        '{{#red Red}} {{#blue Blue}}' | ConvertTo-PowershellSyntax | Should -Be '{{#red Red}} {{#blue Blue}}'
-    }
-    It 'supports template variables within mustache helper templates' {
-        '{{#green Hello}} {{#red {{ name }}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name)}}'
-        '{{#green Hello}} {{#red {{ name }} }}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name) }}'
-        '{{#green Hello}} {{#red {{ foo }}{{ bar }}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
-        '{{#green Hello}} {{#red {{foo}}{{bar}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
-        '{{#green Hello}} {{#red {{ a }} b {{ c }} }}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) }}'
-        '{{#green Hello}} {{#red {{a}}b{{c}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)}}'
-        '{{#green Hello}} {{#red {{ a }} b {{ c }} d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) d}}'
-        '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
-    }
-}
-Describe 'ConvertTo-Iso8601' {
-    It 'can convert values to ISO-8601 format' {
-        $Expected = '2020-07-04T00:00:00.000Z'
-        'July 4, 2020' | ConvertTo-Iso8601 | Should -Be $Expected
-        '07/04/2020' | ConvertTo-Iso8601 | Should -Be $Expected
-        '04JUL20' | ConvertTo-Iso8601 | Should -Be $Expected
-        '2020-07-04' | ConvertTo-Iso8601 | Should -Be $Expected
-    }
-}
-Describe 'ConvertTo-QueryString' {
-    It 'can convert objects into URL-encoded query strings' {
-        @{} | ConvertTo-QueryString | Should -Be ''
-        @{ foo = '' } | ConvertTo-QueryString | Should -Be 'foo='
-        @{ foo = 'bar' } | ConvertTo-QueryString | Should -Be 'foo=bar'
-        @{ a = 1; b = 2; c = 3 } | ConvertTo-QueryString | Should -Be 'a=1&b=2&c=3'
-        @{ per_page = 100; page = 3 } | ConvertTo-QueryString  | Should -Be 'page=3&per_page=100'
-    }
-    It 'can convert objects into query strings' {
-        @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
-        @{ foo = '' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3d'
-        @{ foo = 'a' },@{ bar = 'b'} | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3da','bar%3db'
-        @{ foo = 'bar' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3dbar'
-        @{ a = 1; b = 2; c = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'a%3d1%26b%3d2%26c%3d3'
-        @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
-    }
-}
-Describe 'Find-Duplicates' {
-    It 'can identify duplicate files' {
-        $Same = 'these files have identical content'
-        $Same | Out-File 'TestDrive:\foo'
-        'unique' | Out-File 'TestDrive:\bar'
-        $Same | Out-File 'TestDrive:\baz'
-        mkdir 'TestDrive:\sub'
-        $Same | Out-File 'TestDrive:\sub\bam'
-        'also unique' | Out-File 'TestDrive:\sub\bat'
-        Find-Duplicate 'TestDrive:\' | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
     }
 }
 Describe 'Find-FirstIndex' {
@@ -181,38 +29,6 @@ Describe 'Find-FirstIndex' {
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
         $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
         Find-FirstIndex -Values 2,0,0,0,2,0,0 -Predicate $Predicate | Should -Be 0
-    }
-}
-Describe 'Find-FirstTrueVariable' {
-    It 'should support default value' {
-        $Global:foo = $false
-        $Global:bar = $true
-        $Global:baz = $false
-        $Names = 'foo','bar','baz'
-        Find-FirstTrueVariable $Names | Should -Be 'bar'
-        Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'bar'
-        Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'bar'
-    }
-    It 'should support default value' {
-        $Global:foo = $false
-        $Global:bar = $false
-        $Global:baz = $false
-        $Names = 'foo','bar','baz'
-        Find-FirstTrueVariable $Names | Should -Be 'foo'
-    }
-    It 'should support default value passed as index' {
-        $Global:foo = $false
-        $Global:bar = $false
-        $Global:baz = $false
-        $Names = 'foo','bar','baz'
-        Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'baz'
-    }
-    It 'should support default value passed as value' {
-        $Global:foo = $false
-        $Global:bar = $false
-        $Global:baz = $false
-        $Names = 'foo','bar','baz'
-        Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
     }
 }
 Describe 'Format-MoneyValue' {
@@ -326,6 +142,9 @@ Describe 'Invoke-Chunk' {
         Invoke-Chunk @(1,1,2,2,3,3) 2 | Should -Be @(1,1),@(2,2),@(3,3)
         Invoke-Chunk @(1,2,3,1,2) 3 | Should -Be @(1,2,3),@(1,2)
     }
+    It 'provides aliases for ease of use' {
+        1..5 | chunk -s 3 | Should -Be @(1,2,3),@(4,5)
+    }
 }
 Describe 'Invoke-DropWhile' {
     It 'can drop elements until passed predicate is False' {
@@ -354,28 +173,6 @@ Describe 'Invoke-InsertString' {
         'bar' | Invoke-InsertString -To 'foo' -At 4 | Should -Be 'foo'
     }
 }
-# Describe 'Invoke-ListenTo' {
-#     AfterEach {
-#         'TestEvent' | Invoke-StopListen
-#     }
-#     It 'can listen to custom events and trigger actions' {
-#         function Test-Callback {}
-#         $EventName = 'TestEvent'
-#         $Times = 5
-#         Mock Test-Callback {}
-#         { Test-Callback } | Invoke-ListenTo $EventName
-#         1..$Times | ForEach-Object { Invoke-FireEvent $EventName -Data 'test' }
-#         Assert-MockCalled Test-Callback -Times $Times
-#     }
-#     It 'can listen to custom events and trigger one-time action' {
-#         function Test-Callback {}
-#         $EventName = 'TestEvent'
-#         Mock Test-Callback {}
-#         { Test-Callback } | Invoke-ListenTo $EventName -Once
-#         1..10 | ForEach-Object { Invoke-FireEvent $EventName -Data 'test' }
-#         Assert-MockCalled Test-Callback -Times 1
-#     }
-# }
 Describe 'Invoke-Method' {
     It 'can apply a method within a pipeline' {
         '  foo','  bar','  baz' | Invoke-Method 'TrimStart' | Should -Be 'foo','bar','baz'
@@ -520,23 +317,6 @@ Describe 'Invoke-Reduce' {
         $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
     }
 }
-Describe 'Invoke-Speak (say)' {
-    It 'can passthru text without speaking' {
-        $Text = 'this should not be heard'
-        Invoke-Speak $Text -Silent | Should -Be $null
-        Invoke-Speak $Text -Silent -Output text | Should -Be $Text
-    }
-    It 'can output SSML' {
-        $Text = 'this should not be heard either'
-        Invoke-Speak $Text -Silent -Output ssml | Should -match "<p>$Text</p>"
-    }
-    It 'can output SSML with custom rate' {
-        $Text = 'this should not be heard either'
-        $Rate = 10
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<p>$Text</p>"
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
-    }
-}
 Describe 'Invoke-TakeWhile' {
     It 'can take elements until passed predicate is False' {
         $LessThan3 = { Param($x) $x -lt 3 }
@@ -602,63 +382,6 @@ Describe 'Invoke-Zip(With)' {
         Invoke-ZipWith $Add @('a','a'),@('b','b'),@('c','c','c') -EmptyValue '#' | Should -Be @('abc','abc', '##c')
     }
 }
-InModuleScope pwsh-prelude {
-    Describe 'Invoke-WebRequestBasicAuth' {
-        It 'can make a simple request' {
-            Mock Invoke-WebRequest { $args }
-            $Token = 'token'
-            $Uri = 'https://example.com/'
-            $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
-            # Headers
-            $Request[1].Authorization | Should -Be "Bearer $Token"
-            # Method
-            $Request[3] | Should -Be 'Get'
-            # Uri
-            $Request[5] | Should -Be $Uri
-        }
-        It 'can make a simple request with a username and password' {
-            Mock Invoke-WebRequest { $args }
-            $Username = 'user'
-            $Token = 'token'
-            $Uri = 'https://example.com/'
-            $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
-            # Headers
-            $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
-            # Method
-            $Request[3] | Should -Be 'Get'
-            # Uri
-            $Request[5] | Should -Be $Uri
-        }
-        It 'can make a simple request with query parameters' {
-            Mock Invoke-WebRequest { $args }
-            $Token = 'token'
-            $Uri = 'https://example.com/'
-            $Query = @{ foo = 'bar' }
-            $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
-            $Request[1].Authorization | Should -Be "Bearer $Token"
-            $Request[5] | Should -Be "${Uri}?foo=bar"
-        }
-        It 'can make a simple request with URL-encoded query parameters' {
-            Mock Invoke-WebRequest { $args }
-            $Token = 'token'
-            $Uri = 'https://example.com/'
-            $Query = @{ answer = 42 }
-            $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
-            $Request[1].Authorization | Should -Be "Bearer $Token"
-            $Request[5] | Should -Be "${Uri}?answer=42"
-        }
-        It 'can make a simple PUT request' {
-            Mock Invoke-WebRequest { $args }
-            $Token = 'token'
-            $Uri = 'https://example.com/'
-            $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data @{ answer = 42 }
-            $Request[1] | Should -Match '"answer": '
-            $Request[3].Authorization | Should -Be "Bearer $Token"
-            $Request[5] | Should -Be 'Put'
-            $Request[7] | Should -Be $Uri
-        }
-    }
-}
 Describe 'Join-StringsWithGrammar' {
     It 'accepts one parameter' {
         Join-StringsWithGrammar 'one' | Should -Be 'one'
@@ -682,18 +405,6 @@ Describe 'Join-StringsWithGrammar' {
         Join-StringsWithGrammar @('one', 'two', 'three', 'four') | Should -Be 'one, two, three, and four'
     }
 }
-Describe 'New-File (touch)' {
-    AfterAll {
-        Remove-Item -Path .\SomeFile
-    }
-    It 'can create a file' {
-        $Content = 'testing'
-        '.\SomeFile' | Should -not -Exist
-        New-File SomeFile
-        Write-Output $Content >> .\SomeFile
-        '.\SomeFile' | Should -FileContentMatch $Content
-    }
-}
 Describe 'Remove-Character' {
     It 'can remove single character from string' {
         '012345' | Remove-Character -At 0 | Should -Be '12345'
@@ -711,102 +422,6 @@ Describe 'Remove-Character' {
     }
     It 'can remove last character from a string' {
         'A' | Remove-Character -At 0 | Should -Be ''
-    }
-}
-Describe 'Remove-DirectoryForce (rf)' {
-    It 'can create a file' {
-        New-File SomeFile
-        '.\SomeFile' | Should -Exist
-        Remove-DirectoryForce .\SomeFile
-        '.\SomeFile' | Should -Not -Exist
-    }
-}
-Describe 'Rename-FileExtension' {
-    It 'can rename file extensions using -TXT switch' {
-        $Path = Join-Path $TestDrive 'foo.bar'
-        New-Item $Path
-        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -txt
-        Get-ChildItem -Path $TestDrive -Name '*.txt' -File | Should -Be 'foo.txt'
-        Remove-Item (Join-Path $TestDrive 'foo.txt')
-    }
-    It 'can rename file extensions using -PNG switch' {
-        $Path = Join-Path $TestDrive 'foo.bar'
-        New-Item $Path
-        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -png
-        Get-ChildItem -Path $TestDrive -Name '*.png' -File | Should -Be 'foo.png'
-        Remove-Item (Join-Path $TestDrive 'foo.png')
-    }
-    It 'can rename file extensions using -GIF switch' {
-        $Path = Join-Path $TestDrive 'foo.bar'
-        New-Item $Path
-        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -gif
-        Get-ChildItem -Path $TestDrive -Name '*.gif' -File | Should -Be 'foo.gif'
-        Remove-Item (Join-Path $TestDrive 'foo.gif')
-    }
-    It 'can rename file extensions with custom value using -To parameter' {
-        $Path = Join-Path $TestDrive 'foo.bar'
-        New-Item $Path
-        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-        Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -To baz
-        Get-ChildItem -Path $TestDrive -Name '*.baz' -File | Should -Be 'foo.baz'
-        Remove-Item (Join-Path $TestDrive 'foo.baz')
-    }
-    It 'can rename file extensions with custom value using -To parameter (pipeline syntax)' {
-        $Path = Join-Path $TestDrive 'foo.bar'
-        New-Item $Path
-        Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-        (Join-Path $TestDrive 'foo.bar') | Rename-FileExtension -To baz
-        Get-ChildItem -Path $TestDrive -Name '*.baz' -File | Should -Be 'foo.baz'
-        Remove-Item (Join-Path $TestDrive 'foo.baz')
-    }
-    It 'can rename files extension of multiple files using pipeline' {
-        $ExtBefore = 'pre'
-        $ExtAfter = 'post'
-        $Files = @(
-            (Join-Path $TestDrive "bar.$ExtBefore")
-            (Join-Path $TestDrive "baz.$ExtBefore")
-            (Join-Path $TestDrive "foo.$ExtBefore")
-        )
-        $Expected = @(
-            "bar.$ExtAfter"
-            "baz.$ExtAfter"
-            "foo.$ExtAfter"
-        )
-        $Files | ForEach-Object { New-Item $_ }
-        $Files | Rename-FileExtension -To 'post'
-        Get-ChildItem -Path $TestDrive -Name "*.$ExtAfter" -File | Should -Be $Expected
-        $Expected | ForEach-Object { Remove-Item (Join-Path $TestDrive $_) }
-    }
-}
-Describe 'Remove-Indent' {
-    It 'can remove leading spaces from single-line strings' {
-        '' | Remove-Indent | Should -Be ''
-        '  foobar' | Remove-Indent | Should -Be 'foobar'
-        '     foobar' | Remove-Indent -Size 5 | Should -Be 'foobar'
-        'foobar' | Remove-Indent -Size 0 | Should -Be 'foobar'
-    }
-    It 'can remove leading spaces from multi-line strings' {
-        "`n  foo`n  bar`n" | Remove-Indent | Should -Be "`nfoo`nbar"
-        "`n    foo`n    bar`n" | Remove-Indent -Size 4 | Should -Be "`nfoo`nbar"
-    }
-}
-# Describe 'Test-Admin' {
-#     It 'should return false if not Administrator' {
-#         Test-Admin | Should -Be $false
-#     }
-# }
-Describe 'Test-Empty' {
-    It 'should return true for directories with no contents' {
-        'TestDrive:\Foo' | Should -not -Exist
-        mkdir 'TestDrive:\Foo'
-        'TestDrive:\Foo' | Should -Exist
-        Test-Empty 'TestDrive:\Foo' | Should -Be $true
-        mkdir 'TestDrive:\Foo\Bar'
-        mkdir 'TestDrive:\Foo\Bar\Baz'
-        Test-Empty 'TestDrive:\Foo' | Should -Be $false
     }
 }
 Describe 'Test-Equal' {
@@ -886,19 +501,5 @@ Describe 'Test-Equal' {
         Test-Equal $false $false | Should -Be $true
         Test-Equal $true $false | Should -Be $false
         Test-Equal $null $null | Should -Be $true
-    }
-}
-Describe 'Test-Installed' {
-    It 'should return true if passed module is installed' {
-        Test-Installed Pester | Should -Be $true
-        Test-Installed NotInstalledModule | Should -Be $false
-    }
-}
-Describe 'Write-Repeat' {
-    It 'can create string of repeated characters and strings' {
-        Write-Repeat 'O' | Should -Be 'O'
-        Write-Repeat 'O' -Times 0 | Should -Be ''
-        Write-Repeat 'O' -Times 3 | Should -Be 'OOO'
-        Write-Repeat '' -Times 42 | Should -Be ''
     }
 }

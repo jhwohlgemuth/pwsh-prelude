@@ -33,25 +33,6 @@
     $Values | ForEach-Object { if (& $Predicate $_) { [Array]::IndexOf($Values, $_) } } | Select-Object -First 1
   }
 }
-function Find-FirstTrueVariable {
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [Array] $VariableNames,
-    [Int] $DefaultIndex = 0,
-    $DefaultValue = $null
-  )
-  $Index = $VariableNames | Get-Variable -ValueOnly | Find-FirstIndex
-  if ($Index -is [Int]) {
-    $VariableNames[$Index]
-  } else {
-    if ($null -ne $DefaultValue) {
-      $DefaultValue
-    } else {
-      $VariableNames[$DefaultIndex]
-    }
-  }
-}
 function Format-MoneyValue {
   <#
   .SYNOPSIS
@@ -231,6 +212,7 @@ function Invoke-Chunk {
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [Array] $InputObject,
     [Parameter(Position=1)]
+    [Alias('s')]
     [Int] $Size = 0
   )
   Begin {

@@ -50,6 +50,25 @@ function Find-Duplicate {
     Sort-Object -Property Hash |
     Write-Output
 }
+function Find-FirstTrueVariable {
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [Array] $VariableNames,
+    [Int] $DefaultIndex = 0,
+    $DefaultValue = $null
+  )
+  $Index = $VariableNames | Get-Variable -ValueOnly | Find-FirstIndex
+  if ($Index -is [Int]) {
+    $VariableNames[$Index]
+  } else {
+    if ($null -ne $DefaultValue) {
+      $DefaultValue
+    } else {
+      $VariableNames[$DefaultIndex]
+    }
+  }
+}
 function Get-File {
   <#
   .SYNOPSIS

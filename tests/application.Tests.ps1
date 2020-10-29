@@ -33,6 +33,64 @@ Describe 'Application State' {
         (Test-Path $Path) | Should -Be $false
     }
 }
+Describe 'ConvertTo-PowershellSyntax' {
+    It 'can act as pass-thru for normal strings' {
+        $Expected = 'normal string with not mustache templates'
+        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+    It 'can convert strings with single mustache template' {
+        $InputString = 'Hello {{ world }}'
+        $Expected = 'Hello $($Data.world)'
+        $InputString | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+    It 'can convert strings with multiple mustache templates without regard to spaces' {
+        $Expected = '$($Data.hello) $($Data.world)'
+        '{{ hello }} {{ world }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+        '{{ hello }} {{ world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+        '{{hello }} {{world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+    }
+    It 'will not convert mustache helper templates' {
+        $Expected = 'The sky is {{#blue blue }}'
+        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
+        $Expected = '{{#red greet }}, my name $($Data.foo) $($Data.foo) is $($Data.name)'
+        '{{#red greet }}, my name {{foo }} {{foo}} is {{ name }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+        '{{#red Red}} {{#blue Blue}}' | ConvertTo-PowershellSyntax | Should -Be '{{#red Red}} {{#blue Blue}}'
+    }
+    It 'supports template variables within mustache helper templates' {
+        '{{#green Hello}} {{#red {{ name }}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name)}}'
+        '{{#green Hello}} {{#red {{ name }} }}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name) }}'
+        '{{#green Hello}} {{#red {{ foo }}{{ bar }}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
+        '{{#green Hello}} {{#red {{foo}}{{bar}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
+        '{{#green Hello}} {{#red {{ a }} b {{ c }} }}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) }}'
+        '{{#green Hello}} {{#red {{a}}b{{c}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)}}'
+        '{{#green Hello}} {{#red {{ a }} b {{ c }} d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) d}}'
+        '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
+    }
+}
+Describe 'ConvertFrom-QueryString' {
+    It 'can parse single-value inputs as strings' {
+        $Expected = 'hello world'
+        $Expected | ConvertFrom-QueryString | Should -Be $Expected
+        'foo','bar','baz' | ConvertFrom-QueryString | Should -Be 'foo','bar','baz'
+    }
+    It 'can parse complex query strings as objects' {
+        $DeviceCode = 'ac921e83b6d04d0709a627f4ede70dee1f86204f'
+        $UserCode = '7B7F-4F10'
+        $InputString = "device_code=${DeviceCode}&expires_in=8999&interval=5&user_code=${UserCode}&verification_uri=https%3A%2F%2Fgithub.com%2Flogin%2Fdevice"
+        $Result = $InputString | ConvertFrom-QueryString
+        $Result['device_code'] | Should -Be $DeviceCode
+        $Result['expires_in'] | Should -Be '8999'
+        $Result['user_code'] | Should -Be $UserCode
+    }
+    it 'can easily be chained with other conversions' {
+        $Result = [System.Text.Encoding]::Unicode.GetBytes('first=1&second=2&third=last') |
+            ConvertFrom-ByteArray |
+            ConvertFrom-QueryString
+        $Result.first | Should -Be '1'
+        $Result.second | Should -Be '2'
+        $Result.third | Should -Be 'last'
+    }
+}
 Describe 'Invoke-RunApplication' {
     It 'can pass state to Init/Loop functions and execute Loop one time' {
         $Script:Count = 0
@@ -197,5 +255,17 @@ Describe 'New-Template' {
         $Function:render = '{{#green Hello}} {{ name }}' | New-Template
         render -Data @{ name = 'Jason' } | Should -Be '{{#green Hello}} Jason'
         render -Data @{ name = 'Jason' } -PassThru | Should -Be '{{#green Hello}} {{ name }}'
+    }
+}
+Describe 'Remove-Indent' {
+    It 'can remove leading spaces from single-line strings' {
+        '' | Remove-Indent | Should -Be ''
+        '  foobar' | Remove-Indent | Should -Be 'foobar'
+        '     foobar' | Remove-Indent -Size 5 | Should -Be 'foobar'
+        'foobar' | Remove-Indent -Size 0 | Should -Be 'foobar'
+    }
+    It 'can remove leading spaces from multi-line strings' {
+        "`n  foo`n  bar`n" | Remove-Indent | Should -Be "`nfoo`nbar"
+        "`n    foo`n    bar`n" | Remove-Indent -Size 4 | Should -Be "`nfoo`nbar"
     }
 }

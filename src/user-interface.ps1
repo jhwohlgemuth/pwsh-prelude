@@ -605,9 +605,12 @@ function Write-Repeat {
     [AllowEmptyString()]
     [String] $Value,
     [Parameter(Position=1)]
+    [Alias('x')]
     [Int] $Times = 1
   )
-  Write-Output ($Value * $Times)
+  Process {
+    Write-Output ($Value * $Times)
+  }
 }
 function Write-Title {
   <#
