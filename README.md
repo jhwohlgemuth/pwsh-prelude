@@ -224,7 +224,7 @@ Aliases
 - `transform`
 - `trigger`
 - `zip`
-- `zipWhile`
+- `zipWith`
 
 
 Footnotes
