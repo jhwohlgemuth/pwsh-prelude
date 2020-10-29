@@ -6,7 +6,7 @@ Powershell Prelude <sup>[†](#footnotes)</sup>
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude)](https://www.powershellgallery.com/packages/pwsh-prelude)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
-This module is meant to be a generic toolset that you import every time you open a terminal via your Windows Terminal `$PROFILE`. [I certainly do](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal). Naturally, it has ***ZERO external dependencies*** and (mostly) works on Linux ;)
+This module is meant to be a generic toolset that you import every time you open a terminal via your Windows Terminal `$PROFILE`. [I certainly do](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal). Naturally, it has ***ZERO external dependencies***<sup>[‡](#footnotes)</sup> and (mostly) works on Linux ;)
 
 If you love functional programming patterns, scripting languages, and [ubiquitous terminals](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)...this module might have something for you!
 
@@ -188,6 +188,18 @@ Aliases
 Get-Alias | Where-Object { $_.Source -eq 'pwsh-prelude' }
 ```
 
+Credits
+-------
+- [Microsoft]() - *[Powershell](https://github.com/powershell/powershell) (d'uh), [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal), and VS Code (the editor I use)*
+- [Pester](https://pester.dev/) - *testing*
+- [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) - *static analysis (linting)*
+- [janikvonrotz/awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) - *inspiration*
+- [chrisseroka/ps-menu](https://github.com/chrisseroka/ps-menu) - *inspiration*
+- [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*
+- [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
+
 Footnotes
 ---------
 > ***†*** This module is ***NOT*** an "official" Microsoft Powershell prelude module
+
+> ***‡*** This code was inspired and enabled by [several people and projects](#Credits)
