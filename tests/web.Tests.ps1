@@ -1,4 +1,4 @@
-& (Join-Path $PSScriptRoot "_setup.ps1") 
+﻿& (Join-Path $PSScriptRoot "_setup.ps1")
 
 Describe 'ConvertFrom-ByteArray' {
     it 'can convert an array of bytes to text' {

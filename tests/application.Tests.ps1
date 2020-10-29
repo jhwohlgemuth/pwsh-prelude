@@ -1,4 +1,4 @@
-﻿& (Join-Path $PSScriptRoot "_setup.ps1") 
+﻿& (Join-Path $PSScriptRoot "_setup.ps1")
 
 Describe 'Application State' {
     It 'can save and get state using ID' {

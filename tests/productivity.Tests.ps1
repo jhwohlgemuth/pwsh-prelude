@@ -1,9 +1,9 @@
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:foo')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:foo')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:bar')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
 Param()
 
-& (Join-Path $PSScriptRoot "_setup.ps1") 
+& (Join-Path $PSScriptRoot "_setup.ps1")
 
 Describe 'Find-Duplicates' {
     It 'can identify duplicate files' {

@@ -1,4 +1,4 @@
-& (Join-Path $PSScriptRoot "_setup.ps1") 
+﻿& (Join-Path $PSScriptRoot "_setup.ps1")
 
 # Describe 'Invoke-ListenTo' {
 #     AfterEach {

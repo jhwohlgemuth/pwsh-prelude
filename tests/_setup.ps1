@@ -1,4 +1,4 @@
-$ModuleName = 'pwsh-prelude'
+﻿$ModuleName = 'pwsh-prelude'
 if (Get-Module -Name $ModuleName) {
     Remove-Module -Name $ModuleName
 }
