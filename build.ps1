@@ -10,10 +10,10 @@ Param(
 )
 
 $SourceDirectory = 'src'
-function Invoke-Lint
-{
+function Invoke-Lint {
   [CmdletBinding()]
   Param()
+
   '==> Linting code' | Write-Output
   $Settings = @{
     ExcludeRules = @(
@@ -27,18 +27,17 @@ function Invoke-Lint
   Invoke-ScriptAnalyzer -Path $PSScriptRoot -Settings $Settings -Fix -EnableExit:$CI -ReportSummary -Recurse
   '' | Write-Output
 }
-function Invoke-Test
-{
+function Invoke-Test {
   [CmdletBinding()]
   Param()
-  '==> Executing tests' | Write-Output
+
   if (-not (Get-Module -Name Pester)) {
     Import-Module -Name Pester
   }
   $Root = Join-Path $PSScriptRoot $SourceDirectory
   $Files = (Get-ChildItem $Root -Recurse -Include '*.ps1').FullName
   if ($WithCoverage) {
-    ' with coverage' | Write-Output
+    '==> Executing tests with coverage' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
         PassThru = $true
@@ -49,7 +48,7 @@ function Invoke-Test
       }
     }
   } elseif ($CI) {
-    ' on CI' | Write-Output
+    '==> Executing tests on CI' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
         Exit = $true
@@ -64,7 +63,7 @@ function Invoke-Test
       }
     }
   } else {
-    '' | Write-Output
+    '==> Executing tests' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
         PassThru = $true
@@ -82,10 +81,10 @@ function Invoke-Test
     "`nSUCCESS`n" | Write-Output
   }
 }
-function Invoke-Publish
-{
+function Invoke-Publish {
   [CmdletBinding()]
   Param()
+
   '==> Validating module data...' | Write-Output
   '    Module manifest: ' | Write-Output
   if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-prelude.psd1')) {
@@ -108,13 +107,17 @@ if ($Lint) {
 }
 if ($Test -and -not $SkipTests) {
   Invoke-Test
-  if ($WithCoverage -and $ShowCoverageReport) {
-    $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-    reportgenerator.exe -reports:coverage.xml -targetdir:coverage -sourcedirs:$SourceDirectory -historydir:.history -reporttypes:$ReportTypes
-    Invoke-Item '.\coverage\index.htm'
-  }
 }
-if (-not $Lint -and -not $Test) {
+if ($ShowCoverageReport -and (Test-Path (Join-Path (Get-Location) 'coverage.xml'))) {
+  $ReportTypes = 'Html;HtmlSummary;HtmlChart'
+  if ($Test -and $WithCoverage) {
+    reportgenerator.exe -reports:coverage.xml -targetdir:coverage -sourcedirs:$SourceDirectory -historydir:.history -reporttypes:$ReportTypes
+  } else {
+    reportgenerator.exe -reports:coverage.xml -targetdir:coverage -sourcedirs:$SourceDirectory -reporttypes:$ReportTypes
+  }
+  Invoke-Item '.\coverage\index.htm'
+}
+if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
   if (-not $SkipTests) {
     Invoke-Lint
     Invoke-Test

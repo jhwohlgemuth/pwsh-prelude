@@ -533,6 +533,7 @@ function Write-Color {
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [AllowEmptyString()]
     [String] $Text,
+    [ValidateSet('White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow')]
     [String] $Color,
     [Switch] $NoNewLine,
     [Switch] $Black,
@@ -591,6 +592,7 @@ function Write-Label {
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [String] $Text = 'label',
+    [ValidateSet('White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow')]
     [String] $Color = 'Cyan',
     [Int] $Indent = 0,
     [Switch] $NewLine
