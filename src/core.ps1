@@ -497,6 +497,19 @@ function Invoke-ObjectInvert {
   }
 }
 function Invoke-ObjectMerge {
+  <#
+  .SYNOPSIS
+  Merge two or more hashtables or custom objects. The result will be of the same type as the first item passed.
+
+  .EXAMPLE
+  @{ a = 1 },@{ b = 2 },@{ c = 3 } | merge
+  # @{ a = 1; b = 2; c = 3 }
+
+  .EXAMPLE
+  [PSCustomObject]@{ a = 1 },[PSCustomObject]@{ b = 2 } | merge
+  # [PSCustomObject]@{ a = 1; b = 2 }
+
+  #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Acc', Scope='Function')]
   [CmdletBinding()]
   [Alias('merge')]
