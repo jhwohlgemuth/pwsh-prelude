@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 83
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 84
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 37
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 38
         }
     }
 }
@@ -229,6 +229,40 @@ Describe 'Invoke-Method' {
     It 'only applies valid methods' {
         'foobar' | Invoke-Method 'FakeMethod' | Should -Be 'foobar'
         { 'foobar' | Invoke-Method 'Fake-Method' } | Should -Throw
+    }
+}
+Describe 'Invoke-ObjectInvert' {
+    It 'can invert objects with one key/value' {
+        $Result = @{ foo = 'bar' } | Invoke-ObjectInvert
+        $Result.bar | Should -Be 'foo'
+        $Result.foo | Should -Be $null
+        $Result = [PSCustomObject]@{ foo = 'bar' } | Invoke-ObjectInvert
+        $Result.bar | Should -Be 'foo'
+        $Result.foo | Should -Be $null
+    }
+    It 'can invert objects with more than one key/value pairs' {
+        $Result = @{ a = 1; b = 2; c = 3 } | Invoke-ObjectInvert
+        $Result['1'] | Should -Be 'a'
+        $Result.a | Should -Be $null
+        $Result = [PSCustomObject]@{ a = 1; b = 2; c = 3 } | Invoke-ObjectInvert
+        $Result['1'] | Should -Be 'a'
+        $Result.a | Should -Be $null
+    }
+    It 'can invert objects and group duplicate values' {
+        $Result = @{ a = 1; b = 2; c = 1; d = 1 } | Invoke-ObjectInvert
+        $Result['1'] | Should -Be 'a','c','d'
+        $Result['2'] | Should -Be 'b'
+        $Result.a | Should -Be $null
+        $Result.b | Should -Be $null
+        $Result.c | Should -Be $null
+        $Result.d | Should -Be $null
+        $Result = [PSCustomObject]@{ a = 1; b = 2; c = 2; d = 1 } | Invoke-ObjectInvert
+        $Result['1'] | Should -Be 'a','d'
+        $Result['2'] | Should -Be 'b','c'
+        $Result.a | Should -Be $null
+        $Result.b | Should -Be $null
+        $Result.c | Should -Be $null
+        $Result.d | Should -Be $null
     }
 }
 Describe 'Invoke-Once' {

@@ -38,7 +38,9 @@
 function ConvertTo-Pair {
   <#
   .SYNOPSIS
-  Converts an object into two arrays - keys and values. Note that the order of the output arrays are not guaranteed to be consistent with input object key/value pairs.
+  Converts an object into two arrays - keys and values.
+
+  Note: The order of the output arrays are not guaranteed to be consistent with input object key/value pairs.
 
   .EXAMPLE
   @{ a = 1; b = 2; c = 3 } | toPair
@@ -443,6 +445,54 @@ function Invoke-Method {
     } else {
       "==> $InputObject does not have a(n) `"$Name`" method" | Write-Verbose
       $InputObject
+    }
+  }
+}
+function Invoke-ObjectInvert {
+  <#
+  .SYNOPSIS
+  Returns a new object with the keys of the given object as values, and the values of the given object, which are coerced to strings, as keys.
+
+  Note: A duplicate value in the passed object will become a key in the inverted object with an array of keys that had the duplicate value as a value.
+
+  .EXAMPLE
+  @{ foo = 'bar' } | invert
+  # @{ bar = 'foo' }
+
+  .EXAMPLE
+  @{ a = 1; b = 2; c = 1 } | invert
+  # @{ '1' = 'a','c'; '2' = 'b' }
+
+  #>
+  [CmdletBinding()]
+  [Alias('invert')]
+  [OutputType([System.Collections.Hashtable])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [PSObject] $InputObject
+  )
+  Process {
+    $Data = $InputObject
+    $Keys,$Values = $Data | ConvertTo-Pair
+    $GroupedData = @($Keys,$Values) | Invoke-Zip | Group-Object { $_[1] }
+    if ($Keys.Count -gt 1) {
+      $Callback = {
+        Param($Acc, [String]$Key)
+        $Acc.$Key = $GroupedData |
+          Where-Object { $_.Name -eq $Key } |
+          Select-Object -ExpandProperty Group |
+          ForEach-Object { $_[0] } |
+          Sort-Object
+      }
+      $GroupedData |
+        Select-Object -ExpandProperty Name |
+        Invoke-Reduce -Callback $Callback -InitialValue @{}
+    } else {
+      if ($Data.GetType().Name -eq 'PSCustomObject') {
+        [PSCustomObject]@{ $Values = $Keys }
+      } else {
+        @{ $Values = $Keys }
+      }
     }
   }
 }
