@@ -525,6 +525,7 @@ function Write-Color {
   '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = 'World' } | Write-Color
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost', '', Scope='Function')]
   [CmdletBinding()]
   [OutputType([Void])]
   [OutputType([String])]

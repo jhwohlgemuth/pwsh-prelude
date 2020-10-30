@@ -29,7 +29,7 @@ Describe 'ConvertFrom-Pair' {
         $Result.c | Should -Be 3
     }
     It 'provides aliases for ease of use' {
-        $Result = @('a','b','c'),@(1,2,3) | fromPair
+        $Result = @('a','b','c'),@(1,2,3) | ConvertFrom-Pair
         $Result.a | Should -Be 1
         $Result.b | Should -Be 2
         $Result.c | Should -Be 3
@@ -46,10 +46,10 @@ Describe 'ConvertTo-Pair' {
         'Not an object' | ConvertTo-Pair | Should -Be 'Not an object'
     }
     It 'should be the inverse for ConvertFrom-Pair' {
-        @('c','b','a'),@(3,2,1) | fromPair | toPair | Should -Be @('c','a','b'),@(3,1,2)
+        @('c','b','a'),@(3,2,1) | ConvertFrom-Pair | ConvertTo-Pair | Should -Be @('c','a','b'),@(3,1,2)
     }
     It 'provides aliases for ease of use' {
-        @{ a = 1; b = 2; c = 3 } | toPair | Should -Be @('c','b','a'),@(3,2,1)
+        @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair | Should -Be @('c','b','a'),@(3,2,1)
     }
 }
 Describe 'Find-FirstIndex' {
