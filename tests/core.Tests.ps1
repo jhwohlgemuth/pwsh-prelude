@@ -1,6 +1,4 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'fromPair')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'toPair')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/powershell:latest
+FROM mcr.microsoft.com/powershell:lts-ubuntu-18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 

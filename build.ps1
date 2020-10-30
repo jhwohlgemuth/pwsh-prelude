@@ -1,5 +1,4 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CI')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost', '')]
 [CmdletBinding()]
 Param(
   [Switch] $Lint,
@@ -9,12 +8,13 @@ Param(
   [Switch] $CI,
   [Switch] $SkipTests
 )
+
 $SourceDirectory = 'src'
 function Invoke-Lint
 {
   [CmdletBinding()]
   Param()
-  '==> Linting code' | Write-Host -ForegroundColor Cyan
+  '==> Linting code' | Write-Output
   $Settings = @{
     ExcludeRules = @(
       'PSAvoidUsingWriteHost'
@@ -25,20 +25,20 @@ function Invoke-Lint
     )
   }
   Invoke-ScriptAnalyzer -Path $PSScriptRoot -Settings $Settings -Fix -EnableExit:$CI -ReportSummary -Recurse
-  '' | Write-Host
+  '' | Write-Output
 }
 function Invoke-Test
 {
   [CmdletBinding()]
   Param()
-  '==> Executing tests' | Write-Host -ForegroundColor Cyan -NoNewLine
+  '==> Executing tests' | Write-Output
   if (-not (Get-Module -Name Pester)) {
     Import-Module -Name Pester
   }
   $Root = Join-Path $PSScriptRoot $SourceDirectory
   $Files = (Get-ChildItem $Root -Recurse -Include '*.ps1').FullName
   if ($WithCoverage) {
-    ' with coverage' | Write-Host -ForegroundColor Cyan
+    ' with coverage' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
         PassThru = $true
@@ -49,7 +49,7 @@ function Invoke-Test
       }
     }
   } elseif ($CI) {
-    ' on CI' | Write-Host -ForegroundColor Cyan
+    ' on CI' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
         Exit = $true
@@ -64,7 +64,7 @@ function Invoke-Test
       }
     }
   } else {
-    '' | Write-Host
+    '' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
         PassThru = $true
@@ -77,31 +77,31 @@ function Invoke-Test
   }
   $Result = Invoke-Pester -Configuration $Configuration
   if ($Result.FailedCount -gt 0) {
-    "`nFAILED - $($Result.FailedCount) tests failed.`n" | Write-Host -ForegroundColor Red
+    "`nFAILED - $($Result.FailedCount) tests failed.`n" | Write-Output
   } else {
-    "`nSUCCESS`n" | Write-Host -ForegroundColor Green
+    "`nSUCCESS`n" | Write-Output
   }
 }
 function Invoke-Publish
 {
   [CmdletBinding()]
   Param()
-  '==> Validating module data...' | Write-Host -ForegroundColor Cyan
-  '    Module manifest: ' | Write-Host -NoNewline
+  '==> Validating module data...' | Write-Output
+  '    Module manifest: ' | Write-Output
   if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-prelude.psd1')) {
-    'VALID' | Write-Host -ForegroundColor Green
+    'VALID' | Write-Output
   } else {
-    'INVALID' | Write-Host -ForegroundColor Red
+    'INVALID' | Write-Output
   }
-  '    Nuget API Key: ' | Write-Host -NoNewline
+  '    Nuget API Key: ' | Write-Output
   if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) {
-    "VALID`n" | Write-Host -ForegroundColor Green
+    "VALID`n" | Write-Output
   } else {
-    "INVALID`n" | Write-Host -ForegroundColor Red
+    "INVALID`n" | Write-Output
   }
-  '==> Publishing module...' | Write-Host -ForegroundColor Cyan -NoNewline
+  '==> Publishing module...' | Write-Output
   Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags
-  "DONE`n" | Write-Host -ForegroundColor Green
+  "DONE`n" | Write-Output
 }
 if ($Lint) {
   Invoke-Lint
