@@ -1,4 +1,41 @@
-﻿function Find-FirstIndex {
+﻿function ConvertFrom-Pair {
+  <#
+  .SYNOPSIS
+  Creates an object from an array of keys and an array of values. Key/Value pairs with higher index take precedence.
+
+  .EXAMPLE
+  @('a','b','c'),@(1,2,3) | fromPair
+  # @{ a = 1; b = 2; c = 3 }
+
+  #>
+  [CmdletBinding()]
+  [Alias('fromPair')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject
+  )
+  Begin {
+    function Invoke-FromPair {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject
+      )
+      if ($InputObject.Count -gt 0) {
+        $Callback = {
+          Param($Acc, $Item)
+          $Key,$Value = $Item
+          $Acc.$Key = $Value
+        }
+        Invoke-Reduce -Items ($InputObject | Invoke-Zip) -Callback $Callback -InitialValue @{}
+      }
+    }
+    Invoke-FromPair $InputObject
+  }
+  End {
+    Invoke-FromPair $Input
+  }
+}
+function Find-FirstIndex {
   <#
   .SYNOPSIS
   Helper function to return index of first array item that returns true for a given predicate

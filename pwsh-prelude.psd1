@@ -19,6 +19,7 @@
     'drai'
     'dropWhile'
     'equal'
+    'fromPair'
     'input'
     'insert'
     'irc'
@@ -50,6 +51,7 @@
   FunctionsToExport = @(
     'ConvertFrom-ByteArray'
     'ConvertFrom-Html'
+    'ConvertFrom-Pair'
     'ConvertFrom-QueryString'
     'ConvertTo-PowershellSyntax'
     'ConvertTo-Iso8601'

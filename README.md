@@ -113,6 +113,7 @@ Functions
 
 - `ConvertFrom-ByteArray`
 - `ConvertFrom-Html`
+- `ConvertFrom-Pair`
 - `ConvertFrom-QueryString`
 - `ConvertTo-PowershellSyntax`
 - `ConvertTo-Iso8601`

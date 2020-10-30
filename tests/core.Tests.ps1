@@ -1,4 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'fromPair')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
@@ -6,11 +7,33 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 81
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 82
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 35
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 36
         }
+    }
+}
+Describe 'ConvertFrom-Pair' {
+    It 'can create and object from two arrays' {
+        $Result = @('a','b','c'),@(1,2,3) | ConvertFrom-Pair
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
+        $Result = @('a','b','a','c'),@(1,2,3,4) | ConvertFrom-Pair
+        $Result.a | Should -Be 3
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 4
+        $Result = ConvertFrom-Pair @('a','b','c'),@(1,2,3)
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
+    }
+    It 'provides aliases for ease of use' {
+        $Result = @('a','b','c'),@(1,2,3) | fromPair
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
     }
 }
 Describe 'Find-FirstIndex' {
