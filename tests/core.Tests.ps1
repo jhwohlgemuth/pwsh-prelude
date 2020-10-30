@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 84
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 85
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 38
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 39
         }
     }
 }
@@ -263,6 +263,76 @@ Describe 'Invoke-ObjectInvert' {
         $Result.b | Should -Be $null
         $Result.c | Should -Be $null
         $Result.d | Should -Be $null
+    }
+}
+Describe 'Invoke-ObjectMerge' {
+    It 'should function as passthru for one object' {
+        $Result = @{ foo = 'bar' } | Invoke-ObjectMerge
+        $Result.foo | Should -Be 'bar'
+        $Result = [PSCustomObject]@{ foo = 'bar' } | Invoke-ObjectMerge
+        $Result.foo | Should -Be 'bar'
+    }
+    It 'can merge two hashtables' {
+        $Result = @{ a = 1 },@{ b = 2 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.Keys | Should -Be 'a','b'
+        $Result.Values | Should -Be 1,2
+        $Result = @{ a = 1; x = 'this' },@{ b = 2; y = 'that' } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.x | Should -Be 'this'
+        $Result.y | Should -Be 'that'
+        $Result.Keys | Sort-Object | Should -Be 'a','b','x','y'
+        $Result.Values | Sort-Object | Should -Be 1,2,'that','this'
+    }
+    It 'can merge two custom objects' {
+        $Result = [PSCustomObject]@{ a = 1 },[PSCustomObject]@{ b = 2 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.PSObject.Properties.Name | Should -Be 'a','b'
+        $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,2
+        $Result = [PSCustomObject]@{ a = 1; x = 3 },[PSCustomObject]@{ b = 2; y = 4 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.x | Should -Be 3
+        $Result.y | Should -Be 4
+        $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','b','x','y'
+        $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,2,3,4
+    }
+    It 'can merge more than two hashtables' {
+        $Result = @{ a = 1 },@{ b = 2 },@{ c = 3 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
+        $Result.Keys | Sort-Object | Should -Be 'a','b','c'
+        $Result.Values | Sort-Object | Should -Be 1,2,3
+        $Result = @{ a = 1; x = 4 },@{ b = 2; y = 5 },@{ c = 3; z = 6 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
+        $Result.x | Should -Be 4
+        $Result.y | Should -Be 5
+        $Result.z | Should -Be 6
+        $Result.Keys | Sort-Object | Should -Be 'a','b','c','x','y','z'
+        $Result.Values | Sort-Object | Should -Be 1,2,3,4,5,6
+    }
+    It 'can merge more than two custom objects' {
+        $Result = [PSCustomObject]@{ a = 1 },[PSCustomObject]@{ b = 2 },[PSCustomObject]@{ c = 3 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
+        $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','b','c'
+        $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,2,3
+        $Result = [PSCustomObject]@{ a = 1; x = 4 },[PSCustomObject]@{ b = 2; y = 5 },[PSCustomObject]@{ c = 3; z = 6 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result.b | Should -Be 2
+        $Result.c | Should -Be 3
+        $Result.x | Should -Be 4
+        $Result.y | Should -Be 5
+        $Result.z | Should -Be 6
+        $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','b','c','x','y','z'
+        $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,2,3,4,5,6
     }
 }
 Describe 'Invoke-Once' {

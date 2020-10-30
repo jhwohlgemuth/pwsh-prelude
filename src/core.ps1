@@ -496,6 +496,46 @@ function Invoke-ObjectInvert {
     }
   }
 }
+function Invoke-ObjectMerge {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Acc', Scope='Function')]
+  [CmdletBinding()]
+  [Alias('merge')]
+  [OutputType([System.Collections.Hashtable])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject
+  )
+  Begin {
+    function Invoke-Merge {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject
+      )
+      if ($null -ne $InputObject) {
+        $Result = if ($InputObject.Count -gt 1) {
+          $InputObject | Invoke-Reduce -InitialValue @{} -Callback {
+            Param($Acc,$Item)
+            $Item | ConvertTo-Pair | Invoke-Zip | ForEach-Object {
+              [String]$Key,$Value = $_
+              $Acc.$Key = $Value
+            }
+          }
+        } else {
+          $InputObject
+        }
+        if ($InputObject[0].GetType().Name -eq 'PSCustomObject') {
+          [PSCustomObject]$Result
+        } else {
+          $Result
+        }
+      }
+    }
+    Invoke-Merge $InputObject
+  }
+  End {
+    Invoke-Merge $Input
+  }
+}
 function Invoke-Once {
   <#
   .SYNOPSIS

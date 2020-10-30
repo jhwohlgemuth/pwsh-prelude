@@ -141,6 +141,8 @@ Functions
 - `Invoke-ListenForWord`
 - `Invoke-Menu`
 - `Invoke-Method`
+- `Invoke-ObjectInvert`
+- `Invoke-ObjectMerge`
 - `Invoke-Once`
 - `Invoke-Operator`
 - `Invoke-PropertyTransform`
