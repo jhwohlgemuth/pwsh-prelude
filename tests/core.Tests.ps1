@@ -1,5 +1,6 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'fromPair')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'toPair')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
@@ -7,10 +8,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 82
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 83
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 36
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 37
         }
     }
 }
@@ -34,6 +35,23 @@ Describe 'ConvertFrom-Pair' {
         $Result.a | Should -Be 1
         $Result.b | Should -Be 2
         $Result.c | Should -Be 3
+    }
+}
+Describe 'ConvertTo-Pair' {
+    It 'can create key and value arrays from an object' {
+        $Expected = @('c','b','a'),@(3,2,1)
+        @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair | Should -Be $Expected
+        ConvertTo-Pair @{ a = 1; b = 2; c = 3 } | Should -Be $Expected
+        [PSCustomObject]@{ a = 1; b = 2; c = 3 } | ConvertTo-Pair | Should -Be @('a','b','c'),@(1,2,3)
+    }
+    It 'should provide passthru for non-object values' {
+        'Not an object' | ConvertTo-Pair | Should -Be 'Not an object'
+    }
+    It 'should be the inverse for ConvertFrom-Pair' {
+        @('c','b','a'),@(3,2,1) | fromPair | toPair | Should -Be @('c','a','b'),@(3,1,2)
+    }
+    It 'provides aliases for ease of use' {
+        @{ a = 1; b = 2; c = 3 } | toPair | Should -Be @('c','b','a'),@(3,2,1)
     }
 }
 Describe 'Find-FirstIndex' {

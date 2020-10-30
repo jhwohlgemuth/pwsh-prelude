@@ -35,6 +35,40 @@
     Invoke-FromPair $Input
   }
 }
+function ConvertTo-Pair {
+  <#
+  .SYNOPSIS
+  Converts an object into two arrays - keys and values. Note that the order of the output arrays are not guaranteed to be consistent with input object key/value pairs.
+
+  .EXAMPLE
+  @{ a = 1; b = 2; c = 3 } | toPair
+  # @('c','b','a'),@(3,2,1)
+
+  #>
+  [CmdletBinding()]
+  [Alias('toPair')]
+  [OutputType([Array])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [PSObject] $InputObject
+  )
+  Process {
+    switch ($InputObject.GetType().Name) {
+      'PSCustomObject' {
+        $Properties = $InputObject.PSObject.Properties
+        $Keys = $Properties | Select-Object -ExpandProperty Name
+        $Values = $Properties | Select-Object -ExpandProperty Value
+        @($Keys,$Values)
+      }
+      'Hashtable' {
+        $Keys = $InputObject.GetEnumerator() | Select-Object -ExpandProperty Name
+        $Values = $InputObject.GetEnumerator() | Select-Object -ExpandProperty Value
+        @($Keys,$Values)
+      }
+      Default { $InputObject }
+    }
+  }
+}
 function Find-FirstIndex {
   <#
   .SYNOPSIS

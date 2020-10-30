@@ -4,7 +4,7 @@ Param(
   [String] $Name = 'test'
 )
 
-"[+] Configuring $Name tests" | Write-Color -Cyan
+"[+] Configuring $Name tests" | Write-Verbose
 
 $ModuleName = 'pwsh-prelude'
 if (Get-Module -Name $ModuleName) {

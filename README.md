@@ -117,6 +117,7 @@ Functions
 - `ConvertFrom-QueryString`
 - `ConvertTo-PowershellSyntax`
 - `ConvertTo-Iso8601`
+- `ConvertTo-Pair`
 - `ConvertTo-QueryString`
 - `Enable-Remoting`
 - `Find-Duplicate`
