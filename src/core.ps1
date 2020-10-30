@@ -396,6 +396,24 @@ function Invoke-InsertString {
   }
 }
 function Invoke-Method {
+  <#
+  .SYNOPSIS
+  Invokes method with pased name of a given object. The next two positional arguments after the method name are provided to the invoked method.
+
+  .EXAMPLE
+  '  foo','  bar','  baz' | method 'TrimStart'
+  # 'foo','bar','baz'
+
+  .EXAMPLE
+  1,2,3 | method 'CompareTo' 2
+  # -1,0,1
+
+  .EXAMPLE
+  $Arguments = 'Substring',0,3
+  'abcdef','123456','foobar' | method @Arguments
+  # 'abc','123','foo'
+
+  #>
   [CmdletBinding()]
   [Alias('method')]
   Param(
@@ -405,21 +423,20 @@ function Invoke-Method {
     [ValidatePattern('^-?\w+$')]
     [String] $Name,
     [Parameter(Position=1)]
-    [Array] $Arguments
+    $ArgumentOne,
+    [Parameter(Position=2)]
+    $ArgumentTwo
   )
   Process {
     $Methods = $InputObject | Get-Member -MemberType Method | Select-Object -ExpandProperty Name
     $ParameterizedProperties = $InputObject | Get-Member -MemberType ParameterizedProperty | Select-Object -ExpandProperty Name
-    if ($Methods -contains $Name -or $ParameterizedProperties -contains $Name) {
-      if ($null -ne $Arguments) {
-        function Format-Input {
-          Param(
-            [Parameter(Mandatory=$true, Position=0)]
-            $Values
-          )
-          $Values
+    if ($Name -in ($Methods + $ParameterizedProperties)) {
+      if ($null -ne $ArgumentOne) {
+        if ($null -ne $ArgumentTwo) {
+          $InputObject.$Name($ArgumentOne, $ArgumentTwo)
+        } else {
+          $InputObject.$Name($ArgumentOne)
         }
-        $InputObject.$Name((Format-Input @Arguments))
       } else {
         $InputObject.$Name()
       }

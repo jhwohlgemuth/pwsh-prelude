@@ -224,6 +224,9 @@ Describe 'Invoke-Method' {
         @{ x = 1 } | Invoke-Method 'ContainsKey' 'x' | Should -Be $true
         @{ x = 1 } | Invoke-Method 'ContainsKey' 'y' | Should -Be $false
         @{ x = 1 },@{ x = 2 },@{ x = 3 } | Invoke-Method 'Item' 'x' | Should -Be 1,2,3
+        $Arguments = 'Substring',0,3
+        'abcdef','123456','foobar' | Invoke-Method @Arguments | Should -Be 'abc','123','foo'
+        'abcdef','123456','foobar' | Invoke-Method 'Substring' 0 3 | Should -Be 'abc','123','foo'
     }
     It 'only applies valid methods' {
         'foobar' | Invoke-Method 'FakeMethod' | Should -Be 'foobar'
