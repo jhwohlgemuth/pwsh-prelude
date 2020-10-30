@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/powershell
+FROM mcr.microsoft.com/powershell:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 

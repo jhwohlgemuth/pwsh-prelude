@@ -1,4 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CI')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost', '')]
 [CmdletBinding()]
 Param(
   [Switch] $Lint,
