@@ -146,6 +146,7 @@ Functions
 - `Invoke-Once`
 - `Invoke-Operator`
 - `Invoke-PropertyTransform`
+- `Invoke-Partition`
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
 - `Invoke-RunApplication`

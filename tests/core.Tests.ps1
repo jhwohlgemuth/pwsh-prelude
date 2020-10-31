@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 85
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 86
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 39
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 40
         }
     }
 }
@@ -369,6 +369,16 @@ Describe 'Invoke-Operator' {
         'foobar' | Invoke-Operator 'fake' 'operator' | Should -Be 'foobar'
         { 'foobar' | Invoke-Operator 'WayTooLongForAn' 'operator' } | Should -Throw
         { 'foobar' | Invoke-Operator 'has space' 'operator' } | Should -Throw
+    }
+}
+Describe 'Invoke-Partition' {
+    It 'can separate an array of objects into two arrays' {
+        $IsPositive = { Param($x) $x -gt 0 }
+        $IsNegative = { Param($x) $x -lt 0 }
+        1..10 | Invoke-Partition $IsPositive | Should -Be @(@(1,2,3,4,5,6,7,8,9,10),@())
+        1..10 | Invoke-Partition $IsNegative | Should -Be @(@(),@(1,2,3,4,5,6,7,8,9,10))
+        $IsEven = { Param($x) $x % 2 -eq 0 }
+        0..9 | Invoke-Partition $IsEven | Should -Be @(0,2,4,6,8),@(1,3,5,7,9)
     }
 }
 Describe 'Invoke-PropertyTransform' {

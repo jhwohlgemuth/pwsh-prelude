@@ -618,6 +618,43 @@ function Invoke-Operator {
     }
   }
 }
+function Invoke-Partition {
+  [CmdletBinding()]
+  [Alias('partition')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Mandatory=$true, Position=0)]
+    [ScriptBlock] $Predicate
+  )
+  Begin {
+    function Invoke-InternalPartition {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject,
+        [Parameter(Position=1)]
+        [ScriptBlock] $Predicate
+      )
+      if ($InputObject.Count -gt 1) {
+        $Left = @()
+        $Right = @()
+        $InputObject | ForEach-Object {
+          $Condition = & $Predicate $_
+          if ($Condition) {
+            $Left += $_
+          } else {
+            $Right += $_
+          }
+        }
+        @($Left,$Right)
+      }
+    }
+    Invoke-InternalPartition $InputObject $Predicate
+  }
+  End {
+    Invoke-InternalPartition $Input $Predicate
+  }
+}
 function Invoke-PropertyTransform {
   <#
   .SYNOPSIS
