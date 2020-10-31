@@ -954,10 +954,11 @@ function Invoke-Zip {
         [Parameter(Position=0)]
         [Array] $InputObject
       )
-      if ($InputObject.Count -gt 0) {
+      if ($null -ne $InputObject -and $InputObject.Count -gt 0) {
+        $Data = $InputObject
         $Arrays = [System.Collections.ArrayList]::New()
-        $MaxLength = $InputObject | ForEach-Object { $_.Count } | Get-Maximum
-        $InputObject | ForEach-Object {
+        $MaxLength = $Data | ForEach-Object { $_.Count } | Get-Maximum
+        $Data | ForEach-Object {
           $Initial = $_
           $Offset = $MaxLength - $Initial.Count
           if ($Offset -gt 0) {

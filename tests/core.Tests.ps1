@@ -507,6 +507,8 @@ Describe 'Invoke-Zip(With)' {
         Invoke-Zip @('x'),@('a','b','c') | Should -Be @('x','a'),@('empty','b'),@('empty','c')
         Invoke-Zip @('a','b','c'),@('x') | Should -Be @('a','x'),@('b','empty'),@('c','empty')
         Invoke-Zip @('a','b','c'),@(1,2,3) | Should -Be @('a',1),@('b',2),@('c',3)
+        @('foo','aaa'),@('bar','bbb') | Invoke-Zip | Should -Be @('foo','bar'),@('aaa','bbb')
+        'foo'.ToCharArray(),'bar'.ToCharArray() | Invoke-Zip | Should -Be @('f','b'),@('o','a'),@('o','r')
     }
     It 'can zip more than two arrays' {
         $Zipped = @('a'),@('b'),@('c') | Invoke-Zip
