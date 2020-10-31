@@ -619,6 +619,20 @@ function Invoke-Operator {
   }
 }
 function Invoke-Partition {
+  <#
+  .SYNOPSIS
+  Creates an array of elements split into two groups, the first of which contains elements that the predicate returns truthy for, the second of which contains elements that the predicate returns falsey for.
+
+  The predicate is invoked with one argument (each element of the passed array)
+
+  .EXAMPLE
+  $IsEven = { Param($x) $x % 2 -eq 0 }
+  1..10 | Invoke-Partition $IsEven
+
+  # Returns @(@(2,4,6,8,10),@(1,3,5,7,9))
+
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
   [CmdletBinding()]
   [Alias('partition')]
   Param(
