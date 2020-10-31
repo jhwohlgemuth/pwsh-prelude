@@ -323,8 +323,9 @@ function Invoke-Menu {
     [Switch] $SingleSelect,
     [String] $HighlightColor = 'cyan',
     [Switch] $ReturnIndex = $false,
-    [Switch] $FolderContent,
-    [Int] $Indent = 0
+    [Int] $Limit = 0,
+    [Int] $Indent = 0,
+    [Switch] $FolderContent
   )
   Begin {
     function Invoke-MenuDraw {
@@ -336,9 +337,17 @@ function Invoke-Menu {
         [Array] $Selection,
         [Switch] $MultiSelect,
         [Switch] $SingleSelect,
+        [Int] $PageNumber,
         [Int] $Indent = 0
       )
       $Index = 0
+      if ($Limit -in 1..($Items.Count - 1)) {
+        # << previous  $PageNumber/$TotalPages  next >>
+        $PageNumber = 0
+        $Previous = if ($Page -gt 0) { '<< previous' } else { (' ' | Write-Repeat -Times '<< previous'.Length) }
+        $Next = if ($Page -lt $TotalPages) { ' next >>'} else { '' }
+        "${Previous} ${PageNumber}/${TotalPages} ${Next}" | Write-Color -Cyan
+      }
       $Items | ForEach-Object {
         $Item = $_
         if ($null -ne $Item) {
@@ -383,6 +392,8 @@ function Invoke-Menu {
     $Keycodes = @{
       enter = 13
       escape = 27
+      left = 37
+      right = 39
       space = 32
       tab = 9
       up = 38
@@ -391,6 +402,8 @@ function Invoke-Menu {
     $Keycode = 0
     $Position = 0
     $Selection = @()
+    $PageNumber = 0
+    $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
   }
   End {
     if ($Input.Length -gt 0) {
@@ -400,7 +413,7 @@ function Invoke-Menu {
       $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "$_/" }
       $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
     }
-    Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
+    Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent -PageNumber $PageNumber
     While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
       $Keycode = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').virtualkeycode
       switch ($Keycode) {
@@ -419,11 +432,21 @@ function Invoke-Menu {
         $Keycodes.down {
           $Position = ($Position + 1) % $Items.Length
         }
+        $Keycodes.left {
+          if ($TotalPages -gt 1) {
+            $PageNumber = (($PageNumber - 1) + $TotalPages) % $TotalPages
+          }
+        }
+        $Keycodes.right {
+          if ($TotalPages -gt 1) {
+            $PageNumber = ($PageNumber + 1) % $TotalPages
+          }
+        }
       }
       If ($null -ne $Position) {
         $StartPosition = [Console]::CursorTop - $Items.Length
         [Console]::SetCursorPosition(0, $StartPosition)
-        Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent
+        Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent -PageNumber $PageNumber
       }
     }
     [Console]::CursorVisible = $true
