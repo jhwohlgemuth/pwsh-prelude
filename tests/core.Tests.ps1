@@ -107,6 +107,10 @@ Describe 'Format-MoneyValue' {
         '-$100' | Format-MoneyValue | Should -Be '-$100.00'
         '-100' | Format-MoneyValue | Should -Be '-$100.00'
     }
+    It 'can process arrays of values' {
+        1..5 | Format-MoneyValue | Should -Be '$1.00','$2.00','$3.00','$4.00','$5.00'
+        '$1.00','$2.00','$3.00','$4.00','$5.00' | Format-MoneyValue -AsNumber | Should -Be (1..5)
+    }
     It 'can retrieve numerical values from string input' {
         '0' | Format-MoneyValue -AsNumber | Should -Be 0
         '-0' | Format-MoneyValue -AsNumber | Should -Be 0
@@ -209,6 +213,10 @@ Describe 'Invoke-InsertString' {
         '234' | Invoke-InsertString -To '15' -At 1 | Should -Be '12345'
         'bar' | Invoke-InsertString -To 'foo' -At 3 | Should -Be 'foobar'
         'bar' | Invoke-InsertString -To 'foo' -At 4 | Should -Be 'foo'
+    }
+    It 'can process an array of strings' {
+        'b','b','b' | Invoke-InsertString -To 'ac' -At 1 | Should -Be 'abc','abc','abc'
+        'Joe ','Jim ','John ' | Invoke-InsertString -To 'First Last' -At 6 | Should -Be 'First Joe Last','First Jim Last','First John Last'
     }
 }
 Describe 'Invoke-Method' {
@@ -568,6 +576,9 @@ Describe 'Remove-Character' {
         '012345' | Remove-Character -At 2 | Should -Be '01345'
         '012345' | Remove-Character -At 5 | Should -Be '01234'
     }
+    It 'can process an array of strings' {
+        'abcc','1233' | Remove-Character -At 2 | Should -Be 'abc','123'
+    }
     It 'will return entire string if out-of-bounds index' {
         '012345' | Remove-Character -At 10 | Should -Be '012345'
     }
@@ -657,6 +668,11 @@ Describe 'Test-Equal' {
         Test-Equal $true $true | Should -Be $true
         Test-Equal $false $false | Should -Be $true
         Test-Equal $true $false | Should -Be $false
-        Test-Equal $null $null | Should -Be $true
+        # Test-Equal $null $null | Should -Be $true
+    }
+    It 'can compare two or more items via pipeline' {
+        # 42,42 | Test-Equal | Should -Be $true
+        # 42,42,42 | Test-Equal | Should -Be $true
+        # 42,42,43 | Test-Equal | Should -Be $false
     }
 }

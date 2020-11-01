@@ -264,4 +264,7 @@ Describe 'Remove-Indent' {
         "`n  foo`n  bar`n" | Remove-Indent | Should -Be "`nfoo`nbar"
         "`n    foo`n    bar`n" | Remove-Indent -Size 4 | Should -Be "`nfoo`nbar"
     }
+    It 'can process an array of strings' {
+        '  foobar',"`n  foo`n  bar`n" | Remove-Indent | Should -Be 'foobar',"`nfoo`nbar"
+    }
 }

@@ -130,36 +130,18 @@ function Format-MoneyValue {
     [Switch] $AsNumber,
     [Switch] $Postfix
   )
-  $Function:GetMagnitude = { [Math]::Log([Math]::Abs($args[0]), 10) }
-  switch -Wildcard ($Value.GetType()) {
-    'Int*' {
-      $Sign = [Math]::Sign($Value)
-      $Output = [Math]::Abs($Value).ToString()
-      $OrderOfMagnitude = GetMagnitude $Value
-      if ($OrderOfMagnitude -gt 3) {
-        $Position = 3
-        $Length = $Output.Length
-        1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
-          $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
-          $Position += 3
-        }
-      }
-      if ($Postfix) {
-        "$(if ($Sign -lt 0) { '-' } else { '' })${Output}.00$Symbol"
-      } else {
-        "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol${Output}.00"
-      }
+  Process {
+    function Get-Magnitude {
+      Param($Value)
+      [Math]::Log([Math]::Abs($Value), 10)
     }
-    'Double' {
-      $Sign = [Math]::Sign($Value)
-      $Output = [Math]::Abs($Value).ToString('#.##')
-      $OrderOfMagnitude = GetMagnitude $Value
-      if (($Output | ForEach-Object { $_ -split '\.' } | Select-Object -Skip 1).Length -eq 1) {
-        $Output += '0'
-      }
-      if (($Value - [Math]::Truncate($Value)) -ne 0) {
+    switch -Wildcard ($Value.GetType()) {
+      'Int*' {
+        $Sign = [Math]::Sign($Value)
+        $Output = [Math]::Abs($Value).ToString()
+        $OrderOfMagnitude = Get-Magnitude $Value
         if ($OrderOfMagnitude -gt 3) {
-          $Position = 6
+          $Position = 3
           $Length = $Output.Length
           1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
             $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
@@ -167,30 +149,53 @@ function Format-MoneyValue {
           }
         }
         if ($Postfix) {
-          "$(if ($Sign -lt 0) { '-' } else { '' })$Output$Symbol"
+          "$(if ($Sign -lt 0) { '-' } else { '' })${Output}.00$Symbol"
         } else {
-          "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol$Output"
+          "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol${Output}.00"
         }
-      } else {
-        ($Value.ToString() -as [Int]) | Format-MoneyValue
       }
+      'Double' {
+        $Sign = [Math]::Sign($Value)
+        $Output = [Math]::Abs($Value).ToString('#.##')
+        $OrderOfMagnitude = Get-Magnitude $Value
+        if (($Output | ForEach-Object { $_ -split '\.' } | Select-Object -Skip 1).Length -eq 1) {
+          $Output += '0'
+        }
+        if (($Value - [Math]::Truncate($Value)) -ne 0) {
+          if ($OrderOfMagnitude -gt 3) {
+            $Position = 6
+            $Length = $Output.Length
+            1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
+              $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
+              $Position += 3
+            }
+          }
+          if ($Postfix) {
+            "$(if ($Sign -lt 0) { '-' } else { '' })$Output$Symbol"
+          } else {
+            "$(if ($Sign -lt 0) { '-' } else { '' })$Symbol$Output"
+          }
+        } else {
+          ($Value.ToString() -as [Int]) | Format-MoneyValue
+        }
+      }
+      'String' {
+        $Value = $Value -replace ',', ''
+        $Sign = if (([Regex]'\-\$').Match($Value).Success) { -1 } else { 1 }
+        if (([Regex]'\$').Match($Value).Success) {
+          $Output = (([Regex]'(?<=(\$))[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
+        } else {
+          $Output = (([Regex]'[\-]?[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
+        }
+        $Type = if ($Output.Contains('.')) { [Double] } else { [Int] }
+        $Output = $Sign * ($Output -as $Type)
+        if (-not $AsNumber) {
+          $Output = $Output | Format-MoneyValue
+        }
+        $Output
+      }
+      Default { throw 'Format-MoneyValue only accepts strings and numbers' }
     }
-    'String' {
-      $Value = $Value -replace ',', ''
-      $Sign = if (([Regex]'\-\$').Match($Value).Success) { -1 } else { 1 }
-      if (([Regex]'\$').Match($Value).Success) {
-        $Output = (([Regex]'(?<=(\$))[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
-      } else {
-        $Output = (([Regex]'[\-]?[0-9]*\.?[0-9]{0,2}').Match($Value)).Value
-      }
-      $Type = if ($Output.Contains('.')) { [Double] } else { [Int] }
-      $Output = $Sign * ($Output -as $Type)
-      if (-not $AsNumber) {
-        $Output = $Output | Format-MoneyValue
-      }
-      $Output
-    }
-    Default { throw 'Format-MoneyValue only accepts strings and numbers' }
   }
 }
 function Get-Extremum {
@@ -391,10 +396,12 @@ function Invoke-InsertString {
     [Parameter(Mandatory=$true)]
     [Int] $At
   )
-  if ($At -le $To.Length -and $At -ge 0) {
-    $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
-  } else {
-    $To
+  Process {
+    if ($At -le $To.Length -and $At -ge 0) {
+      $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
+    } else {
+      $To
+    }
   }
 }
 function Invoke-Method {
@@ -1077,34 +1084,14 @@ function Remove-Character {
     [Switch] $First,
     [Switch] $Last
   )
-  $At = if ($First) { 0 } elseif ($Last) { $Value.Length - 1 } else { $At }
-  if ($At -lt $Value.Length -and $At -ge 0) {
-    $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
-  } else {
-    $Value
+  Process {
+    $At = if ($First) { 0 } elseif ($Last) { $Value.Length - 1 } else { $At }
+    if ($At -lt $Value.Length -and $At -ge 0) {
+      $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
+    } else {
+      $Value
+    }
   }
-}
-function Remove-Indent {
-  <#
-  .SYNOPSIS
-  Remove indentation of multi-line (or single line) strings
-  ==> Good for removing spaces added to template strings because of alignment with code.
-  #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Size')]
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [AllowEmptyString()]
-    [String] $From,
-    [Int] $Size = 2
-  )
-  $Lines = $From -split '\n'
-  $Delimiter = if($Lines.Count -eq 1) { '' } else { "`n" }
-  $Callback = { $args[0],$args[1] -join $Delimiter }
-  $Lines |
-    Where-Object { $_.Length -ge $Size } |
-    ForEach-Object { $_.SubString($Size) } |
-    Invoke-Reduce -Callback $Callback -InitialValue ''
 }
 function Test-Equal {
   <#
@@ -1120,65 +1107,84 @@ function Test-Equal {
   $b = @{a = 1; b = 2; c = 3}
   Test-Equal $a $b # True
   #>
-  [CmdletBinding()]
+  [CmdletBinding(DefaultParameterSetName='named')]
   [Alias('equal')]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(ParameterSetName='named', Position=0)]
     $Left,
-    [Parameter(Position=1)]
-    $Right
+    [Parameter(ParameterSetName='named', Position=1)]
+    $Right,
+    [Parameter(ParameterSetName='piped', ValueFromPipeline=$true)]
+    [Array] $InputObject
   )
-  if ($null -ne $Left -and $null -ne $Right) {
-    try {
-      $Type = $Left.GetType().Name
-      switch -Wildcard ($Type) {
-        'String' { $Left -eq $Right }
-        'Int*' { $Left -eq $Right }
-        'Double' { $Left -eq $Right }
-        'Object*' {
-          $Every = { $args[0] -and $args[1] }
-          $Index = 0
-          $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+  Begin {
+    function Test-InternalEqual {
+      Param(
+        $Left,
+        $Right,
+        $FromPipeline
+      )
+      if ($null -ne $Left -and $null -ne $Right) {
+        try {
+          $Type = $Left.GetType().Name
+          switch -Wildcard ($Type) {
+            'String' { $Left -eq $Right }
+            'Int*' { $Left -eq $Right }
+            'Double' { $Left -eq $Right }
+            'Object*' {
+              $Every = { $args[0] -and $args[1] }
+              $Index = 0
+              $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+            }
+            'PSCustomObject' {
+              $Every = { $args[0] -and $args[1] }
+              $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
+              $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
+              $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
+              $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
+              $Index = 0
+              $HasSameKeys = $LeftKeys |
+                ForEach-Object { Test-Equal $_ $RightKeys[$Index]; $Index++ } |
+                Invoke-Reduce -Callback $Every -InitialValue $true
+              $Index = 0
+              $HasSameValues = $LeftValues |
+                ForEach-Object { Test-Equal $_ $RightValues[$Index]; $Index++ } |
+                Invoke-Reduce -Callback $Every -InitialValue $true
+              $HasSameKeys -and $HasSameValues
+            }
+            'Hashtable' {
+              $Every = { $args[0] -and $args[1] }
+              $Index = 0
+              $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
+              $HasSameKeys = $Left.GetEnumerator() |
+                ForEach-Object { Test-Equal $_.Name $RightKeys[$Index]; $Index++ } |
+                Invoke-Reduce -Callback $Every -InitialValue $true
+              $Index = 0
+              $RightValues = $Right.GetEnumerator() | Select-Object -ExpandProperty Value
+              $HasSameValues = $Left.GetEnumerator() |
+                ForEach-Object { Test-Equal $_.Value $RightValues[$Index]; $Index++ } |
+                Invoke-Reduce -Callback $Every -InitialValue $true
+              $HasSameKeys -and $HasSameValues
+            }
+            Default { $Left -eq $Right }
+          }
+        } catch {
+          Write-Verbose '==> Failed to match type of -Left item'
+          $false
         }
-        'PSCustomObject' {
-          $Every = { $args[0] -and $args[1] }
-          $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
-          $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
-          $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
-          $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
-          $Index = 0
-          $HasSameKeys = $LeftKeys |
-            ForEach-Object { Test-Equal $_ $RightKeys[$Index]; $Index++ } |
-            Invoke-Reduce -Callback $Every -InitialValue $true
-          $Index = 0
-          $HasSameValues = $LeftValues |
-            ForEach-Object { Test-Equal $_ $RightValues[$Index]; $Index++ } |
-            Invoke-Reduce -Callback $Every -InitialValue $true
-          $HasSameKeys -and $HasSameValues
-        }
-        'Hashtable' {
-          $Every = { $args[0] -and $args[1] }
-          $Index = 0
-          $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
-          $HasSameKeys = $Left.GetEnumerator() |
-            ForEach-Object { Test-Equal $_.Name $RightKeys[$Index]; $Index++ } |
-            Invoke-Reduce -Callback $Every -InitialValue $true
-          $Index = 0
-          $RightValues = $Right.GetEnumerator() | Select-Object -ExpandProperty Value
-          $HasSameValues = $Left.GetEnumerator() |
-            ForEach-Object { Test-Equal $_.Value $RightValues[$Index]; $Index++ } |
-            Invoke-Reduce -Callback $Every -InitialValue $true
-          $HasSameKeys -and $HasSameValues
-        }
-        Default { $Left -eq $Right }
+      } else {
+        Write-Verbose '==> One or both items are $null'
+        $Left -eq $Right
       }
-    } catch {
-      Write-Verbose '==> Failed to match type of -Left item'
-      $false
     }
-  } else {
-    Write-Verbose '==> One or both items are $null'
-    $Left -eq $Right
+    if ($null -ne $Right) {
+      Test-InternalEqual $Left $Right
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      Test-InternalEqual $Left $Right -FromPipeline $Input
+    }
   }
 }
