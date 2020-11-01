@@ -668,7 +668,7 @@ Describe 'Test-Equal' {
         Test-Equal $true $true | Should -Be $true
         Test-Equal $false $false | Should -Be $true
         Test-Equal $true $false | Should -Be $false
-        # Test-Equal $null $null | Should -Be $true
+        Test-Equal $null $null | Should -Be $true
     }
     It 'can compare two or more items via pipeline' {
         # 42,42 | Test-Equal | Should -Be $true

@@ -1123,67 +1123,78 @@ function Test-Equal {
       Param(
         $Left,
         $Right,
-        $FromPipeline
+        [Array] $FromPipeline
       )
-      if ($null -ne $Left -and $null -ne $Right) {
-        try {
-          $Type = $Left.GetType().Name
-          switch -Wildcard ($Type) {
-            'String' { $Left -eq $Right }
-            'Int*' { $Left -eq $Right }
-            'Double' { $Left -eq $Right }
-            'Object*' {
-              $Every = { $args[0] -and $args[1] }
-              $Index = 0
-              $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
-            }
-            'PSCustomObject' {
-              $Every = { $args[0] -and $args[1] }
-              $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
-              $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
-              $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
-              $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
-              $Index = 0
-              $HasSameKeys = $LeftKeys |
-                ForEach-Object { Test-Equal $_ $RightKeys[$Index]; $Index++ } |
-                Invoke-Reduce -Callback $Every -InitialValue $true
-              $Index = 0
-              $HasSameValues = $LeftValues |
-                ForEach-Object { Test-Equal $_ $RightValues[$Index]; $Index++ } |
-                Invoke-Reduce -Callback $Every -InitialValue $true
-              $HasSameKeys -and $HasSameValues
-            }
-            'Hashtable' {
-              $Every = { $args[0] -and $args[1] }
-              $Index = 0
-              $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
-              $HasSameKeys = $Left.GetEnumerator() |
-                ForEach-Object { Test-Equal $_.Name $RightKeys[$Index]; $Index++ } |
-                Invoke-Reduce -Callback $Every -InitialValue $true
-              $Index = 0
-              $RightValues = $Right.GetEnumerator() | Select-Object -ExpandProperty Value
-              $HasSameValues = $Left.GetEnumerator() |
-                ForEach-Object { Test-Equal $_.Value $RightValues[$Index]; $Index++ } |
-                Invoke-Reduce -Callback $Every -InitialValue $true
-              $HasSameKeys -and $HasSameValues
-            }
-            Default { $Left -eq $Right }
+      $Compare = {
+        Param($Left,$Right)
+        $Type = $Left.GetType().Name
+        switch -Wildcard ($Type) {
+          'String' { $Left -eq $Right }
+          'Int*' { $Left -eq $Right }
+          'Double' { $Left -eq $Right }
+          'Object*' {
+            $Every = { $args[0] -and $args[1] }
+            $Index = 0
+            $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
           }
-        } catch {
-          Write-Verbose '==> Failed to match type of -Left item'
-          $false
+          'PSCustomObject' {
+            $Every = { $args[0] -and $args[1] }
+            $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
+            $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
+            $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
+            $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
+            $Index = 0
+            $HasSameKeys = $LeftKeys |
+              ForEach-Object { Test-Equal $_ $RightKeys[$Index]; $Index++ } |
+              Invoke-Reduce -Callback $Every -InitialValue $true
+            $Index = 0
+            $HasSameValues = $LeftValues |
+              ForEach-Object { Test-Equal $_ $RightValues[$Index]; $Index++ } |
+              Invoke-Reduce -Callback $Every -InitialValue $true
+            $HasSameKeys -and $HasSameValues
+          }
+          'Hashtable' {
+            $Every = { $args[0] -and $args[1] }
+            $Index = 0
+            $RightKeys = $Right.GetEnumerator() | Select-Object -ExpandProperty Name
+            $HasSameKeys = $Left.GetEnumerator() |
+              ForEach-Object { Test-Equal $_.Name $RightKeys[$Index]; $Index++ } |
+              Invoke-Reduce -Callback $Every -InitialValue $true
+            $Index = 0
+            $RightValues = $Right.GetEnumerator() | Select-Object -ExpandProperty Value
+            $HasSameValues = $Left.GetEnumerator() |
+              ForEach-Object { Test-Equal $_.Value $RightValues[$Index]; $Index++ } |
+              Invoke-Reduce -Callback $Every -InitialValue $true
+            $HasSameKeys -and $HasSameValues
+          }
+          Default { $Left -eq $Right }
         }
+      }
+      if ($FromPipeline.Count -gt 0) {
+        $Items = $FromPipeline
+        if ($PSBoundParameters.ContainsKey('Left')) {
+          $Items += $Left
+        }
+        if ($PSBoundParameters.ContainsKey('Right')) {
+          $Items += $Right
+        }
+        # Use Get-Permutation (choose 2) and reduce pairs with $Compare
       } else {
-        Write-Verbose '==> One or both items are $null'
-        $Left -eq $Right
+        if ($null -ne $Left) {
+          & $Compare $Left $Right
+        } else {
+          Write-Verbose '==> Left value is null'
+          $Left -eq $Right
+        }
       }
     }
-    if ($null -ne $Right) {
+    if ($PSBoundParameters.ContainsKey('Right')) {
       Test-InternalEqual $Left $Right
     }
   }
   End {
     if ($Input.Count -gt 0) {
+      $Input.Count | Write-Color -Red
       Test-InternalEqual $Left $Right -FromPipeline $Input
     }
   }
