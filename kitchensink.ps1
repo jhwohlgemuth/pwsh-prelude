@@ -2,7 +2,15 @@
 
 $Space = ' '
 $Indent = 4
-$Color = 'Green'
+$LabelParameters = @{
+  Indent = $Indent
+  NewLine = $true
+}
+$ResultLabelParameters = @{
+  Color = 'Green'
+  Indent = $Indent
+  NewLine = $true
+}
 
 Write-Title '   Kitchen Sink   ' -SubText '#allthethings' -Yellow
 
@@ -21,31 +29,36 @@ $FavoriteSaiyajin = Invoke-Input 'Favorite Saiya-jin?' -Autocomplete -Indent $In
   'Trunks'
 )
 
-'Favorite number?' | Write-Label -Indent $Indent -NewLine
-$FavoriteNumber = 'one','two','three' | Invoke-Menu -SingleSelect -Indent $Indent
+'Favorite number?' | Write-Label @LabelParameters
+$FavoriteNumberWord = 'one','two','three' | Invoke-Menu -SingleSelect -Indent $Indent
 
-'Known mathematicians?' | Write-Label -Indent $Indent -NewLine
+'Known mathematicians?' | Write-Label @labelParameters
 $Choice = 'Godel','Gauss','Cantor' | Invoke-Menu -MultiSelect -Indent $Indent
 
-'{{#red Red}}, {{#white White}}, or {{#blue Blue}}?' | Write-Label -Indent $Indent -NewLine
+'{{#red Red}}, {{#white White}}, or {{#blue Blue}}?' | Write-Label @LabelParameters
 $FavoriteColor = 'red','white','blue' | Invoke-Menu -Indent $Indent
+
+'Favorite number between 1 and 100?' | Write-Label @LabelParameters
+$Space
+$FavoriteNumber = 1..100 | Invoke-Menu -Limit 10 -Indent 6
 
 $Space
 
 'Results' | Write-Title -Magenta -TextColor White
-$Fullname | Write-Label -Indent $Indent -Color $Color -NewLine
-$Username | Write-Label -Indent $Indent -Color $Color -NewLine
-$Age | Write-Label -Indent $Indent -Color $Color -NewLine
-$Pass | Write-Label -Indent $Indent -Color $Color -NewLine
-$FavoriteSaiyajin | Write-Label -Indent $Indent -Color $Color -NewLine
-$FavoriteNumber | Write-Label -Indent $Indent -Color $Color -NewLine
-(Join-StringsWithGrammar $Choice) | Write-Label -Indent $Indent -Color $Color -NewLine
-$FavoriteColor | Write-Label -Indent $Indent -Color $Color -NewLine
+$Fullname | Write-Label @ResultLabelParameters
+$Username | Write-Label @ResultLabelParameters
+$Age | Write-Label @ResultLabelParameters
+$Pass | Write-Label @ResultLabelParameters
+$FavoriteSaiyajin | Write-Label @ResultLabelParameters
+$FavoriteNumberWord | Write-Label @ResultLabelParameters
+(Join-StringsWithGrammar $Choice) | Write-Label @ResultLabelParameters
+$FavoriteColor | Write-Label @ResultLabelParameters
+$FavoriteNumber | Write-Label @ResultLabelParameters
 
 $Space
 
 'Show bar charts?' | Write-Label -NewLine
-$Choice = 'yes','no' | Invoke-Menu
+$Choice = 'no','yes' | Invoke-Menu
 if ($Choice -eq 'yes') {
   'Bar Charts' | Write-Title -Blue
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart

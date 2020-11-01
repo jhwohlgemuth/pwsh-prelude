@@ -290,9 +290,18 @@ function Invoke-Menu {
 
   Controls:
   - Select item with ENTER key
-  - Move up with up arrow key
-  - Move down with down arrow key or TAB key
+  - Move up with UP arrow key
+  - Move DOWN with down arrow key or TAB key
   - Multi-select and single-select with SPACE key
+  - Next page with RIGHT arrow key (see Limit help)
+  - Previous page with LEFT arrow key (see Limit help)
+  .PARAMETER ReturnIndex
+  Return the index of the selected item within the array of items.
+  Note: If ReturnIndex is used with pagination (see Limit help), the index within the visible items will be returned.
+  .PARAMETER Limit
+  Maximum number of items per page
+  If Limit is greater than zero and less than the number of items, pagination will be activated with "Limit" number of items per page.
+  Note: When Limit is larger than the number of menu items, the menu will behave as though no limit value was passed.
   .PARAMETER FolderContent
   Use this switch to populate the menu with folder contents of current directory (see examples)
   .EXAMPLE
@@ -308,6 +317,9 @@ function Invoke-Menu {
 
   The SingleSelect switch allows for only one item to be selected at a time
   .EXAMPLE
+  1..100 | menu -Limit 10
+
+  .EXAMPLE
   Invoke-Menu -FolderContent | Invoke-Item
 
   Open a folder via an interactive list menu populated with folder content
@@ -321,7 +333,7 @@ function Invoke-Menu {
     [Array] $Items,
     [Switch] $MultiSelect,
     [Switch] $SingleSelect,
-    [String] $HighlightColor = 'cyan',
+    [String] $HighlightColor = 'Cyan',
     [Switch] $ReturnIndex = $false,
     [Int] $Limit = 0,
     [Int] $Indent = 0,
@@ -337,32 +349,34 @@ function Invoke-Menu {
         [Array] $Selection,
         [Switch] $MultiSelect,
         [Switch] $SingleSelect,
+        [Bool] $ShowHeader,
         [Int] $PageNumber,
         [Int] $Indent = 0
       )
       $Index = 0
-      if ($Limit -in 1..($Items.Count - 1)) {
-        # << previous  $PageNumber/$TotalPages  next >>
-        $PageNumber = 0
-        $Previous = if ($Page -gt 0) { '<< previous' } else { (' ' | Write-Repeat -Times '<< previous'.Length) }
-        $Next = if ($Page -lt $TotalPages) { ' next >>'} else { '' }
-        "${Previous} ${PageNumber}/${TotalPages} ${Next}" | Write-Color -Cyan
+      $LengthValues = $Items | Invoke-GetProperty Length
+      $MaxLength = $LengthValues | Get-Maximum
+      $MinLength = $LengthValues | Get-Minimum
+      $Clear = ' ' | Write-Repeat -Times ($MaxLength - $MinLength)
+      $LeftPadding = ' ' | Write-Repeat -Times $Indent
+      if ($ShowHeader) {
+        $TextLength = $TotalPages.ToString().Length
+        $CurrentPage = ($PageNumber + 1).ToString().PadLeft($TextLength, '0')
+        "${LeftPadding}<<prev  {{#${HighlightColor} ${CurrentPage}}}/${TotalPages}  next>>" | Write-Color -DarkGray
+        $Clear | Write-Color -Cyan
       }
       $Items | ForEach-Object {
         $Item = $_
         if ($null -ne $Item) {
           if ($MultiSelect) {
-            $Item = if ($Selection -contains $Index) { "[x] $Item" } else { "[ ] $Item" }
+            $Item = if ($Selection -contains $Index) { "[x] $Item$Clear" } else { "[ ] $Item$Clear" }
           } else {
             if ($SingleSelect) {
-              $Item = if ($Selection -contains $Index) { "(o) $Item" } else { "( ) $Item" }
+              $Item = if ($Selection -contains $Index) { "(o) $Item$Clear" } else { "( ) $Item$Clear" }
             }
           }
-          if ($Index -eq $Position) {
-            Write-Color "$(' ' * $Indent)> $Item" -Color $HighlightColor
-          } else {
-            Write-Color "$(' ' * $Indent)  $Item"
-          }
+          $Parameters = if ($Index -eq $Position) { @{ Color = $HighlightColor } } else { @{} }
+          Write-Color "$LeftPadding  $Item$Clear" @Parameters
         }
         $Index++
       }
@@ -402,8 +416,6 @@ function Invoke-Menu {
     $Keycode = 0
     $Position = 0
     $Selection = @()
-    $PageNumber = 0
-    $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
   }
   End {
     if ($Input.Length -gt 0) {
@@ -413,52 +425,104 @@ function Invoke-Menu {
       $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "$_/" }
       $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
     }
-    Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent -PageNumber $PageNumber
-    While ($Keycode -ne $Keycodes.enter -and $Keycode -ne $Keycodes.escape) {
+    $PageNumber = 0
+    $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
+    $ShouldPaginate = $Limit -in 1..($Items.Count - 1)
+    $VisibleItems = if ($ShouldPaginate) {
+      $StartIndex = $PageNumber * $Limit
+      $Items[$StartIndex..($StartIndex + $Limit - 1)]
+    } else {
+      $Items
+    }
+    [Console]::SetCursorPosition(0, [Console]::CursorTop)
+    $Parameters = @{
+      Items = $VisibleItems
+      Position = $Position
+      Selection = $Selection
+      MultiSelect = $MultiSelect
+      SingleSelect = $SingleSelect
+      ShowHeader = $ShouldPaginate
+      PageNumber = $PageNumber
+      Indent = $Indent
+    }
+    Invoke-MenuDraw @Parameters
+    While ($Keycode -notin $Keycodes.enter,$Keycodes.escape) {
       $Keycode = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').virtualkeycode
       switch ($Keycode) {
         $Keycodes.escape {
           $Position = $null
         }
         $Keycodes.space {
-          $Selection = Update-MenuSelection -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect
+          $Parameters = @{
+            Position = $Position
+            Selection = $Selection
+            MultiSelect = $MultiSelect
+            SingleSelect = $SingleSelect
+          }
+          $Selection = Update-MenuSelection @Parameters
         }
         $Keycodes.tab {
-          $Position = ($Position + 1) % $Items.Length
+          $Position = ($Position + 1) % $VisibleItems.Length
         }
         $Keycodes.up {
-          $Position = (($Position - 1) + $Items.Length) % $Items.Length
+          if ($Limit -in 1..($Items.Count - 1) -and $TotalPages -gt 1) {
+            $StartIndex = $PageNumber * $Limit
+            $VisibleItems = $Items[$StartIndex..($StartIndex + $Limit - 1)]
+          }
+          $Position = (($Position - 1) + $VisibleItems.Length) % $VisibleItems.Length
         }
         $Keycodes.down {
-          $Position = ($Position + 1) % $Items.Length
+          if ($Limit -in 1..($Items.Count - 1) -and $TotalPages -gt 1) {
+            $StartIndex = $PageNumber * $Limit
+            $VisibleItems = $Items[$StartIndex..($StartIndex + $Limit - 1)]
+          }
+          $Position = ($Position + 1) % $VisibleItems.Length
         }
         $Keycodes.left {
-          if ($TotalPages -gt 1) {
+          if ($Limit -in 1..($Items.Count - 1) -and $TotalPages -gt 1) {
             $PageNumber = (($PageNumber - 1) + $TotalPages) % $TotalPages
+            $StartIndex = $PageNumber * $Limit
+            $VisibleItems = $Items[$StartIndex..($StartIndex + $Limit - 1)]
           }
         }
         $Keycodes.right {
-          if ($TotalPages -gt 1) {
+          if ($Limit -in 1..($Items.Count - 1) -and $TotalPages -gt 1) {
             $PageNumber = ($PageNumber + 1) % $TotalPages
+            $StartIndex = $PageNumber * $Limit
+            $VisibleItems = $Items[$StartIndex..($StartIndex + $Limit - 1)]
           }
         }
       }
       If ($null -ne $Position) {
-        $StartPosition = [Console]::CursorTop - $Items.Length
+        $StartPosition = if ($ShouldPaginate) {
+          [Console]::CursorTop - $VisibleItems.Count - 2
+        } else {
+          [Console]::CursorTop - $Items.Count
+        }
         [Console]::SetCursorPosition(0, $StartPosition)
-        Invoke-MenuDraw -Items $Items -Position $Position -Selection $Selection -MultiSelect:$MultiSelect -SingleSelect:$SingleSelect -Indent $Indent -PageNumber $PageNumber
+        $Parameters = @{
+          Items = $VisibleItems
+          Position = $Position
+          Selection = $Selection
+          MultiSelect = $MultiSelect
+          SingleSelect = $SingleSelect
+          ShowHeader = $ShouldPaginate
+          PageNumber = $PageNumber
+          Indent = $Indent
+        }
+        Invoke-MenuDraw @Parameters
       }
     }
     [Console]::CursorVisible = $true
     if ($ReturnIndex -eq $false -and $null -ne $Position) {
       if ($MultiSelect -or $SingleSelect) {
         if ($Selection.Length -gt 0) {
-          return $Items[$Selection]
+          return $VisibleItems[$Selection]
         } else {
           return $null
         }
       } else {
-        return $Items[$Position]
+        return $VisibleItems[$Position]
       }
     } else {
       if ($MultiSelect -or $SingleSelect) {
