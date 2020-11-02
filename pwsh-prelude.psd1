@@ -19,7 +19,7 @@
     'drai'
     'dropWhile'
     'equal'
-    'flat'
+    'flatten'
     'fromPair'
     'input'
     'insert'

@@ -451,7 +451,7 @@ function Invoke-DropWhile {
 }
 function Invoke-Flatten {
   [CmdletBinding()]
-  [Alias('flat')]
+  [Alias('flatten')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [Array] $Values
@@ -463,9 +463,12 @@ function Invoke-Flatten {
         [Array] $Values
       )
       if ($Values.Count -gt 0) {
-        $Values |
-          ForEach-Object { $_ } |
-          Where-Object { $_ -ne $null }
+        $MaxCount = $Values | ForEach-Object { $_.Count } | Get-Maximum
+        if ($MaxCount -gt 1) {
+          Invoke-Flat ($Values | ForEach-Object { $_ } | Where-Object { $_ -ne $null })
+        } else {
+          $Values
+        }
       }
     }
     Invoke-Flat $Values

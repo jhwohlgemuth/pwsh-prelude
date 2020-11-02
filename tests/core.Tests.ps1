@@ -209,7 +209,10 @@ Describe 'Invoke-DropWhile' {
 Describe 'Invoke-Flatten' {
     It 'can flatten multi-dimensional arrays' {
         @(1,@(2,3)) | Invoke-Flatten | Should -Be 1,2,3
-        # @(1,@(2,3,@(4,5))) | Invoke-Flatten | Should -Be 1,2,3,4,5
+        @(1,@(2,3,@(4,5))) | Invoke-Flatten | Should -Be 1,2,3,4,5
+        @(1,@(2,3,@(4,5,@(6,7)))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7
+        @(1,@(2,3,@(4,5,@(6,7,@(8,9))))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7,8,9
+        @(1,@(2,3,@(4,5,@(6,7,@(8,9)),10,@(11)))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7,8,9,10,11
     }
 }
 Describe 'Invoke-GetProperty' {
