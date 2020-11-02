@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 86
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 88
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 40
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 42
         }
     }
 }
@@ -167,6 +167,13 @@ Describe 'Get-Extremum' {
         0,-1,4,2,7,2,0 | Get-Minimum | Should -Be -1
     }
 }
+Describe 'Get-Permutation' {
+    It 'can return permutations for a given group of items' {
+        'a','b' | Get-Permutation | Should -Be @(@('a','b'),@('b','a'))
+        # 1..3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
+        # 1..3 | Get-Permutation -Choose 2 | Should -Be @(1,2)@(1,3),@(2,1),@(2,3),@(3,1),@(3,2)
+    }
+}
 Describe 'Invoke-Chunk' {
     It 'should passthru input object when size is 0 or bigger than the input size' {
         1..10 | Invoke-Chunk -Size 0 | Should -Be (1..10)
@@ -197,6 +204,12 @@ Describe 'Invoke-DropWhile' {
         Invoke-DropWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 3,4,5
         1..5 | Invoke-DropWhile $GreaterThan10 | Should -Be 1,2,3,4,5
         Invoke-DropWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 1,2,3,4,5
+    }
+}
+Describe 'Invoke-Flatten' {
+    It 'can flatten multi-dimensional arrays' {
+        @(1,@(2,3)) | Invoke-Flatten | Should -Be 1,2,3
+        # @(1,@(2,3,@(4,5))) | Invoke-Flatten | Should -Be 1,2,3,4,5
     }
 }
 Describe 'Invoke-GetProperty' {

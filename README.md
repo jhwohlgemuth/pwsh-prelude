@@ -128,11 +128,13 @@ Functions
 - `Get-GithubOAuthToken`
 - `Get-Maximum`
 - `Get-Minimum`
+- `Get-Permutation`
 - `Get-State`
 - `Import-Html`
 - `Install-SshServer`
 - `Invoke-Chunk`
 - `Invoke-DropWhile`
+- `Invoke-Flatten`
 - `Invoke-FireEvent`
 - `Invoke-GetProperty`
 - `Invoke-Input`

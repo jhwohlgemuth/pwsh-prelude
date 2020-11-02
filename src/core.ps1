@@ -283,6 +283,90 @@ function Get-Minimum {
     }
   }
 }
+function Get-Permutation {
+  <#
+  .SYNOPSIS
+  Return an array of R-Permutations of given group of items
+
+  .EXAMPLE
+  1,2,3 | permute -r 2
+  # @(1,2),@(1,3),@(2,1),@(2,3),@(3,1),@(3,2)
+
+  .EXAMPLE
+  'cat' | permute
+  # 'cat','cta','atc','act','tca','tac'
+
+  .EXAMPLE
+  1..5 | Get-Permutation -Choose 3
+
+  #>
+  [CmdletBinding()]
+  [Alias('permute')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Position=1)]
+    [Alias('r')]
+    [Int] $Choose
+  )
+  Begin {
+    function Remove-Item {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Values,
+        [Parameter(Position=1)]
+        [Int] $Index
+      )
+      $Values[0..($Index - 1)] + $Values[($Index + 1)..($Values.Length -1)]
+    }
+    function Invoke-Permutation {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Values
+      )
+      switch ($Values.Count) {
+        1 {
+          return
+        }
+        2 {
+          $a,$b = $Values
+          $Permutation = [System.Collections.ArrayList]::New()
+          [Void]$Permutation.Add(@($a,$b))
+          [Void]$Permutation.Add(@($b,$a))
+          $Permutation
+        }
+        Default {
+          Invoke-Permutation $Values[1..($Values.Count - 1)]
+        }
+      }
+    }
+    if ($InputObject.Count -gt 0) {
+      Invoke-Permutation $InputObject
+    }
+  }
+  End {
+    $Items = $Input
+    $Count = $Items.Count
+    if ($Count -gt 0) {
+      if ($Count -eq 2) {
+        $Result = Invoke-Permutation $Input
+      } else {
+        $Result = [System.Collections.ArrayList]::New()
+        $Temp = [System.Collections.ArrayList](0..($Count - 1))
+        $Temp | ForEach-Object {
+          [Void]$Result.Add($_)
+          $Permutation = Invoke-Permutation (Remove-Item $Temp $_)
+          [Void]$Result.Add($Permutation)
+        }
+      }
+    }
+    $Output = [System.Collections.ArrayList]::New()
+    $Result | Invoke-Chunk -Size 2 | ForEach-Object {
+      [Void]$Output.Add($_)
+    }
+    $Output
+  }
+}
 function Invoke-Chunk {
   <#
   .SYNOPSIS
@@ -363,6 +447,31 @@ function Invoke-DropWhile {
   }
   End {
     Invoke-InternalDropWhile $Input $Predicate
+  }
+}
+function Invoke-Flatten {
+  [CmdletBinding()]
+  [Alias('flat')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Values
+  )
+  Begin {
+    function Invoke-Flat {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Values
+      )
+      if ($Values.Count -gt 0) {
+        $Values |
+          ForEach-Object { $_ } |
+          Where-Object { $_ -ne $null }
+      }
+    }
+    Invoke-Flat $Values
+  }
+  End {
+    Invoke-Flat $Input
   }
 }
 function Invoke-GetProperty {
