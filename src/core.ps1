@@ -1219,15 +1219,15 @@ function Test-Equal {
   $b = @{a = 1; b = 2; c = 3}
   Test-Equal $a $b # True
   #>
-  [CmdletBinding(DefaultParameterSetName='named')]
+  [CmdletBinding()]
   [Alias('equal')]
   [OutputType([Bool])]
   Param(
-    [Parameter(ParameterSetName='named', Position=0)]
+    [Parameter(Position=0)]
     $Left,
-    [Parameter(ParameterSetName='named', Position=1)]
+    [Parameter(Position=1)]
     $Right,
-    [Parameter(ParameterSetName='piped', ValueFromPipeline=$true)]
+    [Parameter(ValueFromPipeline=$true)]
     [Array] $InputObject
   )
   Begin {
@@ -1290,7 +1290,18 @@ function Test-Equal {
         if ($PSBoundParameters.ContainsKey('Right')) {
           $Items += $Right
         }
-        # Use Get-Permutation (choose 2) and reduce pairs with $Compare
+        $Count = $Items.Count
+        if ($Count -gt 1) {
+          $Head = $Items[0]
+          $Rest = $Items[1..($Count - 1)]
+          # @{ Rest = @($Head),$Rest } | ConvertTo-Json | Write-Color -Green
+          @($Head),$Rest |
+            Invoke-Zip -EmptyValue $Head |
+            ForEach-Object { Test-Equal $_[0] $_[1] } |
+            Invoke-Reduce -Every -InitialValue $true
+        } else {
+          $true
+        }
       } else {
         if ($null -ne $Left) {
           & $Compare $Left $Right
@@ -1306,8 +1317,16 @@ function Test-Equal {
   }
   End {
     if ($Input.Count -gt 0) {
-      $Input.Count | Write-Color -Red
-      Test-InternalEqual $Left $Right -FromPipeline $Input
+      $Parameters = @{
+        FromPipeline = $Input
+      }
+      if ($PSBoundParameters.ContainsKey('Left')) {
+        $Parameters.Left = $Left
+      }
+      if ($PSBoundParameters.ContainsKey('Right')) {
+        $Parameters.Right = $Right
+      }
+      Test-InternalEqual @Parameters
     }
   }
 }
