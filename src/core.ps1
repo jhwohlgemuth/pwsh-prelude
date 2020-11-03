@@ -300,8 +300,10 @@ function Get-Permutation {
   1..5 | Get-Permutation -Choose 3
 
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Choose')]
   [CmdletBinding()]
   [Alias('permute')]
+  [OutputType([System.Collections.ArrayList])]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [Array] $InputObject,
@@ -1209,15 +1211,39 @@ function Test-Equal {
   <#
   .SYNOPSIS
   Helper function meant to provide a more robust equality check (beyond just integers and strings)
-  .EXAMPLE
-  Test-Equal 42 43 # False
-  Test-Equal 0 0 # True
 
-  Also works with booleans, strings, objects, and arrays
+  Works with numbers, booleans, strings, hashtables, custom objects, and arrays
+
+  Note: Function has limited support for comparing $null values
+
   .EXAMPLE
-  $a = @{a = 1; b = 2; c = 3}
-  $b = @{a = 1; b = 2; c = 3}
-  Test-Equal $a $b # True
+  # Test a list of items
+
+  # ...with just pipeline parameters
+  42,42,42,42 | equal
+
+  # ...or with pipeline and one positional parameter
+  'na','na','na','na','na','na','na','na' | equal 'batman'
+
+  .EXAMPLE
+  # Test a pair of items
+
+  # ...with pipeline and positional parameters
+  'foo' | equal 'bar'
+
+  # ...or with just positional parameters
+  equal 'foo' 'bar'
+
+  .EXAMPLE
+  # Limited support for $null comparisons
+
+  # Supported
+  equal $null $null
+
+  # NOT supported
+  $null | equal $null
+  $null,$null | equal
+
   #>
   [CmdletBinding()]
   [Alias('equal')]
@@ -1287,17 +1313,13 @@ function Test-Equal {
         if ($PSBoundParameters.ContainsKey('Left')) {
           $Items += $Left
         }
-        if ($PSBoundParameters.ContainsKey('Right')) {
-          $Items += $Right
-        }
         $Count = $Items.Count
         if ($Count -gt 1) {
           $Head = $Items[0]
           $Rest = $Items[1..($Count - 1)]
-          # @{ Rest = @($Head),$Rest } | ConvertTo-Json | Write-Color -Green
           @($Head),$Rest |
             Invoke-Zip -EmptyValue $Head |
-            ForEach-Object { Test-Equal $_[0] $_[1] } |
+            ForEach-Object { & $Compare $_[0] $_[1] } |
             Invoke-Reduce -Every -InitialValue $true
         } else {
           $true
@@ -1322,9 +1344,6 @@ function Test-Equal {
       }
       if ($PSBoundParameters.ContainsKey('Left')) {
         $Parameters.Left = $Left
-      }
-      if ($PSBoundParameters.ContainsKey('Right')) {
-        $Parameters.Right = $Right
       }
       Test-InternalEqual @Parameters
     }

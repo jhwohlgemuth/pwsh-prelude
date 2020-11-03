@@ -609,107 +609,107 @@ Describe 'Remove-Character' {
     }
 }
 Describe 'Test-Equal' {
-    It 'pipeline outliers' {
-        # 'a','b' | equal 'c' 'd' | Should -Be $false
-        # 42,43 | Test-Equal 42 42 | Should -Be $false
-        # 42,42 | Test-Equal 42 43 | Should -Be $false
+    It 'should return true for single items (from pipeline only)' {
+        42 | Test-Equal | Should -Be $true
+        'foobar' | Test-Equal | Should -Be $true
+        @{ foo = 'bar' } | Test-Equal | Should -Be $true
     }
-    # It 'can compare numbers' {
-    #     Test-Equal 0 0 | Should -Be $true
-    #     Test-Equal 42 42 | Should -Be $true
-    #     Test-Equal -42 -42 | Should -Be $true
-    #     Test-Equal 42 43 | Should -Be $false
-    #     Test-Equal -43 -42 | Should -Be $false
-    #     Test-Equal 3 'not a number' | Should -Be $false
-    #     Test-Equal 4.2 4.2 | Should -Be $true
-    #     Test-Equal 4 4.0 | Should -Be $true
-    #     Test-Equal 4.1 4.2 | Should -Be $false
-    #     42,42 | Test-Equal | Should -Be $true
-    #     42 | Test-Equal 42 | Should -Be $true
-    #     42,42,42 | Test-Equal | Should -Be $true
-    #     43,42,42 | Test-Equal | Should -Be $false
-    #     42,43,42 | Test-Equal | Should -Be $false
-    #     42,42,43 | Test-Equal | Should -Be $false
-    #     42,42 | Test-Equal 42 | Should -Be $true
-    #     43,42 | Test-Equal 42 | Should -Be $false
-    #     42,43 | Test-Equal 42 | Should -Be $false
-    #     42,42 | Test-Equal 43 | Should -Be $false
-    # }
-    # It 'can compare strings' {
-    #     Test-Equal '' '' | Should -Be $true
-    #     Test-Equal 'foo' 'foo' | Should -Be $true
-    #     Test-Equal 'foo' 'bar' | Should -Be $false
-    #     Test-Equal 'foo' 7 | Should -Be $false
-    #     'na','na','na' | Test-Equal 'na' | Should -Be $true
-    #     'na','na','na' | Test-Equal 'meh' | Should -Be $false
-    #     'na','meh','na' | Test-Equal 'na' | Should -Be $false
-    # }
-    # It 'can compare arrays' {
-    #     $a = 1,2,3
-    #     $b = 1,2,3
-    #     $c = 5,6,7
-    #     Test-Equal $a $b | Should -Be $true
-    #     Test-Equal $a $c | Should -Be $false
-    #     $a = 'a','b','c'
-    #     $b = 'a','b','c'
-    #     $c = 'x','y','z'
-    #     Test-Equal $a $b | Should -Be $true
-    #     Test-Equal $b $c | Should -Be $false
-    # }
-    # It 'can compare multi-dimensional arrays' {
-    #     $x = 1,(1,2,3),(4,5,6),7
-    #     $y = 1,(1,2,3),(4,5,6),7
-    #     $z = (1,2,3),(1,2,3),(1,2,3)
-    #     Test-Equal $x $y | Should -Be $true
-    #     Test-Equal $x $z | Should -Be $false
-    #     Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -Be $false
-    # }
-    # It 'can compare hashtables' {
-    #     $A = @{ a = 'A'; b = 'B'; c = 'C' }
-    #     $B = @{ a = 'A'; b = 'B'; c = 'C' }
-    #     $C = @{ foo = 'bar'; bin = 'baz'; }
-    #     Test-Equal $A $B | Should -Be $true
-    #     Test-Equal $A $C | Should -Be $false
-    #     $A,$B | Test-Equal | Should -Be $true
-    #     $A,$C | Test-Equal | Should -Be $false
-    #     $A | Test-Equal $B | Should -Be $true
-    #     $A | Test-Equal $C | Should -Be $false
-    # }
-    # It 'can compare nested hashtables' {
-    #     $A = @{ a = 'A'; b = 'B'; c = 'C' }
-    #     $B = @{ a = 'A'; b = 'B'; c = 'C' }
-    #     $C = @{ foo = 'bar'; bin = 'baz'; }
-    #     $M = @{ a = $A; b = $B; c = $C }
-    #     $N = @{ a = $A; b = $B; c = $C }
-    #     $O = @{ a = $C; b = $A; c = $B }
-    #     Test-Equal $M $N | Should -Be $true
-    #     Test-Equal $M $O | Should -Be $false
-    # }
-    # It 'can compare custom objects' {
-    #     $A = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
-    #     $B = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
-    #     $C = [PSCustomObject]@{ foo = 'bar'; bin = 'baz' }
-    #     Test-Equal $A $B | Should -Be $true
-    #     Test-Equal $A $C | Should -Be $false
-    #     $A,$B | Test-Equal | Should -Be $true
-    #     $A,$C | Test-Equal | Should -Be $false
-    #     $A | Test-Equal $B | Should -Be $true
-    #     $A | Test-Equal $C | Should -Be $false
-    # }
-    # It 'can compare nested custom objects' {
-    #     $A = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
-    #     $B = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
-    #     $C = [PSCustomObject]@{ foo = 'bar'; bin = 'baz' }
-    #     $M = [PSCustomObject]@{ a = $A; b = $B; c = $C }
-    #     $N = [PSCustomObject]@{ a = $A; b = $B; c = $C }
-    #     $O = [PSCustomObject]@{ a = $C; b = $A; c = $B }
-    #     Test-Equal $M $N | Should -Be $true
-    #     Test-Equal $M $O | Should -Be $false
-    # }
-    # It 'can compare other types' {
-    #     Test-Equal $true $true | Should -Be $true
-    #     Test-Equal $false $false | Should -Be $true
-    #     Test-Equal $true $false | Should -Be $false
-    #     Test-Equal $null $null | Should -Be $true
-    # }
+    It 'can compare numbers' {
+        Test-Equal 0 0 | Should -Be $true
+        Test-Equal 42 42 | Should -Be $true
+        Test-Equal -42 -42 | Should -Be $true
+        Test-Equal 42 43 | Should -Be $false
+        Test-Equal -43 -42 | Should -Be $false
+        Test-Equal 3 'not a number' | Should -Be $false
+        Test-Equal 4.2 4.2 | Should -Be $true
+        Test-Equal 4 4.0 | Should -Be $true
+        Test-Equal 4.1 4.2 | Should -Be $false
+        42,42 | Test-Equal | Should -Be $true
+        42 | Test-Equal 42 | Should -Be $true
+        42,42,42 | Test-Equal | Should -Be $true
+        43,42,42 | Test-Equal | Should -Be $false
+        42,43,42 | Test-Equal | Should -Be $false
+        42,42,43 | Test-Equal | Should -Be $false
+        42,42 | Test-Equal 42 | Should -Be $true
+        43,42 | Test-Equal 42 | Should -Be $false
+        42,43 | Test-Equal 42 | Should -Be $false
+        42,42 | Test-Equal 43 | Should -Be $false
+    }
+    It 'can compare strings' {
+        Test-Equal '' '' | Should -Be $true
+        Test-Equal 'foo' 'foo' | Should -Be $true
+        Test-Equal 'foo' 'bar' | Should -Be $false
+        Test-Equal 'foo' 7 | Should -Be $false
+        'na','na','na' | Test-Equal 'na' | Should -Be $true
+        'na','na','na' | Test-Equal 'meh' | Should -Be $false
+        'na','meh','na' | Test-Equal 'na' | Should -Be $false
+    }
+    It 'can compare arrays' {
+        $a = 1,2,3
+        $b = 1,2,3
+        $c = 5,6,7
+        Test-Equal $a $b | Should -Be $true
+        Test-Equal $a $c | Should -Be $false
+        $a = 'a','b','c'
+        $b = 'a','b','c'
+        $c = 'x','y','z'
+        Test-Equal $a $b | Should -Be $true
+        Test-Equal $b $c | Should -Be $false
+    }
+    It 'can compare multi-dimensional arrays' {
+        $x = 1,(1,2,3),(4,5,6),7
+        $y = 1,(1,2,3),(4,5,6),7
+        $z = (1,2,3),(1,2,3),(1,2,3)
+        Test-Equal $x $y | Should -Be $true
+        Test-Equal $x $z | Should -Be $false
+        Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -Be $false
+    }
+    It 'can compare hashtables' {
+        $A = @{ a = 'A'; b = 'B'; c = 'C' }
+        $B = @{ a = 'A'; b = 'B'; c = 'C' }
+        $C = @{ foo = 'bar'; bin = 'baz'; }
+        Test-Equal $A $B | Should -Be $true
+        Test-Equal $A $C | Should -Be $false
+        $A,$B | Test-Equal | Should -Be $true
+        $A,$C | Test-Equal | Should -Be $false
+        $A | Test-Equal $B | Should -Be $true
+        $A | Test-Equal $C | Should -Be $false
+    }
+    It 'can compare nested hashtables' {
+        $A = @{ a = 'A'; b = 'B'; c = 'C' }
+        $B = @{ a = 'A'; b = 'B'; c = 'C' }
+        $C = @{ foo = 'bar'; bin = 'baz'; }
+        $M = @{ a = $A; b = $B; c = $C }
+        $N = @{ a = $A; b = $B; c = $C }
+        $O = @{ a = $C; b = $A; c = $B }
+        Test-Equal $M $N | Should -Be $true
+        Test-Equal $M $O | Should -Be $false
+    }
+    It 'can compare custom objects' {
+        $A = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
+        $B = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
+        $C = [PSCustomObject]@{ foo = 'bar'; bin = 'baz' }
+        Test-Equal $A $B | Should -Be $true
+        Test-Equal $A $C | Should -Be $false
+        $A,$B | Test-Equal | Should -Be $true
+        $A,$C | Test-Equal | Should -Be $false
+        $A | Test-Equal $B | Should -Be $true
+        $A | Test-Equal $C | Should -Be $false
+    }
+    It 'can compare nested custom objects' {
+        $A = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
+        $B = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
+        $C = [PSCustomObject]@{ foo = 'bar'; bin = 'baz' }
+        $M = [PSCustomObject]@{ a = $A; b = $B; c = $C }
+        $N = [PSCustomObject]@{ a = $A; b = $B; c = $C }
+        $O = [PSCustomObject]@{ a = $C; b = $A; c = $B }
+        Test-Equal $M $N | Should -Be $true
+        Test-Equal $M $O | Should -Be $false
+    }
+    It 'can compare other types' {
+        Test-Equal $true $true | Should -Be $true
+        Test-Equal $false $false | Should -Be $true
+        Test-Equal $true $false | Should -Be $false
+        Test-Equal $null $null | Should -Be $true
+    }
 }
