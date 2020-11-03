@@ -219,14 +219,18 @@ function Install-SshServer {
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
   Param()
-  Write-Verbose '==> Enabling OpenSSH server'
-  Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-  Write-Verbose '==> Starting sshd service'
-  Start-Service sshd
-  Write-Verbose '==> Setting sshd service to start automatically'
-  Set-Service -Name sshd -StartupType 'Automatic'
-  Write-Verbose '==> Adding firewall rule for sshd'
-  New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+  if ($PSCmdlet.ShouldProcess('OpenSSH Server Configuration')) {
+    Write-Verbose '==> Enabling OpenSSH server'
+    Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+    Write-Verbose '==> Starting sshd service'
+    Start-Service sshd
+    Write-Verbose '==> Setting sshd service to start automatically'
+    Set-Service -Name sshd -StartupType 'Automatic'
+    Write-Verbose '==> Adding firewall rule for sshd'
+    New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+  } else {
+    '==> Would have added windows OpenSSH.Server capability, started "sshd" service, and added a firewall rule for "sshd"' | Write-Color -DarkGray
+  }
 }
 function Invoke-DockerInspectAddress {
   <#
@@ -482,9 +486,19 @@ function New-File {
     [String] $Name
   )
   if (Test-Path $Name) {
-    (Get-ChildItem $Name).LastWriteTime = Get-Date
+    if ($PSCmdlet.ShouldProcess($Name)) {
+      (Get-ChildItem $Name).LastWriteTime = Get-Date
+      "==> Updated `"last write time`" of $Name" | Write-Verbose
+    } else {
+      "==> Would have updated `"last write time`" of $Name" | Write-Color -DarkGray
+    }
   } else {
-    New-Item -Path . -Name $Name -ItemType 'file' -Value ''
+    if ($PSCmdlet.ShouldProcess($Name)) {
+      New-Item -Path . -Name $Name -ItemType 'file' -Value ''
+      "==> Created new file, $Name" | Write-Verbose
+    } else {
+      "==> Would have created new file, $Name" | Write-Color -DarkGray
+    }
   }
 }
 function New-ProxyCommand {
@@ -619,9 +633,13 @@ function Remove-DirectoryForce {
   $Path = Join-Path (Get-Location) $Name
   if (Test-Path $Path) {
     $Cleaned = Resolve-Path $Path
-    Write-Verbose "==> Deleting $Cleaned"
-    Remove-Item -Path $Cleaned -Recurse
-    Write-Verbose "==> Deleted $Cleaned"
+    if ($PSCmdlet.ShouldProcess($Cleaned)) {
+      "==> Deleting $Cleaned" | Write-Verbose
+      Remove-Item -Path $Cleaned -Recurse
+      "==> Deleted $Cleaned" | Write-Verbose
+    } else {
+      "==> Would have deleted $Cleaned" | Write-Color -DarkGray
+    }
   } else {
     Write-Error 'Bad input. No folders/files were deleted'
   }
@@ -670,15 +688,23 @@ function Take {
   )
   $Path = Join-Path (Get-Location) $Name
   if (Test-Path $Path) {
-    Write-Verbose "==> $Path exists"
-    Write-Verbose "==> Entering $Path"
-    Set-Location $Path
-  } else {
-    Write-Verbose "==> Creating $Path"
-    mkdir $Path
-    if (Test-Path $Path) {
-      Write-Verbose "==> Entering $Path"
+    "==> $Path exists" | Write-Verbose
+    if ($PSCmdlet.ShouldProcess($Path)) {
+      "==> Entering $Path" | Write-Verbose
       Set-Location $Path
+    } else {
+      "==> Would have entered $Path" | Write-Color -DarkGray
+    }
+  } else {
+    if ($PSCmdlet.ShouldProcess($Path)) {
+      "==> Creating $Path" | Write-Verbose
+      mkdir $Path
+      if (Test-Path $Path) {
+        Write-Verbose "==> Entering $Path"
+        Set-Location $Path
+      }
+    } else {
+      "==> Would have created and entered $Path" | Write-Color -DarkGray
     }
   }
   Write-Verbose "==> pwd is $(Get-Location)"
