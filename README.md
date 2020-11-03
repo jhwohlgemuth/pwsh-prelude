@@ -126,6 +126,7 @@ Functions
 - `Get-Extremum`
 - `Get-File`
 - `Get-GithubOAuthToken`
+- `Get-HostsContent`
 - `Get-Maximum`
 - `Get-Minimum`
 - `Get-Permutation`
@@ -179,6 +180,7 @@ Functions
 - `Test-Empty`
 - `Test-Equal`
 - `Test-Installed`
+- `Update-HostsFile`
 - `Use-Grammar`
 - `Use-Speech`
 - `Use-Web`

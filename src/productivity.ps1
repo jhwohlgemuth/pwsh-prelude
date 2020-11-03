@@ -89,6 +89,47 @@ function Get-File {
   $client = New-Object System.Net.WebClient
   $client.DownloadFile($Url, $File)
 }
+function Get-HostsContent {
+  <#
+  .SYNOPSIS
+  Get and parse contents of hosts file
+  .PARAMETER Path
+  Specifies an alternate hosts path. Defaults to %SystemRoot%\System32\drivers\etc\hosts.
+  .EXAMPLE
+  Get-HostsContent
+
+  .EXAMPLE
+  Get-HostsContent '.\hosts'
+
+  #>
+  [CmdletBinding()]
+  [OutputType([String])]
+  Param (
+    [ValidateScript({Test-Path $_})]
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [String] $Path = (Join-Path $Env:SystemRoot 'System32\drivers\etc\hosts')
+  )
+  $CommentLine = '^\s*#'
+  $HostLine = '^\s*(?<IPAddress>\S+)\s+(?<Hostname>\S+)(\s*|\s+#(?<Comment>.*))$'
+  $HomeAddress = [Net.IPAddress]'127.0.0.1'
+  $LineNumber = 0
+  (Get-Content $Path -ErrorAction Stop) | ForEach-Object {
+    if (($_ -match $HostLine) -and ($_ -notmatch $CommentLine)) {
+      $IpAddress = $Matches['IPAddress']
+      $Comment = if ($Matches['Comment']) { $Matches['Comment'] } else { '' }
+      $Result = [PSCustomObject]@{
+        LineNumber = $LineNumber
+        IPAddress = $IpAddress
+        IsValidIP = [Net.IPAddress]::TryParse($IPAddress, [Ref] $HomeAddress)
+        Hostname = $Matches['Hostname']
+        Comment = $Comment.Trim()
+      }
+      $Result.PSObject.TypeNames.Insert(0, 'Hosts.Entry')
+      $Result
+    }
+    $LineNumber++
+  }
+}
 function Home {
   [CmdletBinding()]
   [Alias('~')]
@@ -613,6 +654,66 @@ function Test-Installed {
     $true
   } else {
     $false
+  }
+}
+function Update-HostsFile {
+  <#
+  .SYNOPSIS
+  Update and/or add entries of a hosts file.
+  .PARAMETER Path
+  Specifies an alternate hosts path. Defaults to %SystemRoot%\System32\drivers\etc\hosts.
+  .PARAMETER PassThru
+  Outputs parsed HOSTS file upon completion.
+  .EXAMPLE
+  Update-HostsFile -IPAddress '127.0.0.1' -Hostname 'c2.evil.com'
+
+  .EXAMPLE
+  Update-HostsFile -IPAddress '127.0.0.1' -Hostname 'c2.evil.com' -Comment 'Malware C2'
+
+  #>
+  [CmdletBinding(SupportsShouldProcess=$true)]
+  Param (
+    [Parameter(Mandatory=$true, Position=0)]
+    [Alias('IP')]
+    [Net.IpAddress] $IPAddress,
+    [Parameter(Mandatory=$true, Position=1)]
+    [ValidateNotNullOrEmpty()]
+    [Alias('Name')]
+    [String] $Hostname,
+    [Parameter(Position=2)]
+    [String] $Comment,
+    [ValidateScript({ Test-Path $_ })]
+    [String] $Path = (Join-Path $Env:SystemRoot 'System32\drivers\etc\hosts'),
+    [Switch] $PassThru
+  )
+  $Raw = Get-Content $Path
+  $Hosts = Get-HostsContent $Path
+  $Comment = if ($Comment) { "# $Comment" } else { '' }
+  $Entry = "$IpAddress $Hostname $Comment"
+  $HostExists = $Hostname -in $Hosts.Hostname
+  $Hosts | Where-Object { $_.Hostname -eq $Hostname } | ForEach-Object {
+    if ($_.IpAddress -eq $IPAddress) {
+      "The hostname, '$Hostname', and IP address, '$IPAddress', already exist in $Path." | Write-Verbose
+    } else {
+      if ($PSCmdlet.ShouldProcess($Path)) {
+        "Replacing hostname, '$Hostname', in $Path." | Write-Verbose
+        $Raw[$_.LineNumber] = $Entry
+      } else {
+        "==> Would be replacing hostname, '$Hostname', in $Path." | Write-Color -DarkGray
+      }
+    }
+  }
+  if (-not $HostExists) {
+    if ($PSCmdlet.ShouldProcess($Path)) {
+      "Appending '$Hostname' at '$IPAddress' to $Path." | Write-Verbose
+      $Raw += "`n$Entry"
+    } else {
+      "==> Would be appending '$Hostname' at '$IPAddress' to $Path." | Write-Color -DarkGray
+    }
+  }
+  $Raw | Out-File -Encoding ascii -FilePath $Path -ErrorAction Stop
+  if ($PassThru) {
+    Get-HostsContent $Path
   }
 }
 function Use-Grammar {

@@ -49,6 +49,102 @@ Describe 'Find-FirstTrueVariable' {
         Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
     }
 }
+Describe 'Get-HostsContent / Update-HostsFile' {
+    It 'can get content of hosts file from path' {
+        $Content = Get-HostsContent (Join-Path $PSScriptRoot "fixtures\hosts")
+        $Content.Count | Should -Be 3
+        $Content | ForEach-Object Hostname | Should -Be 'foo','bar','foo.bar.baz'
+        $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111','127.0.0.1','192.168.0.2'
+        $Content | ForEach-Object Comment | Should -Be '','some random comment',''
+        $Content = (Join-Path $PSScriptRoot "fixtures\hosts") | Get-HostsContent
+        $Content.Count | Should -Be 3
+        $Content | ForEach-Object Hostname | Should -Be 'foo','bar','foo.bar.baz'
+        $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111','127.0.0.1','192.168.0.2'
+        $Content | ForEach-Object Comment | Should -Be '','some random comment',''
+    }
+    It 'can add an entry to a hosts file' {
+        $Path = Join-Path $TestDrive 'hosts'
+        New-Item $Path
+        $A = @{
+            Hostname = 'home'
+            IPAddress = '127.0.0.1'
+        }
+        $B = @{
+            Hostname = 'foo'
+            IPAddress = '127.0.0.2'
+            Comment = 'bar'
+        }
+        $NewIpAddress = '127.0.0.42'
+        $NewComment = 'this is an updated comment'
+        $Updated = $A.Clone(),@{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge
+        Update-HostsFile @A -Path $Path
+        Get-HostsContent $Path | ConvertTo-Json | Should -Be @"
+{
+    "LineNumber":  1,
+    "IPAddress":  "$($A.IPAddress)",
+    "IsValidIP":  true,
+    "Hostname":  "$($A.Hostname)",
+    "Comment":  "$($A.Comment)"
+}
+"@
+        Update-HostsFile @B -Path $Path
+        Get-HostsContent $Path | ConvertTo-Json | Should -Be @"
+[
+    {
+        "LineNumber":  1,
+        "IPAddress":  "$($A.IPAddress)",
+        "IsValidIP":  true,
+        "Hostname":  "$($A.Hostname)",
+        "Comment":  "$($A.Comment)"
+    },
+    {
+        "LineNumber":  3,
+        "IPAddress":  "$($B.IPAddress)",
+        "IsValidIP":  true,
+        "Hostname":  "$($B.Hostname)",
+        "Comment":  "$($B.Comment)"
+    }
+]
+"@
+        Update-HostsFile @Updated -Path $Path
+        Get-HostsContent $Path | ConvertTo-Json | Should -Be @"
+[
+    {
+        "LineNumber":  1,
+        "IPAddress":  "$NewIpAddress",
+        "IsValidIP":  true,
+        "Hostname":  "$($A.Hostname)",
+        "Comment":  "$NewComment"
+    },
+    {
+        "LineNumber":  3,
+        "IPAddress":  "$($B.IPAddress)",
+        "IsValidIP":  true,
+        "Hostname":  "$($B.Hostname)",
+        "Comment":  "$($B.Comment)"
+    }
+]
+"@
+        Update-HostsFile @B -Path $Path -PassThru | ConvertTo-Json | Should -Be @"
+[
+    {
+        "LineNumber":  1,
+        "IPAddress":  "$NewIpAddress",
+        "IsValidIP":  true,
+        "Hostname":  "$($A.Hostname)",
+        "Comment":  "$NewComment"
+    },
+    {
+        "LineNumber":  3,
+        "IPAddress":  "$($B.IPAddress)",
+        "IsValidIP":  true,
+        "Hostname":  "$($B.Hostname)",
+        "Comment":  "$($B.Comment)"
+    }
+]
+"@
+    }
+}
 Describe 'Invoke-Speak (say)' {
     It 'can passthru text without speaking' {
         $Text = 'this should not be heard'

@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 88
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 90
         }
         It 'should import aliases' {
             (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 42
@@ -357,6 +357,11 @@ Describe 'Invoke-ObjectMerge' {
         $Result.z | Should -Be 6
         $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','b','c','x','y','z'
         $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,2,3,4,5,6
+    }
+    It 'will overwrite values with same key' {
+        $Result = @{ a = 1 },@{ b = 2 },@{ a = 3 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 3
+        $Result.b | Should -Be 2
     }
 }
 Describe 'Invoke-Once' {
