@@ -2,7 +2,7 @@
   ModuleVersion = '0.0.0.1'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
-  CompanyName = 'Wolf Technology Foundation'
+  CompanyName = 'Wohlgemuth Technology Foundation'
   Author = 'Jason Wohlgemuth'
   Copyright = '(c) 2020 Jason Wohlgemuth. All rights reserved.'
   Description = 'A "standard" library for PowerShell inspired by the preludes of other languages'
