@@ -51,6 +51,7 @@
     'toPair'
     'transform'
     'trigger'
+    'screenshot'
     'zip'
     'zipWith'
   )
@@ -74,6 +75,7 @@
     'Get-Maximum'
     'Get-Minimum'
     'Get-Permutation'
+    'Get-Screenshot'
     'Get-State'
     'Home'
     'Import-Html'

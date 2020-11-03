@@ -1,4 +1,4 @@
-function Enable-Remoting {
+﻿function Enable-Remoting {
   <#
   .SYNOPSIS
   Function to enable Powershell remoting for workgroup computer
@@ -128,6 +128,80 @@ function Get-HostsContent {
       $Result
     }
     $LineNumber++
+  }
+}
+function Get-Screenshot {
+  <#
+  .SYNOPSIS
+  Create screenshot
+  .DESCRIPTION
+  Create screenshot of one or all monitors. The screenshot is saved as a BITMAP (bmp) file.
+
+  When selecting a monitor, the assumed setup is:
+
+  +-----+  +-----+  +-----+  +-----+
+  |  1  |  |  2  |  |  3  |  | ... |  etc...
+  +-----+  +-----+  +-----+  +-----+
+
+  .PARAMETER Monitor
+  Number that identifies desired monitor
+  .EXAMPLE
+  Get-Screenshot
+
+  .EXAMPLE
+  Get-Screenshot 'MyPictures'
+  # save screenshot of all monitors (one BMP file) to '.\MyPictures\screenshot.bmp'
+
+  .EXAMPLE
+  1..3 | screenshot
+  # save screenshot of each monitor, in separate BMP files
+
+  #>
+  [CmdletBinding()]
+  [Alias('screenshot')]
+  [OutputType([String])]
+  Param(
+    [Parameter(Position=0)]
+    [ValidateScript({ Test-Path $_ })]
+    [String] $Path = (Get-Location),
+    [Parameter(Position=1)]
+    [String] $Name = ("screenshot-$(Get-Date -UFormat '+%y%m%d%H%M%S')"),
+    [Parameter(ValueFromPipeline=$true)]
+    [Int] $Monitor = 0
+  )
+  Process {
+    if ($IsLinux -is [Bool] -and $IsLinux) {
+      '==> Get-Screenshot is only supported on Windows platform' | Write-Color -Red
+    } else {
+      [void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
+      [void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
+      $ScreenBounds = [Windows.Forms.SystemInformation]::VirtualScreen
+      $VideoController = Get-CimInstance -Query 'SELECT VideoModeDescription FROM Win32_VideoController'
+      if ($VideoController.VideoModeDescription -and $VideoController.VideoModeDescription -match '(?<ScreenWidth>^\d+) x (?<ScreenHeight>\d+) x .*$') {
+        $ScreenWidth = [Int]$Matches['ScreenWidth']
+      }
+      $UseDifferentMonitor = $ScreenWidth -and ($Monitor -gt 0)
+      $Width = if ($UseDifferentMonitor) { $ScreenWidth } else { $ScreenBounds.Width }
+      $Height = $ScreenBounds.Height
+      $Left = if ($UseDifferentMonitor) { $ScreenBounds.X + ($ScreenWidth * ($Monitor - 1)) } else { $ScreenBounds.X }
+      $Bottom = $ScreenBounds.Y
+      $Size = [System.Drawing.Size]::New($Width,$Height)
+      $Point = [System.Drawing.Point]::New($Left,$Bottom)
+      $Screenshot = [System.Drawing.Bitmap]::New($Width,$Height)
+      $DrawingGraphics = [System.Drawing.Graphics]::FromImage($Screenshot)
+      $DrawingGraphics.CopyFromScreen($Point, [System.Drawing.Point]::Empty, $Size)
+      $DrawingGraphics.Dispose()
+      if ($UseDifferentMonitor) {
+        "==> Saving screenshot of monitor #${Monitor}" | Write-Verbose
+        $Fullname = Join-Path $Path "$Name-$Monitor.bmp"
+      } else {
+        '==> Saving screenshot of all monitors' | Write-Verbose
+        $Fullname = Join-Path $Path "$Name.bmp"
+      }
+      $Screenshot.Save($Fullname)
+      $Screenshot.Dispose()
+      $Fullname
+    }
   }
 }
 function Home {
@@ -576,7 +650,7 @@ function Rename-FileExtension {
       Rename-Item -Path $Path -NewName $NewName
       "==> Renamed $Path to $NewName" | Write-Verbose
     } else {
-      "==> Rename $Path to $NewName" | Write-Color -Yellow
+      "==> Rename $Path to $NewName" | Write-Color -DarkGray
     }
   }
 }

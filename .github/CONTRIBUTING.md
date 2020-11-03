@@ -87,6 +87,17 @@ Project Standards
     } else {
       # code code code
     }
+    function Invoke-Awesome {
+      # code code code
+    }
     ```
   - Prefer pipelines and avoid un-necessary variable declarations.
+  - Use `DarkGray` when using `Write-Color` within "WhatIf" blocks.
+    ```Powershell
+    if ($PSCmdlet.ShouldProcess($Path)) {
+      # code code code
+    } else {
+      '==> Would have executed code code code' | Write-Color -DarkGray
+    }
+    ```
   - When in doubt, write code that is consistent with preponderance of existing codebase. Let's call this the "priority of pre-existing preponderance rule".

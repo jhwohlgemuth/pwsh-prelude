@@ -130,6 +130,7 @@ Functions
 - `Get-Maximum`
 - `Get-Minimum`
 - `Get-Permutation`
+- `Get-Screenshot`
 - `Get-State`
 - `Import-Html`
 - `Install-SshServer`
@@ -206,6 +207,7 @@ Credits
 - [chrisseroka/ps-menu](https://github.com/chrisseroka/ps-menu) - *inspiration*
 - [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*
 - [mattifestation/PowerShellArsenal](https://github.com/mattifestation/PowerShellArsenal) - *inspiration*
+- [PowerShellMafia/PowerSploit](https://github.com/PowerShellMafia/PowerSploit) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 
 Footnotes
