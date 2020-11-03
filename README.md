@@ -205,7 +205,7 @@ Credits
 - [janikvonrotz/awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) - *inspiration*
 - [chrisseroka/ps-menu](https://github.com/chrisseroka/ps-menu) - *inspiration*
 - [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*
-- [mattifestation/PowerShellArsenal](https://github.com/mattifestation/PowerShellArsenal/blob/master/MalwareAnalysis/Hosts.ps1) - *inspiration*
+- [mattifestation/PowerShellArsenal](https://github.com/mattifestation/PowerShellArsenal) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 
 Footnotes
