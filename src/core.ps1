@@ -314,13 +314,16 @@ function Get-Permutation {
   Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages "minimal change" of elements (via "swapping")
   combined with lexicographic ordering in order to create a list of permutations.
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Offset')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Words')]
   [CmdletBinding()]
   [Alias('permute')]
   Param(
-    [Parameter(Position=0)]
-    [Int] $Value,
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
     [Parameter(Position=1)]
-    [Int] $Offset = 0
+    [Int] $Offset = 0,
+    [Switch] $Words
   )
   Begin {
     function Invoke-Swap {
@@ -336,7 +339,7 @@ function Get-Permutation {
       )
       $Items[$Next] = ($Items[$Current] += $Items[$Next] -= $Items[$Current]) - $Items[$Next]
     }
-    function Test-Mobile {
+    function Test-Moveable {
       Param(
         [Parameter(Position=0)]
         [Array] $Work,
@@ -361,7 +364,7 @@ function Get-Permutation {
       }
       return $false
     }
-    function Test-HasMobile {
+    function Test-MoveableExist {
         Param(
           [Parameter(Position=0)]
           [Array] $Work,
@@ -369,13 +372,13 @@ function Get-Permutation {
           [Array] $Direction
         )
         for ($i = 0; $i -lt $Work.Count; $i++) {
-          if ((Test-Mobile -Work $Work -Direction $Direction -Index $i)) {
+          if ((Test-Moveable -Work $Work -Direction $Direction -Index $i)) {
             return $true
           }
         }
         return $false
     }
-    function Find-LargestMobile {
+    function Find-LargestMoveable {
       Param(
         [Parameter(Position=0)]
         [Array] $Work,
@@ -385,7 +388,7 @@ function Get-Permutation {
       $Largest = -1
       $Position = -1
       for ($i = 0; $i -lt $Work.Count; $i++) {
-        if ((Test-Mobile -Work $Work -Direction $Direction -Index $i) -and ($Largest -lt $Work[$i])) {
+        if ((Test-Moveable -Work $Work -Direction $Direction -Index $i) -and ($Largest -lt $Work[$i])) {
             $Largest = $Work[$i]
             $Position = $i
         }
@@ -408,8 +411,8 @@ function Get-Permutation {
       }
       $Step = 1
       $Results[0] = $Work.Clone()
-      while ((Test-HasMobile $Work $Direction)) {
-        $Current = Find-LargestMobile $Work $Direction
+      while ((Test-MoveableExist $Work $Direction)) {
+        $Current = Find-LargestMoveable $Work $Direction
         $NextPosition = if ($Direction[$Current] -eq 0) { $Current - 1 } else { $Current + 1 }
         Invoke-Swap -Items $Work -Next $NextPosition -Current $Current
         Invoke-Swap -Items $Direction -Next $NextPosition -Current $Current
@@ -423,14 +426,45 @@ function Get-Permutation {
       }
       $Results
     }
-    # if ($null -ne $Value) {
-      Invoke-Permutation $Value $Offset
-    # }
+    $GetResults = {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject
+      )
+      $Count = $InputObject.Count
+      $Items = $InputObject
+      $Value = $Count
+      if ($Count -gt 0) {
+        if ($Count -eq 1) {
+          $First = $InputObject[0]
+          $Type = $First.GetType().Name
+          if ($null -ne $First -and $Type -eq 'String') {
+            $Items = $First.ToCharArray()
+            $Value = $Items.Count
+          } elseif ($Type -match 'Int') {
+            $Items = @()
+            $Value = $First
+          }
+        }
+        if ($Items.Count -gt 0) {
+          $Result = [System.Collections.ArrayList]@{}
+          Invoke-Permutation $Value 0 | ForEach-Object {
+            $Permutation = $Items[$_]
+            if ($Words) {
+              $Permutation = $Permutation -join ''
+            }
+            [Void]$Result.Add($Permutation)
+          }
+          $Result
+        } else {
+          Invoke-Permutation $Value $Offset | Sort-Object -Property { $_ -join '' }
+        }
+      }
+    }
+    & $GetResults $InputObject
   }
   End {
-    # if ($null -ne $Input) {
-    #   Invoke-Permutation $Input $Offset
-    # }
+    & $GetResults $Input
   }
 }
 function Invoke-Chunk {

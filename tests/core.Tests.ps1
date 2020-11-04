@@ -181,10 +181,37 @@ Describe 'Get-Factorial' {
 }
 Describe 'Get-Permutation' {
     It 'can return permutations for a given group of items' {
-        Get-Permutation 2 0 | ForEach-Object { $_ -join '' } | Sort-Object | Should -Be '01','10'
-        Get-Permutation 3 0 | ForEach-Object { $_ -join '' } | Sort-Object | Should -Be '012','021','102','120','201','210'
-        Get-Permutation 3 1 | ForEach-Object { $_ -join '' } | Sort-Object | Should -Be '123','132','213','231','312','321'
-        Get-Permutation 4 0 | ForEach-Object { $_ -join '' } | Sort-Object | Select-Object -First 10 | Should -Be '0123','0132','0213','0231','0312','0321','1023','1032','1203','1230'
+        Get-Permutation 'ab' | Should -Be @('a','b'),@('b','a')
+        Get-Permutation 'abc' | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
+        Get-Permutation 2 | Should -Be @(0,1),@(1,0)
+        Get-Permutation 2 1 | Should -Be @(1,2),@(2,1)
+        Get-Permutation 3 | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
+        Get-Permutation 3 1 | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
+        Get-Permutation 1,2,3 | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
+        Get-Permutation 4 | Select-Object -First 10 | Should -Be @(0,1,2,3),@(0,1,3,2),@(0,2,1,3),@(0,2,3,1),@(0,3,1,2),@(0,3,2,1),@(1,0,2,3),@(1,0,3,2),@(1,2,0,3),@(1,2,3,0)
+    }
+    It 'can return permutations for a given group of items via pipeline' {
+        'ab' | Get-Permutation | Should -Be @('a','b'),@('b','a')
+        'abc' | Get-Permutation | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
+        'foo','bar' | Get-Permutation | Should -Be @('foo','bar'),@('bar','foo')
+        2 | Get-Permutation| Should -Be @(0,1),@(1,0)
+        2 | Get-Permutation -Offset 1 | Should -Be @(1,2),@(2,1)
+        3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
+        3 | Get-Permutation -Offset 1 | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
+        1,2,3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
+    }
+    It 'can can string concatenate output' {
+        'cat' | Get-Permutation -Words | Should -Be 'cat','cta','tca','tac','atc','act'
+        'foo','bar' | Get-Permutation -Words | Should -Be @('foobar'),@('barfoo')
+        1..3 | Get-Permutation -Words | Should -Be '123','132','312','321','231','213'
+    }
+    It 'can handle null values' {
+        $Permutations = $null,1,3 | Get-Permutation
+        $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
+        $Permutations.Count | Should -Be 6
+        $Permutations = 1,$null,3 | Get-Permutation
+        $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
+        $Permutations.Count | Should -Be 6
     }
 }
 Describe 'Invoke-Chunk' {
