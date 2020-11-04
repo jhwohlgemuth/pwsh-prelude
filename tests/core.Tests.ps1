@@ -181,8 +181,10 @@ Describe 'Get-Factorial' {
 }
 Describe 'Get-Permutation' {
     It 'can return permutations for a given group of items' {
-        # 'a','b' | Get-Permutation | Should -Be @(@('a','b'),@('b','a'))
-        # 1..3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
+        Get-Permutation 2 0 | ForEach-Object { $_ -join '' } | Sort-Object | Should -Be '01','10'
+        Get-Permutation 3 0 | ForEach-Object { $_ -join '' } | Sort-Object | Should -Be '012','021','102','120','201','210'
+        Get-Permutation 3 1 | ForEach-Object { $_ -join '' } | Sort-Object | Should -Be '123','132','213','231','312','321'
+        Get-Permutation 4 0 | ForEach-Object { $_ -join '' } | Sort-Object | Select-Object -First 10 | Should -Be '0123','0132','0213','0231','0312','0321','1023','1032','1203','1230'
     }
 }
 Describe 'Invoke-Chunk' {

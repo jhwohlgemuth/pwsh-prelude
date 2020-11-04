@@ -246,9 +246,10 @@ function Get-Factorial {
   .EXAMPLE
   Get-Factorial 10
   # 3628800
-  
+
   #>
   [CmdletBinding()]
+  [OutputType([Int32])]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [Int] $Value
@@ -308,56 +309,128 @@ function Get-Minimum {
 function Get-Permutation {
   <#
   .SYNOPSIS
-  Return an array of R-Permutations of given group of items
-
-  .EXAMPLE
-  1,2,3 | permute -r 2
-  # @(1,2),@(1,3),@(2,1),@(2,3),@(3,1),@(3,2)
-
-  .EXAMPLE
-  'cat' | permute
-  # 'cat','cta','atc','act','tca','tac'
-
-  .EXAMPLE
-  1..5 | Get-Permutation -Choose 3
-
+  Return permutaions of input object
+  .DESCRIPTION
+  Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages "minimal change" of elements (via "swapping")
+  combined with lexicographic ordering in order to create a list of permutations.
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Choose')]
   [CmdletBinding()]
   [Alias('permute')]
-  [OutputType([System.Collections.ArrayList])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Array] $InputObject,
+    [Parameter(Position=0)]
+    [Int] $Value,
     [Parameter(Position=1)]
-    [Alias('r')]
-    [Int] $Choose
+    [Int] $Offset = 0
   )
   Begin {
-    function Remove-Item {
+    function Invoke-Swap {
+      <#
+      .SYNOPSIS
+      Swap two elements of an array
+      ==> b = (a += b -= a) - b
+      #>
+      Param(
+        [Array] $Items,
+        [Int] $Next,
+        [Int] $Current
+      )
+      $Items[$Next] = ($Items[$Current] += $Items[$Next] -= $Items[$Current]) - $Items[$Next]
+    }
+    function Test-Mobile {
       Param(
         [Parameter(Position=0)]
-        [Array] $Values,
+        [Array] $Work,
         [Parameter(Position=1)]
+        [Array] $Direction,
+        [Parameter(Position=2)]
         [Int] $Index
       )
-      $Values[0..($Index - 1)] + $Values[($Index + 1)..($Values.Length -1)]
+      if (($Index -eq 0 -and $Direction[$Index] -eq 0) -or ($Index -eq ($Work.Count - 1) -and $Direction[$Index] -eq 1)) {
+        return $false
+      }
+      if (($Index -gt 0) -and ($Direction[$Index] -eq 0) -and ($Work[$Index] -gt $Work[$Index - 1])) {
+        return $true
+      }
+      if ($Index -lt ($Work.Count - 1) -and ($Direction[$Index] -eq 1) -and ($Work[$Index] -gt $Work[$Index + 1])) {
+        return $true
+      }
+      if (($Index -gt 0) -and ($Index -lt $Work.Count)) {
+        if (($Direction[$Index] -eq 0 -and $Work[$Index] -gt $Work[$Index - 1]) -or ($Direction[$Index] -eq 1 -and $Work[$Index] -gt $Work[$Index + 1])) {
+          return $true
+        }
+      }
+      return $false
+    }
+    function Test-HasMobile {
+        Param(
+          [Parameter(Position=0)]
+          [Array] $Work,
+          [Parameter(Position=1)]
+          [Array] $Direction
+        )
+        for ($i = 0; $i -lt $Work.Count; $i++) {
+          if ((Test-Mobile -Work $Work -Direction $Direction -Index $i)) {
+            return $true
+          }
+        }
+        return $false
+    }
+    function Find-LargestMobile {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Work,
+        [Parameter(Position=1)]
+        [Array] $Direction
+      )
+      $Largest = -1
+      $Position = -1
+      for ($i = 0; $i -lt $Work.Count; $i++) {
+        if ((Test-Mobile -Work $Work -Direction $Direction -Index $i) -and ($Largest -lt $Work[$i])) {
+            $Largest = $Work[$i]
+            $Position = $i
+        }
+      }
+      $Position
     }
     function Invoke-Permutation {
       Param(
         [Parameter(Position=0)]
-        [Array] $Values
+        [Int] $Value,
+        [Parameter(Position=1)]
+        [Int] $Offset
       )
-      $Values
+      $Results = [Object[]]::New((Get-Factorial $Value))
+      $Work = [Object[]]::New($Value)
+      $Direction = [Object[]]::New($Value)
+      for ($i = 0; $i -lt $Value; $i++) {
+        $Work[$i] = $i + $Offset
+        $Direction[$i] = 0
+      }
+      $Step = 1
+      $Results[0] = $Work.Clone()
+      while ((Test-HasMobile $Work $Direction)) {
+        $Current = Find-LargestMobile $Work $Direction
+        $NextPosition = if ($Direction[$Current] -eq 0) { $Current - 1 } else { $Current + 1 }
+        Invoke-Swap -Items $Work -Next $NextPosition -Current $Current
+        Invoke-Swap -Items $Direction -Next $NextPosition -Current $Current
+        for ($i = 0; $i -lt $Value; $i++) {
+          if ($Work[$i] -gt $Work[$NextPosition]) {
+            $Direction[$i] = if ($Direction[$i] -eq 0) { 1 } else { 0 }
+          }
+        }
+        $Results[$Step] = $Work.Clone()
+        $Step++
+      }
+      $Results
     }
-    if ($InputObject.Count -gt 0) {
-      Invoke-Permutation $InputObject
-    }
+    # if ($null -ne $Value) {
+      Invoke-Permutation $Value $Offset
+    # }
   }
   End {
-    if ($Input.Count -gt 0) {
-      Invoke-Permutation $Input
-    }
+    # if ($null -ne $Input) {
+    #   Invoke-Permutation $Input $Offset
+    # }
   }
 }
 function Invoke-Chunk {
