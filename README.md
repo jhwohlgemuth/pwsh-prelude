@@ -124,6 +124,7 @@ Functions
 - `Find-FirstIndex`
 - `Format-MoneyValue`
 - `Get-Extremum`
+- `Get-Factorial`
 - `Get-File`
 - `Get-GithubOAuthToken`
 - `Get-HostsContent`

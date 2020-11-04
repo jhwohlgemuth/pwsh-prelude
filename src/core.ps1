@@ -239,6 +239,28 @@ function Get-Extremum {
     Invoke-GetExtremum $Input
   }
 }
+function Get-Factorial {
+  <#
+  .SYNOPSIS
+  Return factorial of Value, Value!.
+  .EXAMPLE
+  Get-Factorial 10
+  # 3628800
+  
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Int] $Value
+  )
+  Process {
+    if ($Value -eq 0) {
+      1
+    } else {
+      1..$Value | Invoke-Reduce { Param($Acc,$Item) $Acc * $Item } -InitialValue 1
+    }
+  }
+}
 function Get-Maximum {
   <#
   .SYNOPSIS
@@ -326,47 +348,16 @@ function Get-Permutation {
         [Parameter(Position=0)]
         [Array] $Values
       )
-      switch ($Values.Count) {
-        1 {
-          return
-        }
-        2 {
-          $a,$b = $Values
-          $Permutation = [System.Collections.ArrayList]::New()
-          [Void]$Permutation.Add(@($a,$b))
-          [Void]$Permutation.Add(@($b,$a))
-          $Permutation
-        }
-        Default {
-          Invoke-Permutation $Values[1..($Values.Count - 1)]
-        }
-      }
+      $Values
     }
     if ($InputObject.Count -gt 0) {
       Invoke-Permutation $InputObject
     }
   }
   End {
-    $Items = $Input
-    $Count = $Items.Count
-    if ($Count -gt 0) {
-      if ($Count -eq 2) {
-        $Result = Invoke-Permutation $Input
-      } else {
-        $Result = [System.Collections.ArrayList]::New()
-        $Temp = [System.Collections.ArrayList](0..($Count - 1))
-        $Temp | ForEach-Object {
-          [Void]$Result.Add($_)
-          $Permutation = Invoke-Permutation (Remove-Item $Temp $_)
-          [Void]$Result.Add($Permutation)
-        }
-      }
+    if ($Input.Count -gt 0) {
+      Invoke-Permutation $Input
     }
-    $Output = [System.Collections.ArrayList]::New()
-    $Result | Invoke-Chunk -Size 2 | ForEach-Object {
-      [Void]$Output.Add($_)
-    }
-    $Output
   }
 }
 function Invoke-Chunk {
