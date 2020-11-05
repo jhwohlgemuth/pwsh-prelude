@@ -313,6 +313,22 @@ function Get-Permutation {
   .DESCRIPTION
   Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages "minimal change" of elements (via "swapping")
   combined with lexicographic ordering in order to create a list of permutations.
+  .PARAMETER Words
+  Combine individual permutations as strings (see examples)
+  .EXAMPLE
+  2 | Get-Permutation
+  # @(0,1),@(1,0)
+
+  1,2 | Get-Permutation
+  # @(1,2),@(2,1)
+
+  2 | Get-Permutation -Offset 1
+  # @(1,2).@(2,1)
+
+  .EXAMPLE
+  'cat' | Get-Permutation -Words
+  # 'cat','cta','tca','tac','atc','act'
+
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Offset')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Words')]
@@ -365,33 +381,32 @@ function Get-Permutation {
       return $false
     }
     function Test-MoveableExist {
-        Param(
-          [Parameter(Position=0)]
-          [Array] $Work,
-          [Parameter(Position=1)]
-          [Array] $Direction
-        )
-        for ($i = 0; $i -lt $Work.Count; $i++) {
-          if ((Test-Moveable -Work $Work -Direction $Direction -Index $i)) {
-            return $true
-          }
-        }
-        return $false
-    }
-    function Find-LargestMoveable {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
+      [OutputType([Bool])]
       Param(
         [Parameter(Position=0)]
         [Array] $Work,
         [Parameter(Position=1)]
         [Array] $Direction
       )
-      $Largest = -1
-      $Position = -1
-      for ($i = 0; $i -lt $Work.Count; $i++) {
-        if ((Test-Moveable -Work $Work -Direction $Direction -Index $i) -and ($Largest -lt $Work[$i])) {
-            $Largest = $Work[$i]
-            $Position = $i
+      (0..($Work.Count - 1) | ForEach-Object { Test-Moveable -Work $Work -Direction $Direction -Index $_ }) -contains $true
+    }
+    function Find-LargestMoveable {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Position')]
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Work,
+        [Parameter(Position=1)]
+        [Array] $Direction
+      )
+      $Index = 0
+      $Work | ForEach-Object {
+        if ((Test-Moveable -Work $Work -Direction $Direction -Index $Index) -and ($Largest -lt $_)) {
+          $Largest = $_
+          $Position = $Index
         }
+        $Index++
       }
       $Position
     }
@@ -403,12 +418,8 @@ function Get-Permutation {
         [Int] $Offset
       )
       $Results = [Object[]]::New((Get-Factorial $Value))
-      $Work = [Object[]]::New($Value)
-      $Direction = [Object[]]::New($Value)
-      for ($i = 0; $i -lt $Value; $i++) {
-        $Work[$i] = $i + $Offset
-        $Direction[$i] = 0
-      }
+      $Work = 0..($Value - 1) | ForEach-Object { $_ + $Offset }
+      $Direction = $Work | ForEach-Object { 0 }
       $Step = 1
       $Results[0] = $Work.Clone()
       while ((Test-MoveableExist $Work $Direction)) {
@@ -416,11 +427,9 @@ function Get-Permutation {
         $NextPosition = if ($Direction[$Current] -eq 0) { $Current - 1 } else { $Current + 1 }
         Invoke-Swap -Items $Work -Next $NextPosition -Current $Current
         Invoke-Swap -Items $Direction -Next $NextPosition -Current $Current
-        for ($i = 0; $i -lt $Value; $i++) {
-          if ($Work[$i] -gt $Work[$NextPosition]) {
-            $Direction[$i] = if ($Direction[$i] -eq 0) { 1 } else { 0 }
-          }
-        }
+        0..($Value - 1) |
+          Where-Object { $Work[$_] -gt $Work[$NextPosition] } |
+          ForEach-Object { $Direction[$_] = if ($Direction[$_] -eq 0) { 1 } else { 0 } }
         $Results[$Step] = $Work.Clone()
         $Step++
       }
