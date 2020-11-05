@@ -118,6 +118,7 @@ Functions
 - `ConvertTo-PowershellSyntax`
 - `ConvertTo-Iso8601`
 - `ConvertTo-Pair`
+- `ConvertTo-PlainText`
 - `ConvertTo-QueryString`
 - `Enable-Remoting`
 - `Find-Duplicate`
@@ -199,6 +200,30 @@ Aliases
 Get-Alias | Where-Object { $_.Source -eq 'pwsh-prelude' }
 ```
 
+Type Extensions
+---------------
+> For details on how to extend types with `Types.ps1xml` files, see [About Types.ps1xml](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_types.ps1xml?view=powershell-7)
+
+Prelude uses type extensions to provide method versions of most core functions. This may be useful in some situations (or if you just don't feel like using pipelines...)
+
+**Examples**
+```Powershell
+# Factorials
+(4).Factorial # 24
+
+# Permutations as a property (similar property for numbers and arrays)
+'cat'.Permutations # 'cat','cta','tca','tac','atc','act'
+
+# Flatten an array
+@(1,@(2,3,@(4,5))).Flatten # 1,2,3,4,5
+
+# Reduce an array just like you would in other languages like JavaScript
+$Add = { Param($a,$b) $a + $b }
+@(1,2,3).Reduce($Add, 0) # 6
+
+```
+> For the full list of functions, read through the `ps1xml` files in [`./types`](./types)
+
 Credits
 -------
 - [Microsoft]() - *[Powershell](https://github.com/powershell/powershell) (d'uh), [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal), and VS Code (the editor I use)*
@@ -209,6 +234,7 @@ Credits
 - [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*
 - [mattifestation/PowerShellArsenal](https://github.com/mattifestation/PowerShellArsenal) - *inspiration*
 - [PowerShellMafia/PowerSploit](https://github.com/PowerShellMafia/PowerSploit) - *inspiration*
+- [MartinSGill/Profile](https://github.com/MartinSGill/Profile) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 
 Footnotes

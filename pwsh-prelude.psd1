@@ -10,6 +10,13 @@
   FileList = @()
   CmdletsToExport = @()
   VariablesToExport = @()
+  TypesToProcess = @(
+    'types\Int.Types.ps1xml'
+    'types\String.Types.ps1xml'
+    'types\Array.Types.ps1xml'
+    'types\Object.Types.ps1xml'
+    'types\FileInfo.Types.ps1xml'
+  )
   AliasesToExport = @(
     '~'
     'basicauth'
@@ -36,6 +43,7 @@
     'on'
     'op'
     'partition'
+    'plain'
     'permute'
     'prop'
     'reduce'
@@ -63,6 +71,7 @@
     'ConvertTo-PowershellSyntax'
     'ConvertTo-Iso8601'
     'ConvertTo-Pair'
+    'ConvertTo-PlainText'
     'ConvertTo-QueryString'
     'Enable-Remoting'
     'Find-Duplicate'

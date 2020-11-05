@@ -71,6 +71,30 @@ function ConvertTo-Pair {
     }
   }
 }
+function ConvertTo-PlainText {
+  <#
+  .SYNOPSIS
+  Convert SecureString value to human-readable plain text
+  #>
+  [CmdletBinding()]
+  [Alias('plain')]
+  [OutputType([String])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [SecureString] $Value
+  )
+  Process {
+    try {
+      $BinaryString = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Value);
+      $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BinaryString);
+    } finally {
+      if ($BinaryString -ne [IntPtr]::Zero) {
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BinaryString);
+      }
+    }
+    $PlainText
+  }
+}
 function Find-FirstIndex {
   <#
   .SYNOPSIS
@@ -1074,7 +1098,7 @@ function Invoke-Reduce {
 }
 function Invoke-TakeWhile {
   [CmdletBinding()]
-  [Alias('takewhile')]
+  [Alias('takeWhile')]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
     [Array] $InputObject,

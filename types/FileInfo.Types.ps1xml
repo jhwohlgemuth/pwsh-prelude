@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+    <Type>
+        <Name>System.IO.FileInfo</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>SHA512</Name>
+                <GetScriptBlock>
+                    (Get-FileHash $this.FullName -Algorithm 'SHA512').Hash
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptProperty>
+                <Name>SHA256</Name>
+                <GetScriptBlock>
+                    (Get-FileHash $this.FullName -Algorithm 'SHA256').Hash
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptProperty>
+                <Name>SHA1</Name>
+                <GetScriptBlock>
+                    (Get-FileHash $this.FullName -Algorithm 'SHA1').Hash
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptProperty>
+                <Name>MD5</Name>
+                <GetScriptBlock>
+                    (Get-FileHash $this.FullName -Algorithm 'MD5').Hash
+                </GetScriptBlock>
+            </ScriptProperty>
+        </Members>
+    </Type>
+</Types>

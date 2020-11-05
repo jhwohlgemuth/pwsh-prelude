@@ -1,4 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
@@ -6,10 +7,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 92
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 93
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 43
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 44
         }
     }
 }
@@ -50,6 +51,14 @@ Describe 'ConvertTo-Pair' {
     }
     It 'provides aliases for ease of use' {
         @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair | Should -Be @('c','b','a'),@(3,2,1)
+    }
+}
+Describe 'ConvertTo-PlainText' {
+    It 'can convert secure strings to plain text strings' {
+        $Message = 'Powershell is awesome'
+        $Secure = $Message | ConvertTo-SecureString -AsPlainText -Force
+        $Secure.ToString() | Should -Be 'System.Security.SecureString'
+        $Secure | ConvertTo-PlainText | Should -Be $Message
     }
 }
 Describe 'Find-FirstIndex' {

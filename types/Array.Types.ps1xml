@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+    <Type>
+        <Name>System.Array</Name>
+        <Members>
+            <ScriptMethod>
+                <Name>DropWhile</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                $this | Invoke-DropWhile $Predicate
+                </Script>
+            </ScriptMethod>
+            <ScriptProperty>
+                <Name>Permutations</Name>
+                <GetScriptBlock>
+                    Get-Permutation $this
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptMethod>
+                <Name>FindFirstIndex</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                Find-FirstIndex $this -Predicate $Predicate
+                </Script>
+            </ScriptMethod>
+            <ScriptProperty>
+                <Name>Flatten</Name>
+                <GetScriptBlock>
+                    Invoke-Flatten $this
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptMethod>
+                <Name>Partition</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                $this | Invoke-Partition $Predicate
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>Reduce</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate,
+                  $InitialValue = @{}
+                )
+                $this | Invoke-Reduce $Predicate $InitialValue
+                </Script>
+            </ScriptMethod>
+        </Members>
+    </Type>
+    <Type>
+        <Name>System.Collections.ArrayList</Name>
+        <Members>
+            <ScriptMethod>
+                <Name>DropWhile</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                $this | Invoke-DropWhile $Predicate
+                </Script>
+            </ScriptMethod>
+            <ScriptProperty>
+                <Name>Permutations</Name>
+                <GetScriptBlock>
+                    Get-Permutation $this
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptMethod>
+                <Name>FindFirstIndex</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                Find-FirstIndex $this -Predicate $Predicate
+                </Script>
+            </ScriptMethod>
+            <ScriptProperty>
+                <Name>Flatten</Name>
+                <GetScriptBlock>
+                    Invoke-Flatten $this
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptMethod>
+                <Name>Partition</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                $this | Invoke-Partition $Predicate
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>Reduce</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate,
+                  $InitialValue = @{}
+                )
+                $this | Invoke-Reduce $Predicate $InitialValue
+                </Script>
+            </ScriptMethod>
+        </Members>
+    </Type>
+</Types>

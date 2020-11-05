@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+    <Type>
+        <Name>System.Object</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>Inverted</Name>
+                <GetScriptBlock>
+                    $this | Invoke-ObjectInvert
+                </GetScriptBlock>
+            </ScriptProperty>
+        </Members>
+    </Type>
+</Types>

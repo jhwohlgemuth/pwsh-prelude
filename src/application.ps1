@@ -1,4 +1,25 @@
-﻿function ConvertTo-PowershellSyntax {
+﻿
+Add-Type -TypeDefinition @"
+using System;
+
+public class ApplicationState {
+
+  public string Id;
+  public string Name;
+  public bool Continue;
+  public object Data;
+
+  public ApplicationState() {
+    this.Id = Guid.NewGuid().ToString();
+    this.Name = "Application Name";
+  }
+  public ApplicationState(string name) {
+    this.Id = Guid.NewGuid().ToString();
+    this.Name = name;
+  }
+}
+"@
+function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(
@@ -279,14 +300,6 @@ function Invoke-RunApplication {
   }
   $State.Id
 }
-enum ApplicationStatus { Init; Busy; Idle; Done }
-class ApplicationState {
-  [String] $Id = (New-Guid)
-  [ApplicationStatus] $Status = 0
-  [Bool] $Continue = $true
-  [String] $Name = 'Application Name'
-  $Data
-}
 function Save-State {
   <#
   .SYNOPSIS
@@ -306,14 +319,13 @@ function Save-State {
     [Parameter(Position=0)]
     [String] $Id,
     [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
-    [PSObject] $State,
+    [ApplicationState] $State,
     [String] $Path
   )
   if (-not $Path) {
     $Path = Join-Path $Env:temp "state-$Id.xml"
   }
   if ($PSCmdlet.ShouldProcess($Path)) {
-    $State = [ApplicationState]$State
     if ($Id) {
       $State.Id = $Id
     }
