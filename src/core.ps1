@@ -313,6 +313,9 @@ function Get-Permutation {
   .DESCRIPTION
   Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages adjacent transpositions ("swapping")
   combined with lexicographic ordering in order to create a list of permutations.
+
+  Note: Get-Permutation will start to exhibit noticeable pause before completion for n = 7
+
   .PARAMETER Words
   Combine individual permutations as strings (see examples)
   .EXAMPLE
@@ -326,7 +329,7 @@ function Get-Permutation {
   # @(1,2).@(2,1)
 
   .EXAMPLE
-  'cat' | Get-Permutation -Words
+  'cat' | permute -Words
   # 'cat','cta','tca','tac','atc','act'
 
   #>
