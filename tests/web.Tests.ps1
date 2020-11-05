@@ -50,6 +50,24 @@ Describe 'ConvertFrom-Html / Import-Html' {
             $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
         }
     }
+    It 'can import more complex local HTML file' {
+        try {
+            $Supported = New-Object -ComObject "HTMLFile"
+        } catch {
+            $Supported = $null
+        }
+        if ($null -ne $Supported) {
+            $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
+            $Html = Import-Html -Path $Path
+            $Html.title | Should -Be 'Example Webpage'
+            $Html.bgColor | Should -Be '#663399' # rebeccapurple
+            $Html.styleSheets[0].href | Should -Be 'style.css'
+            $Html.images[0].id | Should -Be 'foobar'
+            $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'Kitsch 8-bit taxidermy','A','B','C'
+            $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'description'
+            $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'keywords'
+        }
+    }
 }
 Describe 'ConvertTo-Iso8601' {
     It 'can convert values to ISO-8601 format' {
