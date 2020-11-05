@@ -1033,22 +1033,31 @@ function Invoke-Reduce {
   .SYNOPSIS
   Functional helper function intended to approximate some of the capabilities of Reduce (as used in languages like JavaScript and F#)
   .PARAMETER InitialValue
-  Starting value for reduce. The type of InitialValue will change the operation of Invoke-Reduce.
+  Starting value for reduce.
+  The type of InitialValue will change the operation of Invoke-Reduce. If no InitialValue is passed, the first item will be used.
+
+  Note: InitialValue must be passed when using "method" version of Invoke-Reduce. Example: (1..5).Reduce($Add, 0)
+
   .PARAMETER FileInfo
   The operation of combining many FileInfo objects into one object is common enough to deserve its own switch (see examples)
   .EXAMPLE
-  1,2,3,4,5 | Invoke-Reduce -Callback { Param($a, $b) $a + $b } -InitialValue 0
+  1,2,3,4,5 | Invoke-Reduce -Callback { Param($a, $b) $a + $b }
 
   Compute sum of array of integers
   .EXAMPLE
-  'a','b','c' | reduce { Param($a, $b) $a + $b } ''
+  'a','b','c' | reduce { Param($a, $b) $a + $b }
 
   Concatenate array of strings
   .EXAMPLE
-  1..100 | reduce -InitialValue 0 -Add
+  1..10 | reduce -Add
   # 5050
 
   Invoke-Reduce has switches for common callbacks - Add, Every, and Some
+  .EXAMPLE
+  1..10 | reduce -Add ''
+  # returns '12345678910'
+
+  Change the InitialValue to change the Callback and output type
   .EXAMPLE
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
 
@@ -1063,7 +1072,7 @@ function Invoke-Reduce {
     [Parameter(Position=0)]
     [ScriptBlock] $Callback = { Param($a) $a },
     [Parameter(Position=1)]
-    $InitialValue = @{},
+    $InitialValue,
     [Switch] $Identity,
     [Switch] $Add,
     [Switch] $Every,
@@ -1071,29 +1080,51 @@ function Invoke-Reduce {
     [Switch] $FileInfo
   )
   Begin {
-    $Index = 0
-    $Result = $InitialValue
-    $Callback = switch ((Find-FirstTrueVariable 'Identity','Add','Every','Some','FileInfo')) {
-      'Identity' { $Callback }
-      'Add' { { Param($a, $b) $a + $b } }
-      'Every' { { Param($a, $b) $a -and $b } }
-      'Some' { { Param($a, $b) $a -or $b } }
-      'FileInfo' { { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length } }
-      Default { $Callback }
-    }
-  }
-  Process {
-    $Items | ForEach-Object {
-      if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Bool] -or $InitialValue -is [Array]) {
-        $Result = & $Callback $Result $_ $Index $Items
-      } else {
-        & $Callback $Result $_ $Index $Items
+    function Invoke-InternalReduce {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Items,
+        [Parameter(Position=1)]
+        [ScriptBlock] $Callback,
+        [Parameter(Position=2)]
+        $InitialValue
+      )
+      if ($FileInfo) {
+        $InitialValue = @{}
       }
-      $Index++
+      if ($null -eq $InitialValue) {
+        # $InitialValue = $Items | Select-Object -First 1
+        # $Items.Count | Write-Color -Green
+        $Items = $Items[1..($Items.Count - 1)]
+      }
+      $Index = 0
+      $Result = $InitialValue
+      $Callback = switch ((Find-FirstTrueVariable 'Identity','Add','Every','Some','FileInfo')) {
+        'Identity' { $Callback }
+        'Add' { { Param($a, $b) $a + $b } }
+        'Every' { { Param($a, $b) $a -and $b } }
+        'Some' { { Param($a, $b) $a -or $b } }
+        'FileInfo' { { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length } }
+        Default { $Callback }
+      }
+      $Items | ForEach-Object {
+        if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Bool] -or $InitialValue -is [Array]) {
+          $Result = & $Callback $Result $_ $Index $Items
+        } else {
+          & $Callback $Result $_ $Index $Items
+        }
+        $Index++
+      }
+      $Result
+    }
+    if ($Items.Count -gt 0) {
+      Invoke-InternalReduce $Items $Callback $InitialValue
     }
   }
   End {
-    $Result
+    if ($Input.Count -gt 0) {
+      Invoke-InternalReduce $Input $Callback $InitialValue
+    }
   }
 }
 function Invoke-TakeWhile {

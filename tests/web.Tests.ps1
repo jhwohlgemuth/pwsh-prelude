@@ -79,15 +79,17 @@ Describe 'ConvertTo-Iso8601' {
     }
 }
 Describe 'ConvertTo-QueryString' {
-    It 'can convert objects into URL-encoded query strings' {
+    It -Skip 'can handle empty objects' {
         @{} | ConvertTo-QueryString | Should -Be ''
+        @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
+    }
+    It 'can convert objects into URL-encoded query strings' {
         @{ foo = '' } | ConvertTo-QueryString | Should -Be 'foo='
         @{ foo = 'bar' } | ConvertTo-QueryString | Should -Be 'foo=bar'
         @{ a = 1; b = 2; c = 3 } | ConvertTo-QueryString | Should -Be 'a=1&b=2&c=3'
         @{ per_page = 100; page = 3 } | ConvertTo-QueryString  | Should -Be 'page=3&per_page=100'
     }
     It 'can convert objects into query strings' {
-        @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
         @{ foo = '' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3d'
         @{ foo = 'a' },@{ bar = 'b'} | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3da','bar%3db'
         @{ foo = 'bar' } | ConvertTo-QueryString -UrlEncode | Should -Be 'foo%3dbar'

@@ -489,6 +489,25 @@ Describe 'Invoke-PropertyTransform' {
     }
 }
 Describe 'Invoke-Reduce' {
+    It 'will use the first item when no initial value is passed' {
+        $Expected = 55
+        $AllTrue = $true,$true,$true
+        $OneFalse = $true,$false,$true
+        $Add = { Param($a, $b) $a + $b }
+        1..10 | Invoke-Reduce -Add | Should -Be $Expected
+        1..10 | Invoke-Reduce $Add | Should -Be $Expected
+        1..10 | Invoke-Reduce $Add '' | Should -Be '12345678910'
+        # $AllTrue | Invoke-Reduce -Callback $Every | Should -Be $true
+        # $OneFalse | Invoke-Reduce -Callback $Some | Should -Be $true
+        # $AllTrue | Invoke-Reduce -Callback $Some | Should -Be $true
+        # $OneFalse | Invoke-Reduce -Callback $Every | Should -Be $false
+        # $a = @{ name = 'a'; value = 1 }
+        # $b = @{ name = 'b'; value = 2 }
+        # $c = @{ name = 'c'; value = 3 }
+        # $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
+        # $Result.Keys | Sort-Object | Should -Be 'a','b','c'
+        # $Result.Values | Sort-Object | Should -Be 1,2,3
+    }
     It 'can accept strings and integers as initial values' {
         $Add = { Param($a, $b) $a + $b }
         1,2,3,4,5 | Invoke-Reduce -Callback $Add -InitialValue 0 | Should -Be 15
@@ -520,18 +539,18 @@ Describe 'Invoke-Reduce' {
         $c = @{ name = 'c'; value = 3 }
         $Callback = { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
         # with inline scriptblock
-        $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
+        $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value } -InitialValue @{}
         $Result.Keys | Sort-Object | Should -Be 'a','b','c'
         $Result.Values | Sort-Object | Should -Be 1,2,3
         # with scriptblock variable
-        $Result = $a,$b,$c | Invoke-Reduce $Callback
+        $Result = $a,$b,$c | Invoke-Reduce $Callback -InitialValue @{}
         $Result.Keys | Sort-Object | Should -Be 'a','b','c'
         $Result.Values | Sort-Object | Should -Be 1,2,3
     }
     It 'should pass item index to -Callback function' {
         $Callback = {
             Param($Acc, $Item, $Index)
-            $Acc + $Item +  $Index
+            $Acc + $Item + $Index
         }
         1,2,3 | Invoke-Reduce $Callback 0 | Should -Be 9
     }

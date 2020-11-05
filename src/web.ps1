@@ -70,7 +70,7 @@ function ConvertFrom-QueryString {
         Param($Acc, $Item)
         $Key,$Value = $Item -split '='
         $Acc.$Key = $Value
-      }
+      } -InitialValue @{}
     } else {
       $Decoded
     }
