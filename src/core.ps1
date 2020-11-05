@@ -311,7 +311,7 @@ function Get-Permutation {
   .SYNOPSIS
   Return permutaions of input object
   .DESCRIPTION
-  Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages "minimal change" of elements (via "swapping")
+  Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages adjacent transpositions ("swapping")
   combined with lexicographic ordering in order to create a list of permutations.
   .PARAMETER Words
   Combine individual permutations as strings (see examples)
