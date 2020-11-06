@@ -1,4 +1,4 @@
-Powershell Prelude <sup>[†](#footnotes)</sup>
+Powershell Prelude <sup>[[1]](#footnotes)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge)](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
 [![Build Status](https://travis-ci.com/jhwohlgemuth/pwsh-prelude.svg?branch=master)](https://travis-ci.com/jhwohlgemuth/pwsh-prelude)
@@ -6,7 +6,11 @@ Powershell Prelude <sup>[†](#footnotes)</sup>
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude)](https://www.powershellgallery.com/packages/pwsh-prelude)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
-This module is meant to be a generic toolset that you import every time you open a terminal via your Windows Terminal `$PROFILE`. [I certainly do](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal). Naturally, it has ***ZERO external dependencies***<sup>[‡](#footnotes)</sup> and (mostly) works on Linux ;)
+PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond the typical use cases.
+
+This module is meant to be a generic toolset that you import every time you open a terminal via your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
+
+Naturally, it has ***ZERO external dependencies***<sup>[[2]](#footnotes)</sup> and (mostly) works on Linux<sup>[[3]](#footnotes)</sup> ;)
 
 If you love functional programming patterns, scripting languages, and [ubiquitous terminals](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)...this module might have something for you!
 
@@ -17,63 +21,51 @@ Quick Start
 -----------
 
 1. Install module
-```powershell
+```Powershell
 Install-Module -Name pwsh-prelude
 ```
 
 2. Import module
-```powershell
+```Powershell
 Import-Module pwsh-prelude
 ```
 
-Examples
---------
-- Create a new file
-```powershell
-touch somefile.txt
-```
-- Create a new directory and then enter it
-```powershell
-take ~/path/to/some/folder
-```
-- Navigate folders without having to use `cd`
-```powershell
-# old busted
-cd path/to/some/folder
+Things You Could Do With Prelude
+--------------------------------
+> Although `pwsh-prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
+- List all permutations of a word
+```Powershell
+'cat' | Get-Permutation
 
-# new hotness
-path/to/some/folder
-```
-- Find duplicate files (based on hash of content)
-```powershell
-Get-Location | Find-Duplicate
+# or use the "method" format, and make a list
+'cat'.Permutation | Join-StringsWithGrammar # "cat, cta, tca, tac, atc, and act"
 ```
 - Perform various operations on strings
-```powershell
+```Powershell
 $abc = 'b' | insert -To 'ac' -At 2
 $abc = 'abcd' | remove -Last
 ```
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
-```powershell
+```Powershell
 $Sum = 1..100 | reduce { Param($a, $b) $a + $b }
 
 # or with the -Add switch
 $Sum = 1..100 | reduce -Add
 ```
-- Exexute code on a remote computer
-```powershell
+- Execute code on a remote computer
+```Powershell
 { whoami } | irc -ComputerNames PCNAME
 ```
 - Make your computer talk
-```powershell
+```Powershell
 say 'Hello World'
 ```
 - Make a remote computer talk
-```powershell
+```Powershell
 { say 'Hello World' } | irc -ComputerNames PCNAME
 ```
 - Use events to communicate within your script/app
-```powershell
+```Powershell
 { 'Event triggered' | Write-Color -Red } | on 'SomeEvent'
 
 # You can even listen to variables!!!
@@ -90,7 +82,7 @@ $Callback | listenTo 'boot' -Variable
 $boot = 43
 ```
 - Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for another example)
-```powershell
+```Powershell
 'Example' | Write-Title
 $Fullname = input 'Full Name?' -Indent 4
 $Username = input 'Username?' -MaxLength 10 -Indent 4
@@ -101,8 +93,33 @@ $Word = input 'Favorite Saiya-jin?' -Autocomplete -Indent 4 -Choices @('Goku','G
 $Choice = menu @('one'; 'two'; 'three') -Indent 4
 ```
 - Visualize file sizes in a directory with one line of code!
-```powershell
+```Powershell
 Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
+```
+
+Be More Productive
+------------------
+> `pwsh-prelude` includes a handful of functions and aliases that will make you more productive
+
+- Create a new file
+```powershell
+touch somefile.txt
+```
+- Create a new directory and then enter it
+```Powershell
+take ~/path/to/some/folder
+```
+- Navigate folders without having to use `cd`
+```Powershell
+# old busted
+cd path/to/some/folder
+
+# new hotness
+path/to/some/folder
+```
+- Find duplicate files (based on hash of content)
+```Powershell
+Get-Location | Find-Duplicate
 ```
 
 ### And much more! Check out the [functions](#Functions) and [aliases](#Aliases) sections below for details
@@ -134,8 +151,8 @@ Functions
 - `Get-Permutation`
 - `Get-Screenshot`
 - `Get-State`
-- `Import-Html`
-- `Install-SshServer`
+- `Import-Html` <sup>[[3]](#footnotes)</sup>
+- `Install-SshServer` <sup>[[3]](#footnotes)</sup>
 - `Invoke-Chunk`
 - `Invoke-DropWhile`
 - `Invoke-Flatten`
@@ -144,7 +161,7 @@ Functions
 - `Invoke-Input`
 - `Invoke-InsertString`
 - `Invoke-ListenTo`
-- `Invoke-ListenForWord`
+- `Invoke-ListenForWord` <sup>[[3]](#footnotes)</sup>
 - `Invoke-Menu`
 - `Invoke-Method`
 - `Invoke-ObjectInvert`
@@ -156,7 +173,7 @@ Functions
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
 - `Invoke-RunApplication`
-- `Invoke-Speak`
+- `Invoke-Speak` <sup>[[3]](#footnotes)</sup>
 - `Invoke-TakeWhile`
 - `Invoke-Tap`
 - `Invoke-WebRequestBasicAuth`
@@ -164,14 +181,14 @@ Functions
 - `Invoke-ZipWith`
 - `Join-StringsWithGrammar`
 - `New-ApplicationTemplate`
-- `New-DailyShutdownJob`
+- `New-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
 - `New-File`
 - `New-ProxyCommand`
 - `New-SshKey`
 - `New-Template`
 - `Open-Session`
 - `Remove-Character`
-- `Remove-DailyShutdownJob`
+- `Remove-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
 - `Remove-DirectoryForce`
 - `Remove-Indent`
 - `Rename-FileExtension`
@@ -183,9 +200,9 @@ Functions
 - `Test-Equal`
 - `Test-Installed`
 - `Update-HostsFile`
-- `Use-Grammar`
-- `Use-Speech`
-- `Use-Web`
+- `Use-Grammar` <sup>[[3]](#footnotes)</sup>
+- `Use-Speech` <sup>[[3]](#footnotes)</sup>
+- `Use-Web` <sup>[[3]](#footnotes)</sup>
 - `Write-Color`
 - `Write-Label`
 - `Write-Title`
@@ -238,6 +255,17 @@ Credits
 
 Footnotes
 ---------
-> ***†*** This module is ***NOT*** an "official" Microsoft Powershell prelude module
+> ***[1]*** This module is ***NOT*** an "official" Microsoft Powershell prelude module
 
-> ***‡*** This code was inspired and enabled by [several people and projects](#Credits)
+> ***[2]*** This code was inspired and enabled by [several people and projects](#Credits)
+
+> ***[3]*** The following functions are not supported on Linux:
+- `Invoke-ListenForWord`
+- `Invoke-Speak`
+- `Install-SshServer`
+- `Import-Html`
+- `New-DailyShutdownJob`
+- `Remove-DailyShutdownJob`
+- `Use-Grammar`
+- `Use-Speech`
+- `Use-Web`
