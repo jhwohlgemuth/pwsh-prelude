@@ -1117,12 +1117,12 @@ function Invoke-Reduce {
       $Result
     }
     if ($Items.Count -gt 0) {
-      Invoke-InternalReduce $Items $Callback $InitialValue
+      Invoke-InternalReduce -Items $Items -Callback $Callback -InitialValue $InitialValue
     }
   }
   End {
     if ($Input.Count -gt 0) {
-      Invoke-InternalReduce $Input $Callback $InitialValue
+      Invoke-InternalReduce -Items $Input -Callback $Callback -InitialValue $InitialValue
     }
   }
 }
