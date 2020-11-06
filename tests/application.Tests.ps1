@@ -254,8 +254,9 @@ Describe 'New-Template' {
     }
 }
 Describe 'Remove-Indent' {
-    It -Skip 'can handle empty strings' {
-        '' | Remove-Indent | Should -Be ''
+    It 'can handle empty strings' {
+        '' | Remove-Indent | Should -Be $null
+        '' | Remove-Indent -Size 0 | Should -Be ''
     }
     It 'can remove leading spaces from single-line strings' {
         '  foobar' | Remove-Indent | Should -Be 'foobar'

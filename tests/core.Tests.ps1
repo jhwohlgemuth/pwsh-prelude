@@ -494,19 +494,25 @@ Describe 'Invoke-Reduce' {
         $AllTrue = $true,$true,$true
         $OneFalse = $true,$false,$true
         $Add = { Param($a, $b) $a + $b }
+        $Some = { Param($a, $b) $a -or $b }
+        $Every = { Param($a, $b) $a -and $b }
         1..10 | Invoke-Reduce -Add | Should -Be $Expected
         1..10 | Invoke-Reduce $Add | Should -Be $Expected
         1..10 | Invoke-Reduce $Add '' | Should -Be '12345678910'
-        # $AllTrue | Invoke-Reduce -Callback $Every | Should -Be $true
-        # $OneFalse | Invoke-Reduce -Callback $Some | Should -Be $true
-        # $AllTrue | Invoke-Reduce -Callback $Some | Should -Be $true
-        # $OneFalse | Invoke-Reduce -Callback $Every | Should -Be $false
-        # $a = @{ name = 'a'; value = 1 }
-        # $b = @{ name = 'b'; value = 2 }
-        # $c = @{ name = 'c'; value = 3 }
-        # $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
-        # $Result.Keys | Sort-Object | Should -Be 'a','b','c'
-        # $Result.Values | Sort-Object | Should -Be 1,2,3
+        $AllTrue | Invoke-Reduce -Callback $Every | Should -Be $true
+        $OneFalse | Invoke-Reduce -Callback $Some | Should -Be $true
+        $AllTrue | Invoke-Reduce -Callback $Some | Should -Be $true
+        $OneFalse | Invoke-Reduce -Callback $Every | Should -Be $false
+        $AllTrue | Invoke-Reduce -Every | Should -Be $true
+        $OneFalse | Invoke-Reduce -Some | Should -Be $true
+        $AllTrue | Invoke-Reduce -Some | Should -Be $true
+        $OneFalse | Invoke-Reduce -Every | Should -Be $false
+        $a = @{ Count = 1 }
+        $b = @{ Count = 2 }
+        $c = @{ Count = 3 }
+        $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc.Count += $Item.Count }
+        $Result.Keys | Sort-Object | Should -Be 'Count'
+        $Result.Count | Sort-Object | Should -Be 6
     }
     It 'can accept strings and integers as initial values' {
         $Add = { Param($a, $b) $a + $b }

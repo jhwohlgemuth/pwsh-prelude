@@ -79,7 +79,7 @@ Describe 'ConvertTo-Iso8601' {
     }
 }
 Describe 'ConvertTo-QueryString' {
-    It -Skip 'can handle empty objects' {
+    It 'can handle empty objects' {
         @{} | ConvertTo-QueryString | Should -Be ''
         @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
     }

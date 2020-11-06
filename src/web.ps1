@@ -109,6 +109,9 @@ function ConvertTo-QueryString {
       "${Acc}$(if ($Acc -ne '') { '&' } else { '' })${Key}=${Value}"
     }
     $QueryString = $InputObject.GetEnumerator() | Sort-Object Name | Invoke-Reduce $Callback ''
+    if (-not $QueryString) {
+      $QueryString = ''
+    }
     if ($UrlEncode) {
       Add-Type -AssemblyName System.Web
       [System.Web.HttpUtility]::UrlEncode($QueryString)

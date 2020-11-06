@@ -1093,8 +1093,7 @@ function Invoke-Reduce {
         $InitialValue = @{}
       }
       if ($null -eq $InitialValue) {
-        # $InitialValue = $Items | Select-Object -First 1
-        # $Items.Count | Write-Color -Green
+        $InitialValue = $Items | Select-Object -First 1
         $Items = $Items[1..($Items.Count - 1)]
       }
       $Index = 0
