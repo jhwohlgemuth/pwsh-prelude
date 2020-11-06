@@ -170,7 +170,6 @@ Functions
 - `New-SshKey`
 - `New-Template`
 - `Open-Session`
-- `Out-Default`
 - `Remove-Character`
 - `Remove-DailyShutdownJob`
 - `Remove-DirectoryForce`
