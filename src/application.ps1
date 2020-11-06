@@ -1,5 +1,5 @@
-﻿
-Add-Type -TypeDefinition @"
+﻿if (-not 'ApplicationState' -as [Type]) {
+  Add-Type -TypeDefinition @"
 using System;
 
 public class ApplicationState {
@@ -19,6 +19,7 @@ public class ApplicationState {
   }
 }
 "@
+}
 function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]

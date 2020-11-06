@@ -1149,7 +1149,7 @@ function Invoke-TakeWhile {
           if (& $Predicate $_) {
             $_
           } else {
-            break
+            Continue
           }
         }
       }

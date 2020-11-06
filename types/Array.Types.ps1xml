@@ -52,6 +52,15 @@
                 $this | Invoke-Reduce $Predicate $InitialValue
                 </Script>
             </ScriptMethod>
+            <ScriptMethod>
+                <Name>TakeWhile</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                $this | Invoke-TakeWhile $Predicate
+                </Script>
+            </ScriptMethod>
         </Members>
     </Type>
     <Type>
@@ -104,6 +113,15 @@
                   $InitialValue = @{}
                 )
                 $this | Invoke-Reduce $Predicate $InitialValue
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>TakeWhile</Name>
+                <Script>
+                Param(
+                  [ScriptBlock] $Predicate
+                )
+                $this | Invoke-TakeWhile $Predicate
                 </Script>
             </ScriptMethod>
         </Members>
