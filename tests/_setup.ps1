@@ -1,9 +1,4 @@
-﻿[CmdletBinding()]
-Param(
-  [Parameter(Position=0)]
-  [String] $Name = 'test'
-)
-if (Get-Module -Name $Env:ProjectName) {
+﻿if (Get-Module -Name $Env:ProjectName) {
   Remove-Module -Name $Env:ProjectName
 }
 $Path = Join-Path $Env:ProjectPath "${Env:ProjectName}.psm1"

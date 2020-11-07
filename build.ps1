@@ -1,4 +1,4 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'CI')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [CmdletBinding()]
 Param(
   [Switch] $Lint,
@@ -6,11 +6,15 @@ Param(
   [Switch] $WithCoverage,
   [Switch] $ShowCoverageReport,
   [Switch] $CI,
-  [Switch] $SkipTests
+  [Switch] $SkipChecks,
+  [Switch] $DryRun,
+  [Switch] $Major,
+  [Switch] $Minor
 )
 
 Set-BuildEnvironment -VariableNamePrefix '' -Force
 
+$Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
 function Invoke-Lint {
   [CmdletBinding()]
@@ -85,27 +89,41 @@ function Invoke-Test {
 function Invoke-Publish {
   [CmdletBinding()]
   Param()
-  '==> Validating module data...' | Write-Output
-  '    Module manifest: ' | Write-Output
-  if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-prelude.psd1')) {
-    'VALID' | Write-Output
+  "${Prefix}Validating module data..." | Write-Output
+  if (Test-ModuleManifest -Path $Env:PSModuleManifest) {
+    "${Prefix}==> SUCCESS" | Write-Output
   } else {
-    'INVALID' | Write-Output
+    "${Prefix}==> FAIL" | Write-Output
   }
-  '    Nuget API Key: ' | Write-Output
+  "${Prefix}Validating Nuget API Key..." | Write-Output
   if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) {
-    "VALID`n" | Write-Output
+    "${Prefix}==> SUCCESS" | Write-Output
   } else {
-    "INVALID`n" | Write-Output
+    "${Prefix}==> FAIL" | Write-Output
   }
-  '==> Publishing module...' | Write-Output
-  Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags
-  "DONE`n" | Write-Output
+  $Increment = if ($Major) {
+    'Major'
+  } elseif ($Minor) {
+    'Minor'
+  } else {
+    'Build'
+  }
+  if (-not $DryRun) {
+    "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+    Update-Metadata $Env:PSModuleManifest -Increment $Increment
+    'Publishing module...' | Write-Output
+    Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+    "`n==> DONE`n" | Write-Output
+  } else {
+    "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+    "${Prefix}Publishing module..." | Write-Output
+    "${Prefix}==> DONE" | Write-Output
+  }
 }
 if ($Lint) {
   Invoke-Lint
 }
-if ($Test -and -not $SkipTests) {
+if ($Test -and -not $SkipChecks) {
   Invoke-Test
 }
 if ($ShowCoverageReport -and (Test-Path (Join-Path (Get-Location) 'coverage.xml'))) {
@@ -118,7 +136,7 @@ if ($ShowCoverageReport -and (Test-Path (Join-Path (Get-Location) 'coverage.xml'
   Invoke-Item '.\coverage\index.htm'
 }
 if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
-  if (-not $SkipTests) {
+  if (-not $SkipChecks) {
     Invoke-Lint
     Invoke-Test
   }

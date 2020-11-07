@@ -6,6 +6,8 @@ before_script:
   - powershell -Command 'Import-Module -Name PowerShellGet'
   - powershell -Command 'Install-Module -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4 -Scope CurrentUser -Force'
   - powershell -Command 'Import-Module -Name Pester'
+  - powershell -Command 'Install-Module -Name BuildHelpers -Scope CurrentUser -Force'
+  - powershell -Command 'Import-Module -Name BuildHelpers'
 script:
   - powershell -File ./build.ps1 -Test -CI
   - bash <(curl -s https://codecov.io/bash) -f coverage.xml
