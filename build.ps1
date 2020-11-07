@@ -12,7 +12,7 @@ Param(
   [Switch] $Minor
 )
 
-Set-BuildEnvironment -VariableNamePrefix '' -Force
+Import-Module BuildHelpers
 
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
@@ -89,6 +89,9 @@ function Invoke-Test {
 function Invoke-Publish {
   [CmdletBinding()]
   Param()
+
+  Set-BuildEnvironment -VariableNamePrefix ''
+
   "${Prefix}Validating module data..." | Write-Output
   if (Test-ModuleManifest -Path $Env:PSModuleManifest) {
     "${Prefix}==> SUCCESS" | Write-Output
