@@ -171,19 +171,9 @@ Describe 'Invoke-RunApplication' {
 }
 Describe 'New-ApplicationTemplate' {
     It 'can interpolate values into template string' {
-        New-ApplicationTemplate | Should -Match 'Start-App'
         New-ApplicationTemplate | Should -Match '\$Init = {'
         New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
         New-ApplicationTemplate | Should -not -Match '  \$State = {'
-        New-ApplicationTemplate -Name 'Invoke-Awesome' | Should -Match 'Invoke-Awesome'
-        New-ApplicationTemplate -Name 'Invoke-Awesome' | Should -not -Match 'Start-App.ps1'
-    }
-    It 'can be saved to disk' {
-        $Name = 'Invoke-Awesome'
-        $Path = Join-Path $TestDrive "${Name}.ps1"
-        (Test-Path $Path) | Should -Be $false
-        New-ApplicationTemplate -Name $Name -Save -Root $TestDrive
-        (Test-Path $Path) | Should -Be $true
     }
 }
 Describe 'New-Template' {

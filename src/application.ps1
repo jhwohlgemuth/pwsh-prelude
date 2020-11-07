@@ -19,24 +19,14 @@ function ConvertTo-PowershellSyntax {
 function New-ApplicationTemplate {
   <#
   .SYNOPSIS
-  Create new application template file for writing a new "scrapp" (script + application)
-  .PARAMETER Root
-  Root directory where application file will be saved to. Default is current directory. Must be used with -Save switch.
+  Return boilerplate string of a "scrapp" ("script" + "app")
   .EXAMPLE
-  New-ApplicationTemplate -Name 'Invoke-Awesome' -Save
+  New-ApplicationTemplate | Out-File 'my-app.ps1'
 
   #>
-  [CmdletBinding(DefaultParameterSetName='string')]
-  Param(
-    [Parameter(ParameterSetName='file', Position=0)]
-    [String] $Name = 'Start-App',
-    [Parameter(ParameterSetName='file')]
-    [Switch] $Save,
-    [Parameter(ParameterSetName='file')]
-    [String] $Root = (Get-Location)
-  )
-  $Data = @{ Name = $Name; Dollar = '$'; Grave = '`' }
-  $Template = "  [CmdletBinding()]
+  [CmdletBinding()]
+  Param()
+  "  [CmdletBinding()]
   Param(
     [String] {{ Dollar }}Id,
     [Switch] {{ Dollar }}Clear
@@ -50,7 +40,7 @@ function New-ApplicationTemplate {
     {{ Dollar }}Id = {{ Dollar }}State.Id
     'Application Information:' | Write-Color
     `"ID = {{#green {{ Dollar }}Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-    'Name = {{#green {{ Name }}}}' | Write-Label -Color Gray -Indent 2 -NewLine
+    'Name = {{#green Console-App}}' | Write-Label -Color Gray -Indent 2 -NewLine
     {
       Invoke-Speak 'Goodbye'
       {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
@@ -71,12 +61,7 @@ function New-ApplicationTemplate {
   }
   $Empty
   Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}InitialState -Id {{ Dollar }}Id -ClearState:{{ Dollar }}Clear
-  " | New-Template -Data $Data | Remove-Indent
-  if ($Save) {
-    $Template | Out-File (Join-Path $Root "${Name}.ps1")
-  } else {
-    $Template
-  }
+  " | New-Template -Data @{ Dollar = '$'; Grave = '`' } | Remove-Indent
 }
 function New-Template {
   <#
