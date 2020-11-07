@@ -178,13 +178,13 @@ Describe 'New-ApplicationTemplate' {
 }
 Describe 'New-Template' {
     Context 'when passed an empty object' {
-        $script:Expected = '<div>Hello </div>'
+        $Script:Expected = '<div>Hello </div>'
         It 'can return function that accepts positional parameter' {
-            $function:render = New-Template '<div>Hello {{ name }}</div>'
+            $Function:render = New-Template '<div>Hello {{ name }}</div>'
             render @{} | Should -Be $Expected
         }
         It 'can return function when instantiated as function variable' {
-            $function:render = New-Template -Template '<div>Hello {{ name }}</div>'
+            $Function:render = New-Template -Template '<div>Hello {{ name }}</div>'
             render @{} | Should -Be $Expected
         }
         It 'can return function when instantiated as normal variable' {
@@ -203,13 +203,13 @@ Describe 'New-Template' {
     }
     It 'can create function from template string using mustache notation' {
         $Expected = '<div>Hello World!</div>'
-        $function:render = New-Template '<div>Hello {{ name }}!</div>'
+        $Function:render = New-Template '<div>Hello {{ name }}!</div>'
         render @{ name = 'World' } | Should -Be $Expected
         @{ name = 'World' } | render | Should -Be $Expected
     }
     It 'can create function from template string using Powershell syntax' {
         $Expected = '<div>Hello World!</div>'
-        $function:render = New-Template '<div>Hello $($Data.name)!</div>'
+        $Function:render = New-Template '<div>Hello $($Data.name)!</div>'
         render @{ name = 'World' } | Should -Be $Expected
         @{ name = 'World' } | render | Should -Be $Expected
     }

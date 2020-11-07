@@ -129,13 +129,13 @@ function New-Template {
       [Switch] $PassThru
     )
     if ($PassThru) {
-      $StringToRender = $__template
+      $StringToRender = $Script:__template
     } else {
       $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
-      $StringToRender = $__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+      $StringToRender = $Script:__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
     if (-not $Data) {
-      $Data = $__defaults
+      $Data = $Script:__defaults
     }
     $StringToRender = $StringToRender -replace '"', '`"'
     $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
