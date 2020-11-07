@@ -120,8 +120,8 @@ function New-Template {
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [PSObject] $DefaultValues
   )
-  $Global:__template = $Template # This line is super important
-  $Global:__defaults = $DefaultValues # This line is also super important
+  $Script:__template = $Template # This line is super important
+  $Script:__defaults = $DefaultValues # This line is also super important
   $Renderer = {
     Param(
       [Parameter(Position=0, ValueFromPipeline=$true)]
@@ -129,15 +129,18 @@ function New-Template {
       [Switch] $PassThru
     )
     if ($PassThru) {
-      $StringToRender = $Global:__template
+      $StringToRender = $Script:__template
     } else {
       $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
-      $StringToRender = $Global:__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+      "`"Data`" variable name = $DataVariableName" | Write-Verbose
+      $StringToRender = $Script:__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
     if (-not $Data) {
-      $Data = $Global:__defaults
+      "Data = $($Data | ConvertTo-Json)" | Write-Verbose
+      $Data = $Script:__defaults
     }
     $StringToRender = $StringToRender -replace '"', '`"'
+    "String to render = $StringToRender" | Write-Verbose
     $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
     $Powershell = [Powershell]::Create()
     [Void]$Powershell.AddScript($ImportDataVariable).AddScript("Write-Output `"$StringToRender`"")
