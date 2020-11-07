@@ -90,7 +90,7 @@ function Invoke-Publish {
   [CmdletBinding()]
   Param()
 
-  Set-BuildEnvironment -VariableNamePrefix ''
+  Set-BuildEnvironment -VariableNamePrefix '' -Force
 
   "${Prefix}Validating module data..." | Write-Output
   if (Test-ModuleManifest -Path $Env:PSModuleManifest) {

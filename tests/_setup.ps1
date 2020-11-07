@@ -1,4 +1,6 @@
-﻿if (Get-Module -Name $Env:ProjectName) {
+﻿Set-BuildEnvironment -VariableNamePrefix '' -Force
+
+if (Get-Module -Name $Env:ProjectName) {
   Remove-Module -Name $Env:ProjectName
 }
 $Path = Join-Path $Env:ProjectPath "${Env:ProjectName}.psm1"
