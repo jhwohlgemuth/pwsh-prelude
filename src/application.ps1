@@ -142,9 +142,14 @@ function New-Template {
     $StringToRender = $StringToRender -replace '"', '`"'
     "String to render = $StringToRender" | Write-Verbose
     $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
+    '==> Creating PowerShell sandbox' | Write-Verbose
     $Powershell = [Powershell]::Create()
+    "==> Adding script: $ImportDataVariable" | Write-Verbose
+    "==> Adding script: Write-Output `"$StringToRender`"" | Write-Verbose
     [Void]$Powershell.AddScript($ImportDataVariable).AddScript("Write-Output `"$StringToRender`"")
+    '==> Invoking scripts within PowerShell sandbox' | Write-Verbose
     $Powershell.Invoke()
+    '==> Disposing of PowerShell sandbox' | Write-Verbose
     [Void]$Powershell.Dispose()
   }
   if ($Data) {
