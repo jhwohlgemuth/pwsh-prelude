@@ -3,12 +3,8 @@ Param(
   [Parameter(Position=0)]
   [String] $Name = 'test'
 )
-
-"[+] Configuring $Name tests" | Write-Verbose
-
-$ModuleName = 'pwsh-prelude'
-if (Get-Module -Name $ModuleName) {
-    Remove-Module -Name $ModuleName
+if (Get-Module -Name $Env:ProjectName) {
+  Remove-Module -Name $Env:ProjectName
 }
-$Path = Join-Path $PSScriptRoot "..\${ModuleName}.psm1"
+$Path = Join-Path $Env:ProjectPath "${Env:ProjectName}.psm1"
 Import-Module $Path -Force

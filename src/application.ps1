@@ -1,4 +1,10 @@
-﻿function ConvertTo-PowershellSyntax {
+﻿class ApplicationState {
+  [String] $Id = (New-Guid)
+  [Bool] $Continue = $true
+  [String] $Name = 'Application Name'
+  $Data
+}
+function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(
@@ -298,13 +304,14 @@ function Save-State {
     [Parameter(Position=0)]
     [String] $Id,
     [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
-    [ApplicationState] $State,
+    [PSObject] $State,
     [String] $Path
   )
   if (-not $Path) {
     $Path = Join-Path $Env:temp "state-$Id.xml"
   }
   if ($PSCmdlet.ShouldProcess($Path)) {
+    $State = [ApplicationState]$State
     if ($Id) {
       $State.Id = $Id
     }

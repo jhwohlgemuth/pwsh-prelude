@@ -9,6 +9,8 @@ Param(
   [Switch] $SkipTests
 )
 
+Set-BuildEnvironment -VariableNamePrefix '' -Force
+
 $SourceDirectory = 'src'
 function Invoke-Lint {
   [CmdletBinding()]
@@ -30,7 +32,6 @@ function Invoke-Lint {
 function Invoke-Test {
   [CmdletBinding()]
   Param()
-
   if (-not (Get-Module -Name Pester)) {
     Import-Module -Name Pester
   }
@@ -84,7 +85,6 @@ function Invoke-Test {
 function Invoke-Publish {
   [CmdletBinding()]
   Param()
-
   '==> Validating module data...' | Write-Output
   '    Module manifest: ' | Write-Output
   if (Test-ModuleManifest -Path (Join-Path (Get-Location) 'pwsh-prelude.psd1')) {
