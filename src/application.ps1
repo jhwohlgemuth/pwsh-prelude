@@ -1,26 +1,4 @@
-﻿if (-not 'ApplicationState' -as [Type]) {
-  Add-Type -TypeDefinition @"
-using System;
-
-public class ApplicationState {
-
-  public string Id;
-  public string Name;
-  public bool Continue;
-  public object Data;
-
-  public ApplicationState() {
-    this.Id = Guid.NewGuid().ToString();
-    this.Name = "Application Name";
-  }
-  public ApplicationState(string name) {
-    this.Id = Guid.NewGuid().ToString();
-    this.Name = name;
-  }
-}
-"@
-}
-function ConvertTo-PowershellSyntax {
+﻿function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(

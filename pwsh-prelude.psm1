@@ -1,8 +1,13 @@
 ﻿#
+# Classes
+#
+$ClassFiles = Join-Path $PSScriptRoot 'classes'
+Get-ChildItem -Path $ClassFiles -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
+#
 # Functions
 #
-$Root = Join-Path $PSScriptRoot 'src'
-Get-ChildItem -Path $Root -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
+$SourceFiles = Join-Path $PSScriptRoot 'src'
+Get-ChildItem -Path $SourceFiles -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
 #
 # Aliases
 #
