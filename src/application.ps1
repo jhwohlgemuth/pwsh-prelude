@@ -120,8 +120,8 @@ function New-Template {
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [PSObject] $DefaultValues
   )
-  $Script:__template = $Template # This line is super important
-  $Script:__defaults = $DefaultValues # This line is also super important
+  $Global:__template = $Template # This line is super important
+  $Global:__defaults = $DefaultValues # This line is also super important
   $Renderer = {
     Param(
       [Parameter(Position=0, ValueFromPipeline=$true)]
@@ -129,13 +129,13 @@ function New-Template {
       [Switch] $PassThru
     )
     if ($PassThru) {
-      $StringToRender = $Script:__template
+      $StringToRender = $Global:__template
     } else {
       $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
-      $StringToRender = $Script:__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+      $StringToRender = $Global:__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
     }
     if (-not $Data) {
-      $Data = $Script:__defaults
+      $Data = $Global:__defaults
     }
     $StringToRender = $StringToRender -replace '"', '`"'
     $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
