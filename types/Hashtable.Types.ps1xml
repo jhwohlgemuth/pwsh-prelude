@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+    <Type>
+        <Name>System.Collections.Hashtable</Name>
+        <Members>
+            <ScriptMethod>
+                <Name>Invert</Name>
+                <Script>
+                    $this | Invoke-ObjectInvert
+                </Script>
+            </ScriptMethod>
+        </Members>
+    </Type>
+</Types>
