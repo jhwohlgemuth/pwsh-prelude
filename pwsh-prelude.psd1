@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.10'
+  ModuleVersion = '0.0.11'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
@@ -60,6 +60,7 @@
     'transform'
     'trigger'
     'screenshot'
+    'unzip'
     'zip'
     'zipWith'
   )
@@ -123,6 +124,7 @@
     'Invoke-Speak'
     'Invoke-TakeWhile'
     'Invoke-Tap'
+    'Invoke-Unzip'
     'Invoke-WebRequestBasicAuth'
     'Invoke-Zip'
     'Invoke-ZipWith'

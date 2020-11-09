@@ -7,10 +7,10 @@ Param()
 Describe 'Powershell Prelude Module' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 92
+            (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 93
         }
         It 'should import aliases' {
-            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 44
+            (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 45
         }
     }
 }
@@ -594,6 +594,13 @@ Describe 'Invoke-Tap' {
         1..$Times | Invoke-Tap { Test-Function } | Should -Be (1..$Times)
         Assert-MockCalled Test-Function -Times $Times
         1,2,3 | Invoke-Tap { Param($x) $x + 1 } | Should -Be 2,3,4
+    }
+}
+Describe 'Invoke-Unzip' {
+    It 'can separate an array of pairs into two arrays' {
+        @() | Invoke-Unzip | Should -Be $null
+        @(@(),@()) | Should -Be @(),@()
+        @(@('a',1),@('b',2),@('c',3)) | Invoke-Unzip | Should -Be @('a','b','c'),@(1,2,3)
     }
 }
 Describe 'Invoke-Zip(With)' {

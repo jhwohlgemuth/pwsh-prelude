@@ -1207,6 +1207,35 @@ function Invoke-Tap {
     $Result
   }
 }
+function Invoke-Unzip {
+  [CmdletBinding()]
+  [Alias('unzip')]
+  [OutputType([Array])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject
+  )
+  Begin {
+    function Invoke-InternalUnzip {
+      Param(
+        [Array] $InputObject
+      )
+      if ($InputObject.Count -gt 0) {
+        $Left = [System.Collections.ArrayList]::New()
+        $Right = [System.Collections.ArrayList]::New()
+        $InputObject | ForEach-Object {
+          [Void]$Left.Add($_[0])
+          [Void]$Right.Add($_[1])
+        }
+        $Left,$Right
+      }
+    }
+    Invoke-InternalUnzip $InputObject
+  }
+  End {
+    Invoke-InternalUnzip $Input
+  }
+}
 function Invoke-Zip {
   <#
   .SYNOPSIS

@@ -176,6 +176,7 @@ Functions
 - `Invoke-Speak` <sup>[[3]](#footnotes)</sup>
 - `Invoke-TakeWhile`
 - `Invoke-Tap`
+- `Invoke-Unzip`
 - `Invoke-WebRequestBasicAuth`
 - `Invoke-Zip`
 - `Invoke-ZipWith`
