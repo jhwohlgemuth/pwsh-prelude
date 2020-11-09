@@ -602,6 +602,10 @@ Describe 'Invoke-Unzip' {
         @(@(),@()) | Should -Be @(),@()
         @(@('a',1),@('b',2),@('c',3)) | Invoke-Unzip | Should -Be @('a','b','c'),@(1,2,3)
     }
+    It 'should act as an inverse to zip' {
+        $Expected = @('aaa','bbb','ccc'),@(1,2,3)
+        $Expected | Invoke-Zip | Invoke-Unzip | Should -Be $Expected
+    }
 }
 Describe 'Invoke-Zip(With)' {
     It 'can zip two arrays' {
