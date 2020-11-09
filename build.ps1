@@ -39,8 +39,7 @@ function Invoke-Test {
   if (-not (Get-Module -Name Pester)) {
     Import-Module -Name Pester
   }
-  $Root = Join-Path $PSScriptRoot $SourceDirectory
-  $Files = (Get-ChildItem $Root -Recurse -Include '*.ps1').FullName
+  $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
   if ($WithCoverage) {
     '==> Executing tests with coverage' | Write-Output
     $Configuration = [PesterConfiguration]@{
