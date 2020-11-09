@@ -172,6 +172,7 @@ Describe 'Invoke-RunApplication' {
 Describe 'New-ApplicationTemplate' {
     It 'can interpolate values into template string' {
         New-ApplicationTemplate | Should -Match '\$Init = {'
+        New-ApplicationTemplate | Should -match '{{#green My-App}}'
         New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
         New-ApplicationTemplate | Should -not -Match '  \$State = {'
     }

@@ -13,7 +13,7 @@ function ConvertTo-PowershellSyntax {
     [String] $DataVariableName = 'Data'
   )
   Write-Output $Value |
-    ForEach-Object { $_ -replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s]*)\s*}}', ')' } |
+    ForEach-Object { $_ -replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s\-_]*)\s*}}', ')' } |
     ForEach-Object { $_ -replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
 function New-ApplicationTemplate {
@@ -40,7 +40,7 @@ function New-ApplicationTemplate {
     {{ Dollar }}Id = {{ Dollar }}State.Id
     'Application Information:' | Write-Color
     `"ID = {{#green {{ Dollar }}Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-    'Name = {{#green Console-App}}' | Write-Label -Color Gray -Indent 2 -NewLine
+    'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine
     {
       Invoke-Speak 'Goodbye'
       {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
