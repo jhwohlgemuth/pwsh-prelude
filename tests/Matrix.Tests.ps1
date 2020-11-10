@@ -1,6 +1,6 @@
 & (Join-Path $PSScriptRoot '_setup.ps1') 'classes'
 
-Describe 'Matrix Class' {
+Describe 'Matrix class static methods' {
     It 'can create an NxN multi-dimensional array' {
         $N = 5
         $Matrix = [MatrixTest]::New($N)
@@ -49,7 +49,18 @@ Describe 'Matrix Class' {
         $Original.Values[1] | Should -Be 4,5,6
         $Original.Values[2] | Should -Be 7,8,9
     }
-    It 'can create instances that can create clones' {
+    It 'can add two or more Matrices' {
+        $A = [MatrixTest]::Unit(2)
+        $Sum = [MatrixTest]::Add($A,$A)
+        $Sum.Values[0] | Should -Be 2,0
+        $Sum.Values[1] | Should -Be 0,2
+        $Sum = [MatrixTest]::Add($A,$A,$A)
+        $Sum.Values[0] | Should -Be 3,0
+        $Sum.Values[1] | Should -Be 0,3
+    }
+}
+Describe 'Matrix class instance' {
+    It 'can create clones' {
         $Matrix = [MatrixTest]::New(2)
         $Matrix.Values[0][0] = 1
         $Matrix.Values[0][1] = 2
@@ -58,5 +69,12 @@ Describe 'Matrix Class' {
         $Clone = $Matrix.Clone()
         $Clone.Values[0] | Should -Be 1,2
         $Clone.Values[1] | Should -Be 3,4
+    }
+    It 'can be multiplied by a scalar constant' {
+        $A = [MatrixTest]::Unit(2)
+        [MatrixTest]::Add($A,$A,$A) | Test-Equal $A.Multiply(3) | Should -BeTrue
+        $Product = $A.Multiply(7)
+        $Product.Values[0] | Should -Be 7,0
+        $Product.Values[1] | Should -Be 0,7
     }
 }

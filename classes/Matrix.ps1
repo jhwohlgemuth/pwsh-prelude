@@ -44,6 +44,17 @@ Add-Type -TypeDefinition @"
                     clone.Values[row][col] = a.Values[col][row];
             return clone;
         }
+        public static Matrix${Id} Add(params Matrix${Id}[] addends) {
+            var order = addends[0].Order;
+            var m = order[0];
+            var n = order[1];
+            var sum = new Matrix${Id}(m,n);
+            foreach (Matrix${Id} matrix in addends)
+                for (var i = 0; i < m; ++i)
+                    for (var j = 0; j < n; ++j)
+                        sum.Values[i][j] += matrix.Values[i][j];
+            return sum;
+        }
         public Matrix${Id} Clone() {
             var original = this;
             var m = original.Order[0];
@@ -54,11 +65,14 @@ Add-Type -TypeDefinition @"
                     clone.Values[i][j] = original.Values[i][j];
             return clone;
         }
-        public Matrix${Id} Add(Matrix${Id} a, Matrix${Id} b) {
-            return a;
-        }
-        public Matrix${Id} Multiply(Matrix${Id} a, Matrix${Id} b) {
-            return a;
+        public Matrix${Id} Multiply(Double k) {
+            var clone = this.Clone();
+            var m = clone.Order[0];
+            var n = clone.Order[1];
+            for (var i = 0; i < m; ++i)
+                for (var j = 0; j < n; ++j)
+                    clone.Values[i][j] *= k;
+            return clone;
         }
     }
 "@
