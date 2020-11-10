@@ -796,6 +796,19 @@ Describe 'Test-Equal' {
         Test-Equal $M $N | Should -Be $true
         Test-Equal $M $O | Should -Be $false
     }
+    It 'can compare [Matrix] objects' {
+        $A = [MatrixTest]::New(2)
+        $A.Values[0][0] = 1
+        $A.Values[0][1] = 2
+        $A.Values[1][0] = 3
+        $A.Values[1][1] = 4
+        $B = [MatrixTest]::Unit(2)
+        $C = $A.Clone()
+        $A,'Not a Matrix' | Test-Equal | Should -Be $false
+        $A,$B | Test-Equal | Should -Be $false
+        $A,$C | Test-Equal | Should -Be $true
+        $C,$A | Test-Equal | Should -Be $true
+    }
     It 'can compare other types' {
         Test-Equal $true $true | Should -Be $true
         Test-Equal $false $false | Should -Be $true

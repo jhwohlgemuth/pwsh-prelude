@@ -1460,13 +1460,17 @@ function Test-Equal {
         Param($Left,$Right)
         $Type = $Left.GetType().Name
         switch -Wildcard ($Type) {
-          'String' { $Left -eq $Right }
-          'Int*' { $Left -eq $Right }
-          'Double' { $Left -eq $Right }
-          'Object*' {
-            $Every = { $args[0] -and $args[1] }
+          'Object`[`]' {
             $Index = 0
-            $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Callback $Every -InitialValue $true
+            $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Every
+          }
+          'Int*`[`]' {
+            $Index = 0
+            $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Every
+          }
+          'Double`[`]*' {
+            $Index = 0
+            $Left | ForEach-Object { Test-Equal $_ $Right[$Index]; $Index++ } | Invoke-Reduce -Every
           }
           'PSCustomObject' {
             $Every = { $args[0] -and $args[1] }
@@ -1497,6 +1501,13 @@ function Test-Equal {
               ForEach-Object { Test-Equal $_.Value $RightValues[$Index]; $Index++ } |
               Invoke-Reduce -Callback $Every -InitialValue $true
             $HasSameKeys -and $HasSameValues
+          }
+          'Matrix*' {
+            if ($Right.GetType().Name -match '^Matrix') {
+              (Test-Equal $Left.Order $Right.Order) -and (Test-Equal $Left.Values $Right.Values)
+            } else {
+              $false
+            }
           }
           Default { $Left -eq $Right }
         }

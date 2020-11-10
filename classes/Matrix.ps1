@@ -1,4 +1,4 @@
-# Need to parameterize class with "id" in order to re-load class during testing
+﻿# Need to parameterize class with "id" in order to re-load class during testing
 $Id = if ($Env:ProjectName -eq 'pwsh-prelude') { 'Test' } else { '' }
 if ("Matrix${Id}" -as [Type]) {
   return
@@ -51,7 +51,7 @@ Add-Type -TypeDefinition @"
             var clone = new Matrix${Id}(m,n);
             for (var i = 0; i < m; ++i)
                 for (var j = 0; j < n; ++j)
-                    clone.Values[i][j] = original.Values[i][j]; 
+                    clone.Values[i][j] = original.Values[i][j];
             return clone;
         }
         public Matrix${Id} Add(Matrix${Id} a, Matrix${Id} b) {
