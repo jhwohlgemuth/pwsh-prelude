@@ -206,7 +206,6 @@ Describe 'Get-Permutation' {
         2 | Get-Permutation| Should -Be @(0,1),@(1,0)
         2 | Get-Permutation -Offset 1 | Should -Be @(1,2),@(2,1)
         3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
-        3 | Get-Permutation -Offset 1 | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
         1,2,3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
     }
     It 'can can string concatenate output' {
@@ -221,6 +220,24 @@ Describe 'Get-Permutation' {
         $Permutations = 1,$null,3 | Get-Permutation
         $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
         $Permutations | Should -HaveCount 6
+    }
+    It 'can return k-permutations' {
+        1..3 | Get-Permutation -Choose 1 | Should -Be @(1),@(3),@(2)
+        1..3 | Get-Permutation -Choose 2 | Should -Be @(1,2),@(1,3),@(3,1),@(3,2),@(2,3),@(2,1)
+        1..3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
+        3 | Get-Permutation -Choose 1 | Should -Be @(0),@(1),@(2)
+        3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
+        'cat' | Get-Permutation -Choose 2 -Words | Should -Be 'ca','ct','tc','ta','at','ac'
+    }
+    It 'can return k-permutations with unique elements (combinations)' {
+        $Results = 1..3 | Get-Permutation -Unique
+        $Results -join '' | Should -Be '123' -Because 'combinations count by membership, not order'
+        1..3 | Get-Permutation -Choose 2 -Unique | Should -Be @(1,2),@(1,3),@(2,3) -Because 'combinations count by membership, not order'
+        3 | Get-Permutation -Choose 2 -Unique | Should -Be @(0,1),@(0,2),@(1,2) -Because 'combinations count by membership, not order'
+        # 6 | Get-Permutation -Choose 4 -Unique | Should -HaveCount 15 -Because 'the number of items returned obeys a simple formula'
+        'cat' | Get-Permutation -Choose 2 -Unique -Words | Should -Be 'ca','ct','at'
+        'hello' | Get-Permutation -Choose 2 -Unique -Words | Should -Be 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
+        'hello' | Get-Permutation -Choose 3 -Unique -Words | Should -Be 'hel','hel','heo','hll','hlo','hlo','ell','elo','elo','llo'
     }
 }
 Describe 'Invoke-Chunk' {

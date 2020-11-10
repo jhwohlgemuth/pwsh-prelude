@@ -338,10 +338,21 @@ function Get-Permutation {
   Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages adjacent transpositions ("swapping")
   combined with lexicographic ordering in order to create a list of permutations.
 
+  In mathematical terms, the number of items return by Get-Permutation can be quantified as follows:
+
+    Get-Permutation $n ==> (Get-Factorial $n) items = P(n,n) = n!
+    Get-Permutation $n -Choose $k ==> ((Get-Factorial $n) / (Get-Factorial ($n - $k))) items = P(n,k) = n! / (n - k)!
+    Get-Permutation $n -Choose $k -Unique ==> ((Get-Factorial $n) / ((Get-Factorial $k) * (Get-Factorial ($n - $k)))) items = C(n,k) = n! / k!(n - k)!
+
   Note: Get-Permutation will start to exhibit noticeable pause before completion for n = 7
 
   .PARAMETER Words
   Combine individual permutations as strings (see examples)
+  .PARAMETER Choose
+  Return permutations selected from -Choose items. For a value of "k" for Choose parameter,
+  the equivalent mathematical formula for the number items returned by "Get-Permutation n -Choose k" is: n! / (n - k)!
+  .PARAMETER Unique
+  Return only permutations that are unique up to set membership (order does not matter)
   .EXAMPLE
   2 | Get-Permutation
   # @(0,1),@(1,0)
@@ -356,9 +367,12 @@ function Get-Permutation {
   'cat' | permute -Words
   # 'cat','cta','tca','tac','atc','act'
 
+  .EXAMPLE
+  'hello' | permute -Choose 2 -Unique -Words
+  # 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
+
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Offset')]
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Words')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   [Alias('permute')]
   Param(
@@ -366,6 +380,8 @@ function Get-Permutation {
     [Array] $InputObject,
     [Parameter(Position=1)]
     [Int] $Offset = 0,
+    [Int] $Choose,
+    [Switch] $Unique,
     [Switch] $Words
   )
   Begin {
@@ -442,7 +458,9 @@ function Get-Permutation {
         [Parameter(Position=0)]
         [Int] $Value,
         [Parameter(Position=1)]
-        [Int] $Offset
+        [Int] $Offset,
+        [Int] $Choose,
+        [Switch] $Unique
       )
       $Results = [Object[]]::New((Get-Factorial $Value))
       $Work = 0..($Value - 1) | ForEach-Object { $_ + $Offset }
@@ -460,7 +478,23 @@ function Get-Permutation {
         $Results[$Step] = $Work.Clone()
         $Step++
       }
-      $Results
+      if ($Choose -gt 0) {
+        $Items = [System.Collections.ArrayList]::New()
+        $Results | ForEach-Object {
+          [Void]$Items.Add($_[0..($Choose - 1)])
+        }
+        $Results = $Items | Select-Object -Unique
+      }
+      if ($Unique) {
+        $Choices = [System.Collections.ArrayList]::New()
+        $Results | ForEach-Object {
+          $Choice = $_ | Sort-Object
+          [Void]$Choices.Add($Choice)
+        }
+        $Choices | Sort-Object -Unique
+      } else {
+        $Results
+      }
     }
     $GetResults = {
       Param(
@@ -484,7 +518,13 @@ function Get-Permutation {
         }
         if ($Items.Count -gt 0) {
           $Result = [System.Collections.ArrayList]@{}
-          Invoke-Permutation $Value 0 | ForEach-Object {
+          $Parameters = @{
+            Value = $Value
+            Offset = 0
+            Choose = $Choose
+            Unique = $Unique
+          }
+          Invoke-Permutation @Parameters | ForEach-Object {
             $Permutation = $Items[$_]
             if ($Words) {
               $Permutation = $Permutation -join ''
@@ -493,7 +533,13 @@ function Get-Permutation {
           }
           $Result
         } else {
-          Invoke-Permutation $Value $Offset | Sort-Object -Property { $_ -join '' }
+          $Parameters = @{
+            Value = $Value
+            Offset = $Offset
+            Choose = $Choose
+            Unique = $Unique
+          }
+          Invoke-Permutation @Parameters | Sort-Object -Property { $_ -join '' }
         }
       }
     }
