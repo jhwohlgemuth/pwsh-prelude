@@ -29,6 +29,15 @@ Add-Type -TypeDefinition @"
                 result[i] = new double[n];
             return result;
         }
+        public static Matrix${Id} Unit(int size) {
+            var unit = new Matrix${Id}(size);
+            var m = unit.Order[0];
+            var n = unit.Order[1];
+            for (var i = 0; i < m; ++i)
+                for (var j = 0; j < n; ++j)
+                    unit.Values[i][j] = 1;
+            return unit;
+        }
         public static Matrix${Id} Identity(int size) {
             var temp = new Matrix${Id}(size,size);
             for (var i = 0; i < temp.Order[0]; ++i)
@@ -39,9 +48,9 @@ Add-Type -TypeDefinition @"
             var clone = a.Clone();
             var m = clone.Order[0];
             var n = clone.Order[1];
-            for (var row = 0; row < m; ++row)
-                for (var col = 0; col < n; ++col)
-                    clone.Values[row][col] = a.Values[col][row];
+            for (var i = 0; i < m; ++i)
+                for (var j = 0; j < n; ++j)
+                    clone.Values[i][j] = a.Values[j][i];
             return clone;
         }
         public static Matrix${Id} Add(params Matrix${Id}[] addends) {

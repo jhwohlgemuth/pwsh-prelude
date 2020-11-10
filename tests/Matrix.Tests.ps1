@@ -15,16 +15,30 @@ Describe 'Matrix class static methods' {
         $Matrix.Values[0].Count | Should -Be $N
     }
     It 'can create unit matrices' {
-        $Unit = [MatrixTest]::Identity(2)
+        $Unit = [MatrixTest]::Unit(1)
+        $Unit.Order | Should -Be 1,1
+        $Unit.Values[0] | Should -Be 1
+        $Unit = [MatrixTest]::Unit(2)
         $Unit.Order | Should -Be 2,2
-        $Unit.Values[0] | Should -Be 1,0
-        $Unit.Values[1] | Should -Be 0,1
-        $Unit = [MatrixTest]::Identity(4)
-        $Unit.Order | Should -Be 4,4
-        $Unit.Values[0] | Should -Be 1,0,0,0
-        $Unit.Values[1] | Should -Be 0,1,0,0
-        $Unit.Values[2] | Should -Be 0,0,1,0
-        $Unit.Values[3] | Should -Be 0,0,0,1
+        $Unit.Values[0] | Should -Be 1,1
+        $Unit.Values[1] | Should -Be 1,1
+        $Unit = [MatrixTest]::Unit(3)
+        $Unit.Order | Should -Be 3,3
+        $Unit.Values[0] | Should -Be 1,1,1
+        $Unit.Values[1] | Should -Be 1,1,1
+        $Unit.Values[2] | Should -Be 1,1,1
+    }
+    It 'can create identity matrices' {
+        $Identity = [MatrixTest]::Identity(2)
+        $Identity.Order | Should -Be 2,2
+        $Identity.Values[0] | Should -Be 1,0
+        $Identity.Values[1] | Should -Be 0,1
+        $Identity = [MatrixTest]::Identity(4)
+        $Identity.Order | Should -Be 4,4
+        $Identity.Values[0] | Should -Be 1,0,0,0
+        $Identity.Values[1] | Should -Be 0,1,0,0
+        $Identity.Values[2] | Should -Be 0,0,1,0
+        $Identity.Values[3] | Should -Be 0,0,0,1
     }
     It 'can transpose matrices' {
         $Matrix = [MatrixTest]::New(3)
