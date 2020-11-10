@@ -26,7 +26,7 @@ Describe 'Application State' {
         Mock Write-Verbose {}
         $Path = Join-Path $TestDrive 'test.xml'
         @{ Data = 42 } | Save-State -Path $Path -WhatIf
-        (Test-Path $Path) | Should -Be $false
+        (Test-Path $Path) | Should -BeFalse
     }
 }
 Describe 'ConvertTo-PowershellSyntax' {
@@ -138,16 +138,16 @@ Describe 'Invoke-RunApplication' {
         $Init = {
             $State = $args[0]
             $State.Id | Should -Be $Script:ApplicationId
-            $State.Data.Value | Should -Be $null
+            $State.Data.Value | Should -BeNullOrEmpty
             $Script:Count++
         }
         $Loop = {
             $Script:Count++
         }
         $Path = Join-Path $Env:temp "state-$Script:ApplicationId.xml"
-        (Test-Path $Path) | Should -Be $true
+        (Test-Path $Path) | Should -BeTrue
         Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId -ClearState
-        (Test-Path $Path) | Should -Be $false
+        (Test-Path $Path) | Should -BeFalse
         $Script:Count | Should -Be 6
     }
     It 'can accept initial state value' {
@@ -246,7 +246,7 @@ Describe 'New-Template' {
 }
 Describe 'Remove-Indent' {
     It 'can handle empty strings' {
-        '' | Remove-Indent | Should -Be $null
+        '' | Remove-Indent | Should -BeNullOrEmpty
         '' | Remove-Indent -Size 0 | Should -Be ''
     }
     It 'can remove leading spaces from single-line strings' {

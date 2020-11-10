@@ -29,7 +29,7 @@ Add-Type -TypeDefinition @"
                 result[i] = new double[n];
             return result;
         }
-        public static Matrix${Id} Unit(int size) {
+        public static Matrix${Id} Identity(int size) {
             var temp = new Matrix${Id}(size,size);
             for (var i = 0; i < temp.Order[0]; ++i)
                 temp.Values[i][i] = 1;

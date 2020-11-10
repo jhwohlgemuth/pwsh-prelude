@@ -217,10 +217,10 @@ Describe 'Get-Permutation' {
     It 'can handle null values' {
         $Permutations = $null,1,3 | Get-Permutation
         $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
-        $Permutations.Count | Should -Be 6
+        $Permutations | Should -HaveCount 6
         $Permutations = 1,$null,3 | Get-Permutation
         $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
-        $Permutations.Count | Should -Be 6
+        $Permutations | Should -HaveCount 6
     }
 }
 Describe 'Invoke-Chunk' {
@@ -292,8 +292,8 @@ Describe 'Invoke-Method' {
     It 'can apply a method with arguments within a pipeline' {
         'a','b','c' | Invoke-Method 'StartsWith' 'b' | Should -Be $false,$true,$false
         1,2,3 | Invoke-Method 'CompareTo' 2 | Should -Be -1,0,1
-        @{ x = 1 } | Invoke-Method 'ContainsKey' 'x' | Should -Be $true
-        @{ x = 1 } | Invoke-Method 'ContainsKey' 'y' | Should -Be $false
+        @{ x = 1 } | Invoke-Method 'ContainsKey' 'x' | Should -BeTrue
+        @{ x = 1 } | Invoke-Method 'ContainsKey' 'y' | Should -BeFalse
         @{ x = 1 },@{ x = 2 },@{ x = 3 } | Invoke-Method 'Item' 'x' | Should -Be 1,2,3
         $Arguments = 'Substring',0,3
         'abcdef','123456','foobar' | Invoke-Method @Arguments | Should -Be 'abc','123','foo'
@@ -499,14 +499,14 @@ Describe 'Invoke-Reduce' {
         1..10 | Invoke-Reduce -Add | Should -Be $Expected
         1..10 | Invoke-Reduce $Add | Should -Be $Expected
         1..10 | Invoke-Reduce $Add '' | Should -Be '12345678910'
-        $AllTrue | Invoke-Reduce -Callback $Every | Should -Be $true
-        $OneFalse | Invoke-Reduce -Callback $Some | Should -Be $true
-        $AllTrue | Invoke-Reduce -Callback $Some | Should -Be $true
-        $OneFalse | Invoke-Reduce -Callback $Every | Should -Be $false
-        $AllTrue | Invoke-Reduce -Every | Should -Be $true
-        $OneFalse | Invoke-Reduce -Some | Should -Be $true
-        $AllTrue | Invoke-Reduce -Some | Should -Be $true
-        $OneFalse | Invoke-Reduce -Every | Should -Be $false
+        $AllTrue | Invoke-Reduce -Callback $Every | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Callback $Some | Should -BeTrue
+        $AllTrue | Invoke-Reduce -Callback $Some | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Callback $Every | Should -BeFalse
+        $AllTrue | Invoke-Reduce -Every | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Some | Should -BeTrue
+        $AllTrue | Invoke-Reduce -Some | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Every | Should -BeFalse
         $a = @{ Count = 1 }
         $b = @{ Count = 2 }
         $c = @{ Count = 3 }
@@ -530,14 +530,14 @@ Describe 'Invoke-Reduce' {
         $Some = { Param($a, $b) $a -or $b }
         $AllTrue = $true,$true,$true
         $OneFalse = $true,$false,$true
-        $AllTrue | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $true
-        $OneFalse | Invoke-Reduce -Callback $Some -InitialValue $true | Should -Be $true
-        $AllTrue | Invoke-Reduce -Callback $Some -InitialValue $true | Should -Be $true
-        $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $true | Should -Be $false
-        $AllTrue | Invoke-Reduce -Every -InitialValue $true | Should -Be $true
-        $AllTrue | Invoke-Reduce -Some -InitialValue $true | Should -Be $true
-        $OneFalse | Invoke-Reduce -Every -InitialValue $true | Should -Be $false
-        $OneFalse | Invoke-Reduce -Some -InitialValue $true | Should -Be $true
+        $AllTrue | Invoke-Reduce -Callback $Every -InitialValue $true | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Callback $Some -InitialValue $true | Should -BeTrue
+        $AllTrue | Invoke-Reduce -Callback $Some -InitialValue $true | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $true | Should -BeFalse
+        $AllTrue | Invoke-Reduce -Every -InitialValue $true | Should -BeTrue
+        $AllTrue | Invoke-Reduce -Some -InitialValue $true | Should -BeTrue
+        $OneFalse | Invoke-Reduce -Every -InitialValue $true | Should -BeFalse
+        $OneFalse | Invoke-Reduce -Some -InitialValue $true | Should -BeTrue
     }
     It 'can accept objects as initial values' {
         $a = @{ name = 'a'; value = 1 }
@@ -700,70 +700,70 @@ Describe 'Remove-Character' {
 }
 Describe 'Test-Equal' {
     It 'should return true for single items (from pipeline only)' {
-        42 | Test-Equal | Should -Be $true
-        'foobar' | Test-Equal | Should -Be $true
-        @{ foo = 'bar' } | Test-Equal | Should -Be $true
+        42 | Test-Equal | Should -BeTrue
+        'foobar' | Test-Equal | Should -BeTrue
+        @{ foo = 'bar' } | Test-Equal | Should -BeTrue
     }
     It 'can compare numbers' {
-        Test-Equal 0 0 | Should -Be $true
-        Test-Equal 42 42 | Should -Be $true
-        Test-Equal -42 -42 | Should -Be $true
-        Test-Equal 42 43 | Should -Be $false
-        Test-Equal -43 -42 | Should -Be $false
-        Test-Equal 3 'not a number' | Should -Be $false
-        Test-Equal 4.2 4.2 | Should -Be $true
-        Test-Equal 4 4.0 | Should -Be $true
-        Test-Equal 4.1 4.2 | Should -Be $false
-        42,42 | Test-Equal | Should -Be $true
-        42 | Test-Equal 42 | Should -Be $true
-        42,42,42 | Test-Equal | Should -Be $true
-        43,42,42 | Test-Equal | Should -Be $false
-        42,43,42 | Test-Equal | Should -Be $false
-        42,42,43 | Test-Equal | Should -Be $false
-        42,42 | Test-Equal 42 | Should -Be $true
-        43,42 | Test-Equal 42 | Should -Be $false
-        42,43 | Test-Equal 42 | Should -Be $false
-        42,42 | Test-Equal 43 | Should -Be $false
+        Test-Equal 0 0 | Should -BeTrue
+        Test-Equal 42 42 | Should -BeTrue
+        Test-Equal -42 -42 | Should -BeTrue
+        Test-Equal 42 43 | Should -BeFalse
+        Test-Equal -43 -42 | Should -BeFalse
+        Test-Equal 3 'not a number' | Should -BeFalse
+        Test-Equal 4.2 4.2 | Should -BeTrue
+        Test-Equal 4 4.0 | Should -BeTrue
+        Test-Equal 4.1 4.2 | Should -BeFalse
+        42,42 | Test-Equal | Should -BeTrue
+        42 | Test-Equal 42 | Should -BeTrue
+        42,42,42 | Test-Equal | Should -BeTrue
+        43,42,42 | Test-Equal | Should -BeFalse
+        42,43,42 | Test-Equal | Should -BeFalse
+        42,42,43 | Test-Equal | Should -BeFalse
+        42,42 | Test-Equal 42 | Should -BeTrue
+        43,42 | Test-Equal 42 | Should -BeFalse
+        42,43 | Test-Equal 42 | Should -BeFalse
+        42,42 | Test-Equal 43 | Should -BeFalse
     }
     It 'can compare strings' {
-        Test-Equal '' '' | Should -Be $true
-        Test-Equal 'foo' 'foo' | Should -Be $true
-        Test-Equal 'foo' 'bar' | Should -Be $false
-        Test-Equal 'foo' 7 | Should -Be $false
-        'na','na','na' | Test-Equal 'na' | Should -Be $true
-        'na','na','na' | Test-Equal 'meh' | Should -Be $false
-        'na','meh','na' | Test-Equal 'na' | Should -Be $false
+        Test-Equal '' '' | Should -BeTrue
+        Test-Equal 'foo' 'foo' | Should -BeTrue
+        Test-Equal 'foo' 'bar' | Should -BeFalse
+        Test-Equal 'foo' 7 | Should -BeFalse
+        'na','na','na' | Test-Equal 'na' | Should -BeTrue
+        'na','na','na' | Test-Equal 'meh' | Should -BeFalse
+        'na','meh','na' | Test-Equal 'na' | Should -BeFalse
     }
     It 'can compare arrays' {
         $a = 1,2,3
         $b = 1,2,3
         $c = 5,6,7
-        Test-Equal $a $b | Should -Be $true
-        Test-Equal $a $c | Should -Be $false
+        Test-Equal $a $b | Should -BeTrue
+        Test-Equal $a $c | Should -BeFalse
         $a = 'a','b','c'
         $b = 'a','b','c'
         $c = 'x','y','z'
-        Test-Equal $a $b | Should -Be $true
-        Test-Equal $b $c | Should -Be $false
+        Test-Equal $a $b | Should -BeTrue
+        Test-Equal $b $c | Should -BeFalse
     }
     It 'can compare multi-dimensional arrays' {
         $x = 1,(1,2,3),(4,5,6),7
         $y = 1,(1,2,3),(4,5,6),7
         $z = (1,2,3),(1,2,3),(1,2,3)
-        Test-Equal $x $y | Should -Be $true
-        Test-Equal $x $z | Should -Be $false
-        Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -Be $false
+        Test-Equal $x $y | Should -BeTrue
+        Test-Equal $x $z | Should -BeFalse
+        Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -BeFalse
     }
     It 'can compare hashtables' {
         $A = @{ a = 'A'; b = 'B'; c = 'C' }
         $B = @{ a = 'A'; b = 'B'; c = 'C' }
         $C = @{ foo = 'bar'; bin = 'baz'; }
-        Test-Equal $A $B | Should -Be $true
-        Test-Equal $A $C | Should -Be $false
-        $A,$B | Test-Equal | Should -Be $true
-        $A,$C | Test-Equal | Should -Be $false
-        $A | Test-Equal $B | Should -Be $true
-        $A | Test-Equal $C | Should -Be $false
+        Test-Equal $A $B | Should -BeTrue
+        Test-Equal $A $C | Should -BeFalse
+        $A,$B | Test-Equal | Should -BeTrue
+        $A,$C | Test-Equal | Should -BeFalse
+        $A | Test-Equal $B | Should -BeTrue
+        $A | Test-Equal $C | Should -BeFalse
     }
     It 'can compare nested hashtables' {
         $A = @{ a = 'A'; b = 'B'; c = 'C' }
@@ -772,19 +772,19 @@ Describe 'Test-Equal' {
         $M = @{ a = $A; b = $B; c = $C }
         $N = @{ a = $A; b = $B; c = $C }
         $O = @{ a = $C; b = $A; c = $B }
-        Test-Equal $M $N | Should -Be $true
-        Test-Equal $M $O | Should -Be $false
+        Test-Equal $M $N | Should -BeTrue
+        Test-Equal $M $O | Should -BeFalse
     }
     It 'can compare custom objects' {
         $A = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
         $B = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
         $C = [PSCustomObject]@{ foo = 'bar'; bin = 'baz' }
-        Test-Equal $A $B | Should -Be $true
-        Test-Equal $A $C | Should -Be $false
-        $A,$B | Test-Equal | Should -Be $true
-        $A,$C | Test-Equal | Should -Be $false
-        $A | Test-Equal $B | Should -Be $true
-        $A | Test-Equal $C | Should -Be $false
+        Test-Equal $A $B | Should -BeTrue
+        Test-Equal $A $C | Should -BeFalse
+        $A,$B | Test-Equal | Should -BeTrue
+        $A,$C | Test-Equal | Should -BeFalse
+        $A | Test-Equal $B | Should -BeTrue
+        $A | Test-Equal $C | Should -BeFalse
     }
     It 'can compare nested custom objects' {
         $A = [PSCustomObject]@{ a = 'A'; b = 'B'; c = 'C' }
@@ -793,8 +793,8 @@ Describe 'Test-Equal' {
         $M = [PSCustomObject]@{ a = $A; b = $B; c = $C }
         $N = [PSCustomObject]@{ a = $A; b = $B; c = $C }
         $O = [PSCustomObject]@{ a = $C; b = $A; c = $B }
-        Test-Equal $M $N | Should -Be $true
-        Test-Equal $M $O | Should -Be $false
+        Test-Equal $M $N | Should -BeTrue
+        Test-Equal $M $O | Should -BeFalse
     }
     It 'can compare [Matrix] objects' {
         $A = [MatrixTest]::New(2)
@@ -802,17 +802,17 @@ Describe 'Test-Equal' {
         $A.Values[0][1] = 2
         $A.Values[1][0] = 3
         $A.Values[1][1] = 4
-        $B = [MatrixTest]::Unit(2)
+        $B = [MatrixTest]::Identity(2)
         $C = $A.Clone()
-        $A,'Not a Matrix' | Test-Equal | Should -Be $false
-        $A,$B | Test-Equal | Should -Be $false
-        $A,$C | Test-Equal | Should -Be $true
-        $C,$A | Test-Equal | Should -Be $true
+        $A,'Not a Matrix' | Test-Equal | Should -BeFalse
+        $A,$B | Test-Equal | Should -BeFalse
+        $A,$C | Test-Equal | Should -BeTrue
+        $C,$A | Test-Equal | Should -BeTrue
     }
     It 'can compare other types' {
-        Test-Equal $true $true | Should -Be $true
-        Test-Equal $false $false | Should -Be $true
-        Test-Equal $true $false | Should -Be $false
-        Test-Equal $null $null | Should -Be $true
+        Test-Equal $true $true | Should -BeTrue
+        Test-Equal $false $false | Should -BeTrue
+        Test-Equal $true $false | Should -BeFalse
+        Test-Equal $null $null | Should -BeTrue
     }
 }

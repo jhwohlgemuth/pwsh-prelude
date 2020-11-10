@@ -148,7 +148,7 @@ Describe 'Get-HostsContent / Update-HostsFile' {
 Describe 'Invoke-Speak (say)' {
     It 'can passthru text without speaking' {
         $Text = 'this should not be heard'
-        Invoke-Speak $Text -Silent | Should -Be $null
+        Invoke-Speak $Text -Silent | Should -BeNullOrEmpty
         Invoke-Speak $Text -Silent -Output text | Should -Be $Text
     }
     It 'can output SSML' {
@@ -252,15 +252,15 @@ Describe 'Test-Empty' {
         'TestDrive:\Foo' | Should -not -Exist
         mkdir 'TestDrive:\Foo'
         'TestDrive:\Foo' | Should -Exist
-        Test-Empty 'TestDrive:\Foo' | Should -Be $true
+        Test-Empty 'TestDrive:\Foo' | Should -BeTrue
         mkdir 'TestDrive:\Foo\Bar'
         mkdir 'TestDrive:\Foo\Bar\Baz'
-        Test-Empty 'TestDrive:\Foo' | Should -Be $false
+        Test-Empty 'TestDrive:\Foo' | Should -BeFalse
     }
 }
 Describe 'Test-Installed' {
     It 'should return true if passed module is installed' {
-        Test-Installed Pester | Should -Be $true
-        Test-Installed NotInstalledModule | Should -Be $false
+        Test-Installed Pester | Should -BeTrue
+        Test-Installed NotInstalledModule | Should -BeFalse
     }
 }

@@ -15,11 +15,11 @@ Describe 'Matrix class static methods' {
         $Matrix.Values[0].Count | Should -Be $N
     }
     It 'can create unit matrices' {
-        $Unit = [MatrixTest]::Unit(2)
+        $Unit = [MatrixTest]::Identity(2)
         $Unit.Order | Should -Be 2,2
         $Unit.Values[0] | Should -Be 1,0
         $Unit.Values[1] | Should -Be 0,1
-        $Unit = [MatrixTest]::Unit(4)
+        $Unit = [MatrixTest]::Identity(4)
         $Unit.Order | Should -Be 4,4
         $Unit.Values[0] | Should -Be 1,0,0,0
         $Unit.Values[1] | Should -Be 0,1,0,0
@@ -50,7 +50,7 @@ Describe 'Matrix class static methods' {
         $Original.Values[2] | Should -Be 7,8,9
     }
     It 'can add two or more Matrices' {
-        $A = [MatrixTest]::Unit(2)
+        $A = [MatrixTest]::Identity(2)
         $Sum = [MatrixTest]::Add($A,$A)
         $Sum.Values[0] | Should -Be 2,0
         $Sum.Values[1] | Should -Be 0,2
@@ -71,7 +71,7 @@ Describe 'Matrix class instance' {
         $Clone.Values[1] | Should -Be 3,4
     }
     It 'can be multiplied by a scalar constant' {
-        $A = [MatrixTest]::Unit(2)
+        $A = [MatrixTest]::Identity(2)
         [MatrixTest]::Add($A,$A,$A) | Test-Equal $A.Multiply(3) | Should -BeTrue
         $Product = $A.Multiply(7)
         $Product.Values[0] | Should -Be 7,0
