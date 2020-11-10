@@ -83,7 +83,6 @@ Add-Type -TypeDefinition @"
                     clone.Values[i][j] *= k;
             return clone;
         }
-
         public Matrix${Id} Dot(Matrix${Id} operand) {
             var a = this;
             var b = operand;
