@@ -83,5 +83,24 @@ Add-Type -TypeDefinition @"
                     clone.Values[i][j] *= k;
             return clone;
         }
+
+        public Matrix${Id} Dot(Matrix${Id} operand) {
+            var a = this;
+            var b = operand;
+            var m = a.Order[0];
+            var p = a.Order[1];
+            var n = b.Order[1];
+            var product = new Matrix${Id}(m,n);
+            for (var i = 0; i < m; ++i) {
+                for (var j = 0; j < n; ++j) {
+                    Double sum = 0;
+                    for (var k = 0; k < p; ++k) {
+                        sum += (a.Values[i][k] * b.Values[k][j]);
+                    }
+                    product.Values[i][j] = sum;
+                }
+            }
+            return product;
+        }
     }
 "@

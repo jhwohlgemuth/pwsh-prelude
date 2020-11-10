@@ -72,6 +72,56 @@ Describe 'Matrix class static methods' {
         $Sum.Values[0] | Should -Be 3,0
         $Sum.Values[1] | Should -Be 0,3
     }
+    It 'can produce the dot product of two matrices' {
+        $Identity = [MatrixTest]::Identity(2)
+        $A = $Identity.Clone()
+        $A.Values[1][1] = 0
+        $B = $Identity.Clone()
+        $B.Values[0][0] = 0
+        $Product = $A.Dot($B)
+        $Product.Order | Should -Be 2,2
+        $Product.Values[0] | Should -Be 0,0 -Because 'the dot product of orthogonal matrices should be zero'
+        $Product.Values[1] | Should -Be 0,0 -Because 'the dot product of orthogonal matrices should be zero'
+        $A.Values[0][0] = 1
+        $A.Values[0][1] = 2
+        $A.Values[1][0] = 3
+        $A.Values[1][1] = 4
+        $B.Values[0][0] = 1
+        $B.Values[0][1] = 1
+        $B.Values[1][0] = 0
+        $B.Values[1][1] = 2
+        $Product = $A.Dot($B)
+        $Product.Values[0] | Should -Be 1,5
+        $Product.Values[1] | Should -Be 3,11
+        $Product = $B.Dot($A)
+        $Product.Values[0] | Should -Be 4,6 -Because 'the dot product is not commutative'
+        $Product.Values[1] | Should -Be 6,8 -Because 'the dot product is not commutative'
+        $A = [MatrixTest]::New(1,2)
+        $A.Values[0][0] = 2
+        $A.Values[0][1] = 1
+        $B = [MatrixTest]::New(2,3)
+        $B.Values[0][0] = 1
+        $B.Values[0][1] = -2
+        $B.Values[0][2] = 0
+        $B.Values[1][0] = 4
+        $B.Values[1][1] = 5
+        $B.Values[1][2] = -3
+        $Product = $A.Dot($B)
+        $Product.Order | Should -Be 1,3 -Because 'dot product supports matrices of different sizes'
+        $Product.Values[0] | Should -Be 6,1,-3
+        $A = [MatrixTest]::New(2)
+        $A.Values[0][0] = 2
+        $A.Values[0][1] = 5
+        $A.Values[1][0] = 1
+        $A.Values[1][1] = 3
+        $B = [MatrixTest]::New(2)
+        $B.Values[0][0] = 3
+        $B.Values[0][1] = -5
+        $B.Values[1][0] = -1
+        $B.Values[1][1] = 2
+        $A.Dot($B) | Test-Equal $Identity | Should -BeTrue -Because '$A and $B are invertible'
+        $Product.Values | ForEach-Object { $_ -join '-' | Write-Color -Magenta}
+    }
 }
 Describe 'Matrix class instance' {
     It 'can create clones' {
