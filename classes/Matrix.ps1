@@ -36,13 +36,23 @@ Add-Type -TypeDefinition @"
             return temp;
         }
         public static Matrix${Id} Transpose(Matrix${Id} a) {
-            var m = a.Order[0];
-            var n = a.Order[1];
-            var temp = new Matrix${Id}(n,m);
+            var clone = a.Clone();
+            var m = clone.Order[0];
+            var n = clone.Order[1];
             for (var row = 0; row < m; ++row)
                 for (var col = 0; col < n; ++col)
-                    temp.Values[row][col] = a.Values[col][row];
-            return temp;
+                    clone.Values[row][col] = a.Values[col][row];
+            return clone;
+        }
+        public Matrix${Id} Clone() {
+            var original = this;
+            var m = original.Order[0];
+            var n = original.Order[1];
+            var clone = new Matrix${Id}(m,n);
+            for (var i = 0; i < m; ++i)
+                for (var j = 0; j < n; ++j)
+                    clone.Values[i][j] = original.Values[i][j]; 
+            return clone;
         }
         public Matrix${Id} Add(Matrix${Id} a, Matrix${Id} b) {
             return a;

@@ -44,5 +44,19 @@ Describe 'Matrix Class' {
         $Transposed.Values[0] | Should -Be 1,4,7
         $Transposed.Values[1] | Should -Be 2,5,8
         $Transposed.Values[2] | Should -Be 3,6,9
+        $Original = [MatrixTest]::Transpose($Transposed)
+        $Original.Values[0] | Should -Be 1,2,3
+        $Original.Values[1] | Should -Be 4,5,6
+        $Original.Values[2] | Should -Be 7,8,9
+    }
+    It 'can create instances that can create clones' {
+        $Matrix = [MatrixTest]::New(2)
+        $Matrix.Values[0][0] = 1
+        $Matrix.Values[0][1] = 2
+        $Matrix.Values[1][0] = 3
+        $Matrix.Values[1][1] = 4
+        $Clone = $Matrix.Clone()
+        $Clone.Values[0] | Should -Be 1,2
+        $Clone.Values[1] | Should -Be 3,4
     }
 }
