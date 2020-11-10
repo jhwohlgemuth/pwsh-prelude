@@ -120,7 +120,6 @@ Describe 'Matrix class static methods' {
         $B.Values[1][0] = -1
         $B.Values[1][1] = 2
         $A.Dot($B) | Test-Equal $Identity | Should -BeTrue -Because '$A and $B are invertible'
-        $Product.Values | ForEach-Object { $_ -join '-' | Write-Color -Magenta}
     }
 }
 Describe 'Matrix class instance' {
@@ -140,5 +139,14 @@ Describe 'Matrix class instance' {
         $Product = $A.Multiply(7)
         $Product.Values[0] | Should -Be 7,0
         $Product.Values[1] | Should -Be 0,7
+    }
+    It 'can be converted to string output' {
+        $Matrix = [MatrixTest]::New(2)
+        $Matrix.Values[0][0] = 1
+        $Matrix.Values[0][1] = 2
+        $Matrix.Values[1][0] = 3
+        $Matrix.Values[1][1] = 4
+        $Matrix.ToString() | Should -Be '1,2;3,4'
+        [MatrixTest]::Unit(3).ToString() | Should -Be '1,1,1;1,1,1;1,1,1'
     }
 }

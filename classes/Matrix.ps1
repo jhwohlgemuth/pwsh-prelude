@@ -102,5 +102,13 @@ Add-Type -TypeDefinition @"
             }
             return product;
         }
+        public override string ToString() {
+            var matrix = this;
+            var rank = matrix.Order[0];
+            var rows = new string[rank];
+            for (var i = 0; i < rank; ++i)
+                rows[i] = string.Join(",",matrix.Values[i]);
+            return string.Join(";",rows);
+        }
     }
 "@
