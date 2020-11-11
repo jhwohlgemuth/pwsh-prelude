@@ -66,30 +66,17 @@ Add-Type -TypeDefinition @"
         }
         public static double Det(Matrix${Id} a) {
             var m = a.Order[0];
-            if (m == 2) {
-                return (a.Values[0][0] * a.Values[1][1]) - (a.Values[0][1] * a.Values[1][0]);
+            switch (m) {
+                case 1:
+                    return a.Values[0][0];
+                case 2:
+                    return (a.Values[0][0] * a.Values[1][1]) - (a.Values[0][1] * a.Values[1][0]);
+                default:
+                    double sum = 0;
+                    for (var i = 0; i < m; ++i)
+                        sum += (Math.Pow(-1,i) * a.Values[0][i] * Matrix${Id}.Det(a.RemoveRow(0).RemoveColumn(i)));
+                    return sum;
             }
-            var n = m + (m - 1);
-            var temp = new Matrix${Id}(m,n);
-            for (var i = 0; i < m; ++i)
-                for (var j = 0; j < n; ++j)
-                    temp.Values[i][j] = a.Values[i][j % m];
-            double sum = 0;
-            for (var i = 0; i < m; ++i) {
-                double product = 1;
-                for (var j = 0; j < m; ++j) {
-                    product *= temp.Values[j][i + j];
-                }
-                sum += product;
-            }
-            for (var i = 0; i < m; ++i) {
-                double product = 1;
-                for (var j = 0; j < m; ++j) {
-                    product *= temp.Values[j][(n - 1) - (i + j)];
-                }
-                sum -= product;
-            }
-            return sum;
         }
         public static Matrix${Id} Dot(Matrix${Id} a,Matrix${Id} b) {
             var m = a.Order[0];
@@ -117,6 +104,12 @@ Add-Type -TypeDefinition @"
                     clone.Values[i][j] = original.Values[i][j];
             return clone;
         }
+        public double Det() {
+            return Matrix${Id}.Det(this);
+        }
+        public Matrix${Id} Dot(Matrix${Id} a) {
+            return Matrix${Id}.Dot(this, a);
+        }
         public Matrix${Id} Multiply(double k) {
             var clone = this.Clone();
             var m = clone.Order[0];
@@ -125,6 +118,40 @@ Add-Type -TypeDefinition @"
                 for (var j = 0; j < n; ++j)
                     clone.Values[i][j] *= k;
             return clone;
+        }
+        public Matrix${Id} RemoveRow(int index) {
+            var original = this.Clone();
+            var m = original.Order[0];
+            var n = original.Order[1];
+            if (index < 0 || index >= m) {
+                return original;
+            } else {
+                var temp = new Matrix${id}(m - 1,n);
+                for (var i = 0; i < index; ++i)
+                    for (var j = 0; j < n; ++j)
+                        temp.Values[i][j] = original.Values[i][j];
+                for (var i = index; i < m - 1; ++i)
+                    for (var j = 0; j < n; ++j)
+                        temp.Values[i][j] = original.Values[i + 1][j];
+                return temp;
+            }
+        }
+        public Matrix${Id} RemoveColumn(int index) {
+            var original = this.Clone();
+            var m = original.Order[0];
+            var n = original.Order[1];
+            if (index < 0 || index >= n) {
+                return original;
+            } else {
+                var temp = new Matrix${id}(m,n - 1);
+                for (var i = 0; i < m; ++i)
+                    for (var j = 0; j < index; ++j)
+                        temp.Values[i][j] = original.Values[i][j];
+                for (var i = 0; i < m; ++i)
+                    for (var j = index; j < n - 1; ++j)
+                        temp.Values[i][j] = original.Values[i][j + 1];
+                return temp;
+            }
         }
         public override string ToString() {
             var matrix = this;
