@@ -1550,7 +1550,7 @@ function Test-Equal {
           }
           'Matrix*' {
             if ($Right.GetType().Name -match '^Matrix') {
-              (Test-Equal $Left.Order $Right.Order) -and (Test-Equal $Left.Values $Right.Values)
+              (Test-Equal $Left.Size $Right.Size) -and (Test-Equal $Left.Rows $Right.Rows)
             } else {
               $false
             }

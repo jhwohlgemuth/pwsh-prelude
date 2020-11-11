@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+    <Type>
+        <Name>Matrix</Name>
+        <Members>
+            <ScriptMethod>
+                <Name>Det</Name>
+                <Script>
+                    [Matrix]::Det($this)
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>Dot</Name>
+                <Script>
+                    [Matrix]::Dot($this, $args[0])
+                </Script>
+            </ScriptMethod>
+        </Members>
+    </Type>
+</Types>
