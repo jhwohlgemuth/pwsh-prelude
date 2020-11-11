@@ -72,6 +72,31 @@ Describe 'Matrix class static methods' {
         $Sum.Values[0] | Should -Be 3,0
         $Sum.Values[1] | Should -Be 0,3
     }
+    It 'can calculate the determinant 2x2 matrices' {
+        [MatrixTest]::Det([MatrixTest]::Unit(2)) | Should -Be 0
+        [MatrixTest]::Det([MatrixTest]::Identity(2)) | Should -Be 1
+        $A = [MatrixTest]::New(2)
+        $A.Values[0][0] = 1
+        $A.Values[0][1] = 2
+        $A.Values[1][0] = 3
+        $A.Values[1][1] = 4
+        [MatrixTest]::Det($A) | Should -Be -2
+    }
+    It 'can calculate the determinant for matrices with rank greater than 2' {
+        [MatrixTest]::Det([MatrixTest]::Unit(3)) | Should -Be 0
+        [MatrixTest]::Det([MatrixTest]::Identity(3)) | Should -Be 1
+        $A = [MatrixTest]::New(3)
+        $A.Values[0][0] = 2
+        $A.Values[0][1] = 3
+        $A.Values[0][2] = -4
+        $A.Values[1][0] = 0
+        $A.Values[1][1] = -4
+        $A.Values[1][2] = 2
+        $A.Values[2][0] = 1
+        $A.Values[2][1] = -1
+        $A.Values[2][2] = 5
+        [MatrixTest]::Det($A) | Should -Be -46
+    }
     It 'can produce the dot product of two matrices' {
         $Identity = [MatrixTest]::Identity(2)
         $A = $Identity.Clone()

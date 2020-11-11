@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.16'
+  ModuleVersion = '0.0.17'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
