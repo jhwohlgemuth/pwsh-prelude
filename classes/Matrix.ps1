@@ -17,16 +17,16 @@ Add-Type -TypeDefinition @"
             this.Order[1] = n;
             this.Values = Matrix${Id}.Create(n,n);
         }
-        public Matrix${Id}(int m, int n) {
+        public Matrix${Id}(int m,int n) {
             this.Order = new int[2];
             this.Order[0] = m;
             this.Order[1] = n;
             this.Values = Matrix${Id}.Create(m,n);
         }
-        public static double[][] Create(int m, int n) {
+        public static double[][] Create(int m,int n) {
             double[][] result = new double[m][];
             for (var i = 0; i < m; ++i)
-                result[i] = new double[n];
+                result[i] = new Double[n];
             return result;
         }
         public static Matrix${Id} Unit(int size) {
@@ -64,28 +64,7 @@ Add-Type -TypeDefinition @"
                         sum.Values[i][j] += matrix.Values[i][j];
             return sum;
         }
-        public Matrix${Id} Clone() {
-            var original = this;
-            var m = original.Order[0];
-            var n = original.Order[1];
-            var clone = new Matrix${Id}(m,n);
-            for (var i = 0; i < m; ++i)
-                for (var j = 0; j < n; ++j)
-                    clone.Values[i][j] = original.Values[i][j];
-            return clone;
-        }
-        public Matrix${Id} Multiply(Double k) {
-            var clone = this.Clone();
-            var m = clone.Order[0];
-            var n = clone.Order[1];
-            for (var i = 0; i < m; ++i)
-                for (var j = 0; j < n; ++j)
-                    clone.Values[i][j] *= k;
-            return clone;
-        }
-        public Matrix${Id} Dot(Matrix${Id} operand) {
-            var a = this;
-            var b = operand;
+        public static Matrix${Id} Dot(Matrix${Id} a,Matrix${Id} b) {
             var m = a.Order[0];
             var p = a.Order[1];
             var n = b.Order[1];
@@ -100,6 +79,25 @@ Add-Type -TypeDefinition @"
                 }
             }
             return product;
+        }
+        public Matrix${Id} Clone() {
+            var original = this;
+            var m = original.Order[0];
+            var n = original.Order[1];
+            var clone = new Matrix${Id}(m,n);
+            for (var i = 0; i < m; ++i)
+                for (var j = 0; j < n; ++j)
+                    clone.Values[i][j] = original.Values[i][j];
+            return clone;
+        }
+        public Matrix${Id} Multiply(double k) {
+            var clone = this.Clone();
+            var m = clone.Order[0];
+            var n = clone.Order[1];
+            for (var i = 0; i < m; ++i)
+                for (var j = 0; j < n; ++j)
+                    clone.Values[i][j] *= k;
+            return clone;
         }
         public override string ToString() {
             var matrix = this;
