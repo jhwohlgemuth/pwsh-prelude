@@ -4,6 +4,12 @@
         <Name>Matrix</Name>
         <Members>
             <ScriptMethod>
+                <Name>Adj</Name>
+                <Script>
+                    [Matrix]::Adj($this)
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Det</Name>
                 <Script>
                     [Matrix]::Det($this)
@@ -13,6 +19,18 @@
                 <Name>Dot</Name>
                 <Script>
                     [Matrix]::Dot($this, $args[0])
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>Inverse</Name>
+                <Script>
+                    [Matrix]::Invert($this)
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>Transpose</Name>
+                <Script>
+                    [Matrix]::Transpose($this)
                 </Script>
             </ScriptMethod>
         </Members>

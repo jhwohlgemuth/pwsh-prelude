@@ -239,6 +239,27 @@ Describe 'Matrix class static methods' {
         $B.Rows[1][1] = 2
         [MatrixTest]::Dot($A,$B) | Test-Equal $Identity | Should -BeTrue -Because '$A and $B are invertible'
     }
+    It 'can calulate the inverse of a given matrix' {
+        $A = [MatrixTest]::New(3);
+        $A.Rows[0][0] = 1
+        $A.Rows[0][1] = 2
+        $A.Rows[0][2] = 3
+        $A.Rows[1][0] = 2
+        $A.Rows[1][1] = 3
+        $A.Rows[1][2] = 4
+        $A.Rows[2][0] = 1
+        $A.Rows[2][1] = 5
+        $A.Rows[2][2] = 7
+        $Inverse = [MatrixTest]::Invert($A)
+        $Inverse.Rows[0] | Should -Be 0.5,0.5,-0.5
+        $Inverse.Rows[1] | Should -Be -5,2,1
+        $Inverse.Rows[2] | Should -Be 3.5,-1.5,-0.5
+        $Identity = [MatrixTest]::Dot($A,$Inverse)
+        $Identity.Size | Should -Be 3,3
+        $Identity.Rows[0] | Should -Be 1,0,0 -Because 'the dot product of a matrix and its inverse is the identity matrix'
+        $Identity.Rows[1] | Should -Be 0,1,0 -Because 'the dot product of a matrix and its inverse is the identity matrix'
+        $Identity.Rows[2] | Should -Be 0,0,1 -Because 'the dot product of a matrix and its inverse is the identity matrix'
+    }
 }
 Describe 'Matrix class instance' {
     It 'provides iterator of index element index pairs' {

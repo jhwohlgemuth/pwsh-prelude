@@ -825,6 +825,7 @@ Describe 'Test-Equal' {
         $A,$B | Test-Equal | Should -BeFalse
         $A,$C | Test-Equal | Should -BeTrue
         $C,$A | Test-Equal | Should -BeTrue
+        $B | Test-Equal $B | Should -BeTrue
     }
     It 'can compare other types' {
         Test-Equal $true $true | Should -BeTrue

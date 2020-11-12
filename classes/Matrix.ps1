@@ -58,6 +58,14 @@ Add-Type -TypeDefinition @"
                 }
             return sum;
         }
+        public static Matrix${Id} Adj(Matrix${Id} a) {
+            Matrix${Id} temp = a.Clone();
+            foreach (var index in temp.Indexes()) {
+                int i = index[0], j = index[1];
+                temp.Rows[i][j] = a.Cofactor(i,j);
+            }
+            return Matrix${Id}.Transpose(temp);
+        }
         public static double Det(Matrix${Id} a) {
             int rows = a.Size[0];
             switch (rows) {
@@ -68,7 +76,7 @@ Add-Type -TypeDefinition @"
                 default:
                     double sum = 0;
                     for (int i = 0; i < rows; ++i)
-                        sum += (Math.Pow(-1,i) * a.Rows[0][i] * Matrix${Id}.Det(a.RemoveRow(0).RemoveColumn(i)));
+                        sum += (a.Rows[0][i] * a.Cofactor(0,i));
                     return sum;
             }
         }
@@ -85,15 +93,10 @@ Add-Type -TypeDefinition @"
             }
             return product;
         }
-        public List<int[]> Indexes(int offset = 0) {
-            int rows = this.Size[0], cols = this.Size[1];
-            List<int[]> pairs = new List<int[]>();
-            for (var i = 0; i < rows; ++i)
-                for (var j = 0; j < cols; ++j) {
-                    int[] pair = { i + offset,j + offset };
-                    pairs.Add(pair);
-                }
-            return pairs;
+        public static Matrix${Id} Invert(Matrix${Id} a) {
+            Matrix${Id} adjugate = Matrix${Id}.Adj(a);
+            double det = Matrix${Id}.Det(a);
+            return adjugate.Multiply(1 / det);
         }
         public Matrix${Id} Clone() {
             Matrix${Id} original = this;
@@ -105,6 +108,19 @@ Add-Type -TypeDefinition @"
             }
             return clone;
         }
+        public double Cofactor(int i = 0,int j = 0) {
+            return (Math.Pow(-1,i + j) * Matrix${Id}.Det(this.RemoveRow(i).RemoveColumn(j)));
+        }
+        public List<int[]> Indexes(int offset = 0) {
+            int rows = this.Size[0], cols = this.Size[1];
+            List<int[]> pairs = new List<int[]>();
+            for (var i = 0; i < rows; ++i)
+                for (var j = 0; j < cols; ++j) {
+                    int[] pair = { i + offset,j + offset };
+                    pairs.Add(pair);
+                }
+            return pairs;
+        }
         public Matrix${Id} Multiply(double k) {
             Matrix${Id} clone = this.Clone();
             foreach (var index in clone.Indexes()) {
@@ -112,22 +128,6 @@ Add-Type -TypeDefinition @"
                 clone.Rows[i][j] *= k;
             }
             return clone;
-        }
-        public Matrix${Id} RemoveRow(int index) {
-            Matrix${Id} original = this.Clone();
-            int rows = original.Size[0], cols = original.Size[1];
-            if (index < 0 || index >= rows) {
-                return original;
-            } else {
-                var temp = new Matrix${id}(rows - 1,cols);
-                for (var i = 0; i < index; ++i)
-                    for (var j = 0; j < cols; ++j)
-                        temp.Rows[i][j] = original.Rows[i][j];
-                for (var i = index; i < rows - 1; ++i)
-                    for (var j = 0; j < cols; ++j)
-                        temp.Rows[i][j] = original.Rows[i + 1][j];
-                return temp;
-            }
         }
         public Matrix${Id} RemoveColumn(int index) {
             Matrix${Id} original = this.Clone();
@@ -142,6 +142,22 @@ Add-Type -TypeDefinition @"
                 for (var i = 0; i < rows; ++i)
                     for (var j = index; j < cols - 1; ++j)
                         temp.Rows[i][j] = original.Rows[i][j + 1];
+                return temp;
+            }
+        }
+        public Matrix${Id} RemoveRow(int index) {
+            Matrix${Id} original = this.Clone();
+            int rows = original.Size[0], cols = original.Size[1];
+            if (index < 0 || index >= rows) {
+                return original;
+            } else {
+                var temp = new Matrix${id}(rows - 1,cols);
+                for (var i = 0; i < index; ++i)
+                    for (var j = 0; j < cols; ++j)
+                        temp.Rows[i][j] = original.Rows[i][j];
+                for (var i = index; i < rows - 1; ++i)
+                    for (var j = 0; j < cols; ++j)
+                        temp.Rows[i][j] = original.Rows[i + 1][j];
                 return temp;
             }
         }
