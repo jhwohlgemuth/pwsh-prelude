@@ -22,7 +22,7 @@ Add-Type -TypeDefinition @"
             set {
                 int rows = this.Size[0], cols = this.Size[1];
                 if (value.Length > rows) {
-                    var limit = Math.Min(value.Length,(rows * cols)); 
+                    var limit = Math.Min(value.Length,(rows * cols));
                     for (var i = 0; i < limit; ++i) {
                         int row = (int)(Math.Floor((double)(i / rows)));
                         int col = i % cols;
