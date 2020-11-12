@@ -42,26 +42,15 @@ Describe 'Matrix class static methods' {
     }
     It 'can transpose matrices' {
         $Matrix = [MatrixTest]::New(3)
-        $Matrix.Rows[0][0] = 1
-        $Matrix.Rows[0][1] = 2
-        $Matrix.Rows[0][2] = 3
-        $Matrix.Rows[1][0] = 4
-        $Matrix.Rows[1][1] = 5
-        $Matrix.Rows[1][2] = 6
-        $Matrix.Rows[2][0] = 7
-        $Matrix.Rows[2][1] = 8
-        $Matrix.Rows[2][2] = 9
-        $Matrix.Rows[0] | Should -Be 1,2,3
-        $Matrix.Rows[1] | Should -Be 4,5,6
-        $Matrix.Rows[2] | Should -Be 7,8,9
+        $Matrix.Rows[0] = 1,2,3
+        $Matrix.Rows[1] = 4,5,6
+        $Matrix.Rows[2] = 7,8,9
         $Transposed = [MatrixTest]::Transpose($Matrix)
         $Transposed.Rows[0] | Should -Be 1,4,7
         $Transposed.Rows[1] | Should -Be 2,5,8
         $Transposed.Rows[2] | Should -Be 3,6,9
         $Original = [MatrixTest]::Transpose($Transposed)
-        $Original.Rows[0] | Should -Be 1,2,3
-        $Original.Rows[1] | Should -Be 4,5,6
-        $Original.Rows[2] | Should -Be 7,8,9
+        $Matrix | Test-Equal $Original | Should -BeTrue
     }
     It 'can add two or more Matrices' {
         $A = [MatrixTest]::Identity(2)
@@ -76,118 +65,50 @@ Describe 'Matrix class static methods' {
         [MatrixTest]::Det([MatrixTest]::Unit(2)) | Should -Be 0
         [MatrixTest]::Det([MatrixTest]::Identity(2)) | Should -Be 1
         $A = [MatrixTest]::New(2)
-        $A.Rows[0][0] = 1
-        $A.Rows[0][1] = 2
-        $A.Rows[1][0] = 3
-        $A.Rows[1][1] = 4
+        $A.Rows[0] = 1,2
+        $A.Rows[1] = 3,4
         [MatrixTest]::Det($A) | Should -Be -2
     }
     It 'can calculate the determinant for 3x3 matrices' {
         [MatrixTest]::Det([MatrixTest]::Unit(3)) | Should -Be 0
         [MatrixTest]::Det([MatrixTest]::Identity(3)) | Should -Be 1
         $A = [MatrixTest]::New(3)
-        $A.Rows[0][0] = 2
-        $A.Rows[0][1] = 3
-        $A.Rows[0][2] = -4
-        $A.Rows[1][0] = 0
-        $A.Rows[1][1] = -4
-        $A.Rows[1][2] = 2
-        $A.Rows[2][0] = 1
-        $A.Rows[2][1] = -1
-        $A.Rows[2][2] = 5
+        $A.Rows[0] = 2,3,-4
+        $A.Rows[1] = 0,-4,2
+        $A.Rows[2] = 1,-1,5
         [MatrixTest]::Det($A) | Should -Be -46
         $A = [MatrixTest]::New(3)
-        $A.Rows[0][0] = 1
-        $A.Rows[0][1] = 2
-        $A.Rows[0][2] = 3
-        $A.Rows[1][0] = 4
-        $A.Rows[1][1] = -2
-        $A.Rows[1][2] = 3
-        $A.Rows[2][0] = 2
-        $A.Rows[2][1] = 5
-        $A.Rows[2][2] = -1
+        $A.Rows[0] = 1,2,3
+        $A.Rows[1] = 4,-2,3
+        $A.Rows[2] = 2,5,-1
         [MatrixTest]::Det($A) | Should -Be 79
     }
     It 'can calculate the determinant for 4x4 matrices' {
         [MatrixTest]::Det([MatrixTest]::Unit(4)) | Should -Be 0
         [MatrixTest]::Det([MatrixTest]::Identity(4)) | Should -Be 1
         $A = [MatrixTest]::New(4)
-        $A.Rows[0][0] = 3
-        $A.Rows[0][1] = -2
-        $A.Rows[0][2] = -5
-        $A.Rows[0][3] = 4
-        $A.Rows[1][0] = -5
-        $A.Rows[1][1] = 2
-        $A.Rows[1][2] = 8
-        $A.Rows[1][3] = -5
-        $A.Rows[2][0] = -2
-        $A.Rows[2][1] = 4
-        $A.Rows[2][2] = 7
-        $A.Rows[2][3] = -3
-        $A.Rows[3][0] = 2
-        $A.Rows[3][1] = -3
-        $A.Rows[3][2] = -5
-        $A.Rows[3][3] = 8
+        $A.Rows[0] = 3,-2,-5,4
+        $A.Rows[1] = -5,2,8,-5
+        $A.Rows[2] = -2,4,7,-3
+        $A.Rows[3] = 2,-3,-5,8
         [MatrixTest]::Det($A) | Should -Be -54
         $A = [MatrixTest]::New(4)
-        $A.Rows[0][0] = 5
-        $A.Rows[0][1] = 4
-        $A.Rows[0][2] = 2
-        $A.Rows[0][3] = 1
-        $A.Rows[1][0] = 2
-        $A.Rows[1][1] = 3
-        $A.Rows[1][2] = 1
-        $A.Rows[1][3] = -2
-        $A.Rows[2][0] = -5
-        $A.Rows[2][1] = -7
-        $A.Rows[2][2] = -3
-        $A.Rows[2][3] = 9
-        $A.Rows[3][0] = 1
-        $A.Rows[3][1] = -2
-        $A.Rows[3][2] = -1
-        $A.Rows[3][3] = 4
+        $A.Rows[0] = 5,4,2,1
+        $A.Rows[1] = 2,3,1,-2
+        $A.Rows[2] = -5,-7,-3,9
+        $A.Rows[3] = 1,-2,-1,4
         [MatrixTest]::Det($A) | Should -Be 38
     }
     It 'can calculate the determinant for matrices larger than 4x4' {
         [MatrixTest]::Det([MatrixTest]::Unit(10)) | Should -Be 0
         [MatrixTest]::Det([MatrixTest]::Identity(10)) | Should -Be 1
         $A = [MatrixTest]::New(6)
-        $A.Rows[0][0] = 12
-        $A.Rows[0][1] = 22
-        $A.Rows[0][2] = 14
-        $A.Rows[0][3] = 17
-        $A.Rows[0][4] = 20
-        $A.Rows[0][5] = 10
-        $A.Rows[1][0] = 16
-        $A.Rows[1][1] = -4
-        $A.Rows[1][2] = 7
-        $A.Rows[1][3] = 1
-        $A.Rows[1][4] = -2
-        $A.Rows[1][5] = 15
-        $A.Rows[2][0] = 10
-        $A.Rows[2][1] = -3
-        $A.Rows[2][2] = -2
-        $A.Rows[2][3] = 3
-        $A.Rows[2][4] = -2
-        $A.Rows[2][5] = 8
-        $A.Rows[3][0] = 7
-        $A.Rows[3][1] = 12
-        $A.Rows[3][2] = 8
-        $A.Rows[3][3] = 9
-        $A.Rows[3][4] = 11
-        $A.Rows[3][5] = 6
-        $A.Rows[4][0] = 11
-        $A.Rows[4][1] = 2
-        $A.Rows[4][2] = 4
-        $A.Rows[4][3] = -8
-        $A.Rows[4][4] = 1
-        $A.Rows[4][5] = 9
-        $A.Rows[5][0] = 24
-        $A.Rows[5][1] = 6
-        $A.Rows[5][2] = 6
-        $A.Rows[5][3] = 3
-        $A.Rows[5][4] = 4
-        $A.Rows[5][5] = 22
+        $A.Rows[0] = 12,22,14,17,20,10
+        $A.Rows[1] = 16,-4,7,1,-2,15
+        $A.Rows[2] = 10,-3,-2,3,-2,8
+        $A.Rows[3] = 7,12,8,9,11,6
+        $A.Rows[4] = 11,2,4,-8,1,9
+        $A.Rows[5] = 24,6,6,3,4,22
         [MatrixTest]::Det($A) | Should -Be 12228
     }
     It 'can produce the dot product of two matrices' {
@@ -200,14 +121,10 @@ Describe 'Matrix class static methods' {
         $Product.Size | Should -Be 2,2
         $Product.Rows[0] | Should -Be 0,0 -Because 'the dot product of orthogonal matrices should be zero'
         $Product.Rows[1] | Should -Be 0,0 -Because 'the dot product of orthogonal matrices should be zero'
-        $A.Rows[0][0] = 1
-        $A.Rows[0][1] = 2
-        $A.Rows[1][0] = 3
-        $A.Rows[1][1] = 4
-        $B.Rows[0][0] = 1
-        $B.Rows[0][1] = 1
-        $B.Rows[1][0] = 0
-        $B.Rows[1][1] = 2
+        $A.Rows[0] = 1,2
+        $A.Rows[1] = 3,4
+        $B.Rows[0] = 1,1
+        $B.Rows[1] = 0,2
         $Product = [MatrixTest]::Dot($A,$B)
         $Product.Rows[0] | Should -Be 1,5
         $Product.Rows[1] | Should -Be 3,11
@@ -215,41 +132,26 @@ Describe 'Matrix class static methods' {
         $Product.Rows[0] | Should -Be 4,6 -Because 'the dot product is not commutative'
         $Product.Rows[1] | Should -Be 6,8 -Because 'the dot product is not commutative'
         $A = [MatrixTest]::New(1,2)
-        $A.Rows[0][0] = 2
-        $A.Rows[0][1] = 1
+        $A.Rows[0] = 2,1
         $B = [MatrixTest]::New(2,3)
-        $B.Rows[0][0] = 1
-        $B.Rows[0][1] = -2
-        $B.Rows[0][2] = 0
-        $B.Rows[1][0] = 4
-        $B.Rows[1][1] = 5
-        $B.Rows[1][2] = -3
+        $B.Rows[0] = 1,-2,0
+        $B.Rows[1] = 4,5,-3
         $Product = [MatrixTest]::Dot($A,$B)
         $Product.Size | Should -Be 1,3 -Because 'dot product supports matrices of different sizes'
         $Product.Rows[0] | Should -Be 6,1,-3
         $A = [MatrixTest]::New(2)
-        $A.Rows[0][0] = 2
-        $A.Rows[0][1] = 5
-        $A.Rows[1][0] = 1
-        $A.Rows[1][1] = 3
+        $A.Rows[0] = 2,5
+        $A.Rows[1] = 1,3
         $B = [MatrixTest]::New(2)
-        $B.Rows[0][0] = 3
-        $B.Rows[0][1] = -5
-        $B.Rows[1][0] = -1
-        $B.Rows[1][1] = 2
+        $B.Rows[0] = 3,-5
+        $B.Rows[1] = -1,2
         [MatrixTest]::Dot($A,$B) | Test-Equal $Identity | Should -BeTrue -Because '$A and $B are invertible'
     }
     It 'can calulate the inverse of a given matrix' {
         $A = [MatrixTest]::New(3);
-        $A.Rows[0][0] = 1
-        $A.Rows[0][1] = 2
-        $A.Rows[0][2] = 3
-        $A.Rows[1][0] = 2
-        $A.Rows[1][1] = 3
-        $A.Rows[1][2] = 4
-        $A.Rows[2][0] = 1
-        $A.Rows[2][1] = 5
-        $A.Rows[2][2] = 7
+        $A.Rows[0] = 1,2,3
+        $A.Rows[1] = 2,3,4
+        $A.Rows[2] = 1,5,7
         $Inverse = [MatrixTest]::Invert($A)
         $Inverse.Rows[0] | Should -Be 0.5,0.5,-0.5
         $Inverse.Rows[1] | Should -Be -5,2,1
@@ -267,12 +169,10 @@ Describe 'Matrix class instance' {
         $A.Indexes() | Should -HaveCount 9
     }
     It 'can create clones' {
-        $Matrix = [MatrixTest]::New(2)
-        $Matrix.Rows[0][0] = 1
-        $Matrix.Rows[0][1] = 2
-        $Matrix.Rows[1][0] = 3
-        $Matrix.Rows[1][1] = 4
-        $Clone = $Matrix.Clone()
+        $A = [MatrixTest]::New(2)
+        $A.Rows[0] = 1,2
+        $A.Rows[1] = 3,4
+        $Clone = $A.Clone()
         $Clone.Rows[0] | Should -Be 1,2
         $Clone.Rows[1] | Should -Be 3,4
     }
@@ -285,15 +185,9 @@ Describe 'Matrix class instance' {
     }
     It 'can remove rows' {
         $A = [MatrixTest]::New(3)
-        $A.Rows[0][0] = 1
-        $A.Rows[0][1] = 2
-        $A.Rows[0][2] = 3
-        $A.Rows[1][0] = 4
-        $A.Rows[1][1] = 5
-        $A.Rows[1][2] = 6
-        $A.Rows[2][0] = 7
-        $A.Rows[2][1] = 8
-        $A.Rows[2][2] = 9
+        $A.Rows[0] = 1,2,3
+        $A.Rows[1] = 4,5,6
+        $A.Rows[2] = 7,8,9
         $Edited = $A.RemoveRow(0)
         $Edited.Size | Should -Be 2,3
         $Edited.Rows[0] | Should -Be 4,5,6
@@ -310,15 +204,9 @@ Describe 'Matrix class instance' {
     }
     It 'can remove columns' {
         $A = [MatrixTest]::New(3)
-        $A.Rows[0][0] = 1
-        $A.Rows[0][1] = 2
-        $A.Rows[0][2] = 3
-        $A.Rows[1][0] = 4
-        $A.Rows[1][1] = 5
-        $A.Rows[1][2] = 6
-        $A.Rows[2][0] = 7
-        $A.Rows[2][1] = 8
-        $A.Rows[2][2] = 9
+        $A.Rows[0] = 1,2,3
+        $A.Rows[1] = 4,5,6
+        $A.Rows[2] = 7,8,9
         $Edited = $A.RemoveColumn(0)
         $Edited.Size | Should -Be 3,2
         $Edited.Rows[0] | Should -Be 2,3
@@ -340,12 +228,10 @@ Describe 'Matrix class instance' {
         $Edited.Rows[1] | Should -Be 8,9
     }
     It 'can be converted to string output' {
-        $Matrix = [MatrixTest]::New(2)
-        $Matrix.Rows[0][0] = 1
-        $Matrix.Rows[0][1] = 2
-        $Matrix.Rows[1][0] = 3
-        $Matrix.Rows[1][1] = 4
-        $Matrix.ToString() | ConvertTo-Json | Should -Be '"1,2\r\n3,4"'
+        $A = [MatrixTest]::New(2)
+        $A.Rows[0] = 1,2
+        $A.Rows[1] = 3,4
+        $A.ToString() | ConvertTo-Json | Should -Be '"1,2\r\n3,4"'
         [MatrixTest]::Unit(3).ToString() | ConvertTo-Json | Should -Be '"1,1,1\r\n1,1,1\r\n1,1,1"'
     }
 }
