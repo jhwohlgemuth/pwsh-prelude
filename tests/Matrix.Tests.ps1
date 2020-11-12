@@ -42,9 +42,7 @@ Describe 'Matrix class static methods' {
     }
     It 'can transpose matrices' {
         $Matrix = [MatrixTest]::New(3)
-        $Matrix.Rows[0] = 1,2,3
-        $Matrix.Rows[1] = 4,5,6
-        $Matrix.Rows[2] = 7,8,9
+        $Matrix.Rows = (1..9)
         $Transposed = [MatrixTest]::Transpose($Matrix)
         $Transposed.Rows[0] | Should -Be 1,4,7
         $Transposed.Rows[1] | Should -Be 2,5,8
@@ -65,8 +63,7 @@ Describe 'Matrix class static methods' {
         [MatrixTest]::Det([MatrixTest]::Unit(2)) | Should -Be 0
         [MatrixTest]::Det([MatrixTest]::Identity(2)) | Should -Be 1
         $A = [MatrixTest]::New(2)
-        $A.Rows[0] = 1,2
-        $A.Rows[1] = 3,4
+        $A.Rows = (1..4)
         [MatrixTest]::Det($A) | Should -Be -2
     }
     It 'can calculate the determinant for 3x3 matrices' {
@@ -164,14 +161,33 @@ Describe 'Matrix class static methods' {
     }
 }
 Describe 'Matrix class instance' {
+    It 'does not allow for setting matrix Size' {
+        $A = [MatrixTest]::Identity(3)
+        $A.Size | Should -Be 3,3
+        { $A.Size = 2,2,2 } | Should -Throw
+    }
+    It 'will ensure row and column data adheres to restrictions of matrix size' {
+        $A = [MatrixTest]::New(3)
+        $A.Rows = (1..9)
+        $A.Rows[0] | Should -Be 1,2,3
+        $A.Rows[1] | Should -Be 4,5,6
+        $A.Rows[2] | Should -Be 7,8,9
+        $A = [MatrixTest]::New(2)
+        $A.Rows = (1..9)
+        $A.Rows[0] | Should -Be  1,2
+        $A.Rows[1] | Should -Be  3,4 -Because 'row length will be maintained by truncating input'
+        $B = [MatrixTest]::New(2)
+        $B.Rows = 1,2,3
+        $B.Rows[0] | Should -Be  1,2
+        $B.Rows[1] | Should -Be  3,0 -Because 'if not enough values are supplied, existing values will not be overwritten'
+    }
     It 'provides iterator of index element index pairs' {
         $A = [MatrixTest]::New(3)
         $A.Indexes() | Should -HaveCount 9
     }
     It 'can create clones' {
         $A = [MatrixTest]::New(2)
-        $A.Rows[0] = 1,2
-        $A.Rows[1] = 3,4
+        $A.Rows = (1..4)
         $Clone = $A.Clone()
         $Clone.Rows[0] | Should -Be 1,2
         $Clone.Rows[1] | Should -Be 3,4
@@ -185,9 +201,7 @@ Describe 'Matrix class instance' {
     }
     It 'can remove rows' {
         $A = [MatrixTest]::New(3)
-        $A.Rows[0] = 1,2,3
-        $A.Rows[1] = 4,5,6
-        $A.Rows[2] = 7,8,9
+        $A.Rows = (1..9)
         $Edited = $A.RemoveRow(0)
         $Edited.Size | Should -Be 2,3
         $Edited.Rows[0] | Should -Be 4,5,6
@@ -204,9 +218,7 @@ Describe 'Matrix class instance' {
     }
     It 'can remove columns' {
         $A = [MatrixTest]::New(3)
-        $A.Rows[0] = 1,2,3
-        $A.Rows[1] = 4,5,6
-        $A.Rows[2] = 7,8,9
+        $A.Rows = (1..9)
         $Edited = $A.RemoveColumn(0)
         $Edited.Size | Should -Be 3,2
         $Edited.Rows[0] | Should -Be 2,3
@@ -229,8 +241,7 @@ Describe 'Matrix class instance' {
     }
     It 'can be converted to string output' {
         $A = [MatrixTest]::New(2)
-        $A.Rows[0] = 1,2
-        $A.Rows[1] = 3,4
+        $A.Rows = (1..4)
         $A.ToString() | ConvertTo-Json | Should -Be '"1,2\r\n3,4"'
         [MatrixTest]::Unit(3).ToString() | ConvertTo-Json | Should -Be '"1,1,1\r\n1,1,1\r\n1,1,1"'
     }

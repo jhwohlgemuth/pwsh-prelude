@@ -6,12 +6,36 @@ if ("Matrix${Id}" -as [Type]) {
 Add-Type -TypeDefinition @"
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class Matrix${Id} {
 
-        public int[] Size;
-        public double[][] Rows;
-
+        public int[] Size {
+            get;
+            private set;
+        }
+        private double[][] _Rows;
+        public double[][] Rows {
+            get {
+                return _Rows;
+            }
+            set {
+                int rows = this.Size[0], cols = this.Size[1];
+                if (value.Length > rows) {
+                    var limit = Math.Min(value.Length,(rows * cols)); 
+                    for (var i = 0; i < limit; ++i) {
+                        int row = (int)(Math.Floor((double)(i / rows)));
+                        int col = i % cols;
+                        _Rows[row][col] = value[i][0];
+                    }
+                } else {
+                    double[][] temp = Matrix${Id}.Create(rows,cols);
+                    for (var row = 0; row < rows; ++row)
+                        temp[row] = (double[])value[row].Take(cols).ToArray();
+                    _Rows = temp;
+                }
+            }
+        }
         public Matrix${Id}(int n) {
             this.Size = new int[] { n,n };
             this.Rows = Matrix${Id}.Create(n,n);
