@@ -144,6 +144,16 @@ Describe 'Matrix class static methods' {
         $B.Rows[1] = -1,2
         [MatrixTest]::Dot($A,$B) | Test-Equal $Identity | Should -BeTrue -Because '$A and $B are invertible'
     }
+    It 'can multiply matrices by a scalar constant' {
+        $A = [MatrixTest]::Identity(2)
+        $AddThreeTimes = [MatrixTest]::Add($A,$A,$A)
+        $MultiplyByThree = [MatrixTest]::Multiply($A,3)
+        $AddThreeTimes.Rows[0] | Should -Be $MultiplyByThree.Rows[0]
+        $AddThreeTimes.Rows[1] | Should -Be $MultiplyByThree.Rows[1]
+        $Product = [MatrixTest]::Multiply($A,7)
+        $Product.Rows[0] | Should -Be 7,0
+        $Product.Rows[1] | Should -Be 0,7
+    }
     It 'can calulate the inverse of a given matrix' {
         $A = [MatrixTest]::New(3);
         $A.Rows[0] = 1,2,3
@@ -191,13 +201,6 @@ Describe 'Matrix class instance' {
         $Clone = $A.Clone()
         $Clone.Rows[0] | Should -Be 1,2
         $Clone.Rows[1] | Should -Be 3,4
-    }
-    It 'can be multiplied by a scalar constant' {
-        $A = [MatrixTest]::Identity(2)
-        [MatrixTest]::Add($A,$A,$A) | Test-Equal $A.Multiply(3) | Should -BeTrue
-        $Product = $A.Multiply(7)
-        $Product.Rows[0] | Should -Be 7,0
-        $Product.Rows[1] | Should -Be 0,7
     }
     It 'can remove rows' {
         $A = [MatrixTest]::New(3)

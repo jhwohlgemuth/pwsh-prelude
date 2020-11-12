@@ -28,6 +28,12 @@
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
+                <Name>Multiply</Name>
+                <Script>
+                    [Matrix]::Multiply($this, $args[0])
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Transpose</Name>
                 <Script>
                     [Matrix]::Transpose($this)

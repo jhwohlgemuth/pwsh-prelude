@@ -120,7 +120,15 @@ Add-Type -TypeDefinition @"
         public static Matrix${Id} Invert(Matrix${Id} a) {
             Matrix${Id} adjugate = Matrix${Id}.Adj(a);
             double det = Matrix${Id}.Det(a);
-            return adjugate.Multiply(1 / det);
+            return Matrix${Id}.Multiply(adjugate,(1 / det));
+        }
+        public static Matrix${Id} Multiply(Matrix${Id} a,double k) {
+            Matrix${Id} clone = a.Clone();
+            foreach (var index in clone.Indexes()) {
+                int i = index[0], j = index[1];
+                clone.Rows[i][j] *= k;
+            }
+            return clone;
         }
         public Matrix${Id} Clone() {
             Matrix${Id} original = this;
@@ -144,14 +152,6 @@ Add-Type -TypeDefinition @"
                     pairs.Add(pair);
                 }
             return pairs;
-        }
-        public Matrix${Id} Multiply(double k) {
-            Matrix${Id} clone = this.Clone();
-            foreach (var index in clone.Indexes()) {
-                int i = index[0], j = index[1];
-                clone.Rows[i][j] *= k;
-            }
-            return clone;
         }
         public Matrix${Id} RemoveColumn(int index) {
             Matrix${Id} original = this.Clone();
