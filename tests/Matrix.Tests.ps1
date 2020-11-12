@@ -176,10 +176,10 @@ Describe 'Matrix class instance' {
         $A.Rows = (1..9)
         $A.Rows[0] | Should -Be  1,2
         $A.Rows[1] | Should -Be  3,4 -Because 'row length will be maintained by truncating input'
-        $B = [MatrixTest]::New(2)
-        $B.Rows = 1,2,3
-        $B.Rows[0] | Should -Be  1,2
-        $B.Rows[1] | Should -Be  3,0 -Because 'if not enough values are supplied, existing values will not be overwritten'
+        $A = [MatrixTest]::New(2)
+        $A.Rows = 1,2,3
+        $A.Rows[0] | Should -Be  1,2
+        $A.Rows[1] | Should -Be  3,0
     }
     It 'provides iterator of index element index pairs' {
         $A = [MatrixTest]::New(3)
