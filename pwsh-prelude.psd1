@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.21'
+  ModuleVersion = '0.0.22'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
@@ -35,6 +35,7 @@
     'irc'
     'listenFor'
     'listenTo'
+    'matrix'
     'max'
     'menu'
     'merge'
@@ -133,6 +134,7 @@
     'New-ApplicationTemplate'
     'New-DailyShutdownJob'
     'New-File'
+    'New-Matrix'
     'New-ProxyCommand'
     'New-SshKey'
     'New-Template'

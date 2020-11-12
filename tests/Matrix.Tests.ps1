@@ -190,6 +190,10 @@ Describe 'Matrix class instance' {
         $A.Rows = 1,2,3
         $A.Rows[0] | Should -Be  1,2
         $A.Rows[1] | Should -Be  3,0
+        $A = [MatrixTest]::New(2, 3)
+        $A.Rows = (1..6)
+        $A.Rows[0] | Should -Be  1,2,3
+        $A.Rows[1] | Should -Be  4,5,6 -Because 'non-square sizes should be supported'
     }
     It 'provides iterator of index element index pairs' {
         $A = [MatrixTest]::New(3)
@@ -247,5 +251,27 @@ Describe 'Matrix class instance' {
         $A.Rows = (1..4)
         $A.ToString() | ConvertTo-Json | Should -Be '"1,2\r\n3,4"'
         [MatrixTest]::Unit(3).ToString() | ConvertTo-Json | Should -Be '"1,1,1\r\n1,1,1\r\n1,1,1"'
+    }
+}
+Describe 'Matrix helper functions' {
+    It 'can provide wrapper for matrix creation' {
+        $A = 1..9 | New-Matrix 3,3
+        $A.Size | Should -Be 3,3
+        $A.Rows[0] | Should -Be 1,2,3
+        $A.Rows[1] | Should -Be 4,5,6
+        $A.Rows[2] | Should -Be 7,8,9
+        $A = New-Matrix -Size 3,3 -Values (1..9)
+        $A.Size | Should -Be 3,3
+        $A.Rows[0] | Should -Be 1,2,3
+        $A.Rows[1] | Should -Be 4,5,6
+        $A.Rows[2] | Should -Be 7,8,9
+        $A = New-Matrix
+        $A.Size | Should -Be 2,2 -Because '2x2 is the default matrix size'
+        $A.Rows[0] | Should -Be 0,0 -Because 'an empty matrix should be created by default'
+        $A.Rows[1] | Should -Be 0,0 -Because 'an empty matrix should be created by default'
+        $A = @(1,2,3,@(4,5,6)) | New-Matrix 2,3
+        $A = 1..6 | New-Matrix 2,3
+        $A.Rows[0] | Should -Be 1,2,3 -Because 'function accepts non-square sizes'
+        $A.Rows[1] | Should -Be 4,5,6 -Because 'values array should be flattened'
     }
 }

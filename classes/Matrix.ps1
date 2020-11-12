@@ -1,4 +1,35 @@
-﻿# Need to parameterize class with "id" in order to re-load class during testing
+﻿function New-Matrix {
+    <#
+    .SYNOPSIS
+    Utility wrapper function for creating matrices
+    .PARAMETER Size
+    Size = @(number of rows, number of columns)
+    .EXAMPLE
+    $Matrix = 1..9 | matrix 3,3
+    #>
+    [CmdletBinding()]
+    [Alias('matrix')]
+    [OutputType([Matrix])]
+    Param(
+      [Parameter(ValueFromPipeline=$true)]
+      [Array] $Values,
+      [Parameter(Position=0)]
+      [Array] $Size = @(2,2)
+    )
+    Begin {
+      $Matrix = [Matrix]::New($Size[0], $Size[1])
+      if ($Values.Count -gt 0) {
+        $Matrix.Rows = $Values | Invoke-Flatten
+      }
+    }
+    End {
+      if ($Input.Count -gt 0) {
+        $Matrix.Rows = $Input | Invoke-Flatten
+      }
+      $Matrix
+    }
+}
+# Need to parameterize class with "id" in order to re-load class during testing
 $Id = if ($Env:ProjectName -eq 'pwsh-prelude') { 'Test' } else { '' }
 if ("Matrix${Id}" -as [Type]) {
   return
@@ -24,7 +55,7 @@ Add-Type -TypeDefinition @"
                 if (value.Length > rows) {
                     var limit = Math.Min(value.Length,(rows * cols));
                     for (var i = 0; i < limit; ++i) {
-                        int row = (int)(Math.Floor((double)(i / rows)));
+                        int row = (int)(Math.Floor((double)(i / cols)));
                         int col = i % cols;
                         _Rows[row][col] = value[i][0];
                     }
