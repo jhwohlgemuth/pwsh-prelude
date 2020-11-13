@@ -52,7 +52,8 @@ function Invoke-Test {
       }
     }
   } elseif ($CI) {
-    '==> Executing tests on CI' | Write-Output
+    "==> Executing tests on $Env:BuildSystem" | Write-Output
+
     $Configuration = [PesterConfiguration]@{
       Run = @{
         Exit = $true
