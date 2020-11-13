@@ -29,8 +29,8 @@
       $Matrix
     }
 }
-# Need to parameterize class with "id" in order to re-load class during testing
-$Id = if ($Env:ProjectName -eq 'pwsh-prelude') { 'Test' } else { '' }
+# Need to parameterize class with "id" in order to re-load class during local testing
+$Id = if ($Env:ProjectName -eq 'pwsh-prelude' -and $Env:BuildSystem -ne 'Travis CI') { 'Test' } else { '' }
 if ("Matrix${Id}" -as [Type]) {
   return
 }
