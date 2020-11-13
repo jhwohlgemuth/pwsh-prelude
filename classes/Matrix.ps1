@@ -1,40 +1,37 @@
 ﻿function New-Matrix {
-    <#
-    .SYNOPSIS
-    Utility wrapper function for creating matrices
-    .PARAMETER Size
-    Size = @(number of rows, number of columns)
-    .EXAMPLE
-    $Matrix = 1..9 | matrix 3,3
-    #>
-    [CmdletBinding()]
-    [Alias('matrix')]
-    [OutputType([Matrix])]
-    Param(
-      [Parameter(ValueFromPipeline=$true)]
-      [Array] $Values,
-      [Parameter(Position=0)]
-      [Array] $Size = @(2,2)
-    )
-    Begin {
-      $Matrix = [Matrix]::New($Size[0], $Size[1])
-      if ($Values.Count -gt 0) {
-        $Matrix.Rows = $Values | Invoke-Flatten
-      }
+  <#
+  .SYNOPSIS
+  Utility wrapper function for creating matrices
+  .PARAMETER Size
+  Size = @(number of rows, number of columns)
+  .EXAMPLE
+  $Matrix = 1..9 | matrix 3,3
+  #>
+  [CmdletBinding()]
+  [Alias('matrix')]
+  [OutputType([Matrix])]
+  Param(
+    [Parameter(ValueFromPipeline=$true)]
+    [Array] $Values,
+    [Parameter(Position=0)]
+    [Array] $Size = @(2,2)
+  )
+  Begin {
+    $Matrix = [Matrix]::New($Size[0], $Size[1])
+    if ($Values.Count -gt 0) {
+      $Matrix.Rows = $Values | Invoke-Flatten
     }
-    End {
-      if ($Input.Count -gt 0) {
-        $Matrix.Rows = $Input | Invoke-Flatten
-      }
-      $Matrix
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Matrix.Rows = $Input | Invoke-Flatten
     }
+    $Matrix
+  }
 }
 # Need to parameterize class with "id" in order to re-load class during local testing
 $Id = if ($Env:ProjectName -eq 'pwsh-prelude' -and $Env:BuildSystem -eq 'Unknown') { 'Test' } else { '' }
-if ("Matrix${Id}" -as [Type]) {
-  return
-}
-Add-Type -TypeDefinition @"
+$TypeDefinition = @"
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -226,3 +223,12 @@ Add-Type -TypeDefinition @"
         }
     }
 "@
+if ("Matrix${Id}" -as [Type]) {
+  return
+} else {
+  Add-Type -TypeDefinition $TypeDefinition
+  if ($Env:BuildSystem -eq 'Travis CI') {
+      $Accelerators = [PowerShell].Assembly.GetType("System.Management.Automation.TypeAccelerators")
+      $Accelerators::Add('MatrixTest', 'Matrix')
+  }
+}
