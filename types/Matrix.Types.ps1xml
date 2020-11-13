@@ -4,11 +4,23 @@
         <Name>Matrix</Name>
         <Members>
             <ScriptMethod>
+                <Name>Add</Name>
+                <Script>
+                    [Matrix]::Add($this, $args[0])
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Adj</Name>
                 <Script>
                     [Matrix]::Adj($this)
                 </Script>
             </ScriptMethod>
+            <ScriptProperty>
+                <Name>Columns</Name>
+                <GetScriptBlock>
+                    [Matrix]::Transpose($this).Rows
+                </GetScriptBlock>
+            </ScriptProperty>
             <ScriptMethod>
                 <Name>Det</Name>
                 <Script>

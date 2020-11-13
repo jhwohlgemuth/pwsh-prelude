@@ -11,15 +11,12 @@ Param(
   [Switch] $Major,
   [Switch] $Minor
 )
-
 Import-Module BuildHelpers
-
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
 function Invoke-Lint {
   [CmdletBinding()]
   Param()
-
   '==> Linting code' | Write-Output
   $Settings = @{
     ExcludeRules = @(
@@ -89,9 +86,7 @@ function Invoke-Test {
 function Invoke-Publish {
   [CmdletBinding()]
   Param()
-
   Set-BuildEnvironment -VariableNamePrefix '' -Force
-
   "${Prefix}Validating module data..." | Write-Output
   if (Test-ModuleManifest -Path $Env:PSModuleManifest) {
     "${Prefix}==> SUCCESS" | Write-Output

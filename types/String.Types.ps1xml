@@ -21,10 +21,10 @@
         <Name>System.Security.SecureString</Name>
         <Members>
             <ScriptProperty>
-            <Name>PlainText</Name>
-            <GetScriptBlock>
-                ConvertTo-PlainText $this
-            </GetScriptBlock>
+                <Name>PlainText</Name>
+                <GetScriptBlock>
+                    ConvertTo-PlainText $this
+                </GetScriptBlock>
             </ScriptProperty>
         </Members>
     </Type>
