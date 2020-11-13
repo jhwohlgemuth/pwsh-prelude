@@ -227,4 +227,8 @@ if ("Matrix${Id}" -as [Type]) {
   return
 } else {
   Add-Type -TypeDefinition $TypeDefinition
+  if ($Env:BuildSystem -eq 'Travis CI') {
+    $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
+    $Accelerators::Add('MatrixTest', 'Matrix')
+  }
 }
