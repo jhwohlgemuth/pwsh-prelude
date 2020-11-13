@@ -52,8 +52,8 @@ function Invoke-Test {
       }
     }
   } elseif ($CI) {
+    Set-BuildEnvironment -VariableNamePrefix ''
     "==> Executing tests on $Env:BuildSystem" | Write-Output
-
     $Configuration = [PesterConfiguration]@{
       Run = @{
         Exit = $true
