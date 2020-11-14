@@ -274,14 +274,18 @@ Describe 'Matrix helper functions' {
         $A.Rows[0] | Should -Be 1,2,3 -Because 'function accepts non-square sizes'
         $A.Rows[1] | Should -Be 4,5,6 -Because 'values array should be flattened'
     }
-    It -Skip 'can test if a matrix is diagonal' {
-        $A = [MatrixTest]::New(3)
-        $A.Rows = 1,0,0, 0,2,0, 0,0,3
-        $A | Test-DiagonalMatrix | Should -BeTrue
-        Test-DiagonalMatrix $A | Should -BeTrue
-        $A.Rows = 1,0,0, 2,2,0, 3,0,3
-        $A | Test-DiagonalMatrix | Should -BeFalse -Because 'second and third rows have non-zero elements off the main diagonal'
-        [MatrixTest]::Identity(2) | Test-DiagonalMatrix | Should -BeTrue
+    It 'can test if a matrix is diagonal' {
+        1,0,0,
+        0,2,0,
+        0,0,3 | New-matrix 3,3 | Test-DiagonalMatrix | Should -BeTrue
+        1,0,0,
+        2,2,0,
+        3,0,3 | New-Matrix 3,3 | Test-DiagonalMatrix | Should -BeFalse -Because 'second and third rows have non-zero elements off the main diagonal'
+        1,0,0,
+        0,2,1,
+        0,0,3 | New-Matrix 3,3 | Test-DiagonalMatrix | Should -BeFalse -Because 'second row has a non-zero element off the main diagonal'
+        1,0,
+        0,1 | New-Matrix | Test-DiagonalMatrix | Should -BeTrue
     }
     It -Skip 'can test if a matrix is in echelon form' {
         $A = [MatrixTest]::New(2, 3)
@@ -314,6 +318,12 @@ Describe 'Matrix helper functions' {
         0,1,0,0,
         0,0,1,0,
         0,0,0,1 | New-Matrix 4,4 | Test-SymmetricMatrix | Should -BeTrue -Because 'diagonal matrices are symmetric'
+        1,0,0,
+        2,2,0,
+        3,0,3 | New-Matrix 3,3 | Test-SymmetricMatrix | Should -BeFalse
+        1,0,0,
+        0,2,1,
+        0,0,3 | New-Matrix 3,3 | Test-SymmetricMatrix | Should -BeFalse
     }
     It -Skip 'can test if a matrix is triangular' {
         $A = [MatrixTest]::New(3)

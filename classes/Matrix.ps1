@@ -88,7 +88,10 @@ function Test-DiagonalMatrix {
     [Matrix] $Value
   )
   Process {
-    $true
+    $Value.Indexes() | ForEach-Object {
+      $Row, $Col = $_
+      ($Row -eq $Col) -or ($Value.Rows[$Row][$Col] -eq 0)
+    } | Invoke-Reduce -Every
   }
 }
 function Test-EchelonForm {
