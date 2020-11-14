@@ -26,7 +26,8 @@ function New-ApplicationTemplate {
   #>
   [CmdletBinding()]
   Param()
-  "  [CmdletBinding()]
+  "  #Requires -Modules pwsh-prelude
+  [CmdletBinding()]
   Param(
     [String] {{ Dollar }}Id,
     [Switch] {{ Dollar }}Clear
