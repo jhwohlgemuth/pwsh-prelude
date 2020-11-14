@@ -182,16 +182,10 @@ function Test-SymmetricMatrix {
     [Matrix] $Value
   )
   Process {
-    $Result = $true
-    $Values = $Value.Rows
-    $Value.Indexes() | ForEach-Object {
-      $Row, $Col = $_
-      if ($Values[$Row][$Col] -ne $Values[$Col][$Row]) {
-        $Result = $false
-        Break
-      }
-    }
-    $Result
+    0..($Value.Size[0] - 1) | ForEach-Object {
+      $Row = $_
+      0..$Row | ForEach-Object { $Value.Rows[$Row][$_] -eq $Value.Rows[$_][$Row] }
+    } | Invoke-Reduce -Every
   }
 }
 function Test-TriangularMatrix {
