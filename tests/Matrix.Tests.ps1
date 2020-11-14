@@ -274,4 +274,51 @@ Describe 'Matrix helper functions' {
         $A.Rows[0] | Should -Be 1,2,3 -Because 'function accepts non-square sizes'
         $A.Rows[1] | Should -Be 4,5,6 -Because 'values array should be flattened'
     }
+    It -Skip 'can test if a matrix is diagonal' {
+        $A = [MatrixTest]::New(3)
+        $A.Rows = 1,0,0, 0,2,0, 0,0,3
+        $A | Test-DiagonalMatrix | Should -BeTrue
+        Test-DiagonalMatrix $A | Should -BeTrue
+        $A.Rows = 1,0,0, 2,2,0, 3,0,3
+        $A | Test-DiagonalMatrix | Should -BeFalse -Because 'second and third rows have non-zero elements off the main diagonal'
+        [MatrixTest]::Identity(2) | Test-DiagonalMatrix | Should -BeTrue
+    }
+    It -Skip 'can test if a matrix is in echelon form' {
+        $A = [MatrixTest]::New(2, 3)
+        $A.Rows = 1,2,3,0,0,1
+        $A | Test-EchelonForm | Should -BeTrue
+        $A = [MatrixTest]::New(3)
+        $A.Rows = 1,2,3, 0,0,1, 0,0,0
+        $A | Test-EchelonForm | Should -BeTrue
+        $A.Rows = 1,2,3, 0,0,1, 4,5,6
+        $A | Test-EchelonForm | Should -BeFalse -Because 'the last row first entry is to the left of previous row first entry'
+        $A.Rows = 1,2,3, 0,0,1, 0,0,1
+        $A | Test-EchelonForm | Should -BeFalse -Because 'the last row first entry is not to the right of the previous row first entry'
+    }
+    It -Skip 'can test if a matrix is orthogonal' {
+        [MatrixTest]::Identity(3) | Test-Orthogonal | Should -BeTrue
+        [MatrixTest]::Unit(3) | Test-Orthogonal | Should -BeFalse
+    }
+    It 'can test if a matrix is square' {
+        (1..4) | New-Matrix | Test-SquareMatrix | Should -BeTrue
+        (1..9) | New-Matrix 3,3 | Test-SquareMatrix | Should -BeTrue
+        (1..6) | New-Matrix 3,2 | Test-SquareMatrix | Should -BeFalse -Because 'the # of rows and # of columns are different'
+    }
+    It 'can test if a matrix is symmetric' {
+        1,2,3,
+        2,1,4,
+        3,4,1 | New-Matrix 3,3 | Test-SymmetricMatrix | Should -BeTrue
+        (1..9) | New-Matrix 3,3 | Test-SymmetricMatrix | Should -BeFalse -Because 'elements off main diagonal are not equal'
+        1,1,1,1 | New-Matrix | Test-SymmetricMatrix | Should -BeTrue
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,0,
+        0,0,0,1 | New-Matrix 4,4 | Test-SymmetricMatrix | Should -BeTrue -Because 'diagonal matrices are symmetric'
+    }
+    It -Skip 'can test if a matrix is triangular' {
+        $A = [MatrixTest]::New(3)
+        $A.Rows = 1,2,3, 0,4,5, 0,0,6
+        $A | Test-TriangularMatrix | Should -BeTrue
+        [MatrixTest]::Unit(2) | Test-TriangularMatrix | Should -BeFalse -Because 'all elements are non-zero'
+    }
 }

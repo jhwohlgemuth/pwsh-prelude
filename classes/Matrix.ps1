@@ -69,6 +69,158 @@
     $Matrix
   }
 }
+function Test-DiagonalMatrix {
+  <#
+  .SYNOPSIS
+  Return true if passed value is a "diagonal" matrix
+  .DESCRIPTION
+  A diagonal matrix is a matrix in which the entries outside the main diagonal are all zero.
+  Example:
+    1 0
+    0 1
+
+  The primary purpose of this function is to be used as a Matrix object type extension.
+  #>
+  [CmdletBinding()]
+  [OutputType([Bool])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Matrix] $Value
+  )
+  Process {
+    $true
+  }
+}
+function Test-EchelonForm {
+  <#
+  .SYNOPSIS
+  Return true if passed value is a matrix in "echelon form"
+  .DESCRIPTION
+  A matrix is said to be in "echelon form" when the first non-zero element that appears in each row is equal to 1 and is positioned
+  at the right of the first non-zero element of the preceding row.
+
+  Note: Echelon form is useful for determining matrix rank.
+
+  The primary purpose of this function is to be used as a Matrix object type extension.
+  #>
+  [CmdletBinding()]
+  [OutputType([Bool])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Matrix] $Value
+  )
+  Process {
+    $true
+  }
+}
+function Test-OrthogonalMatrix {
+  <#
+  .SYNOPSIS
+  Return true if passed value is an "orthogonal" matrix
+  .DESCRIPTION
+  A matrix is orthogonal if and only if its transpose and inverse are equal.
+  That is to say, the following is true: $A.Transpose() | equal $A.Inverse()
+  Example: For a given angle, x
+    cos(x) -sin(x)
+    sin(x)  cos(x)
+
+  Note: The determinant of an orthogonal matrix is 1 or -1. An orthogonal matrix is called "proper" when its determinant is 1 and "improper" otherwise.
+
+  The primary purpose of this function is to be used as a Matrix object type extension.
+  #>
+  [CmdletBinding()]
+  [OutputType([Bool])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Matrix] $Value
+  )
+  Process {
+    $true
+  }
+}
+function Test-SquareMatrix {
+  <#
+  .SYNOPSIS
+  Return true if passed value is a "square" matrix
+  .DESCRIPTION
+  A square matrix is a matrix that has the same number of rows as columns.
+  Example:
+    1 1
+    1 1
+
+  The primary purpose of this function is to be used as a Matrix object type extension.
+  #>
+  [CmdletBinding()]
+  [OutputType([Bool])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Matrix] $Value
+  )
+  Process {
+    $Rows, $Columns = $Value.Size
+    $Rows -eq $Columns
+  }
+}
+function Test-SymmetricMatrix {
+  <#
+  .SYNOPSIS
+  Return true if passed value is a "symmetric" matrix
+  .DESCRIPTION
+  A symmetric matrix is a matrix for which every element of the matrix (a_ij -eq a_ji) is true
+  Example:
+    1 2 3
+    2 1 4
+    3 4 1
+
+  The primary purpose of this function is to be used as a Matrix object type extension.
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Result')]
+  [CmdletBinding()]
+  [OutputType([Bool])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Matrix] $Value
+  )
+  Process {
+    $Result = $true
+    $Values = $Value.Rows
+    $Value.Indexes() | ForEach-Object {
+      $Row, $Col = $_
+      if ($Values[$Row][$Col] -ne $Values[$Col][$Row]) {
+        $Result = $false
+        Break
+      }
+    }
+    $Result
+  }
+}
+function Test-TriangularMatrix {
+  <#
+  .SYNOPSIS
+  Return true if passed value is a "triangular" matrix
+  .DESCRIPTION
+  This function will return true for "lower" and "upper" triangular matrices.
+  Example:
+    1 2 3
+    0 4 5
+    0 0 6
+
+  A triangular matrix is a special kind of square matrix.
+  A matrix is called "lower" triangular if all the entries ABOVE the main diagonal are zero.
+  A matrix is called "upper" triangular if all the entries BELOW the main diagonal are zero.
+
+  The primary purpose of this function is to be used as a Matrix object type extension.
+  #>
+  [CmdletBinding()]
+  [OutputType([Bool])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Matrix] $Value
+  )
+  Process {
+    $true
+  }
+}
 # Need to parameterize class with "id" in order to re-load class during local testing
 $Id = if ($Env:ProjectName -eq 'pwsh-prelude' -and $Env:BuildSystem -eq 'Unknown') { 'Test' } else { '' }
 $TypeDefinition = @"
