@@ -146,10 +146,7 @@ Describe 'Matrix class static methods' {
     }
     It 'can multiply matrices by a scalar constant' {
         $A = [MatrixTest]::Identity(2)
-        $AddThreeTimes = [MatrixTest]::Add($A,$A,$A)
-        $MultiplyByThree = [MatrixTest]::Multiply($A,3)
-        $AddThreeTimes.Rows[0] | Should -Be $MultiplyByThree.Rows[0]
-        $AddThreeTimes.Rows[1] | Should -Be $MultiplyByThree.Rows[1]
+        [MatrixTest]::Add($A,$A,$A) | Test-Equal ([MatrixTest]::Multiply($A,3)) | Should -BeTrue
         $Product = [MatrixTest]::Multiply($A,7)
         $Product.Rows[0] | Should -Be 7,0
         $Product.Rows[1] | Should -Be 0,7
@@ -163,11 +160,7 @@ Describe 'Matrix class static methods' {
         $Inverse.Rows[0] | Should -Be 0.5,0.5,-0.5
         $Inverse.Rows[1] | Should -Be -5,2,1
         $Inverse.Rows[2] | Should -Be 3.5,-1.5,-0.5
-        $Identity = [MatrixTest]::Dot($A,$Inverse)
-        $Identity.Size | Should -Be 3,3
-        $Identity.Rows[0] | Should -Be 1,0,0 -Because 'the dot product of a matrix and its inverse is the identity matrix'
-        $Identity.Rows[1] | Should -Be 0,1,0 -Because 'the dot product of a matrix and its inverse is the identity matrix'
-        $Identity.Rows[2] | Should -Be 0,0,1 -Because 'the dot product of a matrix and its inverse is the identity matrix'
+        [MatrixTest]::Dot($A,$Inverse) | Test-Equal ([MatrixTest]::Identity(3)) | Should -BeTrue -Because 'the dot product of a matrix and its inverse is the identity matrix'
     }
 }
 Describe 'Matrix class instance' {
