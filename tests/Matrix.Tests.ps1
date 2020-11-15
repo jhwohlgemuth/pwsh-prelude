@@ -287,22 +287,6 @@ Describe 'Matrix helper functions' {
         1,0,
         0,1 | New-Matrix | Test-DiagonalMatrix | Should -BeTrue
     }
-    It -Skip 'can test if a matrix is in echelon form' {
-        $A = [MatrixTest]::New(2, 3)
-        $A.Rows = 1,2,3,0,0,1
-        $A | Test-EchelonForm | Should -BeTrue
-        $A = [MatrixTest]::New(3)
-        $A.Rows = 1,2,3, 0,0,1, 0,0,0
-        $A | Test-EchelonForm | Should -BeTrue
-        $A.Rows = 1,2,3, 0,0,1, 4,5,6
-        $A | Test-EchelonForm | Should -BeFalse -Because 'the last row first entry is to the left of previous row first entry'
-        $A.Rows = 1,2,3, 0,0,1, 0,0,1
-        $A | Test-EchelonForm | Should -BeFalse -Because 'the last row first entry is not to the right of the previous row first entry'
-    }
-    It -Skip 'can test if a matrix is orthogonal' {
-        [MatrixTest]::Identity(3) | Test-Orthogonal | Should -BeTrue
-        [MatrixTest]::Unit(3) | Test-Orthogonal | Should -BeFalse
-    }
     It 'can test if a matrix is square' {
         (1..4) | New-Matrix | Test-SquareMatrix | Should -BeTrue
         (1..9) | New-Matrix 3,3 | Test-SquareMatrix | Should -BeTrue
@@ -324,11 +308,5 @@ Describe 'Matrix helper functions' {
         1,0,0,
         0,2,1,
         0,0,3 | New-Matrix 3,3 | Test-SymmetricMatrix | Should -BeFalse
-    }
-    It -Skip 'can test if a matrix is triangular' {
-        $A = [MatrixTest]::New(3)
-        $A.Rows = 1,2,3, 0,4,5, 0,0,6
-        $A | Test-TriangularMatrix | Should -BeTrue
-        [MatrixTest]::Unit(2) | Test-TriangularMatrix | Should -BeFalse -Because 'all elements are non-zero'
     }
 }

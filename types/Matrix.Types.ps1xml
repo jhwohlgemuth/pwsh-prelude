@@ -40,6 +40,24 @@
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
+                <Name>IsDiagonal</Name>
+                <Script>
+                    $this | Test-DiagonalMatrix
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>IsSquare</Name>
+                <Script>
+                    $this | Test-SquareMatrix
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>IsSymmetric</Name>
+                <Script>
+                    $this | Test-SymmetricMatrix
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Multiply</Name>
                 <Script>
                     [Matrix]::Multiply($this, $args[0])
