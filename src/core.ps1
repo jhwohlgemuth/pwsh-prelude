@@ -671,7 +671,8 @@ function Invoke-GetProperty {
   )
   Process {
     $Properties = $InputObject | Get-Member -MemberType Property | Select-Object -ExpandProperty Name
-    if ($Properties -contains $Name) {
+    $ScriptProperties = $InputObject | Get-Member -MemberType ScriptProperty | Select-Object -ExpandProperty Name
+    if ($Name -in ($Properties + $ScriptProperties)) {
       $InputObject.$Name
     } else {
       $InputObject
@@ -732,8 +733,9 @@ function Invoke-Method {
   )
   Process {
     $Methods = $InputObject | Get-Member -MemberType Method | Select-Object -ExpandProperty Name
+    $ScriptMethods = $InputObject | Get-Member -MemberType ScriptMethod | Select-Object -ExpandProperty Name
     $ParameterizedProperties = $InputObject | Get-Member -MemberType ParameterizedProperty | Select-Object -ExpandProperty Name
-    if ($Name -in ($Methods + $ParameterizedProperties)) {
+    if ($Name -in ($Methods + $ScriptMethods + $ParameterizedProperties)) {
       if ($null -ne $ArgumentOne) {
         if ($null -ne $ArgumentTwo) {
           $InputObject.$Name($ArgumentOne, $ArgumentTwo)
