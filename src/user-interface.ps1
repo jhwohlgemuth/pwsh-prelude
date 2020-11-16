@@ -751,6 +751,7 @@ function Write-Title {
     [Switch] $DarkBlue,
     [Switch] $DarkCyan,
     [Switch] $DarkGreen,
+    [Switch] $DarkGray,
     [Switch] $DarkRed,
     [Switch] $DarkMagenta,
     [Switch] $DarkYellow,
@@ -802,6 +803,7 @@ function Write-Title {
     White = $White
     DarkBlue = $DarkBlue
     DarkGreen = $DarkGreen
+    DarkGray = $DarkGray
     DarkCyan = $DarkCyan
     DarkRed = $DarkRed
     DarkMagenta = $DarkMagenta
