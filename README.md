@@ -217,6 +217,35 @@ Aliases
 Get-Alias | Where-Object { $_.Source -eq 'pwsh-prelude' }
 ```
 
+Type Accelerators
+-----------------
+- `[Prelude]`
+  > ***UNDER CONSTRUCTION***
+  ```PowerShell
+  # Example code will go here
+  ```
+- `[Matrix]`
+  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[3]](#footnotes)</sup>
+  ```PowerShell
+  $A = [Matrix]::New(3)
+  $A.Rows = 1..9
+
+  # ...or use the helper function
+  $A = 1..9 | matrix 3,3
+
+  # ...and then do math!
+  $A.Det() -eq 0 # true, looks like this matrix isn't going to have an inverse!
+
+  # ...and more math
+  $A = [Matrix]::Identity(3) # quickly make an identity matrix
+  $A.Multiply(2) | equal $A.Add($A) # true!
+  ```
+- `[Graph]`
+  > ***UNDER CONSTRUCTION***
+  ```PowerShell
+  # Example code will go here
+  ```
+
 Type Extensions
 ---------------
 > For details on how to extend types with `Types.ps1xml` files, see [About Types.ps1xml](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_types.ps1xml?view=powershell-7)
@@ -256,11 +285,11 @@ Credits
 
 Footnotes
 ---------
-> ***[1]*** This module is ***NOT*** an "official" Microsoft Powershell prelude module
+> **[1]** This module is ***NOT*** an "official" Microsoft Powershell prelude module
 
-> ***[2]*** This code was inspired and enabled by [several people and projects](#Credits)
+> **[2]** This code was inspired and enabled by [several people and projects](#Credits)
 
-> ***[3]*** The following functions are not supported on Linux:
+> **[3]** The following functions are not supported on Linux:
 - `Invoke-ListenForWord`
 - `Invoke-Speak`
 - `Install-SshServer`
@@ -270,3 +299,4 @@ Footnotes
 - `Use-Grammar`
 - `Use-Speech`
 - `Use-Web`
+> **[4]** Results may vary. The 100% guarantee is not 100% certain in 100% of cases.
