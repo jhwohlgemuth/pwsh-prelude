@@ -283,6 +283,7 @@ Describe 'Invoke-Flatten' {
 }
 Describe 'Invoke-GetProperty' {
     It 'can get object properties within a pipeline' {
+        'hello' | Invoke-GetProperty 'Length' | Should -Be 5
         'foo','bar','baz' | Invoke-GetProperty 'Length' | Should -Be 3,3,3
         'a','ab','abc' | Invoke-GetProperty 'Length' | Should -Be 1,2,3
         @{ a = 1; b = 2; c = 3 } | Invoke-GetProperty 'Keys' | Should -Be 'c','b','a'

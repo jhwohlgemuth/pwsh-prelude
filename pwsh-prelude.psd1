@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.27'
+  ModuleVersion = '0.0.28'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
@@ -10,6 +10,9 @@
   FileList = @()
   CmdletsToExport = @()
   VariablesToExport = @()
+  FormatsToProcess = @(
+    'formats/Matrix.Format.ps1xml'
+  )
   TypesToProcess = @(
     'types\Int.Types.ps1xml'
     'types\String.Types.ps1xml'

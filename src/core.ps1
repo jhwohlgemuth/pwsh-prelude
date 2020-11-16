@@ -670,11 +670,10 @@ function Invoke-GetProperty {
     [String] $Name
   )
   Process {
-    $Properties = $InputObject | Get-Member -MemberType Property | Select-Object -ExpandProperty Name
-    $ScriptProperties = $InputObject | Get-Member -MemberType ScriptProperty | Select-Object -ExpandProperty Name
-    if ($Name -in ($Properties + $ScriptProperties)) {
+    try {
       $InputObject.$Name
-    } else {
+    } catch {
+      "==> Value does not have $Name property" | Write-Verbose
       $InputObject
     }
   }
