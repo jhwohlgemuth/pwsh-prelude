@@ -888,6 +888,13 @@ function Invoke-Once {
   }.GetNewClosure()
 }
 function Invoke-Operator {
+  <#
+  .SYNOPSIS
+  Helper function intended mainly for use within quick one-line pipeline chains
+  .EXAMPLE
+  @(1,2,3),@(4,5,6),@(7,8,9) | op join ''
+  # returns '123','456','789'
+  #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope='Function')]
   [CmdletBinding()]
   [Alias('op')]
@@ -904,14 +911,14 @@ function Invoke-Operator {
   Process {
     try {
       if ($Arguments.Count -eq 1) {
-        $Expression = "`$InputObject $(if ($Name.Length -eq 1) { '' } else { '-' })$Name `"``$Arguments`""
+        $Operand = if ([String]::IsNullOrEmpty($Arguments)) { "''" } else { "`"``$Arguments`"" }
+        $Expression = "`$InputObject $(if ($Name.Length -eq 1) { '' } else { '-' })$Name $Operand"
         "==> Executing: $Expression" | Write-Verbose
         Invoke-Expression $Expression
       } else {
         $Arguments = $Arguments | ForEach-Object { "`"``$_`"" }
         $Expression = "`$InputObject -$Name $($Arguments -join ',')"
         "==> Executing: $Expression" | Write-Verbose
-        $Expression | Write-Verbose
         Invoke-Expression $Expression
       }
     } catch {

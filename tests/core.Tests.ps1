@@ -451,6 +451,7 @@ Describe 'Invoke-Once' {
 Describe 'Invoke-Operator' {
     It 'can use operators within a pipeline' {
         'one,two' | Invoke-Operator 'split' ',' | Should -Be 'one','two'
+        @(1,2,3),@(4,5,6),@(7,8,9) | Invoke-Operator 'join' '' | Should -Be '123','456','789'
         ,(1,2,3) | Invoke-Operator 'join' ',' | Should -Be '1,2,3'
         ,(1,2,3) | Invoke-Operator 'join' "'" | Should -Be "1'2'3"
         ,(1,2,3) | Invoke-Operator 'join' "`"" | Should -Be '1"2"3'
