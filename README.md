@@ -8,11 +8,11 @@ Powershell Prelude <sup>[[1]](#footnotes)</sup>
 
 PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#footnotes)</sup> the typical use cases.
 
-This module is meant to be imported every time you open a terminal via your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
+This module provides functional programming patterns for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#footnotes)</sup>, and take control of your productivity.
+> For maximum effectiveness, it is recommended that you add `Import-Module -Name pwsh-prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
 Naturally, it has ***ZERO external dependencies***<sup>[[2]](#footnotes)</sup> and (mostly) works on Linux<sup>[[3]](#footnotes)</sup> ;)
 
-If you love functional programming patterns, scripting languages, and [ubiquitous terminals](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)...this module might have something for you!
 
 > "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
 *- Anonymous*
@@ -27,7 +27,7 @@ Install-Module -Name pwsh-prelude
 
 2. Import module
 ```Powershell
-Import-Module pwsh-prelude
+Import-Module -Name pwsh-prelude
 ```
 
 Things You Could Do With Prelude
@@ -245,6 +245,11 @@ Type Accelerators
   ```PowerShell
   # Example code will go here
   ```
+- `[Edge]`
+  > ***UNDER CONSTRUCTION***
+  ```PowerShell
+  # Example code will go here
+  ```
 
 Type Extensions
 ---------------
@@ -272,7 +277,7 @@ $Add = { Param($a,$b) $a + $b }
 
 Credits
 -------
-- [Microsoft]() - *[Powershell](https://github.com/powershell/powershell) (d'uh), [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal), and VS Code (the editor I use)*
+- [Microsoft]() - *[Powershell](https://github.com/powershell/powershell) (d'uh), [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal), and [VS Code](https://code.visualstudio.com/) (the editor I use)*
 - [Pester](https://pester.dev/) - *testing*
 - [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) - *static analysis (linting)*
 - [janikvonrotz/awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) - *inspiration*
@@ -302,3 +307,5 @@ Footnotes
 > **[4]** Results may vary. The 100% guarantee is not 100% certain in 100% of cases.
 
 > **[5]** Sometimes ***way*** beyond :)
+
+> **[6]** Compiled code, closed source software, arcane code snippets copy/pasted from the internet nether-realm, etc...
