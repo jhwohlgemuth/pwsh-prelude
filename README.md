@@ -6,16 +6,16 @@ Powershell Prelude <sup>[[1]](#footnotes)</sup>
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude)](https://www.powershellgallery.com/packages/pwsh-prelude)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
-PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond the typical use cases.
+PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#footnotes)</sup> the typical use cases.
 
-This module is meant to be a generic toolset that you import every time you open a terminal via your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
+This module is meant to be imported every time you open a terminal via your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
 Naturally, it has ***ZERO external dependencies***<sup>[[2]](#footnotes)</sup> and (mostly) works on Linux<sup>[[3]](#footnotes)</sup> ;)
 
 If you love functional programming patterns, scripting languages, and [ubiquitous terminals](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7)...this module might have something for you!
 
 > "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
-*- Probably some people after reading this README*
+*- Anonymous*
 
 Quick Start
 -----------
@@ -148,6 +148,7 @@ Functions
 - `Get-HostsContent`
 - `Get-Maximum`
 - `Get-Minimum`
+- `Get-Property`
 - `Get-Permutation`
 - `Get-Screenshot`
 - `Get-State`
@@ -157,7 +158,6 @@ Functions
 - `Invoke-DropWhile`
 - `Invoke-Flatten`
 - `Invoke-FireEvent`
-- `Invoke-GetProperty`
 - `Invoke-Input`
 - `Invoke-InsertString`
 - `Invoke-ListenTo`
@@ -225,7 +225,7 @@ Type Accelerators
   # Example code will go here
   ```
 - `[Matrix]`
-  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[3]](#footnotes)</sup>
+  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#footnotes)</sup>
   ```PowerShell
   $A = [Matrix]::New(3)
   $A.Rows = 1..9
@@ -300,3 +300,5 @@ Footnotes
 - `Use-Speech`
 - `Use-Web`
 > **[4]** Results may vary. The 100% guarantee is not 100% certain in 100% of cases.
+
+> **[5]** Sometimes ***way*** beyond :)
