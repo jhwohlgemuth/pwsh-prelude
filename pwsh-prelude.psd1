@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.29'
+  ModuleVersion = '0.0.30'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
@@ -91,6 +91,7 @@
     'Get-Maximum'
     'Get-Minimum'
     'Get-Permutation'
+    'Get-Property'
     'Get-Screenshot'
     'Get-State'
     'Home'
@@ -103,7 +104,6 @@
     'Invoke-DropWhile'
     'Invoke-Flatten'
     'Invoke-FireEvent'
-    'Invoke-GetProperty'
     'Invoke-GitCommand'
     'Invoke-GitCommit'
     'Invoke-GitDiff'

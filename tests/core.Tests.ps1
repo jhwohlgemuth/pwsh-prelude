@@ -240,6 +240,32 @@ Describe 'Get-Permutation' {
         'hello' | Get-Permutation -Choose 3 -Unique -Words | Should -Be 'hel','hel','heo','hll','hlo','hlo','ell','elo','elo','llo'
     }
 }
+Describe 'Get-Property' {
+    It 'can get object properties within a pipeline' {
+        'hello' | Get-Property 'Length' | Should -Be 5
+        'foo','bar','baz' | Get-Property 'Length' | Should -Be 3,3,3
+        'a','ab','abc' | Get-Property 'Length' | Should -Be 1,2,3
+        @{ a = 1; b = 2; c = 3 } | Get-Property 'Keys' | Should -Be 'c','b','a'
+        @(1,2,3),@(,4,5,6),@(7,8,9) | Get-Property 1 | Should -Be 2,5,8
+        @(1,2,3,@(4,5,6)),@(1,2,3,@(4,5,6)) | Get-Property '3.1' | Should -Be 5,5
+        @(1,2,3,@(,4,5,6,@(7,8,9))),@(1,2,3,@(,4,5,6,@(7,8,9))) | Get-Property '3.3.2' | Should -Be 9,9
+        @(@('a','b'),'c'),@(@('a','b'),'c') | Get-Property '0.1' | Should -Be 'b','b'
+    }
+    It 'can operate on array-like objects as single items' {
+        ,@(1,2,3,@(4,5,6)) | Get-Property '3.1' | Should -Be 5
+        ,@(1,2,3,@(,4,5,6,@(7,8,9))) | Get-Property '3.3.2' | Should -Be 9
+        ,@(@('a','b'),'c') | Get-Property '0.1' | Should -Be 'b'
+    }
+    It 'supports "path" syntax to return nested properties' {
+        @{ a = '123' } | Get-Property 'a.Length' | Should -Be 3
+        @{ a = 'a' },@{ a = '123' },@{ a = 'hello' } | Get-Property 'a.Length' | Should -Be 1,3,5
+        @{ a = 6,5,4 },@{ a = 0,1,2 } | Get-Property 'a.2' | Should -Be 4,2
+    }
+    It 'will return null for non-existent property names' {
+        1 | Get-Property 'Fake' | Should -Be $null
+        1 | Get-Property '-Fake' | Should -Be $null
+    }
+}
 Describe 'Invoke-Chunk' {
     It 'should passthru input object when size is 0 or bigger than the input size' {
         1..10 | Invoke-Chunk -Size 0 | Should -Be (1..10)
@@ -279,14 +305,6 @@ Describe 'Invoke-Flatten' {
         @(1,@(2,3,@(4,5,@(6,7)))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7
         @(1,@(2,3,@(4,5,@(6,7,@(8,9))))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7,8,9
         @(1,@(2,3,@(4,5,@(6,7,@(8,9)),10,@(11)))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7,8,9,10,11
-    }
-}
-Describe 'Invoke-GetProperty' {
-    It 'can get object properties within a pipeline' {
-        'hello' | Invoke-GetProperty 'Length' | Should -Be 5
-        'foo','bar','baz' | Invoke-GetProperty 'Length' | Should -Be 3,3,3
-        'a','ab','abc' | Invoke-GetProperty 'Length' | Should -Be 1,2,3
-        @{ a = 1; b = 2; c = 3 } | Invoke-GetProperty 'Keys' | Should -Be 'c','b','a'
     }
 }
 Describe 'Invoke-InsertString' {

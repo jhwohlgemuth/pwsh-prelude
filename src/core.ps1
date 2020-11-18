@@ -254,7 +254,7 @@ function Get-Extremum {
       )
       if ($Values.Count -gt 0) {
         $Type = Find-FirstTrueVariable 'Maximum','Minimum'
-        $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | Invoke-GetProperty $Type
+        $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | ForEach-Object { $_.$Type }
       }
     }
     Invoke-GetExtremum $InputObject
@@ -549,6 +549,71 @@ function Get-Permutation {
     & $GetResults $Input
   }
 }
+function Get-Property {
+  <#
+  .SYNOPSIS
+  Helper function intended to streamline getting property values within pipelines.
+  .PARAMETER Name
+  Property name (or array index). Also works with dot-separated paths for nested properties.
+  For array-like inputs, $X,$Y | prop '0.1.2' is the same as $X[0][1][2],$Y[0][1][2] (see examples)
+  .EXAMPLE
+  'hello','world' | prop 'Length'
+  # returns 5,5
+  .EXAMPLE
+  ,@(1,2,3,@(,4,5,6,@(7,8,9))) | prop '3.3.2'
+  # returns 9
+  #>
+  [CmdletBinding()]
+  [Alias('prop')]
+  Param(
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    $InputObject,
+    [Parameter(Position=0)]
+    [ValidatePattern('^-?[\w\.]+$')]
+    [String] $Name
+  )
+  Begin {
+    function Test-ArrayLike {
+      Param(
+        $Value
+      )
+      $Type = $Value.GetType().Name
+      $Type -in 'Object[]','ArrayList'
+    }
+    function Test-NumberLike {
+      Param(
+        [String] $Value
+      )
+      $AsNumber = $Value -as [Int]
+      $AsNumber -or ($AsNumber -eq 0)
+    }
+    function Get-PropertyMaybe {
+      Param(
+        [Parameter(Position=0)]
+        $InputObject,
+        [Parameter(Position=1)]
+        [String] $Name
+      )
+      if ((Test-ArrayLike $InputObject) -and (Test-NumberLike $Name)) {
+        $InputObject[$Name]
+      } else {
+        $InputObject.$Name
+      }
+    }
+  }
+  Process {
+    if ($Name -match '\.') {
+      $Result = $InputObject
+      $Properties = $Name -split '\.'
+      $Properties | ForEach-Object {
+        $Result = Get-PropertyMaybe $Result $_
+      }
+      $Result
+    } else {
+      Get-PropertyMaybe $InputObject $Name
+    }
+  }
+}
 function Invoke-Chunk {
   <#
   .SYNOPSIS
@@ -657,25 +722,6 @@ function Invoke-Flatten {
   }
   End {
     Invoke-Flat $Input
-  }
-}
-function Invoke-GetProperty {
-  [CmdletBinding()]
-  [Alias('prop')]
-  Param(
-    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    $InputObject,
-    [Parameter(Position=0)]
-    [ValidatePattern('^-?\w+$')]
-    [String] $Name
-  )
-  Process {
-    try {
-      $InputObject.$Name
-    } catch {
-      "==> Value does not have $Name property" | Write-Verbose
-      $InputObject
-    }
   }
 }
 function Invoke-InsertString {
