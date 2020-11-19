@@ -192,11 +192,11 @@ function Get-Screenshot {
       $DrawingGraphics.CopyFromScreen($Point, [System.Drawing.Point]::Empty, $Size)
       $DrawingGraphics.Dispose()
       if ($UseDifferentMonitor) {
-        "==> Saving screenshot of monitor #${Monitor}" | Write-Verbose
-        $Fullname = Join-Path $Path "$Name-$Monitor.bmp"
+        $Fullname = Join-Path (Resolve-Path $Path) "$Name-$Monitor.bmp"
+        "==> Saving screenshot of monitor #${Monitor} to $Fullname" | Write-Verbose
       } else {
-        '==> Saving screenshot of all monitors' | Write-Verbose
-        $Fullname = Join-Path $Path "$Name.bmp"
+        $Fullname = Join-Path (Resolve-Path $Path) "$Name.bmp"
+        "==> Saving screenshot of all monitors to $Fullname" | Write-Verbose
       }
       $Screenshot.Save($Fullname)
       $Screenshot.Dispose()
