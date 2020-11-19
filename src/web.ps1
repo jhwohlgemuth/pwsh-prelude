@@ -1,5 +1,26 @@
-﻿
-
+﻿class Options {
+  [String[]] GetProperties() {
+    return $this | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name
+  }
+  [PSObject] SetProperties($Object) {
+    $this.GetProperties() | ForEach-Object { $Object.$_ = $this.$_ }
+    return $Object
+  }
+}
+class FormOptions: Options {
+  [Int] $Width = 960
+  [Int] $Height = 700
+  [Int] $FormBorderStyle = 3
+  [Double] $Opacity = 1.0
+  [Bool] $ControlBox = $true
+  [Bool] $MaximizeBox = $false
+  [Bool] $MinimizeBox = $false
+}
+class BrowserOptions: Options {
+  [String] $Anchor = 'Left,Top,Right,Bottom'
+  [PSObject] $Size = @{ Height = 700; Width = 960 }
+  [Bool] $IsWebBrowserContextMenuEnabled = $false
+}
 function ConvertFrom-ByteArray {
   <#
   .SYNOPSIS
@@ -313,17 +334,103 @@ function Get-GithubOAuthToken {
   $TokenData | ConvertTo-Json | Write-Verbose
   $TokenData['access_token']
 }
+function Show-HtmlContent {
+  <#
+  .SYNOPSIS
+  Display HTML content (string, file, or URI) in a web browser Windows form
+  Returns [System.Windows.Forms.HtmlDocument] object
+  .PARAMETER OnShown
+  Function to be executed once form is shown. $Form and $Browser variables are available within function scope.
+  .PARAMETER OnComplete
+  Function to be executed whenever the Document within the browser is loaded. $Form and $Browser variables are available within function scope.
+  .PARAMETER OnClose
+  Function to be executed immediately before form is disposed. $Form and $Browser variables are available within function scope.
+  .EXAMPLE
+  '<h1>Hello World</h1>' | Show-HtmlContent
+  .EXAMPLE
+  Show-Content -Uri 'https://google.com'
+  .EXAMPLE
+  Show-Content -File '.\file.html'
+  .EXAMPLE
+  $OnClose = {
+    Param($Browser)
+    $Browser.Document.GetElementsByTagName('h1').innerText | Write-Color -Green
+  }
+  '<h1 contenteditable="true">Type Here</h1>' | Show-HtmlContent -OnClose $OnClose | Out-Null
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [CmdletBinding(DefaultParameterSetName='string')]
+  Param(
+    [Parameter(ParameterSetName='string', Position=0, ValueFromPipeline=$true)]
+    [String] $Content,
+    [Parameter(ParameterSetName='file')]
+    [String] $File,
+    [Parameter(ParameterSetName='uri')]
+    [Uri] $Uri,
+    [FormOptions] $FormOptions = @{},
+    [BrowserOptions] $BrowserOptions = @{},
+    [ScriptBlock] $OnShown = {},
+    [ScriptBlock] $OnComplete = {},
+    [ScriptBlock] $OnClose = {}
+  )
+  Begin {
+    Use-Web -Browser
+    $Form = $FormOptions.SetProperties(([Windows.Forms.Form]::New()))
+    $Browser = $BrowserOptions.SetProperties(([Windows.Forms.WebBrowser]::New()))
+    $Form.Controls.Add($Browser)
+    $Form.Add_Shown({
+      '==> Form shown' | Write-Verbose
+      $Form.BringToFront()
+      & $OnShown -Form $Form -Browser $Browser
+    });
+    $Browser.Add_DocumentCompleted({
+      "==> Document load complete ($($_.Url))" | Write-Verbose
+      & $OnComplete -Form $Form -Browser $Browser
+    })
+  }
+  Process {
+    if ($File -or (-not $Content -and $Uri)) {
+      if (-not $Uri) {
+        $Uri = "file:///$((Get-Item $File).Fullname)"
+      }
+      "==> Navigating to $Uri" | Write-Verbose
+      $Browser.Navigate($Uri)
+    } else {
+      $Browser.DocumentText = $Content
+    }
+    if ($Form.ShowDialog() -ne 'OK') {
+      $Document = $Browser.Document
+      '==> Browser Closing...' | Write-Verbose
+      & $OnClose -Form $Form -Browser $Browser
+      # $Form.Dispose()
+      '==> Form disposed' | Write-Verbose
+      return $Document
+    }
+  }
+}
 function Use-Web {
   <#
   .SYNOPSIS
-  Load System.Web type if it is not already loaded.
+  Load related types for using web (with or without a web browser), if types are not already loaded.
+  .PARAMETER Browser
+  Whether or not to load WebBrowser type
   #>
   [CmdletBinding()]
-  Param()
+  Param(
+    [Switch] $Browser
+  )
   if (-not ('System.Web.HttpUtility' -as [Type])) {
-    '==> Adding System.Web type' | Write-Verbose
+    '==> Adding System.Web types' | Write-Verbose
     Add-Type -AssemblyName System.Web
   } else {
     '==> System.Web is already loaded' | Write-Verbose
+  }
+  if ($Browser) {
+    if (-not ('System.Windows.Forms.WebBrowser' -as [Type])) {
+      '==> Adding System.Windows.Forms types' | Write-Verbose
+      Add-Type -AssemblyName System.Windows.Forms
+    } else {
+      '==> System.Windows.Forms is already loaded' | Write-Verbose
+    }
   }
 }

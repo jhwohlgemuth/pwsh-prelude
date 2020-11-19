@@ -149,6 +149,7 @@
     'Rename-FileExtension'
     'Save-State'
     'Show-BarChart'
+    'Show-HtmlContent'
     'Take'
     'Test-Admin'
     'Test-DiagonalMatrix'
