@@ -334,10 +334,10 @@ function Invoke-WebRequestBasicAuth {
     }
   }
 }
-function Open-Browser {
+function Out-Browser {
   <#
   .SYNOPSIS
-  Display HTML content (string, file, or URI) in a web browser Windows form
+  Display HTML content (string, file, or URI) in a web browser Windows form. Out-Browser will auto-detect content type.
   Returns [System.Windows.Forms.HtmlDocument] object
   .PARAMETER OnShown
   Function to be executed once form is shown. $Form and $Browser variables are available within function scope.
@@ -346,27 +346,23 @@ function Open-Browser {
   .PARAMETER OnClose
   Function to be executed immediately before form is disposed. $Form and $Browser variables are available within function scope.
   .EXAMPLE
-  '<h1>Hello World</h1>' | Open-Browser
+  '<h1>Hello World</h1>' | Out-Browser
   .EXAMPLE
-  Open-Browser -Uri 'https://google.com'
+  'https://google.com' | Out-Browser
   .EXAMPLE
-  Open-Browser -File '.\file.html'
+  '.\file.html' | Out-Browser
   .EXAMPLE
   $OnClose = {
     Param($Browser)
     $Browser.Document.GetElementsByTagName('h1').innerText | Write-Color -Green
   }
-  '<h1 contenteditable="true">Type Here</h1>' | Open-Browser -OnClose $OnClose | Out-Null
+  '<h1 contenteditable="true">Type Here</h1>' | Out-Browser -OnClose $OnClose | Out-Null
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
-  [CmdletBinding(DefaultParameterSetName='string')]
+  [CmdletBinding()]
   Param(
-    [Parameter(ParameterSetName='string', Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [String] $Content,
-    [Parameter(ParameterSetName='file')]
-    [String] $File,
-    [Parameter(ParameterSetName='uri')]
-    [Uri] $Uri,
     [FormOptions] $FormOptions = @{},
     [BrowserOptions] $BrowserOptions = @{},
     [ScriptBlock] $OnShown = {},
@@ -377,6 +373,7 @@ function Open-Browser {
     Use-Web -Browser
     $Form = $FormOptions.SetProperties(([Windows.Forms.Form]::New()))
     $Browser = $BrowserOptions.SetProperties(([Windows.Forms.WebBrowser]::New()))
+    $Browser.Size = @{ Width = $Form.Width; Height = $Form.Height }
     $Form.Controls.Add($Browser)
     $Form.Add_Shown({
       '==> Form shown' | Write-Verbose
@@ -389,19 +386,22 @@ function Open-Browser {
     })
   }
   Process {
-    if ($File -or (-not $Content -and $Uri)) {
-      if (-not $Uri) {
-        $Uri = "file:///$((Get-Item $File).Fullname)"
-      }
-      "==> Navigating to $Uri" | Write-Verbose
-      $Browser.Navigate($Uri)
+    "==> Browser is $(if($Browser.IsOffline) { 'OFFLINE' } else { 'ONLINE' })" | Write-Verbose
+    $IsFile = if (Test-Path $Content -IsValid) { Test-Path $Content } else { $false }
+    $IsUri = ([Uri]$Content).IsAbsoluteUri
+    if ($IsFile) {
+      "==> Opening ${Content}..." | Write-Verbose
+      $Browser.Navigate("file:///$((Get-Item $Content).Fullname)")
+    } elseif ($IsUri) {
+      "==> Navigating to ${Content}..." | Write-Verbose
+      $Browser.Navigate([Uri]$Content)
     } else {
+      '==> Opening HTML in browser...' | Write-Verbose
       $Browser.DocumentText = "$Content"
     }
-    '==> Opening web browser...' | Write-Verbose
     if ($Form.ShowDialog() -ne 'OK') {
       $Document = $Browser.Document
-      '==> Browser Closing...' | Write-Verbose
+      '==> Browser closing...' | Write-Verbose
       & $OnClose -Form $Form -Browser $Browser
       $Form.Dispose()
       '==> Form disposed' | Write-Verbose
