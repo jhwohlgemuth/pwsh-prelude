@@ -1,4 +1,5 @@
-﻿Import-Module './pwsh-prelude.psm1'
+﻿Remove-Module -Name pwsh-prelude
+Import-Module './pwsh-prelude.psm1'
 
 $Space = ' '
 $Indent = 4

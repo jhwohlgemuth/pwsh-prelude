@@ -239,11 +239,11 @@
         } elseif ($Left -gt $StartPosition -and $Left -lt ($StartPosition + $Result.Length)) {# insert character
           if ($Number) {
             if ($KeyChar -match $OnlyNumbers) {
-              $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
+              $Result = $Result | Invoke-InsertString $KeyChar -At ($Left - $StartPosition)
               Invoke-OutputDraw -Output $Result -Left $Left
             }
           } else {
-            $Result = $KeyChar | Invoke-InsertString -To $Result -At ($Left - $StartPosition)
+            $Result = $Result | Invoke-InsertString $KeyChar -At ($Left - $StartPosition)
             Invoke-OutputDraw -Output $Result -Left $Left
           }
         } else {# append character

@@ -310,14 +310,13 @@ Describe 'Invoke-Flatten' {
 Describe 'Invoke-InsertString' {
     It 'can insert string into a string at a given index' {
         Invoke-InsertString -Value 'C' -To 'ABDE' -At 2 | Should -Be 'ABCDE'
-        'C' | Invoke-InsertString -To 'ABDE' -At 2 | Should -Be 'ABCDE'
-        '234' | Invoke-InsertString -To '15' -At 1 | Should -Be '12345'
-        'bar' | Invoke-InsertString -To 'foo' -At 3 | Should -Be 'foobar'
-        'bar' | Invoke-InsertString -To 'foo' -At 4 | Should -Be 'foo'
+        'ABDE' | Invoke-InsertString 'C' -At 2 | Should -Be 'ABCDE'
+        '15' | Invoke-InsertString '234' -At 1 | Should -Be '12345'
+        'foo' | Invoke-InsertString 'bar' -At 3 | Should -Be 'foobar'
+        'foo' | Invoke-InsertString 'bar' -At 4 | Should -Be 'foo'
     }
     It 'can process an array of strings' {
-        'b','b','b' | Invoke-InsertString -To 'ac' -At 1 | Should -Be 'abc','abc','abc'
-        'Joe ','Jim ','John ' | Invoke-InsertString -To 'First Last' -At 6 | Should -Be 'First Joe Last','First Jim Last','First John Last'
+        'JaneDoe','JohnDoe' | Invoke-InsertString ' ' -At 4 | Should -Be 'Jane Doe','John Doe'
     }
 }
 Describe 'Invoke-Method' {

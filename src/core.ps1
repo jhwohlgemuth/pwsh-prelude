@@ -168,7 +168,7 @@ function Format-MoneyValue {
           $Position = 3
           $Length = $Output.Length
           1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
-            $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
+            $Output = $Output | Invoke-InsertString ',' -At ($Length - $Position)
             $Position += 3
           }
         }
@@ -190,7 +190,7 @@ function Format-MoneyValue {
             $Position = 6
             $Length = $Output.Length
             1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
-              $Output = ',' | Invoke-InsertString -To $Output -At ($Length - $Position)
+              $Output = $Output | Invoke-InsertString ',' -At ($Length - $Position)
               $Position += 3
             }
           }
@@ -725,14 +725,22 @@ function Invoke-Flatten {
   }
 }
 function Invoke-InsertString {
+  <#
+  .SYNOPSIS
+  Easily insert strings within other strings
+  .PARAMETER At
+  Index
+  .EXAMPLE
+  'abce' | insert 'd' -At 3
+  #>
   [CmdletBinding()]
   [Alias('insert')]
   [OutputType([String])]
   Param(
     [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [String] $Value,
-    [Parameter(Mandatory=$true)]
     [String] $To,
+    [Parameter(Mandatory=$true, Position=0)]
+    [String] $Value,
     [Parameter(Mandatory=$true)]
     [Int] $At
   )
