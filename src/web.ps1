@@ -402,7 +402,7 @@ function Show-HtmlContent {
       $Document = $Browser.Document
       '==> Browser Closing...' | Write-Verbose
       & $OnClose -Form $Form -Browser $Browser
-      # $Form.Dispose()
+      $Form.Dispose()
       '==> Form disposed' | Write-Verbose
       return $Document
     }
