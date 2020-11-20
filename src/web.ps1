@@ -141,6 +141,73 @@ function ConvertTo-QueryString {
     }
   }
 }
+function Get-GithubOAuthToken {
+  <#
+  .SYNOPSIS
+  Obtain OAuth token from https://api.github.com
+  .DESCRIPTION
+  This function enables obtaining an OAuth token from https://api.github.com
+
+  Github provides multiple ways to obtain authentication tokens. This function implements the "device flow" method of authorizing an OAuth app.
+
+  Before using this function, you must:
+  1. Create an OAuth app on Github.com
+  2. Record app "Client ID" (passed as -ClientID)
+  3. Opt-in to "Device Authorization Flow" beta feature
+
+  This function will attempt to open a browser and will require the user to login to his/her Github account to authorize access.
+  The one-time device code will be copied to the clipboard for ease of use.
+
+  Note: For basic authentication scenarios, please use Invoke-WebRequestBasicAuth
+
+  .EXAMPLE
+  $Token = Get-GithubOAuthToken -ClientId $ClientId -Scope 'notifications'
+  $Request = BasicAuth $Token -Uri 'https://api.github.com/notifications'
+
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [String] $ClientId,
+    [Parameter(Position=1)]
+    [String[]] $Scope
+  )
+  $DeviceRequestParameters = @{
+    Post = $true
+    Uri = 'https://github.com/login/device/code'
+    Query = @{
+      client_id = $ClientId
+      scope = $Scope -join '%20'
+    }
+  }
+  $DeviceData = Invoke-WebRequestBasicAuth @DeviceRequestParameters |
+    Invoke-GetProperty Content |
+    ConvertFrom-ByteArray |
+    ConvertFrom-QueryString
+  $DeviceData | ConvertTo-Json | Write-Verbose
+  $TokenRequestParameters = @{
+    Post = $true
+    Uri = 'https://github.com/login/oauth/access_token'
+    Query = @{
+      client_id = $ClientId
+      device_code = $DeviceData['device_code']
+      grant_type = 'urn:ietf:params:oauth:grant-type:device_code'
+    }
+  }
+  $DeviceData['user_code'] | Write-Title -Green -PassThru | Set-Clipboard
+  Start-Process $DeviceData['verification_uri']
+  $Success = $false
+  while (-not $Success) {
+    Start-Sleep $DeviceData.interval
+    $TokenData = Invoke-WebRequestBasicAuth @TokenRequestParameters |
+      Invoke-GetProperty Content |
+      ConvertFrom-ByteArray |
+      ConvertFrom-QueryString
+    $Success = $TokenData['token_type'] -eq 'bearer'
+  }
+  $TokenData | ConvertTo-Json | Write-Verbose
+  $TokenData['access_token']
+}
 function Import-Html {
   <#
   .SYNOPSIS
@@ -267,74 +334,7 @@ function Invoke-WebRequestBasicAuth {
     }
   }
 }
-function Get-GithubOAuthToken {
-  <#
-  .SYNOPSIS
-  Obtain OAuth token from https://api.github.com
-  .DESCRIPTION
-  This function enables obtaining an OAuth token from https://api.github.com
-
-  Github provides multiple ways to obtain authentication tokens. This function implements the "device flow" method of authorizing an OAuth app.
-
-  Before using this function, you must:
-  1. Create an OAuth app on Github.com
-  2. Record app "Client ID" (passed as -ClientID)
-  3. Opt-in to "Device Authorization Flow" beta feature
-
-  This function will attempt to open a browser and will require the user to login to his/her Github account to authorize access.
-  The one-time device code will be copied to the clipboard for ease of use.
-
-  Note: For basic authentication scenarios, please use Invoke-WebRequestBasicAuth
-
-  .EXAMPLE
-  $Token = Get-GithubOAuthToken -ClientId $ClientId -Scope 'notifications'
-  $Request = BasicAuth $Token -Uri 'https://api.github.com/notifications'
-
-  #>
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [String] $ClientId,
-    [Parameter(Position=1)]
-    [String[]] $Scope
-  )
-  $DeviceRequestParameters = @{
-    Post = $true
-    Uri = 'https://github.com/login/device/code'
-    Query = @{
-      client_id = $ClientId
-      scope = $Scope -join '%20'
-    }
-  }
-  $DeviceData = Invoke-WebRequestBasicAuth @DeviceRequestParameters |
-    Invoke-GetProperty Content |
-    ConvertFrom-ByteArray |
-    ConvertFrom-QueryString
-  $DeviceData | ConvertTo-Json | Write-Verbose
-  $TokenRequestParameters = @{
-    Post = $true
-    Uri = 'https://github.com/login/oauth/access_token'
-    Query = @{
-      client_id = $ClientId
-      device_code = $DeviceData['device_code']
-      grant_type = 'urn:ietf:params:oauth:grant-type:device_code'
-    }
-  }
-  $DeviceData['user_code'] | Write-Title -Green -PassThru | Set-Clipboard
-  Start-Process $DeviceData['verification_uri']
-  $Success = $false
-  while (-not $Success) {
-    Start-Sleep $DeviceData.interval
-    $TokenData = Invoke-WebRequestBasicAuth @TokenRequestParameters |
-      Invoke-GetProperty Content |
-      ConvertFrom-ByteArray |
-      ConvertFrom-QueryString
-    $Success = $TokenData['token_type'] -eq 'bearer'
-  }
-  $TokenData | ConvertTo-Json | Write-Verbose
-  $TokenData['access_token']
-}
-function Show-HtmlContent {
+function Open-Browser {
   <#
   .SYNOPSIS
   Display HTML content (string, file, or URI) in a web browser Windows form
@@ -346,17 +346,17 @@ function Show-HtmlContent {
   .PARAMETER OnClose
   Function to be executed immediately before form is disposed. $Form and $Browser variables are available within function scope.
   .EXAMPLE
-  '<h1>Hello World</h1>' | Show-HtmlContent
+  '<h1>Hello World</h1>' | Open-Browser
   .EXAMPLE
-  Show-Content -Uri 'https://google.com'
+  Open-Browser -Uri 'https://google.com'
   .EXAMPLE
-  Show-Content -File '.\file.html'
+  Open-Browser -File '.\file.html'
   .EXAMPLE
   $OnClose = {
     Param($Browser)
     $Browser.Document.GetElementsByTagName('h1').innerText | Write-Color -Green
   }
-  '<h1 contenteditable="true">Type Here</h1>' | Show-HtmlContent -OnClose $OnClose | Out-Null
+  '<h1 contenteditable="true">Type Here</h1>' | Open-Browser -OnClose $OnClose | Out-Null
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding(DefaultParameterSetName='string')]
@@ -396,8 +396,9 @@ function Show-HtmlContent {
       "==> Navigating to $Uri" | Write-Verbose
       $Browser.Navigate($Uri)
     } else {
-      $Browser.DocumentText = $Content
+      $Browser.DocumentText = "$Content"
     }
+    '==> Opening web browser...' | Write-Verbose
     if ($Form.ShowDialog() -ne 'OK') {
       $Document = $Browser.Document
       '==> Browser Closing...' | Write-Verbose

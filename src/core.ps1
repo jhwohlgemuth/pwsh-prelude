@@ -1159,9 +1159,9 @@ function Invoke-Reduce {
 
   Change the InitialValue to change the Callback and output type
   .EXAMPLE
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 
-  Combining directory contents into single object and visualize with Show-BarChart - in a single line!
+  Combining directory contents into single object and visualize with Write-BarChart - in a single line!
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]

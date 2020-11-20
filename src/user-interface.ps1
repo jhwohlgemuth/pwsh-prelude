@@ -533,7 +533,7 @@ function Invoke-Menu {
     }
   }
 }
-function Show-BarChart {
+function Write-BarChart {
   <#
   .SYNOPSIS
   Function to create horizontal bar chart of passed data object
@@ -544,15 +544,15 @@ function Show-BarChart {
   .PARAMETER ShowValues
   Whether or not to show data values to right of each bar
   .EXAMPLE
-  @{red = 55; white = 30; blue = 200} | Show-BarChart -WithColor -ShowValues
+  @{red = 55; white = 30; blue = 200} | Write-BarChart -WithColor -ShowValues
   .EXAMPLE
   Write-Title 'Colors'
-  @{red = 55; white = 30; blue = 200} | Show-BarChart -Alternate -ShowValues
+  @{red = 55; white = 30; blue = 200} | Write-BarChart -Alternate -ShowValues
   Write-Color ''
 
   Can be used with Write-Title to create goo looking reports in the terminal
   .EXAMPLE
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues -WithColor
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor
 
   Easily display a bar chart of files using Invoke-Reduce
   #>

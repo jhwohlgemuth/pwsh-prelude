@@ -61,10 +61,10 @@ $Space
 $Choice = 'no','yes' | Invoke-Menu
 if ($Choice -eq 'yes') {
   'Bar Charts' | Write-Title -Blue
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -Alternate
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues -Alternate
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues -WithColor
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart -ShowValues -WithColor -Alternate
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -Alternate
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -Alternate
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor
+  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor -Alternate
 }

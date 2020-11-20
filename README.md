@@ -95,7 +95,7 @@ $Choice = menu @('one'; 'two'; 'three') -Indent 4
 ```
 - Visualize file sizes in a directory with one line of code!
 ```Powershell
-Get-ChildItem -File | Invoke-Reduce -FileInfo | Show-BarChart
+Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 ```
 
 Be More Productive
@@ -195,7 +195,6 @@ Functions
 - `Remove-Indent`
 - `Rename-FileExtension`
 - `Save-State`
-- `Show-BarChart`
 - `Take`
 - `Test-Admin`
 - `Test-Empty`
@@ -205,6 +204,7 @@ Functions
 - `Use-Grammar` <sup>[[3]](#footnotes)</sup>
 - `Use-Speech` <sup>[[3]](#footnotes)</sup>
 - `Use-Web` <sup>[[3]](#footnotes)</sup>
+- `Write-BarChart`
 - `Write-Color`
 - `Write-Label`
 - `Write-Title`
