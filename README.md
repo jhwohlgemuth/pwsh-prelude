@@ -153,6 +153,7 @@ Functions
 - `Get-Permutation`
 - `Get-Screenshot`
 - `Get-State`
+- `Import-Excel`
 - `Import-Html` <sup>[[3]](#footnotes)</sup>
 - `Install-SshServer` <sup>[[3]](#footnotes)</sup>
 - `Invoke-Chunk`

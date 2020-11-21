@@ -95,6 +95,7 @@
     'Get-Screenshot'
     'Get-State'
     'Home'
+    'Import-Excel'
     'Import-Html'
     'Install-SshServer'
     'Invoke-Chunk'
