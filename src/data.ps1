@@ -9,6 +9,7 @@ function Import-Excel {
   Note: When an empty cell is encountered, a placeholder will be used of the form, column<COLUMN NUMBER>
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'EmptyValue')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
   [CmdletBinding()]
   [OutputType([System.Collections.Hashtable])]
   Param (
@@ -16,6 +17,7 @@ function Import-Excel {
     [String] $Path,
     [String] $WorksheetName,
     [Array] $ColumnHeaders,
+    [String] $Password,
     [Switch] $FirstRowHeaders,
     [String] $EmptyValue = 'EMPTY',
     [Switch] $ShowProgress
@@ -26,8 +28,16 @@ function Import-Excel {
   if ($ShowProgress) {
     Write-Progress -Activity 'Importing Excel data' -Status "Loading $FileName"
   }
-  $Workbook = $Excel.workbooks.open($FileName)
-  $Worksheet = if ($WorksheetName) { $Workbook.Worksheets.Item($WorksheetName) } else { $Workbook.Worksheets(1) }
+  $Workbook = if (-not $Password) {
+    $Excel.workbooks.open($FileName)
+  } else {
+    $Excel.workbooks.open($FileName,0,0,$true,$Password)
+  }
+  $Worksheet = if ($WorksheetName) {
+    $Workbook.Worksheets.Item($WorksheetName)
+  } else {
+    $Workbook.Worksheets(1)
+  }
   $RowCount = $Worksheet.UsedRange.Rows.Count
   $ColumnCount = $Worksheet.UsedRange.Columns.Count
   $StartIndex = if ($FirstRowHeaders) { 2 } else { 1 }

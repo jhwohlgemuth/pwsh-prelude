@@ -61,4 +61,17 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
     $Data = Import-Excel -Path $Path -EmptyValue 'BLANK'
     $Data | Get-Property 'Rows.0' | Should -Be 'a','BLANK','foo','BLANK'
   }
+  It 'can open password-protected Workbooks' {
+    $Password = '123456'
+    $Path = Join-Path $PSScriptRoot '\fixtures\example_protected.xlsx'
+    $Data = Import-Excel -Path $Path -Password $Password
+    $Data.Size | Should -Be 6,1
+    $Data | Get-Property 'Rows.0' | Should -Be 'secret'
+    $Data | Get-Property 'Rows.1' | Should -Be 'restricted'
+    $Data = Import-Excel -Path $Path -Password $Password -WorksheetName 'unprotected'
+    $Data.Size | Should -Be 5,1
+    $Data | Get-Property 'Rows.0' | Should -Be 'public'
+    $Data | Get-Property 'Rows.1' | Should -Be 'open'
+    { Import-Excel -Path $Path -Password 'wrong' } | Should -Throw -Because 'the password is not correct'
+  }
 }
