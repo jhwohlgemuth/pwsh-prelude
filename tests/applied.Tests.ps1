@@ -27,13 +27,19 @@ Describe 'ConvertTo-Radian' {
     0,360,720 | ConvertTo-Radian | Should -Be 0,0,0
   }
 }
+Describe 'Get-EarthRadius' {
+  It 'can return earth radius for a given latitude' {
+    Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
+    0 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
+  }
+}
 Describe 'Get-Haversine/ArcHaversine' {
   It 'should return a value in the range [0..1]' {
     42,50,77 | Get-Haversine | ForEach-Object { [Math]::Round($_, 5) } | Should -Be 0.12843,0.17861,0.38752
     0.12843,0.17861,0.38752 | Get-ArcHaversine | ForEach-Object { [Math]::Round($_) } | Should -Be 42,50,77
     42,50,77 | Get-Haversine | Get-ArcHaversine | Should -Be 42,50,77
   }
-  It -Skip 'should be provided via static method of Prelude class' {
+  It 'should be provided via static method of Prelude class' {
     [PreludeTest]::Hav(42),
     [PreludeTest]::Hav(50),
     [PreludeTest]::Hav(77) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be 0.12843,0.17861,0.38752

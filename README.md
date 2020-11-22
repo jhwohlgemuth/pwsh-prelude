@@ -145,6 +145,7 @@ Functions
 - `Find-FirstIndex`
 - `Format-MoneyValue`
 - `Get-ArcHaversine`
+- `Get-EarthRadius`
 - `Get-Extremum`
 - `Get-Factorial`
 - `Get-File`

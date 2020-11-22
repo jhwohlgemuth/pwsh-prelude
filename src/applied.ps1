@@ -66,3 +66,21 @@ function Get-ArcHaversine {
     ConvertTo-Degree ([Math]::Acos(1 - (2 * $Value)))
   }
 }
+function Get-EarthRadius {
+  <#
+  .SYNOPSIS
+  Get earth's radius at a given geographic latitude
+  .PARAMETER Latitude
+  Latitude value in decimal format
+  #>
+  [CmdletBinding()]
+  [OutputType([Double])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Double] $Latitude
+  )
+  Process {
+    $GeocentricLatitude = [Math]::Pow((1 - [Constant]::EarthFlattening), 2) * [Math]::Tan((ConvertTo-Radian $Latitude))
+    [Constant]::EarthSemiMajorAxis * (1 - ([Constant]::EarthFlattening * [Math]::Pow([Math]::Sin($GeocentricLatitude), 2)))
+  }
+}
