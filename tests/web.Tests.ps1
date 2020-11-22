@@ -1,5 +1,12 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'web'
 
+$HtmlFileSupported = try {
+  New-Object -ComObject "HTMLFile"
+  $true
+} catch {
+  $false
+}
+
 Describe 'ConvertFrom-ByteArray' {
   it 'can convert an array of bytes to text' {
     $Expected = 'hello world'
@@ -13,60 +20,39 @@ Describe 'ConvertFrom-ByteArray' {
     ConvertFrom-ByteArray -Data $Expected | Should -Be $Expected
   }
 }
-Describe 'ConvertFrom-Html / Import-Html' {
+Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' {
   It 'can convert HTML strings' {
-    try {
-      $Supported = New-Object -ComObject "HTMLFile"
-    } catch {
-      $Supported = $null
-    }
-    if ($null -ne $Supported) {
-      $Html = '<html>
-        <body>
-          <a href="#">foo</a>
-          <a href="#">bar</a>
-          <a href="#">baz</a>
-        </body>
-      </html>' | ConvertFrom-Html
-      $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
-    }
+    $Html = '<html>
+      <body>
+        <a href="#">foo</a>
+        <a href="#">bar</a>
+        <a href="#">baz</a>
+      </body>
+    </html>' | ConvertFrom-Html
+    $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
   }
   It 'can import local HTML file' {
-    try {
-      $Supported = New-Object -ComObject "HTMLFile"
-    } catch {
-      $Supported = $null
-    }
-    if ($null -ne $Supported) {
-      $Path = Join-Path $TestDrive 'foo.html'
-      '<html>
-        <body>
-          <a href="#">foo</a>
-          <a href="#">bar</a>
-          <a href="#">baz</a>
-        </body>
-      </html>' | Out-File $Path
-      $Html = Import-Html -Path $Path
-      $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
-    }
+    $Path = Join-Path $TestDrive 'foo.html'
+    '<html>
+      <body>
+        <a href="#">foo</a>
+        <a href="#">bar</a>
+        <a href="#">baz</a>
+      </body>
+    </html>' | Out-File $Path
+    $Html = Import-Html -Path $Path
+    $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo','bar','baz'
   }
   It 'can import more complex local HTML file' {
-    try {
-      $Supported = New-Object -ComObject "HTMLFile"
-    } catch {
-      $Supported = $null
-    }
-    if ($null -ne $Supported) {
-      $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
-      $Html = Import-Html -Path $Path
-      $Html.title | Should -Be 'Example Webpage'
-      $Html.bgColor | Should -Be '#663399' # rebeccapurple
-      $Html.styleSheets[0].href | Should -Be 'style.css'
-      $Html.images[0].id | Should -Be 'foobar'
-      $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'Kitsch 8-bit taxidermy','A','B','C'
-      $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'description'
-      $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'keywords'
-    }
+    $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
+    $Html = Import-Html -Path $Path
+    $Html.title | Should -Be 'Example Webpage'
+    $Html.bgColor | Should -Be '#663399' # rebeccapurple
+    $Html.styleSheets[0].href | Should -Be 'style.css'
+    $Html.images[0].id | Should -Be 'foobar'
+    $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'Kitsch 8-bit taxidermy','A','B','C'
+    $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'description'
+    $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'keywords'
   }
 }
 Describe 'ConvertTo-Iso8601' {
