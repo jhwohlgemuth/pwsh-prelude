@@ -7,13 +7,18 @@ $TypeDefinition = @"
 
   public static class Prelude${Id} {
 
-      public static PSObject Hav(double theta) {
-        Collection<PSObject> results = PowerShell.Create().AddCommand("Get-Haversine").AddArgument(theta).Invoke();
+      public static PSObject Invoke(string command,double value) {
+        Collection<PSObject> results = PowerShell.Create().AddCommand(command).AddArgument(value).Invoke();
         return results[0];
       }
+      public static PSObject Hav(double value) {
+        return Prelude.Invoke("Get-Haversine",value);
+      }
       public static PSObject Ahav(double value) {
-        Collection<PSObject> results = PowerShell.Create().AddCommand("Get-ArcHaversine").AddArgument(value).Invoke();
-        return results[0];
+        return Prelude.Invoke("Get-ArcHaversine",value);
+      }
+      public static PSObject Sigmoid(double value) {
+        return Prelude.Invoke("Get-LogisticSigmoid",value);
       }
   }
 "@

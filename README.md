@@ -152,6 +152,7 @@ Functions
 - `Get-GithubOAuthToken`
 - `Get-Haversine`
 - `Get-HostsContent`
+- `Get-LogisticSigmoid`
 - `Get-Maximum`
 - `Get-Minimum`
 - `Get-Property`

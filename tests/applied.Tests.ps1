@@ -45,3 +45,15 @@ Describe 'Get-Haversine/ArcHaversine' {
     [PreludeTest]::Hav(77) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be 0.12843,0.17861,0.38752
   }
 }
+Describe 'Get-LogisticSigmoid' {
+  It 'can return values along the logistic sigmoid curve' {
+    0 | Get-LogisticSigmoid | Should -Be 0.5
+    [Double]::NegativeInfinity | Get-LogisticSigmoid | Should -Be 0
+    [Double]::PositiveInfinity | Get-LogisticSigmoid | Should -Be 1
+    [Double]::PositiveInfinity | Get-LogisticSigmoid -MaximumValue 3 | Should -Be 3
+    0 | Get-LogisticSigmoid -Derivative | Should -Be 0.25
+    $Left = [Math]::Round((Get-LogisticSigmoid -5), 10)
+    $Right = [Math]::Round(1 - (Get-LogisticSigmoid 5), 10)
+    $Left | Should -Be $Right -Because 'it is a symmetry property of the logistic function'
+  }
+}
