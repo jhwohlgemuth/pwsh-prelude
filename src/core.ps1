@@ -690,10 +690,20 @@ function Invoke-DropWhile {
         }
       }
     }
-    Invoke-InternalDropWhile $InputObject $Predicate
+    if ($InputObject.Count -eq 1 -and $InputObject[0].GetType().Name -eq 'String') {
+      $Result = Invoke-InternalDropWhile $InputObject[0].ToCharArray() $Predicate
+      $Result -join ''
+    } else {
+      Invoke-InternalDropWhile $InputObject $Predicate
+    }
   }
   End {
-    Invoke-InternalDropWhile $Input $Predicate
+    if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
+      $Result = Invoke-InternalDropWhile $Input.ToCharArray() $Predicate
+      $Result -join ''
+    } else {
+      Invoke-InternalDropWhile $Input $Predicate
+    }
   }
 }
 function Invoke-Flatten {
@@ -1265,7 +1275,12 @@ function Invoke-TakeWhile {
     Invoke-InternalTakeWhile $InputObject $Predicate
   }
   End {
-    Invoke-InternalTakeWhile $Input $Predicate
+    if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
+      $Result = Invoke-InternalTakeWhile $Input.ToCharArray() $Predicate
+      $Result -join ''
+    } else {
+      Invoke-InternalTakeWhile $Input $Predicate
+    }
   }
 }
 function Invoke-Tap {

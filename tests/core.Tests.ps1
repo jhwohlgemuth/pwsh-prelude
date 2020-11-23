@@ -297,6 +297,13 @@ Describe 'Invoke-DropWhile' {
     1..5 | Invoke-DropWhile $GreaterThan10 | Should -Be 1,2,3,4,5
     Invoke-DropWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 1,2,3,4,5
   }
+  It 'supports string input and output' {
+    $IsNotHash = { Param($x) $x -ne '#' }
+    'Hello World ###' | Invoke-DropWhile $IsNotHash | Should -Be '###'
+    '### Hello World' | Invoke-DropWhile $IsNotHash | Should -Be '### Hello World'
+    @('Hello World ###') | Invoke-DropWhile $IsNotHash | Should -Be '###'
+    Invoke-DropWhile -InputObject 'Hello World ###' $IsNotHash | Should -Be '###'
+  }
 }
 Describe 'Invoke-Flatten' {
   It 'can flatten multi-dimensional arrays' {
@@ -620,6 +627,13 @@ Describe 'Invoke-TakeWhile' {
     Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1,2
     13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13,12,11
     Invoke-TakeWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 13,12,11
+  }
+  It 'supports string input and output' {
+    $IsNotSpace = { Param($x) $x -ne ' ' }
+    'Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
+    '   Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be '   Hello World'
+    @('Hello World') | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
+    Invoke-TakeWhile -InputObject 'Hello World' $IsNotSpace | Should -Be 'Hello'
   }
 }
 Describe 'Invoke-Tap' {
