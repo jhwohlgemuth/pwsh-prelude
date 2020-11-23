@@ -7,18 +7,18 @@ $TypeDefinition = @"
 
   public static class Prelude${Id} {
 
-      public static PSObject Invoke(string command,double value) {
+      private static PSObject Invoke(string command,double value) {
         Collection<PSObject> results = PowerShell.Create().AddCommand(command).AddArgument(value).Invoke();
         return results[0];
       }
       public static PSObject Hav(double value) {
-        return Prelude.Invoke("Get-Haversine",value);
+        return Invoke("Get-Haversine",value);
       }
       public static PSObject Ahav(double value) {
-        return Prelude.Invoke("Get-ArcHaversine",value);
+        return Invoke("Get-ArcHaversine",value);
       }
       public static PSObject Sigmoid(double value) {
-        return Prelude.Invoke("Get-LogisticSigmoid",value);
+        return Invoke("Get-LogisticSigmoid",value);
       }
   }
 "@
