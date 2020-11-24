@@ -16,13 +16,22 @@ $TypeDefinition = @"
       public const double EarthRadiusMean = 6371001;
 
       // Radius of a sphere with the same surface area (in meters)
-      public const double EarthRadiusAuthalic = 6371007;
+      public const double EarthRadiusAuthalic = 6371007.1810;
 
-      // Semi-major axis parameter of Earth ellipsoid WGS84 datum characterization (in meters)
+      // Semi-major axis parameter (a) of Earth ellipsoid WGS84 datum characterization (in meters)
       public const double EarthSemiMajorAxis = 6378137;
 
-      // Flattening parameter of Earth ellipsoid WGS84 datum characterization
-      public const double EarthFlattening = 0.0033528106718309896;
+      // Semi-minor axis parameter (b) of Earth ellipsoid WGS84 datum characterization (in meters)
+      public const double EarthSemiMinorAxis = 6356752.31424518;
+
+      // Flattening parameter (f) of Earth ellipsoid WGS84 datum characterization
+      public const double EarthFlattening = 0.0033528106647475;
+
+      // Flattening Factor parameter (1/f) of Earth ellipsoid WGS84 datum characterization
+      public const double EarthFlatteningFactor = 298.257223563;
+
+      // Eccentricity parameter of Earth ellipsoid WGS84 datum characterization
+      public const double EarthEccentricity = 0.0818191908426215;
   }
 "@
 if ("Constant${Id}" -as [Type]) {

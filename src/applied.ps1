@@ -1,4 +1,4 @@
-function ConvertTo-Degree {
+﻿function ConvertTo-Degree {
   <#
   .SYNOPSIS
   Convert radians to degrees
@@ -80,8 +80,19 @@ function Get-EarthRadius {
     [Double] $Latitude
   )
   Process {
-    $GeocentricLatitude = [Math]::Pow((1 - [Constant]::EarthFlattening), 2) * [Math]::Tan((ConvertTo-Radian $Latitude))
-    [Constant]::EarthSemiMajorAxis * (1 - ([Constant]::EarthFlattening * [Math]::Pow([Math]::Sin($GeocentricLatitude), 2)))
+    $a = [Constant]::EarthSemiMajorAxis
+    $b = [Constant]::EarthSemiMinorAxis
+    $Beta = ConvertTo-Radian $Latitude
+    $Numerator = [Math]::Pow(([Math]::($a, 2) * [Math]::Cos($Beta)), 2) + [Math]::Pow(([Math]::($b, 2) * [Math]::Sin($Beta)), 2)
+    $Denumerator = [Math]::Pow(($a * [Math]::Cos($Beta)), 2) + [Math]::Pow(($b * [Math]::Sin($Beta)), 2)
+
+    "a = $a" | Write-Color -Cyan
+    "b = $b" | Write-Color -Yellow
+    "Beta = $Beta" | Write-Color -Cyan
+    "Num = $Numerator" | Write-Color -Yellow
+    "Denum = $Denumerator" | Write-Color -Cyan
+
+    [Math]::Sqrt($Numerator / $Denumerator)
   }
 }
 function Get-Extremum {
@@ -91,11 +102,9 @@ function Get-Extremum {
   .EXAMPLE
   $Maximum = 1,2,3,4,5 | Get-Extremum -Max
   # 5
-
   .EXAMPLE
   $Minimum = 1,2,3,4,5 | Get-Extremum -Min
   # 1
-
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Maximum')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Minimum')]

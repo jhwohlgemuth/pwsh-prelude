@@ -8,6 +8,11 @@ Describe 'Constant Class' {
     { [ConstantTest]::Phi = 5 } | Should -Throw -Because 'constants are immutable'
   }
 }
+Describe 'Coordinate Class' {
+  It 'provides immutable values' {
+
+  }
+}
 Describe 'ConvertTo-Degree' {
   It 'can convert radian values to degrees' {
     $PI = [Math]::Pi
@@ -28,9 +33,12 @@ Describe 'ConvertTo-Radian' {
   }
 }
 Describe 'Get-EarthRadius' {
-  It 'can return earth radius for a given latitude' {
+  It -Skip 'can return earth radius for a given latitude' {
+    $NorthernTropicLatitude = 23.437055555555556
     Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
     0 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
+    $NorthernTropicLatitude | Get-EarthRadius | Should -Be 6374410.938026696
+    90 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthSemiMinorAxis)
   }
 }
 Describe 'Get-Extremum' {
