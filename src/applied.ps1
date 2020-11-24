@@ -30,6 +30,23 @@ function ConvertTo-Radian {
     ($Degrees % 360) * ([Math]::Pi / 180)
   }
 }
+function Get-ArcHaversine {
+  <#
+  .SYNOPSIS
+  Return archaversine (ahav) of a value, in degrees. This is the inverse function of Get-Haversine.
+
+  Note: Available as static method of Prelude class - [Prelude]::Ahav
+  #>
+  [CmdletBinding()]
+  [OutputType([Double])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Double] $Value
+  )
+  Process {
+    ConvertTo-Degree ([Math]::Acos(1 - (2 * $Value)))
+  }
+}
 function Get-Haversine {
   <#
   .SYNOPSIS
@@ -49,23 +66,6 @@ function Get-Haversine {
     0.5 * (1 - [Math]::Cos((ConvertTo-Radian $Degrees)))
   }
 }
-function Get-ArcHaversine {
-  <#
-  .SYNOPSIS
-  Return archaversine (ahav) of a value, in degrees. This is the inverse function of Get-Haversine.
-
-  Note: Available as static method of Prelude class - [Prelude]::Ahav
-  #>
-  [CmdletBinding()]
-  [OutputType([Double])]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Double] $Value
-  )
-  Process {
-    ConvertTo-Degree ([Math]::Acos(1 - (2 * $Value)))
-  }
-}
 function Get-EarthRadius {
   <#
   .SYNOPSIS
@@ -82,6 +82,70 @@ function Get-EarthRadius {
   Process {
     $GeocentricLatitude = [Math]::Pow((1 - [Constant]::EarthFlattening), 2) * [Math]::Tan((ConvertTo-Radian $Latitude))
     [Constant]::EarthSemiMajorAxis * (1 - ([Constant]::EarthFlattening * [Math]::Pow([Math]::Sin($GeocentricLatitude), 2)))
+  }
+}
+function Get-Extremum {
+  <#
+  .SYNOPSIS
+  Function to return extremum (maximum or minimum) of an array of numbers
+  .EXAMPLE
+  $Maximum = 1,2,3,4,5 | Get-Extremum -Max
+  # 5
+
+  .EXAMPLE
+  $Minimum = 1,2,3,4,5 | Get-Extremum -Min
+  # 1
+
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Maximum')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Minimum')]
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Alias('Max')]
+    [Switch] $Maximum,
+    [Alias('Min')]
+    [Switch] $Minimum
+  )
+  Begin {
+    function Invoke-GetExtremum {
+      param (
+        [Parameter(Position=0)]
+        [Array] $Values
+      )
+      if ($Values.Count -gt 0) {
+        $Type = Find-FirstTrueVariable 'Maximum','Minimum'
+        $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | ForEach-Object { $_.$Type }
+      }
+    }
+    Invoke-GetExtremum $InputObject
+  }
+  End {
+    Invoke-GetExtremum $Input
+  }
+}
+function Get-Factorial {
+  <#
+  .SYNOPSIS
+  Return factorial of Value, Value!.
+  .EXAMPLE
+  Get-Factorial 10
+  # 3628800
+
+  #>
+  [CmdletBinding()]
+  [OutputType([Int32])]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Int] $Value
+  )
+  Process {
+    if ($Value -eq 0) {
+      1
+    } else {
+      1..$Value | Invoke-Reduce { Param($Acc,$Item) $Acc * $Item } -InitialValue 1
+    }
   }
 }
 function Get-LogisticSigmoid {
@@ -121,6 +185,103 @@ function Get-LogisticSigmoid {
       (& $Sigmoid $Value) * (& $Sigmoid -$Value)
     } else {
       & $Sigmoid $Value
+    }
+  }
+}
+function Get-Maximum {
+  <#
+  .SYNOPSIS
+  Wrapper for Get-Extremum with the -Maximum switch
+  #>
+  [CmdletBinding()]
+  [Alias('max')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Values
+  )
+  Begin {
+    if ($Values.Count -gt 0) {
+      Get-Extremum -Maximum $Values
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Get-Extremum -Maximum
+    }
+  }
+}
+function Get-Mean {
+  <#
+  .SYNOPSIS
+  Calculate mean (average) for list of numerical values
+  .DESCRIPTION
+  Specifically, this function returns the "expected value" (mean) for a discrete uniform random variable.
+  .EXAMPLE
+  1..10 | mean
+  #>
+  [CmdletBinding()]
+  [Alias('mean')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Data
+  )
+  End {
+    if ($Input.Count -gt 0) {
+      $Data = $Input
+    }
+    ($Data | Measure-Object -Sum).Sum / $Data.Count
+  }
+}
+function Get-Median {
+  <#
+  .SYNOPSIS
+  Calculate median for list of numerical values
+  .DESCRIPTION
+  Specifically, this function returns the median for a discrete uniform random variable.
+  .EXAMPLE
+  1..10 | median
+  #>
+  [CmdletBinding()]
+  [Alias('median')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Data
+  )
+  End {
+    if ($Input.Count -gt 0) {
+      $Data = $Input
+    }
+    $Sorted = $Data | Sort-Object
+    $Index = $Sorted.Count / 2
+    if ($Sorted.Count % 2 -eq 0) {
+      $Left = $Sorted[$Index - 1]
+      $Right = $Sorted[$Index]
+    } else {
+      $Left = [Math]::Floor($Sorted[$Index])
+      $Right = $Left
+    }
+    ($Left + $Right) / 2
+  }
+}
+function Get-Minimum {
+  <#
+  .SYNOPSIS
+  Wrapper for Get-Extremum with the -Minimum switch
+  #>
+  [CmdletBinding()]
+  [Alias('min')]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Array] $Values
+  )
+  Begin {
+    if ($Values.Count -gt 0) {
+      Get-Extremum -Minimum $Values
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Get-Extremum -Minimum
     }
   }
 }

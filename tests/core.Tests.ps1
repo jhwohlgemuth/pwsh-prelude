@@ -7,10 +7,10 @@ Param()
 Describe 'Powershell Prelude Module' {
   Context 'meta validation' {
     It 'should import exports' {
-      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 105
+      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 107
     }
     It 'should import aliases' {
-      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 49
+      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 51
     }
   }
 }
@@ -144,48 +144,6 @@ Describe 'Format-MoneyValue' {
   }
   It 'will throw an error if input is not a string or number' {
     { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
-  }
-}
-Describe 'Get-Extremum' {
-  It 'can return maximum value from array of numbers' {
-    $Max = 5
-    $Values = 1,2,2,1,$Max,2,3
-    $Values | Get-Extremum -Max | Should -Be $Max
-    Get-Extremum -Max $Values | Should -Be $Max
-    0,-1,4,2,7,2,0 | Get-Extremum -Max | Should -Be 7
-  }
-  It 'can return minimum value from array of numbers' {
-    $Min = 0
-    $Values = 1,2,2,1,$Min,2,3
-    $Values | Get-Extremum -Min | Should -Be $Min
-    Get-Extremum -Min $Values | Should -Be $Min
-    0,-1,4,2,7,2,0 | Get-Extremum -Min | Should -Be -1
-  }
-  It 'Get-Maximum' {
-    $Max = 5
-    $Values = 1,2,2,1,$Max,2,3
-    $Values | Get-Maximum | Should -Be $Max
-    Get-Maximum $Values | Should -Be $Max
-    0,-1,4,2,7,2,0 | Get-Maximum | Should -Be 7
-  }
-  It 'Get-Minimum' {
-    $Min = 0
-    $Values = 1,2,2,1,$Min,2,3
-    $Values | Get-Minimum | Should -Be $Min
-    Get-Minimum $Values | Should -Be $Min
-    0,-1,4,2,7,2,0 | Get-Minimum | Should -Be -1
-  }
-}
-Describe 'Get-Factorial' {
-  It 'can calculate n!' {
-    0 | Get-Factorial | Should -Be 1
-    1 | Get-Factorial | Should -Be 1
-    2 | Get-Factorial | Should -Be 2
-    10 | Get-Factorial | Should -Be 3628800
-    20 | Get-Factorial | Should -Be 2432902008176640000
-    1..5 | Get-Factorial | Should -Be 1,2,6,24,120
-    Get-Factorial 2 | Should -Be 2
-    Get-Factorial 10 | Should -Be 3628800
   }
 }
 Describe 'Get-Permutation' {

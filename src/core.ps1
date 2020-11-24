@@ -222,114 +222,6 @@ function Format-MoneyValue {
     }
   }
 }
-function Get-Extremum {
-  <#
-  .SYNOPSIS
-  Function to return extremum (maximum or minimum) of an array of numbers
-  .EXAMPLE
-  $Maximum = 1,2,3,4,5 | Get-Extremum -Max
-  # 5
-
-  .EXAMPLE
-  $Minimum = 1,2,3,4,5 | Get-Extremum -Min
-  # 1
-
-  #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Maximum')]
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Minimum')]
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Array] $InputObject,
-    [Alias('Max')]
-    [Switch] $Maximum,
-    [Alias('Min')]
-    [Switch] $Minimum
-  )
-  Begin {
-    function Invoke-GetExtremum {
-      param (
-        [Parameter(Position=0)]
-        [Array] $Values
-      )
-      if ($Values.Count -gt 0) {
-        $Type = Find-FirstTrueVariable 'Maximum','Minimum'
-        $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | ForEach-Object { $_.$Type }
-      }
-    }
-    Invoke-GetExtremum $InputObject
-  }
-  End {
-    Invoke-GetExtremum $Input
-  }
-}
-function Get-Factorial {
-  <#
-  .SYNOPSIS
-  Return factorial of Value, Value!.
-  .EXAMPLE
-  Get-Factorial 10
-  # 3628800
-
-  #>
-  [CmdletBinding()]
-  [OutputType([Int32])]
-  Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
-    [Int] $Value
-  )
-  Process {
-    if ($Value -eq 0) {
-      1
-    } else {
-      1..$Value | Invoke-Reduce { Param($Acc,$Item) $Acc * $Item } -InitialValue 1
-    }
-  }
-}
-function Get-Maximum {
-  <#
-  .SYNOPSIS
-  Wrapper for Get-Extremum with the -Maximum switch
-  #>
-  [CmdletBinding()]
-  [Alias('max')]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Array] $Values
-  )
-  Begin {
-    if ($Values.Count -gt 0) {
-      Get-Extremum -Maximum $Values
-    }
-  }
-  End {
-    if ($Input.Count -gt 0) {
-      $Input | Get-Extremum -Maximum
-    }
-  }
-}
-function Get-Minimum {
-  <#
-  .SYNOPSIS
-  Wrapper for Get-Extremum with the -Minimum switch
-  #>
-  [CmdletBinding()]
-  [Alias('min')]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Array] $Values
-  )
-  Begin {
-    if ($Values.Count -gt 0) {
-      Get-Extremum -Minimum $Values
-    }
-  }
-  End {
-    if ($Input.Count -gt 0) {
-      $Input | Get-Extremum -Minimum
-    }
-  }
-}
 function Get-Permutation {
   <#
   .SYNOPSIS
@@ -634,7 +526,7 @@ function Invoke-Chunk {
     [Int] $Size = 0
   )
   Begin {
-    function Invoke-InternalChunk {
+    function Invoke-Chunk_ {
       Param(
         [Parameter(Position=0)]
         [Array] $InputObject,
@@ -656,10 +548,10 @@ function Invoke-Chunk {
         }
       }
     }
-    Invoke-InternalChunk $InputObject $Size
+    Invoke-Chunk_ $InputObject $Size
   }
   End {
-    Invoke-InternalChunk $Input $Size
+    Invoke-Chunk_ $Input $Size
   }
 }
 function Invoke-DropWhile {
@@ -672,7 +564,7 @@ function Invoke-DropWhile {
     [ScriptBlock] $Predicate
   )
   Begin {
-    function Invoke-InternalDropWhile {
+    function Invoke-DropWhile_ {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
       Param(
         [Parameter(Position=0)]
@@ -691,18 +583,18 @@ function Invoke-DropWhile {
       }
     }
     if ($InputObject.Count -eq 1 -and $InputObject[0].GetType().Name -eq 'String') {
-      $Result = Invoke-InternalDropWhile $InputObject[0].ToCharArray() $Predicate
+      $Result = Invoke-DropWhile_ $InputObject[0].ToCharArray() $Predicate
       $Result -join ''
     } else {
-      Invoke-InternalDropWhile $InputObject $Predicate
+      Invoke-DropWhile_ $InputObject $Predicate
     }
   }
   End {
     if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
-      $Result = Invoke-InternalDropWhile $Input.ToCharArray() $Predicate
+      $Result = Invoke-DropWhile_ $Input.ToCharArray() $Predicate
       $Result -join ''
     } else {
-      Invoke-InternalDropWhile $Input $Predicate
+      Invoke-DropWhile_ $Input $Predicate
     }
   }
 }
@@ -1015,7 +907,7 @@ function Invoke-Partition {
     [ScriptBlock] $Predicate
   )
   Begin {
-    function Invoke-InternalPartition {
+    function Invoke-Partition_ {
       Param(
         [Parameter(Position=0)]
         [Array] $InputObject,
@@ -1036,10 +928,10 @@ function Invoke-Partition {
         @($Left,$Right)
       }
     }
-    Invoke-InternalPartition $InputObject $Predicate
+    Invoke-Partition_ $InputObject $Predicate
   }
   End {
-    Invoke-InternalPartition $Input $Predicate
+    Invoke-Partition_ $Input $Predicate
   }
 }
 function Invoke-PropertyTransform {
@@ -1198,7 +1090,7 @@ function Invoke-Reduce {
     [Switch] $FileInfo
   )
   Begin {
-    function Invoke-InternalReduce {
+    function Invoke-Reduce_ {
       Param(
         [Parameter(Position=0)]
         [Array] $Items,
@@ -1235,12 +1127,12 @@ function Invoke-Reduce {
       $Result
     }
     if ($Items.Count -gt 0) {
-      Invoke-InternalReduce -Items $Items -Callback $Callback -InitialValue $InitialValue
+      Invoke-Reduce_ -Items $Items -Callback $Callback -InitialValue $InitialValue
     }
   }
   End {
     if ($Input.Count -gt 0) {
-      Invoke-InternalReduce -Items $Input -Callback $Callback -InitialValue $InitialValue
+      Invoke-Reduce_ -Items $Input -Callback $Callback -InitialValue $InitialValue
     }
   }
 }
@@ -1254,7 +1146,7 @@ function Invoke-TakeWhile {
     [ScriptBlock] $Predicate
   )
   Begin {
-    function Invoke-InternalTakeWhile {
+    function Invoke-TakeWhile_ {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
       Param(
         [Parameter(Position=0)]
@@ -1272,14 +1164,14 @@ function Invoke-TakeWhile {
         }
       }
     }
-    Invoke-InternalTakeWhile $InputObject $Predicate
+    Invoke-TakeWhile_ $InputObject $Predicate
   }
   End {
     if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
-      $Result = Invoke-InternalTakeWhile $Input.ToCharArray() $Predicate
+      $Result = Invoke-TakeWhile_ $Input.ToCharArray() $Predicate
       $Result -join ''
     } else {
-      Invoke-InternalTakeWhile $Input $Predicate
+      Invoke-TakeWhile_ $Input $Predicate
     }
   }
 }
@@ -1339,7 +1231,7 @@ function Invoke-Unzip {
     [Array] $InputObject
   )
   Begin {
-    function Invoke-InternalUnzip {
+    function Invoke-Unzip_ {
       Param(
         [Array] $InputObject
       )
@@ -1353,10 +1245,10 @@ function Invoke-Unzip {
         $Left,$Right
       }
     }
-    Invoke-InternalUnzip $InputObject
+    Invoke-Unzip_ $InputObject
   }
   End {
-    Invoke-InternalUnzip $Input
+    Invoke-Unzip_ $Input
   }
 }
 function Invoke-Zip {
@@ -1386,7 +1278,7 @@ function Invoke-Zip {
     [String] $EmptyValue = 'empty'
   )
   Begin {
-    function Invoke-InternalZip {
+    function Invoke-Zip_ {
       Param(
         [Parameter(Position=0)]
         [Array] $InputObject
@@ -1412,10 +1304,10 @@ function Invoke-Zip {
         $Result
       }
     }
-    Invoke-InternalZip $InputObject
+    Invoke-Zip_ $InputObject
   }
   End {
-    Invoke-InternalZip $Input
+    Invoke-Zip_ $Input
   }
 }
 function Invoke-ZipWith {
@@ -1573,7 +1465,7 @@ function Test-Equal {
     [Array] $InputObject
   )
   Begin {
-    function Test-InternalEqual {
+    function Test-Equal_ {
       Param(
         $Left,
         $Right,
@@ -1661,7 +1553,7 @@ function Test-Equal {
       }
     }
     if ($PSBoundParameters.ContainsKey('Right')) {
-      Test-InternalEqual $Left $Right
+      Test-Equal_ $Left $Right
     }
   }
   End {
@@ -1672,7 +1564,7 @@ function Test-Equal {
       if ($PSBoundParameters.ContainsKey('Left')) {
         $Parameters.Left = $Left
       }
-      Test-InternalEqual @Parameters
+      Test-Equal_ @Parameters
     }
   }
 }
