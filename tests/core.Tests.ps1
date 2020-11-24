@@ -584,12 +584,12 @@ Describe 'Invoke-TakeWhile' {
     1,2,3,4,5,1,1 | Invoke-TakeWhile $LessThan3 | Should -Be 1,2
     Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1,2
     13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13,12,11
-    Invoke-TakeWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 13,12,11
+    Invoke-TakeWhile -InputObject (13..8) -Predicate $GreaterThan10 | Should -Be 13,12,11
   }
   It 'supports string input and output' {
     $IsNotSpace = { Param($x) $x -ne ' ' }
     'Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
-    '   Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be '   Hello World'
+    '   Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be ''
     @('Hello World') | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
     Invoke-TakeWhile -InputObject 'Hello World' $IsNotSpace | Should -Be 'Hello'
   }

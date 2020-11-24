@@ -69,30 +69,25 @@ function Get-Haversine {
 function Get-EarthRadius {
   <#
   .SYNOPSIS
-  Get earth's radius at a given geographic latitude
+  Get earth's radius at a given geodetic latitude
   .PARAMETER Latitude
-  Latitude value in decimal format
+  Latitude value in decimal degree format
   #>
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
+    [ValidateRange(-90, 90)]
     [Double] $Latitude
   )
   Process {
     $a = [Constant]::EarthSemiMajorAxis
     $b = [Constant]::EarthSemiMinorAxis
     $Beta = ConvertTo-Radian $Latitude
-    $Numerator = [Math]::Pow(([Math]::($a, 2) * [Math]::Cos($Beta)), 2) + [Math]::Pow(([Math]::($b, 2) * [Math]::Sin($Beta)), 2)
-    $Denumerator = [Math]::Pow(($a * [Math]::Cos($Beta)), 2) + [Math]::Pow(($b * [Math]::Sin($Beta)), 2)
-
-    "a = $a" | Write-Color -Cyan
-    "b = $b" | Write-Color -Yellow
-    "Beta = $Beta" | Write-Color -Cyan
-    "Num = $Numerator" | Write-Color -Yellow
-    "Denum = $Denumerator" | Write-Color -Cyan
-
-    [Math]::Sqrt($Numerator / $Denumerator)
+    [Math]::Sqrt(
+      ([Math]::Pow(([Math]::Pow($a, 2) * [Math]::Cos($Beta)), 2) + [Math]::Pow(([Math]::Pow($b, 2) * [Math]::Sin($Beta)), 2)) /
+      ([Math]::Pow(($a * [Math]::Cos($Beta)), 2) + [Math]::Pow(($b * [Math]::Sin($Beta)), 2))
+    )
   }
 }
 function Get-Extremum {

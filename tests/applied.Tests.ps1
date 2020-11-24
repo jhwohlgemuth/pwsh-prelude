@@ -33,12 +33,13 @@ Describe 'ConvertTo-Radian' {
   }
 }
 Describe 'Get-EarthRadius' {
-  It -Skip 'can return earth radius for a given latitude' {
-    $NorthernTropicLatitude = 23.437055555555556
+  It 'can return earth radius for a given latitude' {
+    -90 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthSemiMinorAxis) -Because 'the radius is equal to semi-minor axis at the poles'
     Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
-    0 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
-    $NorthernTropicLatitude | Get-EarthRadius | Should -Be 6374410.938026696
-    90 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthSemiMinorAxis)
+    0 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator) -Because 'the radius is equal to semi-major axis at equator'
+    [Math]::Round((23.437055555555556 | Get-EarthRadius), 4) | Should -Be 6374777.8209 -Because 'it is the Northern Tropic latitude'
+    [Math]::Round((45 | Get-EarthRadius), 4) | Should -Be 6367489.5439
+    90 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthSemiMinorAxis) -Because 'the radius is equal to semi-minor axis at the poles'
   }
 }
 Describe 'Get-Extremum' {

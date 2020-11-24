@@ -1147,24 +1147,28 @@ function Invoke-TakeWhile {
   )
   Begin {
     function Invoke-TakeWhile_ {
-      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
       Param(
         [Parameter(Position=0)]
         [Array] $InputObject,
         [Parameter(Position=1)]
-        [scriptblock] $Predicate
+        [ScriptBlock] $Predicate
       )
       if ($InputObject.Count -gt 0) {
-        $InputObject | ForEach-Object {
-          if (& $Predicate $_) {
-            $_
-          } else {
-            Continue
-          }
+        $Result = [System.Collections.ArrayList]@{}
+        $Index = 0
+        while ((& $Predicate $InputObject[$Index]) -and ($Index -lt $InputObject.Count)) {
+          [Void]$Result.Add($InputObject[$Index])
+          $Index++
         }
+        $Result
       }
     }
-    Invoke-TakeWhile_ $InputObject $Predicate
+    if ($InputObject.Count -eq 1 -and $InputObject[0].GetType().Name -eq 'String') {
+      $Result = Invoke-TakeWhile_ $InputObject.ToCharArray() $Predicate
+      $Result -join ''
+    } else {
+      Invoke-TakeWhile_ $InputObject $Predicate
+    }
   }
   End {
     if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
