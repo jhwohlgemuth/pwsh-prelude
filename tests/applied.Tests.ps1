@@ -44,7 +44,7 @@ Describe 'ConvertTo-Radian' {
     0,360,720 | ConvertTo-Radian | Should -Be 0,0,0
   }
 }
-Describe -Skip 'Get-EarthRadius' {
+Describe 'Get-EarthRadius' {
   It 'can return earth radius for a given latitude' {
     $a = [CoordinateTest]::SemiMajorAxis
     $b = [CoordinateTest]::SemiMinorAxis
