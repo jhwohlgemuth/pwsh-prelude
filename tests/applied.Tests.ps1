@@ -9,8 +9,20 @@ Describe 'Constant Class' {
   }
 }
 Describe 'Coordinate Class' {
-  It 'provides immutable values' {
-
+  It 'can convert degreees to radians' {
+    $PI = [Math]::Pi
+    [CoordinateTest]::ToRadian(0) | Should -Be 0
+    [CoordinateTest]::ToRadian(90) | Should -Be ($Pi / 2)
+    [CoordinateTest]::ToRadian(180) | Should -Be $Pi
+  }
+  It 'can convert geodetic values to cartesian' {
+    [CoordinateTest]::ToCartesian(41.25, 96.0) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -501980.22547,4776022.81393,4183337.2134
+    [CoordinateTest]::ToCartesian(41.25, 96.0, 1000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502058.81413,4776770.53508,4183996.55921
+    [CoordinateTest]::ToCartesian(41.25, 96.0, 10000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502766.11207,4783500.02543,4189930.67155
+    [CoordinateTest]::ToCartesian(41.25, 96.0, 100000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -509839.09144,4850794.92896,4249271.79491
+  }
+  It -Skip 'can convert cartesian to geodetic' {
+    # under construction
   }
 }
 Describe 'ConvertTo-Degree' {
@@ -32,14 +44,16 @@ Describe 'ConvertTo-Radian' {
     0,360,720 | ConvertTo-Radian | Should -Be 0,0,0
   }
 }
-Describe 'Get-EarthRadius' {
+Describe -Skip 'Get-EarthRadius' {
   It 'can return earth radius for a given latitude' {
-    -90 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthSemiMinorAxis) -Because 'the radius is equal to semi-minor axis at the poles'
-    Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator)
-    0 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthRadiusEquator) -Because 'the radius is equal to semi-major axis at equator'
+    $a = [CoordinateTest]::SemiMajorAxis
+    $b = [CoordinateTest]::SemiMinorAxis
+    -90 | Get-EarthRadius | Should -Be $b -Because 'the radius is equal to semi-minor axis at the poles'
+    Get-EarthRadius | Should -Be $a
+    0 | Get-EarthRadius | Should -Be $a -Because 'the radius is equal to semi-major axis at the equator'
     [Math]::Round((23.437055555555556 | Get-EarthRadius), 4) | Should -Be 6374777.8209 -Because 'it is the Northern Tropic latitude'
     [Math]::Round((45 | Get-EarthRadius), 4) | Should -Be 6367489.5439
-    90 | Get-EarthRadius | Should -Be ([ConstantTest]::EarthSemiMinorAxis) -Because 'the radius is equal to semi-minor axis at the poles'
+    90 | Get-EarthRadius | Should -Be $b -Because 'the radius is equal to semi-minor axis at the poles'
   }
 }
 Describe 'Get-Extremum' {

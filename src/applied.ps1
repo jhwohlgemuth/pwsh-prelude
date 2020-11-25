@@ -81,8 +81,8 @@ function Get-EarthRadius {
     [Double] $Latitude
   )
   Process {
-    $a = [Constant]::EarthSemiMajorAxis
-    $b = [Constant]::EarthSemiMinorAxis
+    $a = [Coordinate]::SemiMajorAxis
+    $b = [Coordinate]::SemiMinorAxis
     $Beta = ConvertTo-Radian $Latitude
     [Math]::Sqrt(
       ([Math]::Pow(([Math]::Pow($a, 2) * [Math]::Cos($Beta)), 2) + [Math]::Pow(([Math]::Pow($b, 2) * [Math]::Sin($Beta)), 2)) /
