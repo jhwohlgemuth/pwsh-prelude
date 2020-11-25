@@ -47,25 +47,6 @@ function Get-ArcHaversine {
     ConvertTo-Degree ([Math]::Acos(1 - (2 * $Value)))
   }
 }
-function Get-Haversine {
-  <#
-  .SYNOPSIS
-  Return haversine of an angle
-  .DESCRIPTION
-  The Haversine is most frequently used within the Haversine formula when calculating great-circle distance between two points on a sphere.
-
-  Note: Available as static method of Prelude class - [Prelude]::Hav
-  #>
-  [CmdletBinding()]
-  [OutputType([Double])]
-  Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Double] $Degrees
-  )
-  Process {
-    0.5 * (1 - [Math]::Cos((ConvertTo-Radian $Degrees)))
-  }
-}
 function Get-EarthRadius {
   <#
   .SYNOPSIS
@@ -151,6 +132,42 @@ function Get-Factorial {
       1..$Value | Invoke-Reduce { Param($Acc,$Item) $Acc * $Item } -InitialValue 1
     }
   }
+}
+function Get-Haversine {
+  <#
+  .SYNOPSIS
+  Return haversine of an angle
+  .DESCRIPTION
+  The Haversine is most frequently used within the Haversine formula when calculating great-circle distance between two points on a sphere.
+
+  Note: Available as static method of Prelude class - [Prelude]::Hav
+  #>
+  [CmdletBinding()]
+  [OutputType([Double])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Double] $Degrees
+  )
+  Process {
+    0.5 * (1 - [Math]::Cos((ConvertTo-Radian $Degrees)))
+  }
+}
+function Get-HaversineDistance {
+  <#
+  .SYNOPSIS
+  Calculate the distance (in meters) between two geodetic coordinates on the earth using the "Haversine formula"
+  #>
+  [CmdletBinding()]
+  [OutputType([Double])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Coordinate] $From,
+    [Parameter(Mandatory=$true, Position=1)]
+    [Coordinate] $To
+  )
+  $Radius = ((Get-EarthRadius $From.Latitude) + (Get-EarthRadius $To.Latitude)) / 2
+  $Radicand = (Get-Haversine ($To.Latitude - $From.Latitude)) + (([Math]::Cos((ConvertTo-Radian $From.Latitude))) * ([Math]::Cos((ConvertTo-Radian $To.Latitude))) * (Get-Haversine ($To.Longitude - $From.Longitude)))
+  (2 * $Radius * [Math]::Asin([Math]::Sqrt($Radicand)))
 }
 function Get-LogisticSigmoid {
   <#

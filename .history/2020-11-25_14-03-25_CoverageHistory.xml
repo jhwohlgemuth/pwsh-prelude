@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<coverage version="1.0" date="2020-11-22_15-13-53" tag="">
+<coverage version="1.0" date="2020-11-25_14-03-25" tag="">
   <assembly name="src">
     <class name="src/application" coveredlines="77" coverablelines="89" totallines="368" coveredbranches="0" totalbranches="0" />
-    <class name="src/applied" coveredlines="4" coverablelines="4" totallines="68" coveredbranches="0" totalbranches="0" />
-    <class name="src/core" coveredlines="428" coverablelines="433" totallines="1663" coveredbranches="0" totalbranches="0" />
+    <class name="src/applied" coveredlines="46" coverablelines="46" totallines="308" coveredbranches="0" totalbranches="0" />
+    <class name="src/core" coveredlines="427" coverablelines="432" totallines="1574" coveredbranches="0" totalbranches="0" />
     <class name="src/data" coveredlines="38" coverablelines="38" totallines="76" coveredbranches="0" totalbranches="0" />
     <class name="src/events" coveredlines="5" coverablelines="52" totallines="196" coveredbranches="0" totalbranches="0" />
     <class name="src/matrix" coveredlines="17" coverablelines="17" totallines="146" coveredbranches="0" totalbranches="0" />
@@ -12,8 +12,9 @@
     <class name="src/web" coveredlines="58" coverablelines="134" totallines="437" coveredbranches="0" totalbranches="0" />
   </assembly>
   <assembly name="src/classes">
-    <class name="src/classes/Constant" coveredlines="4" coverablelines="8" totallines="37" coveredbranches="0" totalbranches="0" />
+    <class name="src/classes/Constant" coveredlines="3" coverablelines="7" totallines="21" coveredbranches="0" totalbranches="0" />
+    <class name="src/classes/Coordinate" coveredlines="3" coverablelines="7" totallines="105" coveredbranches="0" totalbranches="0" />
     <class name="src/classes/Matrix" coveredlines="3" coverablelines="7" totallines="146" coveredbranches="0" totalbranches="0" />
-    <class name="src/classes/Prelude" coveredlines="4" coverablelines="8" totallines="29" coveredbranches="0" totalbranches="0" />
+    <class name="src/classes/Prelude" coveredlines="3" coverablelines="7" totallines="33" coveredbranches="0" totalbranches="0" />
   </assembly>
 </coverage>

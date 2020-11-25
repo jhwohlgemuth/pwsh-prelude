@@ -9,20 +9,42 @@ Describe 'Constant Class' {
   }
 }
 Describe 'Coordinate Class' {
-  It 'can convert degreees to radians' {
-    $PI = [Math]::Pi
-    [CoordinateTest]::ToRadian(0) | Should -Be 0
-    [CoordinateTest]::ToRadian(90) | Should -Be ($Pi / 2)
-    [CoordinateTest]::ToRadian(180) | Should -Be $Pi
-  }
   It 'can convert geodetic values to cartesian' {
     [CoordinateTest]::ToCartesian(41.25, 96.0) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -501980.22547,4776022.81393,4183337.2134
     [CoordinateTest]::ToCartesian(41.25, 96.0, 1000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502058.81413,4776770.53508,4183996.55921
     [CoordinateTest]::ToCartesian(41.25, 96.0, 10000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502766.11207,4783500.02543,4189930.67155
     [CoordinateTest]::ToCartesian(41.25, 96.0, 100000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -509839.09144,4850794.92896,4249271.79491
   }
-  It -Skip 'can convert cartesian to geodetic' {
-    # under construction
+  It 'can convert cartesian to geodetic' {
+    $X = -501980.22547
+    $Y = 4776022.81393
+    $Z = 4183337.2134
+    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,0
+    $X = -502058.81413
+    $Y = 4776770.53508
+    $Z = 4183996.55921
+    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,1000
+    $X = -502766.11207
+    $Y = 4783500.02543
+    $Z = 4189930.67155
+    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,10000
+    $X = -509839.09144
+    $Y = 4850794.92896
+    $Z = 4249271.79491
+    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,100000
+    $X = -501980.22547
+    $Y = 4776022.81393
+    $Z = 4183337.2134
+    $Geodetic = [CoordinateTest]::FromCartesian($X, $Y, $Z)
+    [Math]::Round($Geodetic.Latitude, 2) | Should -Be 41.25
+    [Math]::Round($Geodetic.Longitude, 2) | Should -Be 96
+    [Math]::Round($Geodetic.Height, 2) | Should -Be 0
+  }
+  It 'can convert decimal to sexagesimal' {
+    [CoordinateTest]::ToSexagesimal(32.7157) | Should -Be 32,42,56.52
+    [CoordinateTest]::ToSexagesimal(96) | Should -Be 96,0,0
+    [CoordinateTest]::ToSexagesimal(116.7762) | Should -Be 116,46,34.32
+    [CoordinateTest]::ToSexagesimal(-116.7762) | Should -Be -116,46,34.32
   }
 }
 Describe 'ConvertTo-Degree' {
@@ -108,6 +130,15 @@ Describe 'Get-Haversine/ArcHaversine' {
     [PreludeTest]::Hav(42),
     [PreludeTest]::Hav(50),
     [PreludeTest]::Hav(77) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be 0.12843,0.17861,0.38752
+  }
+}
+Describe 'Get-HaversineDistance' {
+  It 'can calculate the distance between two points on the earth' {
+    Get-HaversineDistance -From @{} -To @{} | Should -Be 0
+    $Omaha = @{ Latitude = 41.25; Longitude = -96 }
+    $SanDiego = @{ Latitude = 32.7157; Longitude = -117.1611 }
+    [Math]::Round((Get-HaversineDistance -From $Omaha -To $SanDiego), 4) | Should -Be 2097705.7401
+    [Math]::Round(($Omaha | Get-HaversineDistance -To $SanDiego), 4) | Should -Be 2097705.7401
   }
 }
 Describe 'Get-LogisticSigmoid' {

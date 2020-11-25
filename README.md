@@ -151,6 +151,7 @@ Functions
 - `Get-File`
 - `Get-GithubOAuthToken`
 - `Get-Haversine`
+- `Get-HaversineDistance`
 - `Get-HostsContent`
 - `Get-LogisticSigmoid`
 - `Get-Maximum`
