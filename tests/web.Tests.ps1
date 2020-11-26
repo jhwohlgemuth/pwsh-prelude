@@ -83,60 +83,58 @@ Describe 'ConvertTo-QueryString' {
     @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
   }
 }
-InModuleScope pwsh-prelude {
-  Describe 'Invoke-WebRequestBasicAuth' {
-    It 'can make a simple request' {
-      Mock Invoke-WebRequest { $args }
-      $Token = 'token'
-      $Uri = 'https://example.com/'
-      $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
-      # Headers
-      $Request[1].Authorization | Should -Be "Bearer $Token"
-      # Method
-      $Request[3] | Should -Be 'Get'
-      # Uri
-      $Request[5] | Should -Be $Uri
-    }
-    It 'can make a simple request with a username and password' {
-      Mock Invoke-WebRequest { $args }
-      $Username = 'user'
-      $Token = 'token'
-      $Uri = 'https://example.com/'
-      $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
-      # Headers
-      $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
-      # Method
-      $Request[3] | Should -Be 'Get'
-      # Uri
-      $Request[5] | Should -Be $Uri
-    }
-    It 'can make a simple request with query parameters' {
-      Mock Invoke-WebRequest { $args }
-      $Token = 'token'
-      $Uri = 'https://example.com/'
-      $Query = @{ foo = 'bar' }
-      $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
-      $Request[1].Authorization | Should -Be "Bearer $Token"
-      $Request[5] | Should -Be "${Uri}?foo=bar"
-    }
-    It 'can make a simple request with URL-encoded query parameters' {
-      Mock Invoke-WebRequest { $args }
-      $Token = 'token'
-      $Uri = 'https://example.com/'
-      $Query = @{ answer = 42 }
-      $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
-      $Request[1].Authorization | Should -Be "Bearer $Token"
-      $Request[5] | Should -Be "${Uri}?answer=42"
-    }
-    It 'can make a simple PUT request' {
-      Mock Invoke-WebRequest { $args }
-      $Token = 'token'
-      $Uri = 'https://example.com/'
-      $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data @{ answer = 42 }
-      $Request[1] | Should -Match '"answer": '
-      $Request[3].Authorization | Should -Be "Bearer $Token"
-      $Request[5] | Should -Be 'Put'
-      $Request[7] | Should -Be $Uri
-    }
+Describe 'Invoke-WebRequestBasicAuth' {
+  It 'can make a simple request' {
+    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    $Token = 'token'
+    $Uri = 'https://example.com/'
+    $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
+    # Headers
+    $Request[1].Authorization | Should -Be "Bearer $Token"
+    # Method
+    $Request[3] | Should -Be 'Get'
+    # Uri
+    $Request[5] | Should -Be $Uri
+  }
+  It 'can make a simple request with a username and password' {
+    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    $Username = 'user'
+    $Token = 'token'
+    $Uri = 'https://example.com/'
+    $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
+    # Headers
+    $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
+    # Method
+    $Request[3] | Should -Be 'Get'
+    # Uri
+    $Request[5] | Should -Be $Uri
+  }
+  It 'can make a simple request with query parameters' {
+    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    $Token = 'token'
+    $Uri = 'https://example.com/'
+    $Query = @{ foo = 'bar' }
+    $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
+    $Request[1].Authorization | Should -Be "Bearer $Token"
+    $Request[5] | Should -Be "${Uri}?foo=bar"
+  }
+  It 'can make a simple request with URL-encoded query parameters' {
+    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    $Token = 'token'
+    $Uri = 'https://example.com/'
+    $Query = @{ answer = 42 }
+    $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
+    $Request[1].Authorization | Should -Be "Bearer $Token"
+    $Request[5] | Should -Be "${Uri}?answer=42"
+  }
+  It 'can make a simple PUT request' {
+    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    $Token = 'token'
+    $Uri = 'https://example.com/'
+    $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data @{ answer = 42 }
+    $Request[1] | Should -Match '"answer": '
+    $Request[3].Authorization | Should -Be "Bearer $Token"
+    $Request[5] | Should -Be 'Put'
+    $Request[7] | Should -Be $Uri
   }
 }

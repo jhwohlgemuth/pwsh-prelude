@@ -143,7 +143,30 @@ Describe 'Get-HostsContent / Update-HostsFile' {
     }
 ]
 "@
+    Remove-Item $Path
+  }
+  It 'supports WhatIf parameter' {
+    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    $Path = Join-Path $TestDrive 'hosts'
+    New-Item $Path
+    $A = @{
+      Hostname = 'home'
+      IPAddress = '127.0.0.1'
     }
+    $B = @{
+      Hostname = 'home'
+      IPAddress = '192.168.1.1'
+    }
+    $C = @{
+      Hostname = 'foo'
+      IPAddress = '127.0.0.2'
+      Comment = 'bar'
+    }
+    Update-HostsFile @A -Path $Path
+    { Update-HostsFile @B -Path $Path -WhatIf | Out-Null } | Should -not -Throw
+    { Update-HostsFile @C -Path $Path -WhatIf | Out-Null } | Should -not -Throw
+    Remove-Item $Path
+  }
 }
 Describe 'Invoke-Speak (say)' {
   It 'can passthru text without speaking' {
@@ -167,19 +190,48 @@ Describe 'New-File (touch)' {
     Remove-Item -Path .\SomeFile
   }
   It 'can create a file' {
+    Mock Write-Color {} -ModuleName 'pwsh-prelude'
     $Content = 'testing'
     '.\SomeFile' | Should -not -Exist
     New-File SomeFile
+    New-File SomeFile
+    { New-File SomeFile -WhatIf } | Should -not -Throw
     Write-Output $Content >> .\SomeFile
     '.\SomeFile' | Should -FileContentMatch $Content
   }
+  It 'supports WhatIf parameter' {
+    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    { New-File 'foo.txt' -WhatIf } | Should -not -Throw
+  }
 }
 Describe 'Remove-DirectoryForce (rf)' {
-  It 'can create a file' {
+  It 'can remove a file' {
     New-File SomeFile
     '.\SomeFile' | Should -Exist
     Remove-DirectoryForce .\SomeFile
     '.\SomeFile' | Should -Not -Exist
+  }
+  It 'can remove multiple files' {
+    $Foo = Join-Path $TestDrive 'foo.txt'
+    $Bar = Join-Path $TestDrive 'bar.txt'
+    $Baz = Join-Path $TestDrive 'baz.txt'
+    New-Item $Foo
+    New-Item $Bar
+    New-Item $Baz
+    $Foo | Should -Exist
+    $Bar | Should -Exist
+    $Baz | Should -Exist
+    $Foo,$Bar,$Baz | Remove-DirectoryForce
+    $Foo | Should -not -Exist
+    $Bar | Should -not -Exist
+    $Baz | Should -not -Exist
+  }
+  It 'supports WhatIf parameter' {
+    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    $Foo = Join-Path $TestDrive 'foo.txt'
+    New-Item $Foo
+    { Remove-DirectoryForce $Foo -WhatIf } | Should -not -Throw
+    Remove-Item $Foo
   }
 }
 Describe 'Rename-FileExtension' {
@@ -240,6 +292,15 @@ Describe 'Rename-FileExtension' {
     $Files | Rename-FileExtension -To 'post'
     Get-ChildItem -Path $TestDrive -Name "*.$ExtAfter" -File | Should -Be $Expected
     $Expected | ForEach-Object { Remove-Item (Join-Path $TestDrive $_) }
+  }
+  It 'supports WhatIf parameter' {
+    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    $Path = Join-Path $TestDrive 'foo.bar'
+    New-Item $Path
+    Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
+    { Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -txt -WhatIf } | Should -not -Throw
+    Get-ChildItem -Path $TestDrive -Name '*.txt' -File | Should -BeNullOrEmpty
+    Remove-Item (Join-Path $TestDrive 'foo.bar')
   }
 }
 Describe -Skip 'Test-Admin' {

@@ -627,21 +627,19 @@ function Remove-DirectoryForce {
   [CmdletBinding(SupportsShouldProcess=$true)]
   [Alias('rf')]
   Param(
-    [Parameter(Mandatory=$true)]
-    [String] $Name
+    [Parameter(Mandatory=$true, Position=$true, ValueFromPipeline=$true)]
+    [ValidateScript({ Test-Path $_ })]
+    [String] $Path
   )
-  $Path = Join-Path (Get-Location) $Name
-  if (Test-Path $Path) {
-    $Cleaned = Resolve-Path $Path
-    if ($PSCmdlet.ShouldProcess($Cleaned)) {
-      "==> Deleting $Cleaned" | Write-Verbose
-      Remove-Item -Path $Cleaned -Recurse
-      "==> Deleted $Cleaned" | Write-Verbose
+  Process {
+    $AbsolutePath = Resolve-Path $Path
+    if ($PSCmdlet.ShouldProcess($AbsolutePath)) {
+      "==> Deleting $AbsolutePath" | Write-Verbose
+      Remove-Item -Path $AbsolutePath -Recurse
+      "==> Deleted $AbsolutePath" | Write-Verbose
     } else {
-      "==> Would have deleted $Cleaned" | Write-Color -DarkGray
+      "==> Would have deleted $AbsolutePath" | Write-Color -DarkGray
     }
-  } else {
-    Write-Error 'Bad input. No folders/files were deleted'
   }
 }
 function Rename-FileExtension {
