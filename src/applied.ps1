@@ -237,19 +237,31 @@ function Get-Mean {
   Calculate mean (average) for list of numerical values
   .DESCRIPTION
   Specifically, this function returns the "expected value" (mean) for a discrete uniform random variable.
+  .PARAMETER Trim
+  Return "trimmed" mean where a certain number of items from the beginning and end of the sorted data are excluded from the mean.
+  Note: If this parameter value is in the range (0,1), it will be treated as a percentage.
   .EXAMPLE
   1..10 | mean
+  .EXAMPLE
+  1..10 | mean -Trim 1
   #>
   [CmdletBinding()]
   [Alias('mean')]
   Param(
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
-    [Array] $Data
+    [Array] $Data,
+    [ValidateRange(0, [Double]::PositiveInfinity)]
+    [Double] $Trim = 0
   )
   End {
     if ($Input.Count -gt 0) {
       $Data = $Input
     }
+    if ($Trim -gt 0 -and $Trim -lt 1) {
+      $Trim = [Math]::Floor($Trim * $Data.Count)
+    }
+    $Data = $Data | Sort-Object
+    $Data = $Data[$Trim..($Data.Count - 1 - $Trim)]
     ($Data | Measure-Object -Sum).Sum / $Data.Count
   }
 }

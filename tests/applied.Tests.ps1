@@ -157,6 +157,16 @@ Describe 'Get-Mean/Median' {
   It 'can calculate mean (average) for discrete uniform random variable' {
     1..10 | Get-Mean | Should -Be 5.5
     Get-Mean -Data (1..10) | Should -Be 5.5
+    1,3,4,5,6,9,14,30 | Get-Mean | Should -Be 9
+    30,4,3,1,6,9,14,5 | Get-Mean | Should -Be 9
+  }
+  It 'can calculate "trimmed" mean' {
+    1..10 | Get-Mean -Trim 0.1 | Should -Be 5.5 -Because '1..10 and 2..9 have the same mean'
+    Get-Mean -Data (1..10) -Trim 0.1 | Should -Be 5.5
+    (1..10 | Get-Mean -Trim 1),(1..10 | Get-Mean -Trim 1) | Test-Equal | Should -BeTrue -Because '10% of 10 is 1'
+    1,3,4,5,6,9,14,30 | Get-Mean -Trim 2 | Should -Be 6
+    30,4,3,1,6,9,14,5 | Get-Mean -Trim 2 | Should -Be 6
+    (30,4,3,1,6,9,14,5 | Get-Mean -Trim 2),(30,4,3,1,6,9,14,5 | Get-Mean -Trim 0.25) | Test-Equal | Should -BeTrue '25% of 8 is 2'
   }
   It 'can calculate median for discrete uniform random variable' {
     1..5 | Get-Median | Should -Be 3
