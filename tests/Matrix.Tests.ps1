@@ -41,14 +41,19 @@ Describe 'Matrix class static methods' {
     $Identity.Rows[3] | Should -Be 0,0,0,1
   }
   It 'can transpose matrices' {
-    $Matrix = [MatrixTest]::New(3)
-    $Matrix.Rows = (1..9)
-    $Transposed = [MatrixTest]::Transpose($Matrix)
+    $A = [MatrixTest]::New(3)
+    $A.Rows = (1..9)
+    $Transposed = [MatrixTest]::Transpose($A)
     $Transposed.Rows[0] | Should -Be 1,4,7
     $Transposed.Rows[1] | Should -Be 2,5,8
     $Transposed.Rows[2] | Should -Be 3,6,9
     $Original = [MatrixTest]::Transpose($Transposed)
-    $Matrix | Test-Equal $Original | Should -BeTrue
+    $A | Test-Equal $Original | Should -BeTrue
+    $A = [MatrixTest]::New(3,2)
+    $A.Rows = (1..6)
+    $T = [MatrixTest]::Transpose($A)
+    $T.Rows[0] | Should -Be 1,3,5
+    $T.Rows[1] | Should -Be 2,4,6
   }
   It 'can add two or more Matrices' {
     $A = [MatrixTest]::Identity(2)

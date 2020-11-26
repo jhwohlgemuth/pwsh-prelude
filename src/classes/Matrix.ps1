@@ -62,12 +62,12 @@ $TypeDefinition = @"
             return temp;
         }
         public static Matrix${Id} Transpose(Matrix${Id} a) {
-            var clone = a.Clone();
-            foreach (var index in clone.Indexes()) {
+            var temp = new Matrix${Id}(a.Size[1],a.Size[0]);
+            foreach (var index in a.Indexes()) {
                 int i = index[0], j = index[1];
-                clone.Rows[i][j] = a.Rows[j][i];
+                temp.Rows[j][i] = a.Rows[i][j];
             }
-            return clone;
+            return temp;
         }
         public static Matrix${Id} Add(params Matrix${Id}[] addends) {
             var size = addends[0].Size;
