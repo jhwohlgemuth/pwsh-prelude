@@ -9,6 +9,16 @@ Describe 'Constant Class' {
   }
 }
 Describe 'Coordinate Class' {
+  It 'can dynamically assign cardinal directions at constuction' {
+    $A = [CoordinateTest]::New(37, -111)
+    $A.Hemisphere | Should -Be 'N','W'
+    $A = [CoordinateTest]::New(-41.25, 96.4)
+    $A.Hemisphere | Should -Be 'S','E'
+    $A = [CoordinateTest]@{ Latitude = 37; Longitude = -111 }
+    $A.Hemisphere | Should -Be 'N','W'
+    $A = [CoordinateTest]@{ Latitude = -41; Longitude = 96.4 }
+    $A.Hemisphere | Should -Be 'S','E'
+  }
   It 'can convert geodetic values to cartesian' {
     [CoordinateTest]::ToCartesian(41.25, 96.0) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -501980.22547,4776022.81393,4183337.2134
     [CoordinateTest]::ToCartesian(41.25, 96.0, 1000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502058.81413,4776770.53508,4183996.55921

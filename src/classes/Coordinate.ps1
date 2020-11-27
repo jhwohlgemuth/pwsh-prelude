@@ -2,6 +2,8 @@
 $Id = if ($Env:ProjectName -eq 'pwsh-prelude' -and $Env:BuildSystem -eq 'Unknown') { 'Test' } else { '' }
 $TypeDefinition = @"
   using System;
+  using System.Collections.ObjectModel;
+  using System.Management.Automation;
 
   public class Coordinate${Id} {
 
@@ -15,38 +17,62 @@ $TypeDefinition = @"
     public const double Radius = 6371001;// mean radius
     public const double RadiusAuthalic = 6371007.1810;// radius constant surface area
 
-    public double Latitude;
-    public double Longitude;
+    private double _Latitude;
+    private double _Longitude;
+    private string[] _Hemisphere = new string[] { "N","E" };
+    public string[] Hemisphere {
+      get {
+        return _Hemisphere;
+      }
+      private set {
+        _Hemisphere = value;
+      }
+    }
+    public double Latitude {
+      get {
+        return _Latitude;
+      }
+      set {
+        this.Hemisphere[0] = value < 0 ? "S" : "N";
+        _Latitude = value;
+      }
+    }
+    public double Longitude {
+      get {
+        return _Longitude;
+      }
+      set {
+        this.Hemisphere[1] = value < 0 ? "W" : "E";
+        _Longitude = value;
+      }
+    }
     public double Height;
-    public string[] Hemisphere;
 
     private static double ToDegree(double value) {
-        return value * (180 / Math.PI);
+      return value * (180 / Math.PI);
     }
     private static double ToRadian(double value) {
-        return value * (Math.PI / 180);
+      return value * (Math.PI / 180);
     }
     private static double Hav(double value) {
-        return 0.5 * (1 - Math.Cos(ToRadian(value)));
+      return 0.5 * (1 - Math.Cos(ToRadian(value)));
     }
     public static double[] ToSexagesimal(double value) {
-        double fractionalPart = Math.Abs(value - Math.Truncate(value));
-        double degree = Math.Truncate(value);
-        double minute = Math.Truncate(fractionalPart * 60);
-        double second = Math.Round(((fractionalPart * 60) - minute) * 60,2);
-        return new double[] { degree,minute,second };
+      double fractionalPart = Math.Abs(value - Math.Truncate(value));
+      double degree = Math.Truncate(value);
+      double minute = Math.Truncate(fractionalPart * 60);
+      double second = Math.Round(((fractionalPart * 60) - minute) * 60,2);
+      return new double[] { degree,minute,second };
     }
     public Coordinate${Id}() {
-        this.Latitude = 0.0;
-        this.Longitude = 0.0;
-        this.Height = 0.0;
-        this.Hemisphere = new string[] { "N","E" };
+      this.Latitude = 0.0;
+      this.Longitude = 0.0;
+      this.Height = 0.0;
     }
     public Coordinate${Id}(double latitude,double longitude,double height = 0.0) {
-        this.Latitude = latitude;
-        this.Longitude = longitude;
-        this.Height = height;
-        this.Hemisphere = new string[] { (latitude < 0 ? "S" : "N"),(longitude < 0 ? "W" : "E") };
+      this.Latitude = latitude;
+      this.Longitude = longitude;
+      this.Height = height;
     }
     public static Coordinate${Id} FromCartesian(double x,double y,double z) {
         double[] geodetic = ToGeodetic(x,y,z);
