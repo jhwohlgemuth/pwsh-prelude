@@ -24,7 +24,11 @@
             <ScriptMethod>
                 <Name>Det</Name>
                 <Script>
-                    [Matrix]::Det($this)
+                    if ($this.IsSquare()) {
+                      [Matrix]::Det($this)
+                    } else {
+                      'Determinant can only be calculated for square matrices' | Write-Error
+                    }
                 </Script>
             </ScriptMethod>
             <ScriptMethod>

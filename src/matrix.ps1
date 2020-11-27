@@ -88,10 +88,10 @@ function Test-DiagonalMatrix {
     [Matrix] $Value
   )
   Process {
-    $Value.Indexes() | ForEach-Object {
+    (Test-SquareMatrix $Value) -and ($Value.Indexes() | ForEach-Object {
       $Row, $Col = $_
       ($Row -eq $Col) -or ($Value.Rows[$Row][$Col] -eq 0)
-    } | Invoke-Reduce -Every
+    } | Invoke-Reduce -Every)
   }
 }
 function Test-SquareMatrix {
@@ -138,9 +138,9 @@ function Test-SymmetricMatrix {
     [Matrix] $Value
   )
   Process {
-    0..($Value.Size[0] - 1) | ForEach-Object {
+    (Test-SquareMatrix $Value) -and (0..($Value.Size[0] - 1) | ForEach-Object {
       $Row = $_
       0..$Row | ForEach-Object { $Value.Rows[$Row][$_] -eq $Value.Rows[$_][$Row] }
-    } | Invoke-Reduce -Every
+    } | Invoke-Reduce -Every)
   }
 }
