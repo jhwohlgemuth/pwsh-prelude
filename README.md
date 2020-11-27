@@ -110,13 +110,12 @@ touch somefile.txt
 ```Powershell
 take ~/path/to/some/folder
 ```
-- Navigate folders without having to use `cd`
+- Save screenshots
 ```Powershell
-# old busted
-cd path/to/some/folder
-
-# new hotness
-path/to/some/folder
+# ...all monitors
+screenshot
+#...or just one
+2 | screenshot
 ```
 - Find duplicate files (based on hash of content)
 ```Powershell
@@ -228,10 +227,14 @@ Get-Alias | Where-Object { $_.Source -eq 'pwsh-prelude' }
 
 Type Accelerators
 -----------------
-- `[Prelude]`
-  > ***UNDER CONSTRUCTION***
+- `[Coordinate]`
+  > Class for working with geodetic and cartesian earth coordinate values.
   ```PowerShell
-  # Example code will go here
+  [Coordinate]::New(41.25, -96).ToString()
+  # 41°15'0"N 96°0'0"W
+
+  [Coordinate]::ToCartesian(41.25, -96)
+  # -501980.225469305,-4776022.81392779,4183337.21339675
   ```
 - `[Matrix]`
   > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#footnotes)</sup>
@@ -248,6 +251,14 @@ Type Accelerators
   # ...and more math
   $A = [Matrix]::Identity(3) # quickly make an identity matrix
   $A.Multiply(2) | equal $A.Add($A) # true!
+
+  # But wait, there is more!
+  # You can use the method of least squares to fit a line to some data...
+  $X = 1,-2,1,-1,1,0,1,1,1,2 | matrix 5,2
+  $Y = 0,0,1,1,3 | matrix 5,1
+  $B = $X.Transpose().Dot($X).Inverse().Dot($X.Transpose().Dot($Y))
+  # ==> The result is a 2x1 matrix with the necessary values (1 and 0.7, in this case)
+
   ```
 - `[Graph]`
   > ***UNDER CONSTRUCTION***
@@ -259,6 +270,14 @@ Type Accelerators
   ```PowerShell
   # Example code will go here
   ```
+- `[Constant]`
+  > Various constants that do not come with PowerShell
+  ```PowerShell
+  [Constant]::Euler
+  # 2.71828182845905
+  ```
+- `[Prelude]`
+  > Helper class that makes some functions available as static class methods.
 
 Type Extensions
 ---------------
