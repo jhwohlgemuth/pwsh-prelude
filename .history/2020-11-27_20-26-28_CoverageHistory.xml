@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<coverage version="1.0" date="2020-11-27_20-26-28" tag="">
+  <assembly name="src">
+    <class name="src/application" coveredlines="77" coverablelines="89" totallines="368" coveredbranches="0" totalbranches="0" />
+    <class name="src/applied" coveredlines="50" coverablelines="50" totallines="320" coveredbranches="0" totalbranches="0" />
+    <class name="src/core" coveredlines="427" coverablelines="432" totallines="1574" coveredbranches="0" totalbranches="0" />
+    <class name="src/data" coveredlines="38" coverablelines="38" totallines="76" coveredbranches="0" totalbranches="0" />
+    <class name="src/events" coveredlines="5" coverablelines="52" totallines="196" coveredbranches="0" totalbranches="0" />
+    <class name="src/matrix" coveredlines="33" coverablelines="33" totallines="171" coveredbranches="0" totalbranches="0" />
+    <class name="src/productivity" coveredlines="100" coverablelines="271" totallines="854" coveredbranches="0" totalbranches="0" />
+    <class name="src/user-interface" coveredlines="1" coverablelines="345" totallines="822" coveredbranches="0" totalbranches="0" />
+    <class name="src/web" coveredlines="58" coverablelines="134" totallines="437" coveredbranches="0" totalbranches="0" />
+  </assembly>
+  <assembly name="src/classes">
+    <class name="src/classes/Constant" coveredlines="3" coverablelines="7" totallines="21" coveredbranches="0" totalbranches="0" />
+    <class name="src/classes/Coordinate" coveredlines="3" coverablelines="7" totallines="131" coveredbranches="0" totalbranches="0" />
+    <class name="src/classes/Matrix" coveredlines="3" coverablelines="7" totallines="171" coveredbranches="0" totalbranches="0" />
+    <class name="src/classes/Prelude" coveredlines="3" coverablelines="7" totallines="33" coveredbranches="0" totalbranches="0" />
+  </assembly>
+</coverage>

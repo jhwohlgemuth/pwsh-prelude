@@ -54,17 +54,42 @@
     [Parameter(ValueFromPipeline=$true)]
     [Array] $Values,
     [Parameter(Position=0)]
-    [Array] $Size = @(2,2)
+    [Array] $Size = @(2,2),
+    [Switch] $Diagonal
   )
   Begin {
     $Matrix = [Matrix]::New($Size[0], $Size[1])
     if ($Values.Count -gt 0) {
-      $Matrix.Rows = $Values | Invoke-Flatten
+      $Values = $Values | Invoke-Flatten
+      if ($Diagonal) {
+        $Index = 0
+        $Matrix.Indexes() | ForEach-Object {
+          $Row,$Column = $_
+          if ($Row -eq $Column) {
+            $Matrix.Rows[$Row][$Column] = $Values[$Index]
+            $Index++
+          }
+        }
+      } else {
+        $Matrix.Rows = $Values
+      }
     }
   }
   End {
     if ($Input.Count -gt 0) {
-      $Matrix.Rows = $Input | Invoke-Flatten
+      $Values = $Input | Invoke-Flatten
+      if ($Diagonal) {
+        $Index = 0
+        $Matrix.Indexes() | ForEach-Object {
+          $Row,$Column = $_
+          if ($Row -eq $Column) {
+            $Matrix.Rows[$Row][$Column] = $Values[$Index]
+            $Index++
+          }
+        }
+      } else {
+        $Matrix.Rows = $Values
+      }
     }
     $Matrix
   }
