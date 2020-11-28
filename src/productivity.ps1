@@ -1,4 +1,29 @@
-﻿function Enable-Remoting {
+﻿
+function ConvertTo-PlainText {
+  <#
+  .SYNOPSIS
+  Convert SecureString value to human-readable plain text
+  #>
+  [CmdletBinding()]
+  [Alias('plain')]
+  [OutputType([String])]
+  Param(
+    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [SecureString] $Value
+  )
+  Process {
+    try {
+      $BinaryString = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Value);
+      $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BinaryString);
+    } finally {
+      if ($BinaryString -ne [IntPtr]::Zero) {
+        [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BinaryString);
+      }
+    }
+    $PlainText
+  }
+}
+function Enable-Remoting {
   <#
   .SYNOPSIS
   Function to enable Powershell remoting for workgroup computer

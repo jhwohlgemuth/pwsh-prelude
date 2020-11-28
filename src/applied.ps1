@@ -113,14 +113,16 @@ function Get-Extremum {
 function Get-Factorial {
   <#
   .SYNOPSIS
-  Return factorial of Value, Value!.
+  Return factorial of Value, Value!
   .EXAMPLE
   Get-Factorial 10
   # 3628800
-
+  .EXAMPLE
+  200 | factorial
+  # 788657867364790503552363213932185062295135977687173263294742533244359449963403342920304284011984623904177212138919638830257642790242637105061926624952829931113462857270763317237396988943922445621451664240254033291864131227428294853277524242407573903240321257405579568660226031904170324062351700858796178922222789623703897374720000000000000000000000000000000000000000000000000
   #>
   [CmdletBinding()]
-  [OutputType([Int32])]
+  [OutputType([Int])]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [Int] $Value
@@ -129,7 +131,13 @@ function Get-Factorial {
     if ($Value -eq 0) {
       1
     } else {
-      1..$Value | Invoke-Reduce { Param($Acc,$Item) $Acc * $Item } -InitialValue 1
+      1..$Value | Invoke-Reduce {
+        Param(
+          [BigInt] $Acc,
+          [BigInt] $Item
+        )
+        [BigInt]::Multiply($Acc, $Item)
+      }
     }
   }
 }
@@ -316,5 +324,224 @@ function Get-Minimum {
     if ($Input.Count -gt 0) {
       $Input | Get-Extremum -Minimum
     }
+  }
+}
+function Get-Permutation {
+  <#
+  .SYNOPSIS
+  Return permutaions of input object
+  .DESCRIPTION
+  Implements the "Steinhaus–Johnson–Trotter" algorithm that leverages adjacent transpositions ("swapping")
+  combined with lexicographic ordering in order to create a list of permutations.
+
+  In mathematical terms, the number of items return by Get-Permutation can be quantified as follows:
+
+    Get-Permutation $n ==> (Get-Factorial $n) items = P(n,n) = n!
+    Get-Permutation $n -Choose $k ==> ((Get-Factorial $n) / (Get-Factorial ($n - $k))) items = P(n,k) = n! / (n - k)!
+    Get-Permutation $n -Choose $k -Unique ==> ((Get-Factorial $n) / ((Get-Factorial $k) * (Get-Factorial ($n - $k)))) items = C(n,k) = n! / k!(n - k)!
+
+  Note: Get-Permutation will start to exhibit noticeable pause before completion for n = 7
+
+  .PARAMETER Words
+  Combine individual permutations as strings (see examples)
+  .PARAMETER Choose
+  Return permutations selected from -Choose items. For a value of "k" for Choose parameter,
+  the equivalent mathematical formula for the number items returned by "Get-Permutation n -Choose k" is: n! / (n - k)!
+  .PARAMETER Unique
+  Return only permutations that are unique up to set membership (order does not matter)
+  .EXAMPLE
+  2 | Get-Permutation
+  # @(0,1),@(1,0)
+
+  1,2 | Get-Permutation
+  # @(1,2),@(2,1)
+
+  2 | Get-Permutation -Offset 1
+  # @(1,2).@(2,1)
+
+  .EXAMPLE
+  'cat' | permute -Words
+  # 'cat','cta','tca','tac','atc','act'
+
+  .EXAMPLE
+  'hello' | permute -Choose 2 -Unique -Words
+  # 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
+
+  #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [CmdletBinding()]
+  [Alias('permute')]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Array] $InputObject,
+    [Parameter(Position=1)]
+    [Int] $Offset = 0,
+    [Int] $Choose,
+    [Switch] $Unique,
+    [Switch] $Words
+  )
+  Begin {
+    function Invoke-Swap {
+      <#
+      .SYNOPSIS
+      Swap two elements of an array
+      ==> b = (a += b -= a) - b
+      #>
+      Param(
+        [Array] $Items,
+        [Int] $Next,
+        [Int] $Current
+      )
+      $Items[$Next] = ($Items[$Current] += $Items[$Next] -= $Items[$Current]) - $Items[$Next]
+    }
+    function Test-Moveable {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Work,
+        [Parameter(Position=1)]
+        [Array] $Direction,
+        [Parameter(Position=2)]
+        [Int] $Index
+      )
+      if (($Index -eq 0 -and $Direction[$Index] -eq 0) -or ($Index -eq ($Work.Count - 1) -and $Direction[$Index] -eq 1)) {
+        return $false
+      }
+      if (($Index -gt 0) -and ($Direction[$Index] -eq 0) -and ($Work[$Index] -gt $Work[$Index - 1])) {
+        return $true
+      }
+      if ($Index -lt ($Work.Count - 1) -and ($Direction[$Index] -eq 1) -and ($Work[$Index] -gt $Work[$Index + 1])) {
+        return $true
+      }
+      if (($Index -gt 0) -and ($Index -lt $Work.Count)) {
+        if (($Direction[$Index] -eq 0 -and $Work[$Index] -gt $Work[$Index - 1]) -or ($Direction[$Index] -eq 1 -and $Work[$Index] -gt $Work[$Index + 1])) {
+          return $true
+        }
+      }
+      return $false
+    }
+    function Test-MoveableExist {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
+      [OutputType([Bool])]
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Work,
+        [Parameter(Position=1)]
+        [Array] $Direction
+      )
+      (0..($Work.Count - 1) | ForEach-Object { Test-Moveable -Work $Work -Direction $Direction -Index $_ }) -contains $true
+    }
+    function Find-LargestMoveable {
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Position')]
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
+      Param(
+        [Parameter(Position=0)]
+        [Array] $Work,
+        [Parameter(Position=1)]
+        [Array] $Direction
+      )
+      $Index = 0
+      $Work | ForEach-Object {
+        if ((Test-Moveable -Work $Work -Direction $Direction -Index $Index) -and ($Largest -lt $_)) {
+          $Largest = $_
+          $Position = $Index
+        }
+        $Index++
+      }
+      $Position
+    }
+    function Invoke-Permutation {
+      Param(
+        [Parameter(Position=0)]
+        [Int] $Value,
+        [Parameter(Position=1)]
+        [Int] $Offset,
+        [Int] $Choose,
+        [Switch] $Unique
+      )
+      $Results = [Object[]]::New((Get-Factorial $Value))
+      $Work = 0..($Value - 1) | ForEach-Object { $_ + $Offset }
+      $Direction = $Work | ForEach-Object { 0 }
+      $Step = 1
+      $Results[0] = $Work.Clone()
+      while ((Test-MoveableExist $Work $Direction)) {
+        $Current = Find-LargestMoveable $Work $Direction
+        $NextPosition = if ($Direction[$Current] -eq 0) { $Current - 1 } else { $Current + 1 }
+        Invoke-Swap -Items $Work -Next $NextPosition -Current $Current
+        Invoke-Swap -Items $Direction -Next $NextPosition -Current $Current
+        0..($Value - 1) |
+          Where-Object { $Work[$_] -gt $Work[$NextPosition] } |
+          ForEach-Object { $Direction[$_] = if ($Direction[$_] -eq 0) { 1 } else { 0 } }
+        $Results[$Step] = $Work.Clone()
+        $Step++
+      }
+      if ($Choose -gt 0) {
+        $Items = [System.Collections.ArrayList]::New()
+        $Results | ForEach-Object {
+          [Void]$Items.Add($_[0..($Choose - 1)])
+        }
+        $Results = $Items | Select-Object -Unique
+      }
+      if ($Unique) {
+        $Choices = [System.Collections.ArrayList]::New()
+        $Results | ForEach-Object {
+          $Choice = $_ | Sort-Object
+          [Void]$Choices.Add($Choice)
+        }
+        $Choices | Sort-Object -Unique
+      } else {
+        $Results
+      }
+    }
+    $GetResults = {
+      Param(
+        [Parameter(Position=0)]
+        [Array] $InputObject
+      )
+      $Count = $InputObject.Count
+      $Items = $InputObject
+      $Value = $Count
+      if ($Count -gt 0) {
+        if ($Count -eq 1) {
+          $First = $InputObject[0]
+          $Type = $First.GetType().Name
+          if ($null -ne $First -and $Type -eq 'String') {
+            $Items = $First.ToCharArray()
+            $Value = $Items.Count
+          } elseif ($Type -match 'Int') {
+            $Items = @()
+            $Value = $First
+          }
+        }
+        if ($Items.Count -gt 0) {
+          $Result = [System.Collections.ArrayList]@{}
+          $Parameters = @{
+            Value = $Value
+            Offset = 0
+            Choose = $Choose
+            Unique = $Unique
+          }
+          Invoke-Permutation @Parameters | ForEach-Object {
+            $Permutation = $Items[$_]
+            if ($Words) {
+              $Permutation = $Permutation -join ''
+            }
+            [Void]$Result.Add($Permutation)
+          }
+          $Result
+        } else {
+          $Parameters = @{
+            Value = $Value
+            Offset = $Offset
+            Choose = $Choose
+            Unique = $Unique
+          }
+          Invoke-Permutation @Parameters | Sort-Object -Property { $_ -join '' }
+        }
+      }
+    }
+    & $GetResults $InputObject
+  }
+  End {
+    & $GetResults $Input
   }
 }

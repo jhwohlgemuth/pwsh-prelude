@@ -1,5 +1,4 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
@@ -53,14 +52,6 @@ Describe 'ConvertTo-Pair' {
     @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair | Should -Be @('c','b','a'),@(3,2,1)
   }
 }
-Describe 'ConvertTo-PlainText' {
-  It 'can convert secure strings to plain text strings' {
-    $Message = 'Powershell is awesome'
-    $Secure = $Message | ConvertTo-SecureString -AsPlainText -Force
-    $Secure.ToString() | Should -Be 'System.Security.SecureString'
-    $Secure | ConvertTo-PlainText | Should -Be $Message
-  }
-}
 Describe 'Find-FirstIndex' {
   It 'can determine index of first item that satisfies default predicate' {
     Find-FirstIndex -Values $false,$true,$false | Should -Be 1
@@ -76,126 +67,6 @@ Describe 'Find-FirstIndex' {
     Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
     $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
     Find-FirstIndex -Values 2,0,0,0,2,0,0 -Predicate $Predicate | Should -Be 0
-  }
-}
-Describe 'Format-MoneyValue' {
-  It 'can convert numbers' {
-    0 | Format-MoneyValue | Should -Be '$0.00'
-    0.0 | Format-MoneyValue | Should -Be '$0.00'
-    1 | Format-MoneyValue | Should -Be '$1.00'
-    42 | Format-MoneyValue | Should -Be '$42.00'
-    42.75 | Format-MoneyValue | Should -Be '$42.75'
-    42.00 | Format-MoneyValue | Should -Be '$42.00'
-    100 | Format-MoneyValue | Should -Be '$100.00'
-    123.45 | Format-MoneyValue | Should -Be '$123.45'
-    700 | Format-MoneyValue | Should -Be '$700.00'
-    1042 | Format-MoneyValue | Should -Be '$1,042.00'
-    1255532042 | Format-MoneyValue | Should -Be '$1,255,532,042.00'
-    1042.00 | Format-MoneyValue | Should -Be '$1,042.00'
-    432565.55 | Format-MoneyValue | Should -Be '$432,565.55'
-    55000042.10 | Format-MoneyValue | Should -Be '$55,000,042.10'
-    -42 | Format-MoneyValue | Should -Be '-$42.00'
-    -42.75 | Format-MoneyValue | Should -Be '-$42.75'
-    -42.00 | Format-MoneyValue | Should -Be '-$42.00'
-    -1042.00 | Format-MoneyValue | Should -Be '-$1,042.00'
-    -55000042.10 | Format-MoneyValue | Should -Be '-$55,000,042.10'
-  }
-  It 'can convert strings' {
-    '0' | Format-MoneyValue | Should -Be '$0.00'
-    '-0' | Format-MoneyValue | Should -Be '$0.00'
-    '$100.00' | Format-MoneyValue | Should -Be '$100.00'
-    '$100' | Format-MoneyValue | Should -Be '$100.00'
-    '100' | Format-MoneyValue | Should -Be '$100.00'
-    '123.45' | Format-MoneyValue | Should -Be '$123.45'
-    '100,000,000' | Format-MoneyValue | Should -Be '$100,000,000.00'
-    '100000000.00' | Format-MoneyValue | Should -Be '$100,000,000.00'
-    '$3,100,000,000.89' | Format-MoneyValue | Should -Be '$3,100,000,000.89'
-    '524123.45' | Format-MoneyValue | Should -Be '$524,123.45'
-    '$567,123.45' | Format-MoneyValue | Should -Be '$567,123.45'
-    '-$100.00' | Format-MoneyValue | Should -Be '-$100.00'
-    '-$100' | Format-MoneyValue | Should -Be '-$100.00'
-    '-100' | Format-MoneyValue | Should -Be '-$100.00'
-  }
-  It 'can process arrays of values' {
-    1..5 | Format-MoneyValue | Should -Be '$1.00','$2.00','$3.00','$4.00','$5.00'
-    '$1.00','$2.00','$3.00','$4.00','$5.00' | Format-MoneyValue -AsNumber | Should -Be (1..5)
-  }
-  It 'can retrieve numerical values from string input' {
-    '0' | Format-MoneyValue -AsNumber | Should -Be 0
-    '-0' | Format-MoneyValue -AsNumber | Should -Be 0
-    '$100.00' | Format-MoneyValue -AsNumber | Should -Be 100
-    '$100' | Format-MoneyValue -AsNumber | Should -Be 100
-    '100' | Format-MoneyValue -AsNumber | Should -Be 100
-    '123.45' | Format-MoneyValue -AsNumber | Should -Be 123.45
-    '$123.45' | Format-MoneyValue -AsNumber | Should -Be 123.45
-    '100,000,000' | Format-MoneyValue -AsNumber | Should -Be 100000000
-    '100000000.00' | Format-MoneyValue -AsNumber | Should -Be 100000000
-    '$3,100,000,000.89' | Format-MoneyValue -AsNumber | Should -Be 3100000000.89
-    '524123.45' | Format-MoneyValue -AsNumber | Should -Be 524123.45
-    '$567,123.45' | Format-MoneyValue -AsNumber | Should -Be 567123.45
-    '-$100.00' | Format-MoneyValue -AsNumber | Should -Be -100
-    '-$100' | Format-MoneyValue -AsNumber | Should -Be -100
-    '-100' | Format-MoneyValue -AsNumber | Should -Be -100
-  }
-  It 'supports custom currency symbols' {
-    55000123.50 | Format-MoneyValue -Symbol ¥ | Should -Be '¥55,000,123.50'
-    700 | Format-MoneyValue -Symbol £ -Postfix | Should -Be '700.00£'
-    123.45 | Format-MoneyValue -Symbol £ -Postfix | Should -Be '123.45£'
-  }
-  It 'will throw an error if input is not a string or number' {
-    { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
-  }
-}
-Describe 'Get-Permutation' {
-  It 'can return permutations for a given group of items' {
-    Get-Permutation 'ab' | Should -Be @('a','b'),@('b','a')
-    Get-Permutation 'abc' | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
-    Get-Permutation 2 | Should -Be @(0,1),@(1,0)
-    Get-Permutation 2 1 | Should -Be @(1,2),@(2,1)
-    Get-Permutation 3 | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
-    Get-Permutation 3 1 | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
-    Get-Permutation 1,2,3 | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
-    Get-Permutation 4 | Select-Object -First 10 | Should -Be @(0,1,2,3),@(0,1,3,2),@(0,2,1,3),@(0,2,3,1),@(0,3,1,2),@(0,3,2,1),@(1,0,2,3),@(1,0,3,2),@(1,2,0,3),@(1,2,3,0)
-  }
-  It 'can return permutations for a given group of items via pipeline' {
-    'ab' | Get-Permutation | Should -Be @('a','b'),@('b','a')
-    'abc' | Get-Permutation | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
-    'foo','bar' | Get-Permutation | Should -Be @('foo','bar'),@('bar','foo')
-    2 | Get-Permutation| Should -Be @(0,1),@(1,0)
-    2 | Get-Permutation -Offset 1 | Should -Be @(1,2),@(2,1)
-    3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
-    1,2,3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
-  }
-  It 'can can string concatenate output' {
-    'cat' | Get-Permutation -Words | Should -Be 'cat','cta','tca','tac','atc','act'
-    'foo','bar' | Get-Permutation -Words | Should -Be @('foobar'),@('barfoo')
-    1..3 | Get-Permutation -Words | Should -Be '123','132','312','321','231','213'
-  }
-  It 'can handle null values' {
-    $Permutations = $null,1,3 | Get-Permutation
-    $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
-    $Permutations | Should -HaveCount 6
-    $Permutations = 1,$null,3 | Get-Permutation
-    $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
-    $Permutations | Should -HaveCount 6
-  }
-  It 'can return k-permutations' {
-    1..3 | Get-Permutation -Choose 1 | Should -Be @(1),@(3),@(2)
-    1..3 | Get-Permutation -Choose 2 | Should -Be @(1,2),@(1,3),@(3,1),@(3,2),@(2,3),@(2,1)
-    1..3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
-    3 | Get-Permutation -Choose 1 | Should -Be @(0),@(1),@(2)
-    3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
-    'cat' | Get-Permutation -Choose 2 -Words | Should -Be 'ca','ct','tc','ta','at','ac'
-  }
-  It 'can return k-permutations with unique elements (combinations)' {
-    $Results = 1..3 | Get-Permutation -Unique
-    $Results -join '' | Should -Be '123' -Because 'combinations count by membership, not order'
-    1..3 | Get-Permutation -Choose 2 -Unique | Should -Be @(1,2),@(1,3),@(2,3) -Because 'combinations count by membership, not order'
-    3 | Get-Permutation -Choose 2 -Unique | Should -Be @(0,1),@(0,2),@(1,2) -Because 'combinations count by membership, not order'
-    # 6 | Get-Permutation -Choose 4 -Unique | Should -HaveCount 15 -Because 'the number of items returned obeys a simple formula'
-    'cat' | Get-Permutation -Choose 2 -Unique -Words | Should -Be 'ca','ct','at'
-    'hello' | Get-Permutation -Choose 2 -Unique -Words | Should -Be 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
-    'hello' | Get-Permutation -Choose 3 -Unique -Words | Should -Be 'hel','hel','heo','hll','hlo','hlo','ell','elo','elo','llo'
   }
 }
 Describe 'Get-Property' {

@@ -129,6 +129,12 @@ Describe 'Get-Factorial' {
     Get-Factorial 2 | Should -Be 2
     Get-Factorial 10 | Should -Be 3628800
   }
+  It 'can calculate n! for large n values (n = 200)' {
+    $Value = [BigInt]::Parse('788657867364790503552363213932185062295135977687173263294742533244359449963403342920304284011984623904177212138919638830257642790242637105061926624952829931113462857270763317237396988943922445621451664240254033291864131227428294853277524242407573903240321257405579568660226031904170324062351700858796178922222789623703897374720000000000000000000000000000000000000000000000000')
+    $Result = 200 | Get-Factorial
+    $Result | Should -Be $Value
+    $Result.GetType().Name | Should -Be 'BigInteger'
+  }
 }
 Describe 'Get-Haversine/ArcHaversine' {
   It 'should return a value in the range [0..1]' {
@@ -185,5 +191,57 @@ Describe 'Get-Mean/Median' {
     19,3,6,7,1,9,2,5,4,8 | Get-Median | Should -Be 5.5
     Get-Median -Data (1..5) | Should -Be 3
     Get-Median -Data (1..10) | Should -Be 5.5
+  }
+}
+Describe 'Get-Permutation' {
+  It 'can return permutations for a given group of items' {
+    Get-Permutation 'ab' | Should -Be @('a','b'),@('b','a')
+    Get-Permutation 'abc' | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
+    Get-Permutation 2 | Should -Be @(0,1),@(1,0)
+    Get-Permutation 2 1 | Should -Be @(1,2),@(2,1)
+    Get-Permutation 3 | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
+    Get-Permutation 3 1 | Should -Be @(1,2,3),@(1,3,2),@(2,1,3),@(2,3,1),@(3,1,2),@(3,2,1)
+    Get-Permutation 1,2,3 | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
+    Get-Permutation 4 | Select-Object -First 10 | Should -Be @(0,1,2,3),@(0,1,3,2),@(0,2,1,3),@(0,2,3,1),@(0,3,1,2),@(0,3,2,1),@(1,0,2,3),@(1,0,3,2),@(1,2,0,3),@(1,2,3,0)
+  }
+  It 'can return permutations for a given group of items via pipeline' {
+    'ab' | Get-Permutation | Should -Be @('a','b'),@('b','a')
+    'abc' | Get-Permutation | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
+    'foo','bar' | Get-Permutation | Should -Be @('foo','bar'),@('bar','foo')
+    2 | Get-Permutation| Should -Be @(0,1),@(1,0)
+    2 | Get-Permutation -Offset 1 | Should -Be @(1,2),@(2,1)
+    3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
+    1,2,3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
+  }
+  It 'can can string concatenate output' {
+    'cat' | Get-Permutation -Words | Should -Be 'cat','cta','tca','tac','atc','act'
+    'foo','bar' | Get-Permutation -Words | Should -Be @('foobar'),@('barfoo')
+    1..3 | Get-Permutation -Words | Should -Be '123','132','312','321','231','213'
+  }
+  It 'can handle null values' {
+    $Permutations = $null,1,3 | Get-Permutation
+    $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
+    $Permutations | Should -HaveCount 6
+    $Permutations = 1,$null,3 | Get-Permutation
+    $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
+    $Permutations | Should -HaveCount 6
+  }
+  It 'can return k-permutations' {
+    1..3 | Get-Permutation -Choose 1 | Should -Be @(1),@(3),@(2)
+    1..3 | Get-Permutation -Choose 2 | Should -Be @(1,2),@(1,3),@(3,1),@(3,2),@(2,3),@(2,1)
+    1..3 | Get-Permutation | Should -Be @(1,2,3),@(1,3,2),@(3,1,2),@(3,2,1),@(2,3,1),@(2,1,3)
+    3 | Get-Permutation -Choose 1 | Should -Be @(0),@(1),@(2)
+    3 | Get-Permutation | Should -Be @(0,1,2),@(0,2,1),@(1,0,2),@(1,2,0),@(2,0,1),@(2,1,0)
+    'cat' | Get-Permutation -Choose 2 -Words | Should -Be 'ca','ct','tc','ta','at','ac'
+  }
+  It 'can return k-permutations with unique elements (combinations)' {
+    $Results = 1..3 | Get-Permutation -Unique
+    $Results -join '' | Should -Be '123' -Because 'combinations count by membership, not order'
+    1..3 | Get-Permutation -Choose 2 -Unique | Should -Be @(1,2),@(1,3),@(2,3) -Because 'combinations count by membership, not order'
+    3 | Get-Permutation -Choose 2 -Unique | Should -Be @(0,1),@(0,2),@(1,2) -Because 'combinations count by membership, not order'
+    # 6 | Get-Permutation -Choose 4 -Unique | Should -HaveCount 15 -Because 'the number of items returned obeys a simple formula'
+    'cat' | Get-Permutation -Choose 2 -Unique -Words | Should -Be 'ca','ct','at'
+    'hello' | Get-Permutation -Choose 2 -Unique -Words | Should -Be 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
+    'hello' | Get-Permutation -Choose 3 -Unique -Words | Should -Be 'hel','hel','heo','hll','hlo','hlo','ell','elo','elo','llo'
   }
 }

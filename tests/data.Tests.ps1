@@ -7,6 +7,74 @@ $ExcelSupported = try {
   $false
 }
 
+Describe 'Format-MoneyValue' {
+  It 'can convert numbers' {
+    0 | Format-MoneyValue | Should -Be '$0.00'
+    0.0 | Format-MoneyValue | Should -Be '$0.00'
+    1 | Format-MoneyValue | Should -Be '$1.00'
+    42 | Format-MoneyValue | Should -Be '$42.00'
+    42.75 | Format-MoneyValue | Should -Be '$42.75'
+    42.00 | Format-MoneyValue | Should -Be '$42.00'
+    100 | Format-MoneyValue | Should -Be '$100.00'
+    123.45 | Format-MoneyValue | Should -Be '$123.45'
+    700 | Format-MoneyValue | Should -Be '$700.00'
+    1042 | Format-MoneyValue | Should -Be '$1,042.00'
+    1255532042 | Format-MoneyValue | Should -Be '$1,255,532,042.00'
+    1042.00 | Format-MoneyValue | Should -Be '$1,042.00'
+    432565.55 | Format-MoneyValue | Should -Be '$432,565.55'
+    55000042.10 | Format-MoneyValue | Should -Be '$55,000,042.10'
+    -42 | Format-MoneyValue | Should -Be '-$42.00'
+    -42.75 | Format-MoneyValue | Should -Be '-$42.75'
+    -42.00 | Format-MoneyValue | Should -Be '-$42.00'
+    -1042.00 | Format-MoneyValue | Should -Be '-$1,042.00'
+    -55000042.10 | Format-MoneyValue | Should -Be '-$55,000,042.10'
+  }
+  It 'can convert strings' {
+    '0' | Format-MoneyValue | Should -Be '$0.00'
+    '-0' | Format-MoneyValue | Should -Be '$0.00'
+    '$100.00' | Format-MoneyValue | Should -Be '$100.00'
+    '$100' | Format-MoneyValue | Should -Be '$100.00'
+    '100' | Format-MoneyValue | Should -Be '$100.00'
+    '123.45' | Format-MoneyValue | Should -Be '$123.45'
+    '100,000,000' | Format-MoneyValue | Should -Be '$100,000,000.00'
+    '100000000.00' | Format-MoneyValue | Should -Be '$100,000,000.00'
+    '$3,100,000,000.89' | Format-MoneyValue | Should -Be '$3,100,000,000.89'
+    '524123.45' | Format-MoneyValue | Should -Be '$524,123.45'
+    '$567,123.45' | Format-MoneyValue | Should -Be '$567,123.45'
+    '-$100.00' | Format-MoneyValue | Should -Be '-$100.00'
+    '-$100' | Format-MoneyValue | Should -Be '-$100.00'
+    '-100' | Format-MoneyValue | Should -Be '-$100.00'
+  }
+  It 'can process arrays of values' {
+    1..5 | Format-MoneyValue | Should -Be '$1.00','$2.00','$3.00','$4.00','$5.00'
+    '$1.00','$2.00','$3.00','$4.00','$5.00' | Format-MoneyValue -AsNumber | Should -Be (1..5)
+  }
+  It 'can retrieve numerical values from string input' {
+    '0' | Format-MoneyValue -AsNumber | Should -Be 0
+    '-0' | Format-MoneyValue -AsNumber | Should -Be 0
+    '$100.00' | Format-MoneyValue -AsNumber | Should -Be 100
+    '$100' | Format-MoneyValue -AsNumber | Should -Be 100
+    '100' | Format-MoneyValue -AsNumber | Should -Be 100
+    '123.45' | Format-MoneyValue -AsNumber | Should -Be 123.45
+    '$123.45' | Format-MoneyValue -AsNumber | Should -Be 123.45
+    '100,000,000' | Format-MoneyValue -AsNumber | Should -Be 100000000
+    '100000000.00' | Format-MoneyValue -AsNumber | Should -Be 100000000
+    '$3,100,000,000.89' | Format-MoneyValue -AsNumber | Should -Be 3100000000.89
+    '524123.45' | Format-MoneyValue -AsNumber | Should -Be 524123.45
+    '$567,123.45' | Format-MoneyValue -AsNumber | Should -Be 567123.45
+    '-$100.00' | Format-MoneyValue -AsNumber | Should -Be -100
+    '-$100' | Format-MoneyValue -AsNumber | Should -Be -100
+    '-100' | Format-MoneyValue -AsNumber | Should -Be -100
+  }
+  It 'supports custom currency symbols' {
+    55000123.50 | Format-MoneyValue -Symbol ¥ | Should -Be '¥55,000,123.50'
+    700 | Format-MoneyValue -Symbol £ -Postfix | Should -Be '700.00£'
+    123.45 | Format-MoneyValue -Symbol £ -Postfix | Should -Be '123.45£'
+  }
+  It 'will throw an error if input is not a string or number' {
+    { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
+  }
+}
 Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
   It 'will import first worksheet by default' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'

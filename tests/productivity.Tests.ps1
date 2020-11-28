@@ -1,10 +1,19 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:foo')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:bar')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', 'Global:baz')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
+Describe 'ConvertTo-PlainText' {
+  It 'can convert secure strings to plain text strings' {
+    $Message = 'Powershell is awesome'
+    $Secure = $Message | ConvertTo-SecureString -AsPlainText -Force
+    $Secure.ToString() | Should -Be 'System.Security.SecureString'
+    $Secure | ConvertTo-PlainText | Should -Be $Message
+  }
+}
 Describe 'Find-Duplicates' {
   It 'can identify duplicate files' {
     $Same = 'these files have identical content'
