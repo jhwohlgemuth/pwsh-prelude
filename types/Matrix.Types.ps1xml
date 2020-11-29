@@ -27,7 +27,7 @@
                     if ($this.IsSquare()) {
                       [Matrix]::Det($this)
                     } else {
-                      'Determinant can only be calculated for square matrices' | Write-Error
+                      'ERROR: Determinant can only be calculated for square matrices' | Write-Color -Red
                     }
                 </Script>
             </ScriptMethod>
