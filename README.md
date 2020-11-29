@@ -31,8 +31,8 @@ Install-Module -Name pwsh-prelude
 Import-Module -Name pwsh-prelude
 ```
 
-Things You Could Do With Prelude
---------------------------------
+Things You Can Do With Prelude
+------------------------------
 > Although `pwsh-prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
 - List all permutations of a word
 ```Powershell
