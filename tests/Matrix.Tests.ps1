@@ -167,6 +167,11 @@ Describe 'Matrix class static methods' {
     $Inverse.Rows[2] | Should -Be 3.5,-1.5,-0.5
     [MatrixTest]::Dot($A,$Inverse) | Test-Equal ([MatrixTest]::Identity(3)) | Should -BeTrue -Because 'the dot product of a matrix and its inverse is the identity matrix'
   }
+  It 'can return the trace of a matrix' {
+    $A = [MatrixTest]::New(3);
+    $A.Rows = 1..9
+    [MatrixTest]::Trace($A) | Should -Be 15
+  }
 }
 Describe 'Matrix class instance' {
   It 'does not allow for setting matrix Size' {

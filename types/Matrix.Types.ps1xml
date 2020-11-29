@@ -68,6 +68,12 @@
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
+                <Name>Trace</Name>
+                <Script>
+                    [Matrix]::Trace($this)
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Transpose</Name>
                 <Script>
                     [Matrix]::Transpose($this)

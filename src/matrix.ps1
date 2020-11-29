@@ -37,6 +37,8 @@
   Transpose: Return matrix transpose
   > Note: Available as a class method - [Matrix]::Transpose
 
+  Trace: Return matrix trace (sum of diagonal elements)
+  > Note: Available as a class method - [Matrix]::Trace
 
   *** All methods that return a [Matrix] object provide a "fluent" interface and can be chained ***
 

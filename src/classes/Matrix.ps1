@@ -127,6 +127,16 @@ $TypeDefinition = @"
             }
             return clone;
         }
+        public static double Trace(Matrix${Id} a) {
+            double trace = 0;
+            foreach (var index in a.Indexes()) {
+                int i = index[0], j = index[1];
+                if (i == j) {
+                    trace += a.Rows[i][j];
+                }
+            }
+            return trace;
+        }
         public Matrix${Id} Clone() {
             Matrix${Id} original = this;
             int rows = original.Size[0], cols = original.Size[1];
