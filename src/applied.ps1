@@ -259,7 +259,8 @@ function Get-Mean {
     [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
     [Array] $Data,
     [ValidateRange(0, [Double]::PositiveInfinity)]
-    [Double] $Trim = 0
+    [Double] $Trim = 0,
+    [Array] $Weight
   )
   End {
     if ($Input.Count -gt 0) {
@@ -270,7 +271,7 @@ function Get-Mean {
     }
     $Data = $Data | Sort-Object
     $Data = $Data[$Trim..($Data.Count - 1 - $Trim)]
-    ($Data | Measure-Object -Sum).Sum / $Data.Count
+    ($Data | Get-Sum -Weight $Weight) / $Data.Count
   }
 }
 function Get-Median {
@@ -543,5 +544,39 @@ function Get-Permutation {
   }
   End {
     & $GetResults $Input
+  }
+}
+function Get-Sum {
+  [CmdletBinding()]
+  [Alias('sum')]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Array] $Values,
+    [Parameter(Position=1)]
+    [Array] $Weight
+  )
+  Begin {
+    if ($Values.Count -gt 0) {
+      if ($Weight.Count -eq $Values.Count) {
+        $Size = $Values.Count
+        $X = $Values | New-Matrix -Size 1,$Size
+        $W = $Weight | New-Matrix -Size $Size,$Size -Diagonal
+        $Values = [Matrix]::Dot($X, $W).Rows[0]
+      }
+      ($Values | Measure-Object -Sum).Sum
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      if ($Weight.Count -eq $Input.Count) {
+        $Size = $Input.Count
+        $X = $Input | New-Matrix -Size 1,$Size
+        $W = $Weight | New-Matrix -Size $Size,$Size -Diagonal
+        $Values = [Matrix]::Dot($X, $W).Rows[0]
+      } else {
+        $Values = $Input
+      }
+      ($Values | Measure-Object -Sum).Sum
+    }
   }
 }
