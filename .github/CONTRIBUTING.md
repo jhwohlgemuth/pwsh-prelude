@@ -23,12 +23,20 @@ Project Architecture
 --------------------
 
 The main module file, [pwsh-prelude.psm1](../pwsh-prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
+- `classes/`
+  - `Constant.ps1`: Container class for constant values
+  - `Coordinate.ps1`: Data type for working with geodetic data values
+  - `Matrix.ps1`: Data type for working with "rectangular" data values
+  - `Prelude.ps1`: Container class for utility methods and elements that are difficult to categorize
+- `application.ps1`: Collection of functions that can be used to create a PowerShell command line application
+- `applied.ps1`: Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
 - `core.ps1`: Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
+- `data.ps1`: Functions for ingesting and converting data
 - `events.ps1`: Functions needed for event-driven operations (inspired by `Backbone.Events`)
-- `user-interface.ps1`: Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
+- `matrix.ps1`: Helper functions for using `[Matrix]` objects
 - `productivity.ps1`: A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
+- `user-interface.ps1`: Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
 - `web.ps1`: Functions for working with web technology
-- `override.ps1`: Functions that "clobber" existing functions like `Out-Default` (which enables one to omit `cd` when changing directories)
 
 Project Setup
 -------------
@@ -53,7 +61,7 @@ Project Standards
 - Running `./build.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
 - Running `./build.ps1 -Test` should have no failures (local and [CI](https://travis-ci.com/github/jhwohlgemuth/pwsh-prelude))
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
-- Beyond the rules identified by `./build.ps1 -Lint`, all code additions should adhere to the following:
+- Beyond the rules identified by `./build.ps1 -Lint`<sup>[[1]](#footnotes)</sup>, all code additions should adhere to the following:
   - Use two-spaces for indentation
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
@@ -101,3 +109,7 @@ Project Standards
     }
     ```
   - When in doubt, write code that is consistent with preponderance of existing codebase. Let's call this the "priority of pre-existing preponderance rule".
+
+Footnotes
+---------
+> **[1]** `.\build.ps1 -Lint` uses the [built-in PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules) ***and*** custom rules contained within [`.\rule.psm1`](..\rule.psm1)
