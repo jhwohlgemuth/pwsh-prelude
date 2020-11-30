@@ -1,4 +1,6 @@
-﻿Set-BuildEnvironment -VariableNamePrefix '' -Force
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
+Param()
+Set-BuildEnvironment -VariableNamePrefix '' -Force
 if (Get-Module -Name $Env:ProjectName) {
   Remove-Module -Name $Env:ProjectName
 }

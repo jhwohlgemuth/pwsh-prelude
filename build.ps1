@@ -1,4 +1,5 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+﻿#Requires -Modules BuildHelpers,pester
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [CmdletBinding()]
 Param(
   [Switch] $Lint,
@@ -11,7 +12,6 @@ Param(
   [Switch] $Major,
   [Switch] $Minor
 )
-Import-Module BuildHelpers
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
 function Invoke-Lint {
@@ -26,16 +26,23 @@ function Invoke-Lint {
       'PSUseProcessBlockForPipelineCommand'
       'PSUseShouldProcessForStateChangingFunctions'
     )
+    CustomRulePath = (Join-Path $PSScriptRoot 'rule.psm1').ToString()
   }
-  Invoke-ScriptAnalyzer -Path $PSScriptRoot -Settings $Settings -Fix -EnableExit:$CI -ReportSummary -Recurse
+  $Parameters = @{
+    Path = $PSScriptRoot
+    Settings = $Settings
+    IncludeDefaultRules = $true
+    Fix = $true
+    EnableExit = $CI
+    ReportSummary = $true
+    Recurse = $true
+  }
+  Invoke-ScriptAnalyzer @Parameters
   '' | Write-Output
 }
 function Invoke-Test {
   [CmdletBinding()]
   Param()
-  if (-not (Get-Module -Name Pester)) {
-    Import-Module -Name Pester
-  }
   $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
   if ($WithCoverage) {
     '==> Executing tests with coverage' | Write-Output
