@@ -555,9 +555,9 @@ function New-SshKey {
   Param(
     [String] $Name = 'id_rsa'
   )
-  Write-Verbose '==> Generating SSH key pair'
-  $Path = "~/.ssh/$Name"
-  ssh-keygen --% -q -b 4096 -t rsa -N '' -f TEMPORARY_FILE_NAME
+  Write-Verbose '==> Generating SSH key pair (Passphrase = 123456)'
+  $Path = (Resolve-Path "~/.ssh/$Name").Path
+  ssh-keygen --% -q -b 4096 -t rsa -N '123456' -f TEMPORARY_FILE_NAME
   Move-Item -Path TEMPORARY_FILE_NAME -Destination $Path
   Move-Item -Path TEMPORARY_FILE_NAME.pub -Destination "$Path.pub"
   if (Test-Path "$Path.pub") {
