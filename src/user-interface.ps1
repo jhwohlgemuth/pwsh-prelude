@@ -328,7 +328,7 @@ function Invoke-Menu {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '')]
   [CmdletBinding()]
   [Alias('menu')]
-  Param (
+  Param(
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [Array] $Items,
     [Switch] $MultiSelect,
@@ -343,7 +343,7 @@ function Invoke-Menu {
     function Invoke-MenuDraw {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
       [CmdletBinding()]
-      Param (
+      Param(
         [Array] $Items,
         [Int] $Position,
         [Array] $Selection,
@@ -384,7 +384,7 @@ function Invoke-Menu {
     function Update-MenuSelection {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SingleSelect')]
       [CmdletBinding()]
-      Param (
+      Param(
         [Int] $Position,
         [Array] $Selection,
         [Switch] $MultiSelect,

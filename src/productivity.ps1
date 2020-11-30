@@ -129,7 +129,7 @@ function Get-HostsContent {
   #>
   [CmdletBinding()]
   [OutputType([String])]
-  Param (
+  Param(
     [ValidateScript({Test-Path $_})]
     [Parameter(Position=0, ValueFromPipeline=$true)]
     [String] $Path = (Join-Path $Env:SystemRoot 'System32\drivers\etc\hosts')
@@ -795,7 +795,7 @@ function Update-HostsFile {
 
   #>
   [CmdletBinding(SupportsShouldProcess=$true)]
-  Param (
+  Param(
     [Parameter(Mandatory=$true, Position=0)]
     [Alias('IP')]
     [Net.IpAddress] $IPAddress,

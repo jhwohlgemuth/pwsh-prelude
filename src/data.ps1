@@ -104,7 +104,7 @@ function Import-Excel {
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
   [CmdletBinding()]
   [OutputType([System.Collections.Hashtable])]
-  Param (
+  Param(
     [Parameter(Mandatory=$true)]
     [String] $Path,
     [String] $WorksheetName,

@@ -95,7 +95,7 @@ function Get-Extremum {
   )
   Begin {
     function Invoke-GetExtremum {
-      param (
+      Param(
         [Parameter(Position=0)]
         [Array] $Values
       )

@@ -1,17 +1,27 @@
 function Measure-ParamPascalCase {
   <#
   .SYNOPSIS
-  Name of your rule.
+  Param block keyword should be PascalCase.
   .DESCRIPTION
-  This would be the description of your rule. Please refer to Rule Documentation for consistent rule messages.
+  The "p" of "param" should be capitalized.
   .EXAMPLE
+  # BAD
+  param()
+
+  #GOOD
+  Param()
+
   .INPUTS
+  [System.Management.Automation.Language.ScriptBlockAst]
   .OUTPUTS
+  [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]
   .NOTES
+  Reference: Personal preference
+  Note: Whether you prefer PascalCase or otherwise, consistency is what matters most.
   #>
   [CmdletBinding()]
   [OutputType([Object[]])]
-  Param (
+  Param(
     [Parameter(Mandatory=$true)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
@@ -23,15 +33,18 @@ function Measure-ParamPascalCase {
         Param(
           [System.Management.Automation.Language.Ast] $Ast
         )
-        $Ast -is [System.Management.Automation.Language.ParamBlockAst] -and -not ($Ast.ToString() -cmatch 'Param')
+        ($Ast -is [System.Management.Automation.Language.ParamBlockAst]) -and -not ($Ast.Extent.Text -cmatch 'Param\s*\(')
       }
-      $ScriptBlockAst.FindAll($Predicate, $true) | ForEach-Object {
+      $Violations = $ScriptBlockAst.FindAll($Predicate, $false)
+      $Count = 0
+      foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Param blocks should be Pascal Case (i.e. "param()" should be "Param()")'
+          Message  = 'Param block keyword should be PascalCase.'
           RuleName = 'ParamPascalCase'
           Severity = 'Warning'
-          Extent   = $_.Extent
+          Extent   = $Violation.Extent
         }
+        $Count++
       }
       return $Results
     } catch {
@@ -52,7 +65,7 @@ function Measure-UseRequiresDirective {
   #>
   [CmdletBinding()]
   [OutputType([Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]])]
-  Param (
+  Param(
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
@@ -62,10 +75,10 @@ function Measure-UseRequiresDirective {
     $Message = 'The #Requires statement prevents a script from running unless the Windows PowerShell version, modules, snap-ins, and module and snap-in version prerequisites are met. To fix a violation of this rule, please consider to use #Requires -RunAsAdministrator instead of using Import-Module'
     try {
       [ScriptBlock]$predicate = {
-        Param (
+        Param(
           [System.Management.Automation.Language.Ast] $Ast
         )
-        [bool]$returnValue = $false
+        [Bool]$returnValue = $false
         if ($Ast -is [System.Management.Automation.Language.CommandAst]) {
           [System.Management.Automation.Language.CommandAst]$cmdAst = $Ast;
           if ($null -ne $cmdAst.GetCommandName()) {
