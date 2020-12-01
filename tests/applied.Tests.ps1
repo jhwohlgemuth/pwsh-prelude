@@ -2,8 +2,6 @@
 
 Describe 'Constant Class' {
   It 'provides immutable values' {
-    [Math]::Round([ConstantTest]::Euler, 3) | Should -Be 2.718
-    { [ConstantTest]::Euler = 5 } | Should -Throw -Because 'constants are immutable'
     [Math]::Round([ConstantTest]::Phi, 3) | Should -Be 1.618
     { [ConstantTest]::Phi = 5 } | Should -Throw -Because 'constants are immutable'
   }
@@ -175,6 +173,8 @@ Describe 'Get-Mean/Median' {
     Get-Mean -Data (1..10) | Should -Be 5.5
     1,3,4,5,6,9,14,30 | Get-Mean | Should -Be 9
     30,4,3,1,6,9,14,5 | Get-Mean | Should -Be 9
+    $Population = 4779736,710231,6392017,2915918,37253956,5029196,3574097,897934
+    $Population | Get-Mean | Should -Be 7694135.625
   }
   It 'can calculate "trimmed" mean' {
     1..10 | Get-Mean -Trim 0.1 | Should -Be 5.5 -Because '1..10 and 2..9 have the same mean'
@@ -255,5 +255,25 @@ Describe 'Get-Sum' {
   It 'can return the weighted sum of a list of numbers' {
     1,1,1,1,1 | Get-Sum -Weight 1,2,3,4,5 | Should -Be 15
     Get-Sum -Values 1,1,1,1,1 -Weight 1,2,3,4,5 | Should -Be 15
+  }
+}
+Describe 'Get-Variance / Get-Covariance' {
+  It 'can return variance for discrete uniform random variable' {
+    $X = 1..10
+    $Biased = $X | Get-Variance
+    $Unbiased = [Math]::Round(($X | Get-Variance -Sample), 2)
+    $Biased | Should -Be 8.25
+    $Unbiased | Should -Be 9.17
+    [Math]::Round((($Unbiased * ($X.Count - 1)) / $X.Count), 2) | Should -Be $Biased
+    Get-Variance $X | Should -Be 8.25
+    [Math]::Round((Get-Variance $X -Sample), 2) | Should -Be 9.17
+  }
+  It 'can return coovariance of two discrete uniform random variables' {
+    $X = 1..5
+    $X,$X | Get-Covariance | Should -Be (Get-Variance $X) -Because 'Cov(x,x) = Var(x)'
+    Get-Covariance $X,$X | Should -Be (Get-Variance $X) -Because 'Cov(x,x) = Var(x)'
+    $X = 1692,1978,1884,2151,2519
+    $Y = 68,102,110,112,154
+    $X,$Y | Get-Covariance -Sample | Should -Be 9107.30
   }
 }

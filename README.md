@@ -144,6 +144,7 @@ Functions
 - `Find-FirstIndex`
 - `Format-MoneyValue`
 - `Get-ArcHaversine`
+- `Get-Covariance`
 - `Get-EarthRadius`
 - `Get-Extremum`
 - `Get-Factorial`
@@ -159,6 +160,7 @@ Functions
 - `Get-Permutation`
 - `Get-Screenshot`
 - `Get-State`
+- `Get-Variance`
 - `Import-Excel`
 - `Import-Html` <sup>[[3]](#footnotes)</sup>
 - `Install-SshServer` <sup>[[3]](#footnotes)</sup>

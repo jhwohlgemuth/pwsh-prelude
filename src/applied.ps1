@@ -47,6 +47,46 @@ function Get-ArcHaversine {
     ConvertTo-Degree ([Math]::Acos(1 - (2 * $Value)))
   }
 }
+function Get-Covariance {
+  <#
+  .SYNOPSIS
+  Return covariance of two discrete uniform random variables
+  .DESCRIPTION
+  Covariance measures the total variation of two random variables from their expected values.
+  Using covariance, we can only gauge the direction of the relationship (whether the variables tend to move in tandem or show an inverse relationship).
+  However, it does not indicate the strength of the relationship, nor the dependency between the variables.
+
+  To measure the strength and relationship between variables, calculate correlation.
+
+  .PARAMETER Sample
+  Divide by ($Data.Count - 1) instead of $Data.Count. Reasearch "degrees of freedom" for more information. May also be referred to as "unbiased".
+  .EXAMPLE
+  $X = 1692,1978,1884,2151,2519
+  $Y = 68,102,110,112,154
+  $X,$Y | Get-Covariance -Sample
+  #>
+  [CmdletBinding()]
+  [Alias('covariance')]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Array] $Data,
+    [Switch] $Sample
+  )
+  End {
+    $Values = if ($Input.Count -eq 2) { $Input } else { $Data }
+    $X,$Y = $Values
+    $MeanX = Get-Mean $X
+    $MeanY = Get-Mean $Y
+    $ResidualX = $X | ForEach-Object { $_ - $MeanX }
+    $ResidualY = $Y | ForEach-Object { $_ - $MeanY }
+    $Values = $ResidualX,$ResidualY | Invoke-Zip | ForEach-Object { $_[0] * $_[1] }
+    if ($Sample) {
+      ($Values | Get-Sum) / ($Values.Count - 1)
+    } else {
+      Get-Mean $Values
+    }
+  }
+}
 function Get-EarthRadius {
   <#
   .SYNOPSIS
@@ -210,7 +250,7 @@ function Get-LogisticSigmoid {
     [Switch] $Derivative
   )
   Process {
-    $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Constant]::Euler, -$GrowthRate * ($X - $Midpoint))) }
+    $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, -$GrowthRate * ($X - $Midpoint))) }
     if ($Derivative) {
       (& $Sigmoid $Value) * (& $Sigmoid -$Value)
     } else {
@@ -578,6 +618,38 @@ function Get-Sum {
         $Values = $Input
       }
       ($Values | Measure-Object -Sum).Sum
+    }
+  }
+}
+function Get-Variance {
+  <#
+  .SYNOPSIS
+  Return variance for discrete uniform random variable
+  .DESCRIPTION
+  The variance is basically the spread (dispersion) of the data.
+  .PARAMETER Sample
+  Divide by ($Data.Count - 1) instead of $Data.Count. Reasearch "degrees of freedom" for more information. May also be referred to as "unbiased".
+  .EXAMPLE
+  1..10 | Get-Variance
+  .EXAMPLE
+  1..10 | variance -Sample
+  #>
+  [CmdletBinding()]
+  [Alias('variance')]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Array] $Data,
+    [Switch] $Sample
+  )
+  End {
+    $Values = if ($Input.Count -gt 0) { $Input } else { $Data }
+    if ($Sample -and $Values.Count -gt 1) {
+      $Mean = Get-Mean $Values
+      $SquaredResidual = $Values | ForEach-Object { [Math]::Pow(($_ - $Mean), 2) }
+      ($SquaredResidual | Get-Sum) / ($Values.Count - 1)
+    } else {
+      $Squared = $Values | ForEach-Object { [Math]::Pow($_, 2) }
+      (Get-Mean $Squared) - [Math]::Pow((Get-Mean $Values), 2)
     }
   }
 }
