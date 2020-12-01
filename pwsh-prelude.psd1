@@ -41,6 +41,8 @@
     'listenTo'
     'matrix'
     'max'
+    'mean'
+    'median'
     'menu'
     'merge'
     'method'
