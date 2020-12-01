@@ -91,13 +91,13 @@ Describe 'Invoke-RunApplication' {
   It 'can pass state to Init/Loop functions and execute Loop one time' {
     $Script:Count = 0
     $Init = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Id.Length | Should -Be 36
       $State.Data = 'hello world'
       $Script:Count++
     }
     $Loop = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Data | Should -Be 'hello world'
       $Script:Count++
     }
@@ -113,7 +113,7 @@ Describe 'Invoke-RunApplication' {
       $Script:Count++
     }
     $Loop = {
-      $State = $args[0]
+      $State = $Args[0]
       $State | Save-State $State.Id | Out-Null
       $Script:Count++
     }
@@ -121,13 +121,13 @@ Describe 'Invoke-RunApplication' {
     $Script:Count | Should -Be 2
     # Second run that loads state with Get-State
     $Init = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Id | Should -Be $Script:ApplicationId
       $State.Data.Value | Should -Be $Script:Value
       $Script:Count++
     }
     $Loop = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Id | Should -Be $Script:ApplicationId
       $State.Data.Value | Should -Be $Script:Value
       $Script:Count++
@@ -136,7 +136,7 @@ Describe 'Invoke-RunApplication' {
     $Script:Count | Should -Be 4
     # Third run that should clear state
     $Init = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Id | Should -Be $Script:ApplicationId
       $State.Data.Value | Should -BeNullOrEmpty
       $Script:Count++
@@ -154,13 +154,13 @@ Describe 'Invoke-RunApplication' {
     $Script:Count = 0
     $Script:Value = (New-Guid).Guid
     $Init = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Id.Length | Should -Be 36
       $State.Data.Value | Should -Be $Script:Value
       $Script:Count++
     }
     $Loop = {
-      $State = $args[0]
+      $State = $Args[0]
       $State.Data.Value | Should -Be $Script:Value
       $Script:Count++
     }
@@ -190,13 +190,13 @@ Describe 'New-Template' {
       render @{} | Should -Be $Expected
     }
     It 'can return function when instantiated as normal variable' {
-      $renderVariable = New-Template -Template '<div>Hello {{ name }}</div>'
-      & $renderVariable @{} | Should -Be $Expected
+      $RenderVariable = New-Template -Template '<div>Hello {{ name }}</div>'
+      & $RenderVariable @{} | Should -Be $Expected
     }
     It 'can support default values' {
-      $renderVariable = New-Template -Template '<div>Hello {{ name }}</div>' -DefaultValues @{ name = 'Default' }
-      & $renderVariable | Should -Be '<div>Hello Default</div>'
-      & $renderVariable @{ name = 'Not Default' } | Should -Be '<div>Hello Not Default</div>'
+      $RenderVariable = New-Template -Template '<div>Hello {{ name }}</div>' -DefaultValues @{ name = 'Default' }
+      & $RenderVariable | Should -Be '<div>Hello Default</div>'
+      & $RenderVariable @{ name = 'Not Default' } | Should -Be '<div>Hello Not Default</div>'
     }
   }
   It 'can return a string when passed -Data paramter' {
@@ -220,24 +220,24 @@ Describe 'New-Template' {
       <h1>Title</h1>
       <div>Hello World!</div>
     </section>'
-    $div = New-Template -Template '<div>{{ text }}</div>'
-    $section = New-Template "<section>
+    $Div = New-Template -Template '<div>{{ text }}</div>'
+    $Section = New-Template "<section>
       <h1>{{ title }}</h1>
-      $(& $div @{text = 'Hello World!'})
+      $(& $Div @{text = 'Hello World!'})
     </section>"
-    & $section @{ title = 'Title' } | Should -Be $Expected
+    & $Section @{ title = 'Title' } | Should -Be $Expected
   }
   It 'can be nested within other templates (with Powershell syntax)' {
     $Expected = '<section>
       <h1>Title</h1>
       <div>Hello World!</div>
     </section>'
-    $div = New-Template -Template '<div>{{ text }}</div>'
-    $section = New-Template "<section>
+    $Div = New-Template -Template '<div>{{ text }}</div>'
+    $Section = New-Template "<section>
       <h1>`$(`$Data.title)</h1>
-      $(& $div @{text = 'Hello World!'})
+      $(& $Div @{text = 'Hello World!'})
     </section>"
-    & $section @{ title = 'Title' } | Should -Be $Expected
+    & $Section @{ title = 'Title' } | Should -Be $Expected
   }
   It 'can return pass-thru function that does no string interpolation' {
     $Function:render = '{{#green Hello}} {{ name }}' | New-Template

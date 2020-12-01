@@ -31,11 +31,11 @@ function Invoke-Lint {
   $Parameters = @{
     Path = $PSScriptRoot
     Settings = $Settings
-    IncludeDefaultRules = $true
-    Fix = $true
+    IncludeDefaultRules = $True
+    Fix = $True
     EnableExit = $CI
-    ReportSummary = $true
-    Recurse = $true
+    ReportSummary = $True
+    Recurse = $True
   }
   Invoke-ScriptAnalyzer @Parameters
   '' | Write-Output
@@ -48,10 +48,10 @@ function Invoke-Test {
     '==> Executing tests with coverage' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
-        PassThru = $true
+        PassThru = $True
       }
       CodeCoverage = @{
-        Enabled = $true
+        Enabled = $True
         Path = $Files
       }
     }
@@ -60,26 +60,26 @@ function Invoke-Test {
     "==> Executing tests on $Env:BuildSystem" | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
-        Exit = $true
-        PassThru = $true
+        Exit = $True
+        PassThru = $True
       }
       CodeCoverage = @{
-        Enabled = $true
+        Enabled = $True
         Path = $Files
       }
       TestResult = @{
-        Enabled = $true
+        Enabled = $True
       }
     }
   } else {
     '==> Executing tests' | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
-        PassThru = $true
+        PassThru = $True
       }
       Debug = @{
-        ShowNavigationMarkers = $true
-        WriteVSCodeMarker = $true
+        ShowNavigationMarkers = $True
+        WriteVSCodeMarker = $True
       }
     }
   }

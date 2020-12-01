@@ -2,9 +2,9 @@
 
 $HtmlFileSupported = try {
   New-Object -ComObject "HTMLFile"
-  $true
+  $True
 } catch {
-  $false
+  $False
 }
 
 Describe 'ConvertFrom-ByteArray' {
@@ -85,7 +85,7 @@ Describe 'ConvertTo-QueryString' {
 }
 Describe 'Invoke-WebRequestBasicAuth' {
   It 'can make a simple request' {
-    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
@@ -97,7 +97,7 @@ Describe 'Invoke-WebRequestBasicAuth' {
     $Request[5] | Should -Be $Uri
   }
   It 'can make a simple request with a username and password' {
-    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Username = 'user'
     $Token = 'token'
     $Uri = 'https://example.com/'
@@ -110,7 +110,7 @@ Describe 'Invoke-WebRequestBasicAuth' {
     $Request[5] | Should -Be $Uri
   }
   It 'can make a simple request with query parameters' {
-    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Query = @{ foo = 'bar' }
@@ -119,7 +119,7 @@ Describe 'Invoke-WebRequestBasicAuth' {
     $Request[5] | Should -Be "${Uri}?foo=bar"
   }
   It 'can make a simple request with URL-encoded query parameters' {
-    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Query = @{ answer = 42 }
@@ -128,7 +128,7 @@ Describe 'Invoke-WebRequestBasicAuth' {
     $Request[5] | Should -Be "${Uri}?answer=42"
   }
   It 'can make a simple PUT request' {
-    Mock Invoke-WebRequest { $args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data @{ answer = 42 }

@@ -78,14 +78,14 @@ Describe 'ConvertTo-Radian' {
 }
 Describe 'Get-EarthRadius' {
   It 'can return earth radius for a given latitude' {
-    $a = [CoordinateTest]::SemiMajorAxis
-    $b = [CoordinateTest]::SemiMinorAxis
-    -90 | Get-EarthRadius | Should -Be $b -Because 'the radius is equal to semi-minor axis at the poles'
-    Get-EarthRadius | Should -Be $a
-    0 | Get-EarthRadius | Should -Be $a -Because 'the radius is equal to semi-major axis at the equator'
+    $SemiMajorAxis = [CoordinateTest]::SemiMajorAxis
+    $SemiMinorAxis = [CoordinateTest]::SemiMinorAxis
+    -90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
+    Get-EarthRadius | Should -Be $SemiMajorAxis
+    0 | Get-EarthRadius | Should -Be $SemiMajorAxis -Because 'the radius is equal to semi-major axis at the equator'
     [Math]::Round((23.437055555555556 | Get-EarthRadius), 4) | Should -Be 6374777.8209 -Because 'it is the Northern Tropic latitude'
     [Math]::Round((45 | Get-EarthRadius), 4) | Should -Be 6367489.5439
-    90 | Get-EarthRadius | Should -Be $b -Because 'the radius is equal to semi-minor axis at the poles'
+    90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
   }
 }
 Describe 'Get-Extremum' {
@@ -219,10 +219,10 @@ Describe 'Get-Permutation' {
     1..3 | Get-Permutation -Words | Should -Be '123','132','312','321','231','213'
   }
   It 'can handle null values' {
-    $Permutations = $null,1,3 | Get-Permutation
+    $Permutations = $Null,1,3 | Get-Permutation
     $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
     $Permutations | Should -HaveCount 6
-    $Permutations = 1,$null,3 | Get-Permutation
+    $Permutations = 1,$Null,3 | Get-Permutation
     $Permutations | ForEach-Object Count | Get-Maximum | Should -Be 3
     $Permutations | Should -HaveCount 6
   }

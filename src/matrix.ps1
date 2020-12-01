@@ -53,7 +53,7 @@
   [Alias('matrix')]
   [OutputType([Matrix])]
   Param(
-    [Parameter(ValueFromPipeline=$true)]
+    [Parameter(ValueFromPipeline=$True)]
     [Array] $Values,
     [Parameter(Position=0)]
     [Array] $Size = @(2,2),
@@ -111,7 +111,7 @@ function Test-DiagonalMatrix {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Matrix] $Value
   )
   Process {
@@ -136,7 +136,7 @@ function Test-SquareMatrix {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Matrix] $Value
   )
   Process {
@@ -161,7 +161,7 @@ function Test-SymmetricMatrix {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Matrix] $Value
   )
   Process {

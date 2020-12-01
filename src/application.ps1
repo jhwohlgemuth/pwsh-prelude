@@ -1,6 +1,6 @@
 ﻿class ApplicationState {
   [String] $Id = (New-Guid)
-  [Bool] $Continue = $true
+  [Bool] $Continue = $True
   [String] $Name = 'Application Name'
   $Data
 }
@@ -8,7 +8,7 @@ function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Value,
     [String] $DataVariableName = 'Data'
   )
@@ -114,18 +114,18 @@ function New-Template {
   [OutputType([ScriptBlock], ParameterSetName='template')]
   [OutputType([String], ParameterSetName='inline')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Template,
     [Parameter(ParameterSetName='inline')]
     [PSObject] $Data,
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [Parameter(ValueFromPipelineByPropertyName=$True)]
     [PSObject] $DefaultValues
   )
   $Script:__template = $Template # This line is super important
   $Script:__defaults = $DefaultValues # This line is also super important
   $Renderer = {
     Param(
-      [Parameter(Position=0, ValueFromPipeline=$true)]
+      [Parameter(Position=0, ValueFromPipeline=$True)]
       [PSObject] $Data,
       [Switch] $PassThru
     )
@@ -215,9 +215,9 @@ function Invoke-RunApplication {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0)]
+    [Parameter(Mandatory=$True, Position=0)]
     [ScriptBlock] $Init,
-    [Parameter(Mandatory=$true, Position=1)]
+    [Parameter(Mandatory=$True, Position=1)]
     [ScriptBlock] $Loop,
     [Parameter(Position=2)]
     [ApplicationState] $State,
@@ -250,7 +250,7 @@ function Invoke-RunApplication {
     $State = [ApplicationState]@{}
   }
   if (-not $ShouldContinue) {
-    $ShouldContinue = { $State.Continue -eq $true }
+    $ShouldContinue = { $State.Continue -eq $True }
   }
   if (-not $BeforeNext) {
     $BeforeNext = {
@@ -293,11 +293,11 @@ function Save-State {
   @{ Data = 42 } | Set-State 'my-app'
 
   #>
-  [CmdletBinding(SupportsShouldProcess=$true)]
+  [CmdletBinding(SupportsShouldProcess=$True)]
   Param(
     [Parameter(Position=0)]
     [String] $Id,
-    [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=1, ValueFromPipeline=$True)]
     [PSObject] $State,
     [String] $Path
   )
@@ -329,7 +329,7 @@ function Get-State {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [String] $Id,
     [AllowEmptyString()]
     [String] $Path
@@ -351,7 +351,7 @@ function Remove-Indent {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Size')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
     [AllowEmptyString()]
     [String] $From,
     [Int] $Size = 2
@@ -359,7 +359,7 @@ function Remove-Indent {
   Process {
     $Lines = $From -split '\n'
     $Delimiter = if($Lines.Count -eq 1) { '' } else { "`n" }
-    $Callback = { $args[0],$args[1] -join $Delimiter }
+    $Callback = { $Args[0],$Args[1] -join $Delimiter }
     $Lines |
       Where-Object { $_.Length -ge $Size } |
       ForEach-Object { $_.SubString($Size) } |

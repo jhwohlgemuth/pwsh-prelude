@@ -8,7 +8,7 @@
     [CmdletBinding()]
     [Alias('trigger')]
     Param(
-      [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+      [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
       [String] $Name,
       [PSObject] $Data
     )
@@ -82,14 +82,14 @@ function Invoke-ListenTo {
     [Switch] $Exit,
     [Parameter(ParameterSetName='custom')]
     [Switch] $Idle,
-    [Parameter(ParameterSetName='custom', Mandatory=$true, ValueFromPipeline=$true)]
-    [Parameter(ParameterSetName='variable', Mandatory=$true, ValueFromPipeline=$true)]
-    [Parameter(ParameterSetName='filesystem', Mandatory=$true, ValueFromPipeline=$true)]
+    [Parameter(ParameterSetName='custom', Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(ParameterSetName='variable', Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(ParameterSetName='filesystem', Mandatory=$True, ValueFromPipeline=$True)]
     [scriptblock] $Callback,
     [Parameter(ParameterSetName='custom')]
     [Parameter(ParameterSetName='filesystem')]
     [Switch] $Forward,
-    [Parameter(ParameterSetName='filesystem', Mandatory=$true)]
+    [Parameter(ParameterSetName='filesystem', Mandatory=$True)]
     [String] $Path,
     [Parameter(ParameterSetName='filesystem')]
     [Switch] $IncludeSubDirectories,
@@ -107,7 +107,7 @@ function Invoke-ListenTo {
     $Watcher = New-Object System.IO.FileSystemWatcher
     $Watcher.Path = $Path
     $Watcher.Filter = '*.*'
-    $Watcher.EnableRaisingEvents = $true
+    $Watcher.EnableRaisingEvents = $True
     $Watcher.IncludeSubdirectories = $IncludeSubDirectories
     Write-Verbose '==> Creating file system watcher events'
     'Created','Changed','Deleted','Renamed' | ForEach-Object {
@@ -179,7 +179,7 @@ function Invoke-StopListen {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(ValueFromPipeline=$true)]
+    [Parameter(ValueFromPipeline=$True)]
     [String] $Name,
     [PSObject] $EventData
   )

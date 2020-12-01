@@ -12,14 +12,14 @@ class FormOptions: Options {
   [Int] $Height = 700
   [Int] $FormBorderStyle = 3
   [Double] $Opacity = 1.0
-  [Bool] $ControlBox = $true
-  [Bool] $MaximizeBox = $false
-  [Bool] $MinimizeBox = $false
+  [Bool] $ControlBox = $True
+  [Bool] $MaximizeBox = $False
+  [Bool] $MinimizeBox = $False
 }
 class BrowserOptions: Options {
   [String] $Anchor = 'Left,Top,Right,Bottom'
   [PSObject] $Size = @{ Height = 700; Width = 960 }
-  [Bool] $IsWebBrowserContextMenuEnabled = $false
+  [Bool] $IsWebBrowserContextMenuEnabled = $False
 }
 function ConvertFrom-ByteArray {
   <#
@@ -28,7 +28,7 @@ function ConvertFrom-ByteArray {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Array] $Data
   )
   Begin {
@@ -60,11 +60,11 @@ function ConvertFrom-Html {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Value
   )
   $Html = New-Object -ComObject 'HTMLFile'
-  if ($null -ne $Html) {
+  if ($Null -ne $Html) {
     $Html.IHTMLDocument2_write($Value)
   }
   $Html
@@ -78,7 +78,7 @@ function ConvertFrom-QueryString {
   [OutputType([Object[]])]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Query
   )
   Begin {
@@ -100,7 +100,7 @@ function ConvertFrom-QueryString {
 function ConvertTo-Iso8601 {
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [String] $Value
   )
   Process {
@@ -115,7 +115,7 @@ function ConvertTo-QueryString {
   [CmdletBinding()]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [PSObject] $InputObject,
     [Switch] $UrlEncode
   )
@@ -167,13 +167,13 @@ function Get-GithubOAuthToken {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0)]
+    [Parameter(Mandatory=$True, Position=0)]
     [String] $ClientId,
     [Parameter(Position=1)]
     [String[]] $Scope
   )
   $DeviceRequestParameters = @{
-    Post = $true
+    Post = $True
     Uri = 'https://github.com/login/device/code'
     Query = @{
       client_id = $ClientId
@@ -186,7 +186,7 @@ function Get-GithubOAuthToken {
     ConvertFrom-QueryString
   $DeviceData | ConvertTo-Json | Write-Verbose
   $TokenRequestParameters = @{
-    Post = $true
+    Post = $True
     Uri = 'https://github.com/login/oauth/access_token'
     Query = @{
       client_id = $ClientId
@@ -196,7 +196,7 @@ function Get-GithubOAuthToken {
   }
   $DeviceData['user_code'] | Write-Title -Green -PassThru | Set-Clipboard
   Start-Process $DeviceData['verification_uri']
-  $Success = $false
+  $Success = $False
   while (-not $Success) {
     Start-Sleep $DeviceData.interval
     $TokenData = Invoke-WebRequestBasicAuth @TokenRequestParameters |
@@ -219,7 +219,7 @@ function Import-Html {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Alias('Uri')]
     [String] $Path
   )
@@ -277,7 +277,7 @@ function Invoke-WebRequestBasicAuth {
     [String] $Password,
     [Parameter(ParameterSetName='token', Position=0)]
     [String] $Token,
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$True)]
     [UriBuilder] $Uri,
     [PSObject] $Query = @{},
     [Switch] $UrlEncode,
@@ -288,7 +288,7 @@ function Invoke-WebRequestBasicAuth {
     [Switch] $Post,
     [Switch] $Put,
     [Switch] $Delete,
-    [Parameter(ValueFromPipeline=$true)]
+    [Parameter(ValueFromPipeline=$True)]
     [PSObject] $Data = @{}
   )
   Process {
@@ -361,7 +361,7 @@ function Out-Browser {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Content,
     [FormOptions] $FormOptions = @{},
     [BrowserOptions] $BrowserOptions = @{},
@@ -387,7 +387,7 @@ function Out-Browser {
   }
   Process {
     "==> Browser is $(if($Browser.IsOffline) { 'OFFLINE' } else { 'ONLINE' })" | Write-Verbose
-    $IsFile = if (Test-Path $Content -IsValid) { Test-Path $Content } else { $false }
+    $IsFile = if (Test-Path $Content -IsValid) { Test-Path $Content } else { $False }
     $IsUri = ([Uri]$Content).IsAbsoluteUri
     if ($IsFile) {
       "==> Opening ${Content}..." | Write-Verbose

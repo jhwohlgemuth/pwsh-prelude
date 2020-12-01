@@ -54,16 +54,16 @@ Describe 'ConvertTo-Pair' {
 }
 Describe 'Find-FirstIndex' {
   It 'can determine index of first item that satisfies default predicate' {
-    Find-FirstIndex -Values $false,$true,$false | Should -Be 1
-    $false,$true,$false | Find-FirstIndex | Should -Be 1
-    Find-FirstIndex -Values $true,$true,$false | Should -Be 0
-    $true,$true,$false | Find-FirstIndex | Should -Be 0
-    $true,$false,$false | Find-FirstIndex | Should -Be 0
+    Find-FirstIndex -Values $False,$True,$False | Should -Be 1
+    $False,$True,$False | Find-FirstIndex | Should -Be 1
+    Find-FirstIndex -Values $True,$True,$False | Should -Be 0
+    $True,$True,$False | Find-FirstIndex | Should -Be 0
+    $True,$False,$False | Find-FirstIndex | Should -Be 0
   }
   It 'can determine index of first item that satisfies passed predicate' {
     $Arr = 0,0,0,0,2,0,0
-    $Predicate = { $args[0] -eq 2 }
-    Find-FirstIndex -Values $Arr | Should -Be $null
+    $Predicate = { $Args[0] -eq 2 }
+    Find-FirstIndex -Values $Arr | Should -Be $Null
     Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
     $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
     Find-FirstIndex -Values 2,0,0,0,2,0,0 -Predicate $Predicate | Should -Be 0
@@ -91,8 +91,8 @@ Describe 'Get-Property' {
     @{ a = 6,5,4 },@{ a = 0,1,2 } | Get-Property 'a.2' | Should -Be 4,2
   }
   It 'will return null for non-existent property names' {
-    1 | Get-Property 'Fake' | Should -Be $null
-    1 | Get-Property '-Fake' | Should -Be $null
+    1 | Get-Property 'Fake' | Should -Be $Null
+    1 | Get-Property '-Fake' | Should -Be $Null
   }
 }
 Describe 'Invoke-Chunk' {
@@ -118,8 +118,8 @@ Describe 'Invoke-Chunk' {
 }
 Describe 'Invoke-DropWhile' {
   It 'can drop elements until passed predicate is False' {
-    $LessThan3 = { Param($x) $x -lt 3 }
-    $GreaterThan10 = { Param($x) $x -gt 10 }
+    $LessThan3 = { Param($X) $X -lt 3 }
+    $GreaterThan10 = { Param($X) $X -gt 10 }
     1..5 | Invoke-DropWhile $LessThan3 | Should -Be 3,4,5
     1,2,3,4,5,1,1,1 | Invoke-DropWhile $LessThan3 | Should -Be 3,4,5,1,1,1
     Invoke-DropWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 3,4,5
@@ -127,7 +127,7 @@ Describe 'Invoke-DropWhile' {
     Invoke-DropWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 1,2,3,4,5
   }
   It 'supports string input and output' {
-    $IsNotHash = { Param($x) $x -ne '#' }
+    $IsNotHash = { Param($X) $X -ne '#' }
     'Hello World ###' | Invoke-DropWhile $IsNotHash | Should -Be '###'
     '### Hello World' | Invoke-DropWhile $IsNotHash | Should -Be '### Hello World'
     @('Hello World ###') | Invoke-DropWhile $IsNotHash | Should -Be '###'
@@ -158,10 +158,10 @@ Describe 'Invoke-InsertString' {
 Describe 'Invoke-Method' {
   It 'can apply a method within a pipeline' {
     '  foo','  bar','  baz' | Invoke-Method 'TrimStart' | Should -Be 'foo','bar','baz'
-    $true,$false,42 | Invoke-Method 'ToString' | Should -Be 'True','False','42'
+    $True,$False,42 | Invoke-Method 'ToString' | Should -Be 'True','False','42'
   }
   It 'can apply a method with arguments within a pipeline' {
-    'a','b','c' | Invoke-Method 'StartsWith' 'b' | Should -Be $false,$true,$false
+    'a','b','c' | Invoke-Method 'StartsWith' 'b' | Should -Be $False,$True,$False
     1,2,3 | Invoke-Method 'CompareTo' 2 | Should -Be -1,0,1
     @{ x = 1 } | Invoke-Method 'ContainsKey' 'x' | Should -BeTrue
     @{ x = 1 } | Invoke-Method 'ContainsKey' 'y' | Should -BeFalse
@@ -179,34 +179,34 @@ Describe 'Invoke-ObjectInvert' {
   It 'can invert objects with one key/value' {
     $Result = @{ foo = 'bar' } | Invoke-ObjectInvert
     $Result.bar | Should -Be 'foo'
-    $Result.foo | Should -Be $null
+    $Result.foo | Should -Be $Null
     $Result = [PSCustomObject]@{ foo = 'bar' } | Invoke-ObjectInvert
     $Result.bar | Should -Be 'foo'
-    $Result.foo | Should -Be $null
+    $Result.foo | Should -Be $Null
   }
   It 'can invert objects with more than one key/value pairs' {
     $Result = @{ a = 1; b = 2; c = 3 } | Invoke-ObjectInvert
     $Result['1'] | Should -Be 'a'
-    $Result.a | Should -Be $null
+    $Result.a | Should -Be $Null
     $Result = [PSCustomObject]@{ a = 1; b = 2; c = 3 } | Invoke-ObjectInvert
     $Result['1'] | Should -Be 'a'
-    $Result.a | Should -Be $null
+    $Result.a | Should -Be $Null
   }
   It 'can invert objects and group duplicate values' {
     $Result = @{ a = 1; b = 2; c = 1; d = 1 } | Invoke-ObjectInvert
     $Result['1'] | Should -Be 'a','c','d'
     $Result['2'] | Should -Be 'b'
-    $Result.a | Should -Be $null
-    $Result.b | Should -Be $null
-    $Result.c | Should -Be $null
-    $Result.d | Should -Be $null
+    $Result.a | Should -Be $Null
+    $Result.b | Should -Be $Null
+    $Result.c | Should -Be $Null
+    $Result.d | Should -Be $Null
     $Result = [PSCustomObject]@{ a = 1; b = 2; c = 2; d = 1 } | Invoke-ObjectInvert
     $Result['1'] | Should -Be 'a','d'
     $Result['2'] | Should -Be 'b','c'
-    $Result.a | Should -Be $null
-    $Result.b | Should -Be $null
-    $Result.c | Should -Be $null
-    $Result.d | Should -Be $null
+    $Result.a | Should -Be $Null
+    $Result.b | Should -Be $Null
+    $Result.c | Should -Be $Null
+    $Result.d | Should -Be $Null
   }
 }
 Describe 'Invoke-ObjectMerge' {
@@ -323,11 +323,11 @@ Describe 'Invoke-Operator' {
 }
 Describe 'Invoke-Partition' {
   It 'can separate an array of objects into two arrays' {
-    $IsPositive = { Param($x) $x -gt 0 }
-    $IsNegative = { Param($x) $x -lt 0 }
+    $IsPositive = { Param($X) $X -gt 0 }
+    $IsNegative = { Param($X) $X -lt 0 }
     1..10 | Invoke-Partition $IsPositive | Should -Be @(@(1,2,3,4,5,6,7,8,9,10),@())
     1..10 | Invoke-Partition $IsNegative | Should -Be @(@(),@(1,2,3,4,5,6,7,8,9,10))
-    $IsEven = { Param($x) $x % 2 -eq 0 }
+    $IsEven = { Param($X) $X % 2 -eq 0 }
     0..9 | Invoke-Partition $IsEven | Should -Be @(0,2,4,6,8),@(1,3,5,7,9)
   }
 }
@@ -363,11 +363,11 @@ Describe 'Invoke-PropertyTransform' {
 Describe 'Invoke-Reduce' {
   It 'will use the first item when no initial value is passed' {
     $Expected = 55
-    $AllTrue = $true,$true,$true
-    $OneFalse = $true,$false,$true
-    $Add = { Param($a, $b) $a + $b }
-    $Some = { Param($a, $b) $a -or $b }
-    $Every = { Param($a, $b) $a -and $b }
+    $AllTrue = $True,$True,$True
+    $OneFalse = $True,$False,$True
+    $Add = { Param($A, $B) $A + $B }
+    $Some = { Param($A, $B) $A -or $B }
+    $Every = { Param($A, $B) $A -and $B }
     1..10 | Invoke-Reduce -Add | Should -Be $Expected
     1..10 | Invoke-Reduce $Add | Should -Be $Expected
     1..10 | Invoke-Reduce $Add '' | Should -Be '12345678910'
@@ -379,15 +379,15 @@ Describe 'Invoke-Reduce' {
     $OneFalse | Invoke-Reduce -Some | Should -BeTrue
     $AllTrue | Invoke-Reduce -Some | Should -BeTrue
     $OneFalse | Invoke-Reduce -Every | Should -BeFalse
-    $a = @{ Count = 1 }
-    $b = @{ Count = 2 }
-    $c = @{ Count = 3 }
-    $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc.Count += $Item.Count }
+    $A = @{ Count = 1 }
+    $B = @{ Count = 2 }
+    $C = @{ Count = 3 }
+    $Result = $A,$B,$C | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc.Count += $Item.Count }
     $Result.Keys | Sort-Object | Should -Be 'Count'
     $Result.Count | Sort-Object | Should -Be 6
   }
   It 'can accept strings and integers as initial values' {
-    $Add = { Param($a, $b) $a + $b }
+    $Add = { Param($A, $B) $A + $B }
     1,2,3,4,5 | Invoke-Reduce -Callback $Add -InitialValue 0 | Should -Be 15
     'a','b','c' | Invoke-Reduce -Callback $Add -InitialValue '' | Should -Be 'abc'
     'a','b','c' | Invoke-Reduce -InitialValue 'initial value' | Should -Be 'initial value'
@@ -398,30 +398,30 @@ Describe 'Invoke-Reduce' {
     'a','b','c' | Invoke-Reduce -Add -InitialValue '' | Should -Be 'abc'
   }
   It 'can accept boolean values' {
-    $Every = { Param($a, $b) $a -and $b }
-    $Some = { Param($a, $b) $a -or $b }
-    $AllTrue = $true,$true,$true
-    $OneFalse = $true,$false,$true
-    $AllTrue | Invoke-Reduce -Callback $Every -InitialValue $true | Should -BeTrue
-    $OneFalse | Invoke-Reduce -Callback $Some -InitialValue $true | Should -BeTrue
-    $AllTrue | Invoke-Reduce -Callback $Some -InitialValue $true | Should -BeTrue
-    $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $true | Should -BeFalse
-    $AllTrue | Invoke-Reduce -Every -InitialValue $true | Should -BeTrue
-    $AllTrue | Invoke-Reduce -Some -InitialValue $true | Should -BeTrue
-    $OneFalse | Invoke-Reduce -Every -InitialValue $true | Should -BeFalse
-    $OneFalse | Invoke-Reduce -Some -InitialValue $true | Should -BeTrue
+    $Every = { Param($A, $B) $A -and $B }
+    $Some = { Param($A, $B) $A -or $B }
+    $AllTrue = $True,$True,$True
+    $OneFalse = $True,$False,$True
+    $AllTrue | Invoke-Reduce -Callback $Every -InitialValue $True | Should -BeTrue
+    $OneFalse | Invoke-Reduce -Callback $Some -InitialValue $True | Should -BeTrue
+    $AllTrue | Invoke-Reduce -Callback $Some -InitialValue $True | Should -BeTrue
+    $OneFalse | Invoke-Reduce -Callback $Every -InitialValue $True | Should -BeFalse
+    $AllTrue | Invoke-Reduce -Every -InitialValue $True | Should -BeTrue
+    $AllTrue | Invoke-Reduce -Some -InitialValue $True | Should -BeTrue
+    $OneFalse | Invoke-Reduce -Every -InitialValue $True | Should -BeFalse
+    $OneFalse | Invoke-Reduce -Some -InitialValue $True | Should -BeTrue
   }
   It 'can accept objects as initial values' {
-    $a = @{ name = 'a'; value = 1 }
-    $b = @{ name = 'b'; value = 2 }
-    $c = @{ name = 'c'; value = 3 }
+    $A = @{ name = 'a'; value = 1 }
+    $B = @{ name = 'b'; value = 2 }
+    $C = @{ name = 'c'; value = 3 }
     $Callback = { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value }
     # with inline scriptblock
-    $Result = $a,$b,$c | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value } -InitialValue @{}
+    $Result = $A,$B,$C | Invoke-Reduce -Callback { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Value } -InitialValue @{}
     $Result.Keys | Sort-Object | Should -Be 'a','b','c'
     $Result.Values | Sort-Object | Should -Be 1,2,3
     # with scriptblock variable
-    $Result = $a,$b,$c | Invoke-Reduce $Callback -InitialValue @{}
+    $Result = $A,$B,$C | Invoke-Reduce $Callback -InitialValue @{}
     $Result.Keys | Sort-Object | Should -Be 'a','b','c'
     $Result.Values | Sort-Object | Should -Be 1,2,3
   }
@@ -449,8 +449,8 @@ Describe 'Invoke-Reduce' {
 }
 Describe 'Invoke-TakeWhile' {
   It 'can take elements until passed predicate is False' {
-    $LessThan3 = { Param($x) $x -lt 3 }
-    $GreaterThan10 = { Param($x) $x -gt 10 }
+    $LessThan3 = { Param($X) $X -lt 3 }
+    $GreaterThan10 = { Param($X) $X -gt 10 }
     1..5 | Invoke-TakeWhile $LessThan3 | Should -Be 1,2
     1,2,3,4,5,1,1 | Invoke-TakeWhile $LessThan3 | Should -Be 1,2
     Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1,2
@@ -458,7 +458,7 @@ Describe 'Invoke-TakeWhile' {
     Invoke-TakeWhile -InputObject (13..8) -Predicate $GreaterThan10 | Should -Be 13,12,11
   }
   It 'supports string input and output' {
-    $IsNotSpace = { Param($x) $x -ne ' ' }
+    $IsNotSpace = { Param($X) $X -ne ' ' }
     'Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
     '   Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be ''
     @('Hello World') | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
@@ -468,16 +468,16 @@ Describe 'Invoke-TakeWhile' {
 Describe 'Invoke-Tap' {
   It 'can execute a scriptblock and passthru values' {
     function Test-Function {}
-    Mock Test-Function { $args }
+    Mock Test-Function { $Args }
     $Times = 10
     1..$Times | Invoke-Tap { Test-Function } | Should -Be (1..$Times)
     Assert-MockCalled Test-Function -Times $Times
-    1,2,3 | Invoke-Tap { Param($x) $x + 1 } | Should -Be 2,3,4
+    1,2,3 | Invoke-Tap { Param($X) $X + 1 } | Should -Be 2,3,4
   }
 }
 Describe 'Invoke-Unzip' {
   It 'can separate an array of pairs into two arrays' {
-    @() | Invoke-Unzip | Should -Be $null
+    @() | Invoke-Unzip | Should -Be $Null
     @(@(),@()) | Should -Be @(),@()
     @(@('a',1),@('b',2),@('c',3)) | Invoke-Unzip | Should -Be @('a','b','c'),@(1,2,3)
   }
@@ -514,7 +514,7 @@ Describe 'Invoke-Zip(With)' {
     @(1),@(2,2),@(3,3,3) | Invoke-Zip | Should -Be @(1,2,3),@('empty',2,3),@('empty','empty',3)
   }
   It 'can zip two arrays with an iteratee function' {
-    $Add = { Param($a,$b) $a + $b }
+    $Add = { Param($A,$B) $A + $B }
     @(1,2),@(1,2) | Invoke-ZipWith $Add | Should -Be @(2,4)
     Invoke-ZipWith $Add @(1,2),@(1,2) | Should -Be @(2,4)
     @('a','a'),@('b','b') | Invoke-ZipWith $Add | Should -Be @('ab','ab')
@@ -522,7 +522,7 @@ Describe 'Invoke-Zip(With)' {
     @(2,2,2),@(2,2,2) | Invoke-ZipWith $Add | Should -Be @(4,4,4)
   }
   It 'can zip more than two arrays with an iteratee function' {
-    $Add = { Param($a,$b) $a + $b }
+    $Add = { Param($A,$B) $A + $B }
     @('1','1'),@('2','2'),@('3','3') | Invoke-ZipWith $Add | Should -Be @('123','123')
     @(1,1,1),@(2,2,2),@(3,3,3),@(4,4,4) | Invoke-ZipWith $Add | Should -Be @(10,10,10)
     @(1,1,1,1),@(2,2,2,2),@(3,3,3,3),@(4,4,4,4) | Invoke-ZipWith $Add | Should -Be @(10,10,10,10)
@@ -614,24 +614,24 @@ Describe 'Test-Equal' {
     'na','meh','na' | Test-Equal 'na' | Should -BeFalse
   }
   It 'can compare arrays' {
-    $a = 1,2,3
-    $b = 1,2,3
-    $c = 5,6,7
-    Test-Equal $a $b | Should -BeTrue
-    Test-Equal $a $c | Should -BeFalse
-    $a = 'a','b','c'
-    $b = 'a','b','c'
-    $c = 'x','y','z'
-    Test-Equal $a $b | Should -BeTrue
-    Test-Equal $b $c | Should -BeFalse
+    $A = 1,2,3
+    $B = 1,2,3
+    $C = 5,6,7
+    Test-Equal $A $B | Should -BeTrue
+    Test-Equal $A $C | Should -BeFalse
+    $A = 'a','b','c'
+    $B = 'a','b','c'
+    $C = 'x','y','z'
+    Test-Equal $A $B | Should -BeTrue
+    Test-Equal $B $C | Should -BeFalse
   }
   It 'can compare multi-dimensional arrays' {
-    $x = 1,(1,2,3),(4,5,6),7
-    $y = 1,(1,2,3),(4,5,6),7
-    $z = (1,2,3),(1,2,3),(1,2,3)
-    Test-Equal $x $y | Should -BeTrue
-    Test-Equal $x $z | Should -BeFalse
-    Test-Equal $x 1,(1,2,3),(4,5,6),8 | Should -BeFalse
+    $X = 1,(1,2,3),(4,5,6),7
+    $Y = 1,(1,2,3),(4,5,6),7
+    $Z = (1,2,3),(1,2,3),(1,2,3)
+    Test-Equal $X $Y | Should -BeTrue
+    Test-Equal $X $Z | Should -BeFalse
+    Test-Equal $X 1,(1,2,3),(4,5,6),8 | Should -BeFalse
   }
   It 'can compare hashtables' {
     $A = @{ a = 'A'; b = 'B'; c = 'C' }
@@ -690,9 +690,9 @@ Describe 'Test-Equal' {
     $B | Test-Equal $B | Should -BeTrue
   }
   It 'can compare other types' {
-    Test-Equal $true $true | Should -BeTrue
-    Test-Equal $false $false | Should -BeTrue
-    Test-Equal $true $false | Should -BeFalse
-    Test-Equal $null $null | Should -BeTrue
+    Test-Equal $True $True | Should -BeTrue
+    Test-Equal $False $False | Should -BeTrue
+    Test-Equal $True $False | Should -BeFalse
+    Test-Equal $Null $Null | Should -BeTrue
   }
 }

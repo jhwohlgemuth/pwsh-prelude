@@ -7,12 +7,12 @@ $Space = ' '
 $Indent = 4
 $LabelParameters = @{
   Indent = $Indent
-  NewLine = $true
+  NewLine = $True
 }
 $ResultLabelParameters = @{
   Color = 'Green'
   Indent = $Indent
-  NewLine = $true
+  NewLine = $True
 }
 
 Write-Title '   Kitchen Sink   ' -SubText '#allthethings' -Yellow
@@ -35,7 +35,7 @@ $FavoriteSaiyajin = Invoke-Input 'Favorite Saiya-jin?' -Autocomplete -Indent $In
 'Favorite number?' | Write-Label @LabelParameters
 $FavoriteNumberWord = 'one','two','three' | Invoke-Menu -SingleSelect -Indent $Indent
 
-'Known mathematicians?' | Write-Label @labelParameters
+'Known mathematicians?' | Write-Label @LabelParameters
 $Choice = 'Godel','Gauss','Cantor' | Invoke-Menu -MultiSelect -Indent $Indent
 
 '{{#red Red}}, {{#white White}}, or {{#blue Blue}}?' | Write-Label @LabelParameters

@@ -2,9 +2,9 @@
 
 $ExcelSupported = try {
   New-Object -ComObject 'Excel.Application'
-  $true
+  $True
 } catch {
-  $false
+  $False
 }
 
 Describe 'Format-MoneyValue' {
@@ -72,7 +72,7 @@ Describe 'Format-MoneyValue' {
     123.45 | Format-MoneyValue -Symbol £ -Postfix | Should -Be '123.45£'
   }
   It 'will throw an error if input is not a string or number' {
-    { $false | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
+    { $False | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
   }
 }
 Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {

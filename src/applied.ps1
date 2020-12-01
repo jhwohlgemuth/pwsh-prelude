@@ -7,7 +7,7 @@
   [Alias('toDegree')]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Double] $Radians
   )
   Process {
@@ -23,7 +23,7 @@ function ConvertTo-Radian {
   [Alias('toRadian')]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Double] $Degrees
   )
   Process {
@@ -40,7 +40,7 @@ function Get-ArcHaversine {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Double] $Value
   )
   Process {
@@ -54,10 +54,11 @@ function Get-EarthRadius {
   .PARAMETER Latitude
   Latitude value in decimal degree format
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('VariablePascalCase', '')]
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [ValidateRange(-90, 90)]
     [Double] $Latitude
   )
@@ -86,7 +87,7 @@ function Get-Extremum {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Minimum')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Array] $InputObject,
     [Alias('Max')]
     [Switch] $Maximum,
@@ -124,7 +125,7 @@ function Get-Factorial {
   [CmdletBinding()]
   [OutputType([Int])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Int] $Value
   )
   Process {
@@ -153,7 +154,7 @@ function Get-Haversine {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Double] $Degrees
   )
   Process {
@@ -168,9 +169,9 @@ function Get-HaversineDistance {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Coordinate] $From,
-    [Parameter(Mandatory=$true, Position=1)]
+    [Parameter(Mandatory=$True, Position=1)]
     [Coordinate] $To
   )
   $Radius = ((Get-EarthRadius $From.Latitude) + (Get-EarthRadius $To.Latitude)) / 2
@@ -197,7 +198,7 @@ function Get-LogisticSigmoid {
   [Alias('sigmoid')]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Alias('x')]
     [Double] $Value,
     [Alias('k')]
@@ -209,7 +210,7 @@ function Get-LogisticSigmoid {
     [Switch] $Derivative
   )
   Process {
-    $Sigmoid = { Param($x) $MaximumValue / (1 + [Math]::Pow([Constant]::Euler, -$GrowthRate * ($x - $Midpoint))) }
+    $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Constant]::Euler, -$GrowthRate * ($X - $Midpoint))) }
     if ($Derivative) {
       (& $Sigmoid $Value) * (& $Sigmoid -$Value)
     } else {
@@ -225,7 +226,7 @@ function Get-Maximum {
   [CmdletBinding()]
   [Alias('max')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Array] $Values
   )
   Begin {
@@ -256,7 +257,7 @@ function Get-Mean {
   [CmdletBinding()]
   [Alias('mean')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Array] $Data,
     [ValidateRange(0, [Double]::PositiveInfinity)]
     [Double] $Trim = 0,
@@ -286,7 +287,7 @@ function Get-Median {
   [CmdletBinding()]
   [Alias('median')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Array] $Data
   )
   End {
@@ -313,7 +314,7 @@ function Get-Minimum {
   [CmdletBinding()]
   [Alias('min')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [Array] $Values
   )
   Begin {
@@ -373,7 +374,7 @@ function Get-Permutation {
   [CmdletBinding()]
   [Alias('permute')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Array] $InputObject,
     [Parameter(Position=1)]
     [Int] $Offset = 0,
@@ -405,20 +406,20 @@ function Get-Permutation {
         [Int] $Index
       )
       if (($Index -eq 0 -and $Direction[$Index] -eq 0) -or ($Index -eq ($Work.Count - 1) -and $Direction[$Index] -eq 1)) {
-        return $false
+        return $False
       }
       if (($Index -gt 0) -and ($Direction[$Index] -eq 0) -and ($Work[$Index] -gt $Work[$Index - 1])) {
-        return $true
+        return $True
       }
       if ($Index -lt ($Work.Count - 1) -and ($Direction[$Index] -eq 1) -and ($Work[$Index] -gt $Work[$Index + 1])) {
-        return $true
+        return $True
       }
       if (($Index -gt 0) -and ($Index -lt $Work.Count)) {
         if (($Direction[$Index] -eq 0 -and $Work[$Index] -gt $Work[$Index - 1]) -or ($Direction[$Index] -eq 1 -and $Work[$Index] -gt $Work[$Index + 1])) {
-          return $true
+          return $True
         }
       }
-      return $false
+      return $False
     }
     function Test-MoveableExist {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
@@ -429,7 +430,7 @@ function Get-Permutation {
         [Parameter(Position=1)]
         [Array] $Direction
       )
-      (0..($Work.Count - 1) | ForEach-Object { Test-Moveable -Work $Work -Direction $Direction -Index $_ }) -contains $true
+      (0..($Work.Count - 1) | ForEach-Object { Test-Moveable -Work $Work -Direction $Direction -Index $_ }) -contains $True
     }
     function Find-LargestMoveable {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Position')]
@@ -505,7 +506,7 @@ function Get-Permutation {
         if ($Count -eq 1) {
           $First = $InputObject[0]
           $Type = $First.GetType().Name
-          if ($null -ne $First -and $Type -eq 'String') {
+          if ($Null -ne $First -and $Type -eq 'String') {
             $Items = $First.ToCharArray()
             $Value = $Items.Count
           } elseif ($Type -match 'Int') {
@@ -550,7 +551,7 @@ function Get-Sum {
   [CmdletBinding()]
   [Alias('sum')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Array] $Values,
     [Parameter(Position=1)]
     [Array] $Weight

@@ -16,7 +16,7 @@ function Format-MoneyValue {
   [Alias('money')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     $Value,
     [String] $Symbol = '$',
     [Switch] $AsNumber,
@@ -105,7 +105,7 @@ function Import-Excel {
   [CmdletBinding()]
   [OutputType([System.Collections.Hashtable])]
   Param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$True)]
     [String] $Path,
     [String] $WorksheetName,
     [Array] $ColumnHeaders,
@@ -116,14 +116,14 @@ function Import-Excel {
   )
   $FileName = Resolve-Path $Path
   $Excel = New-Object -ComObject 'Excel.Application'
-  $Excel.Visible = $false
+  $Excel.Visible = $False
   if ($ShowProgress) {
     Write-Progress -Activity 'Importing Excel data' -Status "Loading $FileName"
   }
   $Workbook = if (-not $Password) {
     $Excel.workbooks.open($FileName)
   } else {
-    $Excel.workbooks.open($FileName,0,0,$true,$Password)
+    $Excel.workbooks.open($FileName,0,0,$True,$Password)
   }
   $Worksheet = if ($WorksheetName) {
     $Workbook.Worksheets.Item($WorksheetName)
@@ -140,7 +140,7 @@ function Import-Excel {
     }
     1..$ColumnCount | ForEach-Object {
       $Value = $Worksheet.Cells.Item($RowIndex, $_).Value2
-      if ($null -eq $Value) { $EmptyValue } else { $Value }
+      if ($Null -eq $Value) { $EmptyValue } else { $Value }
     }
   }
   if ($ShowProgress) {
@@ -150,7 +150,7 @@ function Import-Excel {
     $RowCount--
     1..$ColumnCount | ForEach-Object {
       $Name = $Worksheet.Cells.Item(1, $_).Value2
-      if ($null -eq $Name) { "column${_}" } else { $Name }
+      if ($Null -eq $Name) { "column${_}" } else { $Name }
     }
   } elseif ($ColumnHeaders.Count -eq $ColumnCount) {
     $ColumnHeaders

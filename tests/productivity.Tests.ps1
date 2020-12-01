@@ -28,32 +28,32 @@ Describe 'Find-Duplicates' {
 }
 Describe 'Find-FirstTrueVariable' {
   It 'should support default value' {
-    $Global:foo = $false
-    $Global:bar = $true
-    $Global:baz = $false
+    $Global:foo = $False
+    $Global:bar = $True
+    $Global:baz = $False
     $Names = 'foo','bar','baz'
     Find-FirstTrueVariable $Names | Should -Be 'bar'
     Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'bar'
     Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'bar'
   }
   It 'should support default value' {
-    $Global:foo = $false
-    $Global:bar = $false
-    $Global:baz = $false
+    $Global:foo = $False
+    $Global:bar = $False
+    $Global:baz = $False
     $Names = 'foo','bar','baz'
     Find-FirstTrueVariable $Names | Should -Be 'foo'
   }
   It 'should support default value passed as index' {
-    $Global:foo = $false
-    $Global:bar = $false
-    $Global:baz = $false
+    $Global:foo = $False
+    $Global:bar = $False
+    $Global:baz = $False
     $Names = 'foo','bar','baz'
     Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'baz'
   }
   It 'should support default value passed as value' {
-    $Global:foo = $false
-    $Global:bar = $false
-    $Global:baz = $false
+    $Global:foo = $False
+    $Global:bar = $False
+    $Global:baz = $False
     $Names = 'foo','bar','baz'
     Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
   }
@@ -314,7 +314,7 @@ Describe 'Rename-FileExtension' {
 }
 Describe -Skip 'Test-Admin' {
   It 'should return false if not Administrator' {
-    Test-Admin | Should -Be $false
+    Test-Admin | Should -Be $False
   }
 }
 Describe 'Test-Empty' {

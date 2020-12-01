@@ -22,7 +22,7 @@ function Measure-OperatorLowerCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -35,12 +35,12 @@ function Measure-OperatorLowerCase {
         )
         ($Ast -is [System.Management.Automation.Language.BinaryExpressionAst]) -and ($Ast.ErrorPosition.Text -cmatch '[A-Z]')
       }
-      $Violations = $ScriptBlockAst.FindAll($Predicate, $false)
+      $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
           Message  = 'Operators should be lowercase.'
           RuleName = 'OperatorLowerCase'
-          Severity = 'Information'
+          Severity = 'Warning'
           Extent   = $Violation.Extent
         }
       }
@@ -74,7 +74,7 @@ function Measure-ParamPascalCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -87,12 +87,12 @@ function Measure-ParamPascalCase {
         )
         ($Ast -is [System.Management.Automation.Language.ParamBlockAst]) -and -not ($Ast.Extent.Text -cmatch 'Param\s*\(')
       }
-      $Violations = $ScriptBlockAst.FindAll($Predicate, $false)
+      $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
           Message  = 'Param block keyword should be PascalCase.'
           RuleName = 'ParamPascalCase'
-          Severity = 'Information'
+          Severity = 'Warning'
           Extent   = $Violation.Extent
         }
       }
@@ -128,7 +128,7 @@ function Measure-VariablePascalCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -139,14 +139,16 @@ function Measure-VariablePascalCase {
         Param(
           [System.Management.Automation.Language.Ast] $Ast
         )
-        ($Ast -is [System.Management.Automation.Language.VariableExpressionAst]) -and -not ($Ast.Extent.Text[1] -cmatch '[A-Z]')
+        $IsVariableExpression = $Ast -is [System.Management.Automation.Language.VariableExpressionAst]
+        $Name = $Ast.Extent.Text -replace '[{}]',''
+        $IsVariableExpression -and -not $Name.StartsWith('$_') -and ($Name -ne '$this') -and ($Name[1] -cnotmatch '[A-Z]')
       }
-      $Violations = $ScriptBlockAst.FindAll($Predicate, $true)
+      $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = "The variable name, '$($Violation.Extent.Text)', should be PascalCase."
+          Message  = "The variable name, `"$($Violation.Extent.Text)`", should be PascalCase."
           RuleName = 'VariablePascalCase'
-          Severity = 'Information'
+          Severity = 'Warning'
           Extent   = $Violation.Extent
         }
       }
@@ -180,7 +182,7 @@ function Measure-UseRequiresDirective {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory=$True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -193,20 +195,20 @@ function Measure-UseRequiresDirective {
         Param(
           [System.Management.Automation.Language.Ast] $Ast
         )
-        $ReturnValue = $false
+        $ReturnValue = $False
         if ($Ast -is [System.Management.Automation.Language.CommandAst]) {
           [System.Management.Automation.Language.CommandAst]$CommandAst = $Ast;
-          if ($null -ne $CommandAst.GetCommandName()) {
+          if ($Null -ne $CommandAst.GetCommandName()) {
             if ($CommandAst.GetCommandName() -eq 'import-module') {
-              $ReturnValue = $true
+              $ReturnValue = $True
             }
           }
         }
         return $ReturnValue
       }
-      [System.Management.Automation.Language.Ast[]]$Violations = $ScriptBlockAst.FindAll($Predicate, $true)
-      if ($null -ne $ScriptBlockAst.ScriptRequirements) {
-        if (($ScriptBlockAst.ScriptRequirements.RequiredModules.Count -eq 0) -and ($null -ne $Violations)) {
+      [System.Management.Automation.Language.Ast[]]$Violations = $ScriptBlockAst.FindAll($Predicate, $True)
+      if ($Null -ne $ScriptBlockAst.ScriptRequirements) {
+        if (($ScriptBlockAst.ScriptRequirements.RequiredModules.Count -eq 0) -and ($Null -ne $Violations)) {
           foreach ($Violation in $Violations) {
             $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
               Message  = $Message
@@ -217,7 +219,7 @@ function Measure-UseRequiresDirective {
           }
         }
       } else {
-        if ($null -ne $Violations) {
+        if ($Null -ne $Violations) {
           foreach ($Violation in $Violations) {
             $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
               RuleName = $RuleName

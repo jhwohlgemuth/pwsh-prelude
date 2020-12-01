@@ -166,7 +166,7 @@ $TypeDefinition = @"
             if (index < 0 || index >= cols) {
                 return original;
             } else {
-                var temp = new Matrix${id}(rows,cols - 1);
+                var temp = new Matrix${Id}(rows,cols - 1);
                 for (var i = 0; i < rows; ++i)
                     for (var j = 0; j < index; ++j)
                         temp.Rows[i][j] = original.Rows[i][j];
@@ -182,7 +182,7 @@ $TypeDefinition = @"
             if (index < 0 || index >= rows) {
                 return original;
             } else {
-                var temp = new Matrix${id}(rows - 1,cols);
+                var temp = new Matrix${Id}(rows - 1,cols);
                 for (var i = 0; i < index; ++i)
                     for (var j = 0; j < cols; ++j)
                         temp.Rows[i][j] = original.Rows[i][j];

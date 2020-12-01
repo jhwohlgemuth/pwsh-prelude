@@ -35,7 +35,7 @@
   [CmdletBinding()]
   [Alias('input')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [String] $LabelText = 'input:',
     [Switch] $Secret,
     [Switch] $Number,
@@ -45,14 +45,14 @@
     [Int] $MaxLength = 0
   )
   Write-Label -Text $LabelText -Indent $Indent
-  $Global:PreviousRegularExpression = $null
+  $Global:PreviousRegularExpression = $Null
   $Result = ''
   $CurrentIndex = 0
   $AutocompleteMatches = @()
   $StartPosition = [Console]::CursorLeft
   function Format-Output {
     Param(
-      [Parameter(Mandatory=$true, Position=0)]
+      [Parameter(Mandatory=$True, Position=0)]
       [String] $Value
     )
     if ($Secret) {
@@ -63,7 +63,7 @@
   }
   function Invoke-OutputDraw {
     Param(
-      [Parameter(Mandatory=$true, Position=0)]
+      [Parameter(Mandatory=$True, Position=0)]
       [String] $Output,
       [Int] $Left = 0
     )
@@ -87,7 +87,7 @@
     )
     $Global:PreviousRegularExpression = "^${Output}"
     $AutocompleteMatches = $Choices | Where-Object { $_ -match $Global:PreviousRegularExpression }
-    if ($null -eq $AutocompleteMatches -or $Output.Length -eq 0) {
+    if ($Null -eq $AutocompleteMatches -or $Output.Length -eq 0) {
       $Left = [Console]::CursorLeft
       [Console]::SetCursorPosition($Left, [Console]::CursorTop)
       Write-Color (' ' * 30) -NoNewLine
@@ -106,7 +106,7 @@
     }
   }
   Do  {
-    $KeyInfo = [Console]::ReadKey($true)
+    $KeyInfo = [Console]::ReadKey($True)
     $KeyChar = $KeyInfo.KeyChar
     switch ($KeyInfo.Key) {
       'Backspace' {
@@ -191,7 +191,7 @@
         }
       }
       'Tab' {
-        if ($Autocomplete -and $Result.Length -gt 0 -and -not ($Number -or $Secret) -and $null -ne $AutocompleteMatches) {
+        if ($Autocomplete -and $Result.Length -gt 0 -and -not ($Number -or $Secret) -and $Null -ne $AutocompleteMatches) {
           $AutocompleteMatches = $Choices | Where-Object { $_ -match $Global:PreviousRegularExpression }
           [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
           if ($AutocompleteMatches -is [String]) {
@@ -280,7 +280,7 @@
       }
     }
   } else {
-    $null
+    $Null
   }
 }
 function Invoke-Menu {
@@ -329,12 +329,12 @@ function Invoke-Menu {
   [CmdletBinding()]
   [Alias('menu')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [Array] $Items,
     [Switch] $MultiSelect,
     [Switch] $SingleSelect,
     [String] $HighlightColor = 'Cyan',
-    [Switch] $ReturnIndex = $false,
+    [Switch] $ReturnIndex = $False,
     [Int] $Limit = 0,
     [Int] $Indent = 0,
     [Switch] $FolderContent
@@ -367,7 +367,7 @@ function Invoke-Menu {
       }
       $Items | ForEach-Object {
         $Item = $_
-        if ($null -ne $Item) {
+        if ($Null -ne $Item) {
           if ($MultiSelect) {
             $Item = if ($Selection -contains $Index) { "[x] $Item$Clear" } else { "[ ] $Item$Clear" }
           } else {
@@ -402,7 +402,7 @@ function Invoke-Menu {
       }
       $Result
     }
-    [Console]::CursorVisible = $false
+    [Console]::CursorVisible = $False
     $Keycodes = @{
       enter = 13
       escape = 27
@@ -450,7 +450,7 @@ function Invoke-Menu {
       $Keycode = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').virtualkeycode
       switch ($Keycode) {
         $Keycodes.escape {
-          $Position = $null
+          $Position = $Null
         }
         $Keycodes.space {
           $Parameters = @{
@@ -493,7 +493,7 @@ function Invoke-Menu {
           }
         }
       }
-      If ($null -ne $Position) {
+      If ($Null -ne $Position) {
         $StartPosition = if ($ShouldPaginate) {
           [Console]::CursorTop - $VisibleItems.Count - 2
         } else {
@@ -513,13 +513,13 @@ function Invoke-Menu {
         Invoke-MenuDraw @Parameters
       }
     }
-    [Console]::CursorVisible = $true
-    if ($ReturnIndex -eq $false -and $null -ne $Position) {
+    [Console]::CursorVisible = $True
+    if ($ReturnIndex -eq $False -and $Null -ne $Position) {
       if ($MultiSelect -or $SingleSelect) {
         if ($Selection.Length -gt 0) {
           return $VisibleItems[$Selection]
         } else {
-          return $null
+          return $Null
         }
       } else {
         return $VisibleItems[$Position]
@@ -559,7 +559,7 @@ function Write-BarChart {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [PSObject] $InputObject,
     [Int] $Width = 100,
     [Switch] $ShowValues,
@@ -617,7 +617,7 @@ function Write-Color {
   [OutputType([Void])]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
     [AllowEmptyString()]
     [String] $Text,
     [ValidateSet('White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow')]
@@ -677,7 +677,7 @@ function Write-Label {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$true)]
+    [Parameter(Position=0, ValueFromPipeline=$True)]
     [String] $Text = 'label',
     [ValidateSet('White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow')]
     [String] $Color = 'Cyan',
@@ -691,7 +691,7 @@ function Write-Repeat {
   [CmdletBinding()]
   [Alias('repeat')]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [AllowEmptyString()]
     [String] $Value,
     [Parameter(Position=1)]
@@ -740,7 +740,7 @@ function Write-Title {
   [OutputType([Void])]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$true, Position=0, ValueFromPipeline=$true)]
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Text,
     [String] $TextColor,
     [String] $SubText = '',
