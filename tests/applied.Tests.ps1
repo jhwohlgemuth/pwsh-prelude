@@ -275,5 +275,6 @@ Describe 'Get-Variance / Get-Covariance' {
     $X = 1692,1978,1884,2151,2519
     $Y = 68,102,110,112,154
     $X,$Y | Get-Covariance -Sample | Should -Be 9107.30
+    $X,$Y | Get-Covariance | Should -Be (Get-Covariance $Y,$X)
   }
 }
