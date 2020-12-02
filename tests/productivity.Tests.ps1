@@ -6,6 +6,22 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
+Describe 'ConvertTo-AbstractSyntaxTree' {
+  It 'can convert the content of a file to AST' {
+    $Path = Join-Path $TestDrive 'test.ps1'
+    New-Item $Path
+    $Code = '$Answer = 42'
+    $Code | Out-File $Path
+    $Ast = ConvertTo-AbstractSyntaxTree $Path
+    $Ast.Extent.Text -replace '\r\n','' | Should -Be $Code
+    Remove-Item $Path
+  }
+  It 'can convert a string input to AST' {
+    $Code = '$Answer = 42'
+    $Ast = $Code | ConvertTo-AbstractSyntaxTree
+    $Ast.Extent.Text | Should -Be $Code
+  }
+}
 Describe 'ConvertTo-PlainText' {
   It 'can convert secure strings to plain text strings' {
     $Message = 'Powershell is awesome'

@@ -1,4 +1,32 @@
 ﻿
+function ConvertTo-AbstractSyntaxTree {
+  <#
+  .SYNOPSIS
+  Convert string or file to abstract syntax tree object
+  .EXAMPLE
+  '$Answer = 42' | ConvertTo-AbstractSyntaxTree
+  .EXAMPLE
+  ConvertTo-AbstractSyntaxTree '.\path\to\script.ps1'
+  #>
+  [CmdletBinding()]
+  [OutputType([System.Management.Automation.Language.ScriptBlockAst])]
+  Param(
+    [Parameter(Position=0)]
+    [String] $File,
+    [Parameter(ValueFromPipeline=$True)]
+    [String] $String
+  )
+  Process {
+    if ($File) {
+      $Path = (Resolve-Path $File).Path
+    }
+    if ($Path -and (Test-Path $Path)) {
+      [System.Management.Automation.Language.Parser]::ParseFile($Path, [Ref]$Null, [Ref]$Null)
+    } elseif ($String.Length -gt 0) {
+      [System.Management.Automation.Language.Parser]::ParseInput($String, [Ref]$Null, [Ref]$Null)
+    }
+  }
+}
 function ConvertTo-PlainText {
   <#
   .SYNOPSIS

@@ -132,6 +132,7 @@ Functions
 - `ConvertFrom-Html`
 - `ConvertFrom-Pair`
 - `ConvertFrom-QueryString`
+- `ConvertTo-AbstractSyntaxTree`
 - `ConvertTo-Degree`
 - `ConvertTo-PowershellSyntax`
 - `ConvertTo-Iso8601`
