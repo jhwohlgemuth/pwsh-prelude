@@ -562,7 +562,6 @@ function Invoke-Partition {
   # Returns @(@(2,4,6,8,10),@(1,3,5,7,9))
 
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope='Function')]
   [CmdletBinding()]
   [Alias('partition')]
   Param(
