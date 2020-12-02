@@ -181,7 +181,7 @@ function Get-GithubOAuthToken {
     }
   }
   $DeviceData = Invoke-WebRequestBasicAuth @DeviceRequestParameters |
-    Invoke-GetProperty Content |
+    ForEach-Object -MemberName 'Content' |
     ConvertFrom-ByteArray |
     ConvertFrom-QueryString
   $DeviceData | ConvertTo-Json | Write-Verbose
@@ -200,7 +200,7 @@ function Get-GithubOAuthToken {
   while (-not $Success) {
     Start-Sleep $DeviceData.interval
     $TokenData = Invoke-WebRequestBasicAuth @TokenRequestParameters |
-      Invoke-GetProperty Content |
+      ForEach-Object -MemberName 'Content' |
       ConvertFrom-ByteArray |
       ConvertFrom-QueryString
     $Success = $TokenData['token_type'] -eq 'bearer'
@@ -328,7 +328,7 @@ function Invoke-WebRequestBasicAuth {
     }
     $Request = Invoke-WebRequest @Parameters
     if ($ParseContent) {
-      $Request | Invoke-GetProperty Content | ConvertFrom-Json
+      $Request.Content | ConvertFrom-Json
     } else {
       $Request
     }

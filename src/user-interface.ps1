@@ -354,7 +354,7 @@ function Invoke-Menu {
         [Int] $Indent = 0
       )
       $Index = 0
-      $LengthValues = $Items | Invoke-GetProperty Length
+      $LengthValues = $Items | ForEach-Object -MemberName 'Length'
       $MaxLength = $LengthValues | Get-Maximum
       $MinLength = $LengthValues | Get-Minimum
       $Clear = ' ' | Write-Repeat -Times ($MaxLength - $MinLength)
