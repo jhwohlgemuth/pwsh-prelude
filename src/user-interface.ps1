@@ -344,7 +344,7 @@ function Invoke-Menu {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
       [CmdletBinding()]
       Param(
-        [Array] $Items,
+        [Array] $VisibleItems,
         [Int] $Position,
         [Array] $Selection,
         [Switch] $MultiSelect,
@@ -354,9 +354,9 @@ function Invoke-Menu {
         [Int] $Indent = 0
       )
       $Index = 0
-      $LengthValues = $Items | ForEach-Object -MemberName 'Length'
-      $MaxLength = $LengthValues | Get-Maximum
-      $MinLength = $LengthValues | Get-Minimum
+      $LengthValues = $Items | ForEach-Object { $_.ToString().Length }
+      $MaxLength = Get-Maximum $LengthValues
+      $MinLength = Get-Minimum $LengthValues
       $Clear = ' ' | Write-Repeat -Times ($MaxLength - $MinLength)
       $LeftPadding = ' ' | Write-Repeat -Times $Indent
       if ($ShowHeader) {
@@ -365,8 +365,7 @@ function Invoke-Menu {
         "${LeftPadding}<<prev  {{#${HighlightColor} ${CurrentPage}}}/${TotalPages}  next>>" | Write-Color -DarkGray
         $Clear | Write-Color -Cyan
       }
-      $Items | ForEach-Object {
-        $Item = $_
+      foreach($Item in $VisibleItems) {
         if ($Null -ne $Item) {
           if ($MultiSelect) {
             $Item = if ($Selection -contains $Index) { "[x] $Item$Clear" } else { "[ ] $Item$Clear" }
@@ -428,6 +427,12 @@ function Invoke-Menu {
     $PageNumber = 0
     $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
     $ShouldPaginate = $Limit -in 1..($Items.Count - 1)
+    if ($ShouldPaginate) {
+      $ExtraItemCount = $Limit - ($Items.Count % $Limit)
+      for ($Index = 0; $Index -lt $ExtraItemCount; $Index++) {
+        $Items += '...'
+      }
+    }
     $VisibleItems = if ($ShouldPaginate) {
       $StartIndex = $PageNumber * $Limit
       $Items[$StartIndex..($StartIndex + $Limit - 1)]
@@ -436,7 +441,7 @@ function Invoke-Menu {
     }
     [Console]::SetCursorPosition(0, [Console]::CursorTop)
     $Parameters = @{
-      Items = $VisibleItems
+      VisibleItems = $VisibleItems
       Position = $Position
       Selection = $Selection
       MultiSelect = $MultiSelect
@@ -501,7 +506,7 @@ function Invoke-Menu {
         }
         [Console]::SetCursorPosition(0, $StartPosition)
         $Parameters = @{
-          Items = $VisibleItems
+          VisibleItems = $VisibleItems
           Position = $Position
           Selection = $Selection
           MultiSelect = $MultiSelect
