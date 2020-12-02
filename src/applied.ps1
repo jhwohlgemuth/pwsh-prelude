@@ -470,7 +470,7 @@ function Get-Permutation {
         [Array] $Direction
       )
       $IsMoveable = $False
-      for($Index = 0; $Index -lt $Work.Count; $Index++) {
+      for ($Index = 0; $Index -lt $Work.Count; $Index++) {
         if (Test-Moveable -Work $Work -Direction $Direction -Index $Index) {
           $IsMoveable = $True
           Break
@@ -487,7 +487,7 @@ function Get-Permutation {
         [Array] $Direction
       )
       $Index = 0
-      foreach($Item in $Work) {
+      foreach ($Item in $Work) {
         if ((Test-Moveable -Work $Work -Direction $Direction -Index $Index) -and ($Largest -lt $Item)) {
           $Largest = $Item
           $Position = $Index
@@ -523,14 +523,14 @@ function Get-Permutation {
       }
       if ($Choose -gt 0) {
         $Items = [System.Collections.ArrayList]::New()
-        foreach($Result in $Results) {
+        foreach ($Result in $Results) {
           [Void]$Items.Add($Result[0..($Choose - 1)])
         }
         $Results = $Items | Select-Object -Unique
       }
       if ($Unique) {
         $Choices = [System.Collections.ArrayList]::New()
-        foreach($Result in $Results) {
+        foreach ($Result in $Results) {
           $Choice = $Result | Sort-Object
           [Void]$Choices.Add($Choice)
         }
@@ -567,7 +567,7 @@ function Get-Permutation {
             Choose = $Choose
             Unique = $Unique
           }
-          foreach($Item in (Invoke-Permutation @Parameters)) {
+          foreach ($Item in (Invoke-Permutation @Parameters)) {
             $Permutation = $Items[$Item]
             if ($Words) {
               $Permutation = $Permutation -join ''

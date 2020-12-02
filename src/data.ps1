@@ -35,7 +35,7 @@ function Format-MoneyValue {
         if ($OrderOfMagnitude -gt 3) {
           $Position = 3
           $Length = $Output.Length
-          1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
+          for ($Index = 1; $Index -le [Math]::Floor($OrderOfMagnitude / 3); $Index++) {
             $Output = $Output | Invoke-InsertString ',' -At ($Length - $Position)
             $Position += 3
           }
@@ -57,7 +57,7 @@ function Format-MoneyValue {
           if ($OrderOfMagnitude -gt 3) {
             $Position = 6
             $Length = $Output.Length
-            1..[Math]::Floor($OrderOfMagnitude / 3) | ForEach-Object {
+            for ($Index = 1; $Index -le [Math]::Floor($OrderOfMagnitude / 3); $Index++) {
               $Output = $Output | Invoke-InsertString ',' -At ($Length - $Position)
               $Position += 3
             }
@@ -133,14 +133,15 @@ function Import-Excel {
   $RowCount = $Worksheet.UsedRange.Rows.Count
   $ColumnCount = $Worksheet.UsedRange.Columns.Count
   $StartIndex = if ($FirstRowHeaders) { 2 } else { 1 }
-  $Cells = $StartIndex..$RowCount | ForEach-Object {
-    $RowIndex = $_
+  $Cells = @()
+  for ($RowIndex = $StartIndex; $RowIndex -le $RowCount; $RowIndex++) {
     if ($ShowProgress) {
       Write-Progress -Activity 'Importing Excel data' -Status "Processing row ($RowIndex of ${RowCount})" -PercentComplete (($RowIndex / $RowCount) * 100)
     }
-    1..$ColumnCount | ForEach-Object {
-      $Value = $Worksheet.Cells.Item($RowIndex, $_).Value2
-      if ($Null -eq $Value) { $EmptyValue } else { $Value }
+    for ($ColumnIndex = 1; $ColumnIndex -le $ColumnCount; $ColumnIndex++) {
+      $Value = $Worksheet.Cells.Item($RowIndex, $ColumnIndex).Value2
+      $Element = if ($Null -eq $Value) { $EmptyValue } else { $Value }
+      $Cells += $Element
     }
   }
   if ($ShowProgress) {

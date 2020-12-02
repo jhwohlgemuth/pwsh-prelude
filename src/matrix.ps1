@@ -65,8 +65,8 @@
       $Values = $Values | Invoke-Flatten
       if ($Diagonal) {
         $Index = 0
-        $Matrix.Indexes() | ForEach-Object {
-          $Row,$Column = $_
+        foreach ($Pair in $Matrix.Indexes()) {
+          $Row,$Column = $Pair
           if ($Row -eq $Column) {
             $Matrix.Rows[$Row][$Column] = $Values[$Index]
             $Index++
@@ -82,8 +82,8 @@
       $Values = $Input | Invoke-Flatten
       if ($Diagonal) {
         $Index = 0
-        $Matrix.Indexes() | ForEach-Object {
-          $Row,$Column = $_
+        foreach ($Pair in $Matrix.Indexes()) {
+          $Row,$Column = $Pair
           if ($Row -eq $Column) {
             $Matrix.Rows[$Row][$Column] = $Values[$Index]
             $Index++

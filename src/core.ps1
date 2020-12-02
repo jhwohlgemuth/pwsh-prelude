@@ -162,8 +162,8 @@ function Get-Property {
     if ($Name -match '\.') {
       $Result = $InputObject
       $Properties = $Name -split '\.'
-      $Properties | ForEach-Object {
-        $Result = Get-PropertyMaybe $Result $_
+      foreach ($Property in $Properties) {
+        $Result = Get-PropertyMaybe $Result $Property
       }
       $Result
     } else {
@@ -203,7 +203,7 @@ function Invoke-Chunk {
         if ($Size -gt 0 -and $Size -lt $InputSize) {
           $Index = 0
           $Arrays = [System.Collections.ArrayList]::New()
-          1..[Math]::Ceiling($InputSize / $Size) | ForEach-Object {
+          for ($Count = 1; $Count -le ([Math]::Ceiling($InputSize / $Size)); $Count++) {
             [Void]$Arrays.Add($InputObject[$Index..($Index + $Size - 1)])
             $Index += $Size
           }
@@ -582,12 +582,12 @@ function Invoke-Partition {
       if ($InputObject.Count -gt 1) {
         $Left = @()
         $Right = @()
-        $InputObject | ForEach-Object {
-          $Condition = & $Predicate $_
+        foreach ($Item in $InputObject) {
+          $Condition = & $Predicate $Item
           if ($Condition) {
-            $Left += $_
+            $Left += $Item
           } else {
-            $Right += $_
+            $Right += $Item
           }
         }
         @($Left,$Right)
@@ -781,11 +781,11 @@ function Invoke-Reduce {
         'FileInfo' { { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length } }
         Default { $Callback }
       }
-      $Items | ForEach-Object {
+      foreach ($Item in $Items) {
         if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Bool] -or $InitialValue -is [Array]) {
-          $Result = & $Callback $Result $_ $Index $Items
+          $Result = & $Callback $Result $Item $Index $Items
         } else {
-          & $Callback $Result $_ $Index $Items
+          & $Callback $Result $Item $Index $Items
         }
         $Index++
       }
@@ -907,9 +907,9 @@ function Invoke-Unzip {
       if ($InputObject.Count -gt 0) {
         $Left = [System.Collections.ArrayList]::New()
         $Right = [System.Collections.ArrayList]::New()
-        $InputObject | ForEach-Object {
-          [Void]$Left.Add($_[0])
-          [Void]$Right.Add($_[1])
+        foreach ($Item in $InputObject) {
+          [Void]$Left.Add($Item[0])
+          [Void]$Right.Add($Item[1])
         }
         $Left,$Right
       }
@@ -956,17 +956,18 @@ function Invoke-Zip {
         $Data = $InputObject
         $Arrays = [System.Collections.ArrayList]::New()
         $MaxLength = $Data | ForEach-Object { $_.Count } | Get-Maximum
-        $Data | ForEach-Object {
-          $Initial = $_
+        foreach ($Item in $Data) {
+          $Initial = $Item
           $Offset = $MaxLength - $Initial.Count
           if ($Offset -gt 0) {
-            1..$Offset | ForEach-Object { $Initial += $EmptyValue }
+            for ($Index = 1; $Index -le $Offset; $Index++) {
+              $Initial += $EmptyValue
+            }
           }
           [Void]$Arrays.Add($Initial)
         }
         $Result = [System.Collections.ArrayList]::New()
-        0..($MaxLength - 1) | ForEach-Object {
-          $Index = $_
+        for ($Index = 0; $Index -lt $MaxLength; $Index++) {
           $Current = $Arrays | ForEach-Object { $_[$Index] }
           [Void]$Result.Add($Current)
         }
