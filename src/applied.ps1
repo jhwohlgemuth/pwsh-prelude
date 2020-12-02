@@ -462,7 +462,6 @@ function Get-Permutation {
       return $False
     }
     function Test-MoveableExist {
-      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
       [OutputType([Bool])]
       Param(
         [Parameter(Position=0)]
@@ -470,11 +469,17 @@ function Get-Permutation {
         [Parameter(Position=1)]
         [Array] $Direction
       )
-      (0..($Work.Count - 1) | ForEach-Object { Test-Moveable -Work $Work -Direction $Direction -Index $_ }) -contains $True
+      $IsMoveable = $False
+      for($Index = 0; $Index -lt $Work.Count; $Index++) {
+        if (Test-Moveable -Work $Work -Direction $Direction -Index $Index) {
+          $IsMoveable = $True
+          Break
+        }
+      }
+      $IsMoveable
     }
     function Find-LargestMoveable {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Position')]
-      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Direction')]
       Param(
         [Parameter(Position=0)]
         [Array] $Work,
@@ -482,9 +487,9 @@ function Get-Permutation {
         [Array] $Direction
       )
       $Index = 0
-      $Work | ForEach-Object {
-        if ((Test-Moveable -Work $Work -Direction $Direction -Index $Index) -and ($Largest -lt $_)) {
-          $Largest = $_
+      foreach($Item in $Work) {
+        if ((Test-Moveable -Work $Work -Direction $Direction -Index $Index) -and ($Largest -lt $Item)) {
+          $Largest = $Item
           $Position = $Index
         }
         $Index++
@@ -518,15 +523,15 @@ function Get-Permutation {
       }
       if ($Choose -gt 0) {
         $Items = [System.Collections.ArrayList]::New()
-        $Results | ForEach-Object {
-          [Void]$Items.Add($_[0..($Choose - 1)])
+        foreach($Result in $Results) {
+          [Void]$Items.Add($Result[0..($Choose - 1)])
         }
         $Results = $Items | Select-Object -Unique
       }
       if ($Unique) {
         $Choices = [System.Collections.ArrayList]::New()
-        $Results | ForEach-Object {
-          $Choice = $_ | Sort-Object
+        foreach($Result in $Results) {
+          $Choice = $Result | Sort-Object
           [Void]$Choices.Add($Choice)
         }
         $Choices | Sort-Object -Unique
@@ -562,8 +567,8 @@ function Get-Permutation {
             Choose = $Choose
             Unique = $Unique
           }
-          Invoke-Permutation @Parameters | ForEach-Object {
-            $Permutation = $Items[$_]
+          foreach($Item in (Invoke-Permutation @Parameters)) {
+            $Permutation = $Items[$Item]
             if ($Words) {
               $Permutation = $Permutation -join ''
             }
