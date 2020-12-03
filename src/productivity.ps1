@@ -102,13 +102,7 @@ function Find-Duplicate {
   "==> Finding duplicate files in `"$Path`"" | Write-Verbose
   if ($AsJob) {
     $Job = Start-Job -Name 'Find-Duplicate' -ArgumentList $Path -ScriptBlock {
-      $Args[0] |
-        Get-ChildItem -Recurse |
-        Get-FileHash |
-        Group-Object -Property Hash |
-        Where-Object Count -gt 1 |
-        ForEach-Object { $_.Group | Select-Object Path, Hash } |
-        Sort-Object -Property Hash
+      Find-Duplicate $Args[0]
     }
     "==> Started job (Id=$($Job.Id)) to find duplicate files" | Write-Verbose
     "==> To get results, use `"`$Files = Receive-Job $($Job.Name)`"" | Write-Verbose
