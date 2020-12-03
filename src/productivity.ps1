@@ -65,7 +65,8 @@ function Enable-Remoting {
   #>
   [CmdletBinding()]
   Param(
-    [String] $TrustedHosts = '*'
+    [String] $TrustedHosts = '*',
+    [Switch] $PassThru
   )
   if (Test-Admin) {
     Write-Verbose '==> Making network private'
@@ -75,7 +76,9 @@ function Enable-Remoting {
     Enable-PSRemoting -Force -SkipNetworkProfileCheck
     Write-Verbose '==> Updated trusted hosts'
     Set-Item $Path -Value $TrustedHosts -Force
-    Get-Item $Path
+    if ($PassThru) {
+      return Get-Item $Path
+    }
   } else {
     Write-Error '==> Enable-Remoting requires Administrator privileges'
   }
@@ -514,13 +517,19 @@ function New-DailyShutdownJob {
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$True)]
-    [String] $At
+    [String] $At,
+    [Switch] $PassThru
   )
+  $Result = $False
   if (Test-Admin) {
     $Trigger = New-JobTrigger -Daily -At $At
     Register-ScheduledJob -Name 'DailyShutdown' -ScriptBlock { Stop-Computer -Force } -Trigger $Trigger
+    $Result = $True
   } else {
     Write-Error '==> New-DailyShutdownJob requires Administrator privileges'
+  }
+  if ($PassThru) {
+    $Result
   }
 }
 function New-File {
@@ -536,12 +545,15 @@ function New-File {
   [Alias('touch')]
   Param(
     [Parameter(Mandatory=$True)]
-    [String] $Name
+    [String] $Name,
+    [Switch] $PassThru
   )
+  $Result = $False
   if (Test-Path $Name) {
     if ($PSCmdlet.ShouldProcess($Name)) {
       (Get-ChildItem $Name).LastWriteTime = Get-Date
       "==> Updated `"last write time`" of $Name" | Write-Verbose
+      $Result = $True
     } else {
       "==> Would have updated `"last write time`" of $Name" | Write-Color -DarkGray
     }
@@ -549,9 +561,13 @@ function New-File {
     if ($PSCmdlet.ShouldProcess($Name)) {
       New-Item -Path . -Name $Name -ItemType 'file' -Value ''
       "==> Created new file, $Name" | Write-Verbose
+      $Result = $True
     } else {
       "==> Would have created new file, $Name" | Write-Color -DarkGray
     }
+  }
+  if ($PassThru) {
+    $Result
   }
 }
 function New-ProxyCommand {
@@ -663,11 +679,18 @@ function Remove-DailyShutdownJob {
   Remove-DailyShutdownJob
   #>
   [CmdletBinding()]
-  Param()
+  Param(
+    [Switch] $PassThru
+  )
+  $Result = $False
   if (Test-Admin) {
     Unregister-ScheduledJob -Name 'DailyShutdown'
+    $Result = $True
   } else {
     Write-Error '==> Remove-DailyShutdownJob requires Administrator privileges'
+  }
+  if ($PassThru) {
+    $Result
   }
 }
 function Remove-DirectoryForce {
@@ -868,6 +891,10 @@ function Update-HostsFile {
   }
 }
 function Use-Grammar {
+  <#
+  .SYNOPSIS
+  Create speech recognition engine, load grammars for words, and return the engine
+  #>
   [CmdletBinding()]
   [OutputType([System.Speech.Recognition.SpeechRecognitionEngine])]
   Param(
@@ -878,10 +905,10 @@ function Use-Grammar {
   $Engine = [System.Speech.Recognition.SpeechRecognitionEngine]::New();
   $Engine.InitialSilenceTimeout = 15
   $Engine.SetInputToDefaultAudioDevice();
-  $Words | ForEach-Object {
-    Write-Verbose "==> Loading grammar for $_"
+  foreach($Word in $Words) {
+    "==> Loading grammar for $Word" | Write-Verbose
     $Grammar = [System.Speech.Recognition.GrammarBuilder]::New();
-    $Grammar.Append($_)
+    $Grammar.Append($Word)
     $Engine.LoadGrammar($Grammar)
   }
   $Engine
@@ -892,16 +919,23 @@ function Use-Speech {
   Load System.Speech type if it is not already loaded.
   #>
   [CmdletBinding()]
-  Param()
+  Param(
+    [Switch] $PassThru
+  )
+  $Result = $False
   if ($IsLinux -is [Bool] -and $IsLinux) {
     Write-Verbose '==> Speech synthesizer can only be used on Windows platform'
   } else {
     $SpeechSynthesizerTypeName = 'System.Speech.Synthesis.SpeechSynthesizer'
     if (-not ($SpeechSynthesizerTypeName -as [Type])) {
-      Write-Verbose '==> Adding System.Speech type'
+      '==> Adding System.Speech type' | Write-Verbose
       Add-Type -AssemblyName System.Speech
     } else {
-      Write-Verbose '==> System.Speech is already loaded'
+      '==> System.Speech is already loaded' | Write-Verbose
     }
+    $Result = $True
+  }
+  if ($PassThru) {
+    $Result
   }
 }

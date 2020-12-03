@@ -418,7 +418,8 @@ function Use-Web {
   #>
   [CmdletBinding()]
   Param(
-    [Switch] $Browser
+    [Switch] $Browser,
+    [Switch] $PassThru
   )
   if (-not ('System.Web.HttpUtility' -as [Type])) {
     '==> Adding System.Web types' | Write-Verbose
@@ -433,5 +434,8 @@ function Use-Web {
     } else {
       '==> System.Windows.Forms is already loaded' | Write-Verbose
     }
+  }
+  if ($PassThru) {
+    $True
   }
 }
