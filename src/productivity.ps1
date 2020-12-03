@@ -95,16 +95,32 @@ function Find-Duplicate {
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
-    [String] $Name
+    [String] $Name,
+    [Switch] $AsJob
   )
-  Get-Item $Name |
-    Get-ChildItem -Recurse |
-    Get-FileHash |
-    Group-Object -Property Hash |
-    Where-Object Count -gt 1 |
-    ForEach-Object { $_.Group | Select-Object Path, Hash } |
-    Sort-Object -Property Hash |
-    Write-Output
+  $Path = Get-Item $Name
+  "==> Finding duplicate files in `"$Path`"" | Write-Verbose
+  if ($AsJob) {
+    $Job = Start-Job -Name 'Find-Duplicate' -ArgumentList $Path -ScriptBlock {
+      $Args[0] |
+        Get-ChildItem -Recurse |
+        Get-FileHash |
+        Group-Object -Property Hash |
+        Where-Object Count -gt 1 |
+        ForEach-Object { $_.Group | Select-Object Path, Hash } |
+        Sort-Object -Property Hash
+    }
+    "==> Started job (Id=$($Job.Id)) to find duplicate files" | Write-Verbose
+    "==> To get results, use `"`$Files = Receive-Job $($Job.Name)`"" | Write-Verbose
+  } else {
+    $Path |
+      Get-ChildItem -Recurse |
+      Get-FileHash |
+      Group-Object -Property Hash |
+      Where-Object Count -gt 1 |
+      ForEach-Object { $_.Group | Select-Object Path, Hash } |
+      Sort-Object -Property Hash
+  }
 }
 function Find-FirstTrueVariable {
   [CmdletBinding()]
@@ -382,7 +398,9 @@ function Invoke-ListenForWord {
 function Invoke-RemoteCommand {
   <#
   .SYNOPSIS
-  Execute script block on remote computer (like Invoke-Command, but remote)
+  Lightweight wrapper function for Invoke-Command that simplifies the interface and allows for using a string password directly
+  .PARAMETER Parameters
+  Object to pass parameters to underlying Invoke-Command call (ex: -Parameters @{ HideComputerName = $True })
   .EXAMPLE
   Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456 { whoami }
   .EXAMPLE
@@ -392,39 +410,63 @@ function Invoke-RemoteCommand {
 
   This will open a prompt for you to input your password
   .EXAMPLE
-  { whoami } | irc -ComputerNames Larry, Moe, Curly
+  { whoami } | irc -ComputerNames Larry,Moe,Curly
 
   Use the "irc" alias and execute commands on multiple computers!
   .EXAMPLE
   Get-Credential | Export-CliXml -Path .\crendential.xml
   { whoami } | Invoke-RemoteCommand -Credential (Import-Clixml -Path .\credential.xml) -ComputerNames PCNAME -Verbose
+  .EXAMPLE
+  irc '.\path\to\script.ps1'
+  .EXAMPLE
+  { Get-Process } | irc -Name Mario -Parameters @{ HideComputerName = $True }
   #>
-  [CmdletBinding()]
+  [CmdletBinding(DefaultParameterSetName='scriptblock')]
   [Alias('irc')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope='Function')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(ParameterSetName='scriptblock', Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [ScriptBlock] $ScriptBlock,
-    [Parameter(Mandatory=$True)]
-    [String[]] $ComputerNames,
+    [Parameter(ParameterSetName='file', Mandatory=$True, Position=0)]
+    [ValidateScript({ Test-Path $_ })]
+    [String] $FilePath,
+    [Parameter(ParameterSetName='scriptblock', Mandatory=$True)]
+    [Parameter(ParameterSetName='file', Mandatory=$True)]
+    [Alias('Name')]
+    [String[]] $ComputerName,
+    [Parameter(ParameterSetName='scriptblock')]
+    [Parameter(ParameterSetName='file')]
     [String] $Password,
-    [PSObject] $Credential
+    [Parameter(ParameterSetName='scriptblock')]
+    [Parameter(ParameterSetName='file')]
+    [PSObject] $Credential,
+    [Parameter(ParameterSetName='scriptblock')]
+    [Parameter(ParameterSetName='file')]
+    [Switch] $AsJob,
+    [Parameter(ParameterSetName='scriptblock')]
+    [Parameter(ParameterSetName='file')]
+    [PSObject] $Parameters = @{}
   )
   $User = whoami
   if ($Credential) {
-    Write-Verbose '==> Using -Credential for authentication'
+    '==> Using -Credential for authentication' | Write-Verbose
     $Cred = $Credential
   } elseif ($Password) {
-    Write-Verbose "==> Creating credential for $User using -Password"
+    "==> Creating credential for $User using -Password" | Write-Verbose
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-    $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
+    $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User,$Pass
   } else {
-    $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerNames)" -User $User
+    $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerName)" -User $User
   }
-  Write-Verbose "==> Running command on $(Join-StringsWithGrammar $ComputerNames)"
-  Invoke-Command -ComputerName $ComputerNames -Credential $Cred -ScriptBlock $ScriptBlock
+  "==> Running command on $(Join-StringsWithGrammar $ComputerName)" | Write-Verbose
+  $Execute = if ($FilePath) {
+    @{ FilePath = $FilePath }
+  } else {
+    @{ ScriptBlock = $ScriptBlock }
+  }
+  Invoke-Command -ComputerName $ComputerName -Credential $Cred -AsJob:$AsJob @Execute @Parameters
 }
 function Invoke-Speak {
   <#
@@ -515,6 +557,7 @@ function New-DailyShutdownJob {
   New-DailyShutdownJob -At '22:00'
   #>
   [CmdletBinding()]
+  [OutputType([Bool])]
   Param(
     [Parameter(Mandatory=$True)]
     [String] $At,
@@ -543,6 +586,7 @@ function New-File {
   #>
   [CmdletBinding(SupportsShouldProcess=$True)]
   [Alias('touch')]
+  [OutputType([Bool])]
   Param(
     [Parameter(Mandatory=$True)]
     [String] $Name,
@@ -679,6 +723,7 @@ function Remove-DailyShutdownJob {
   Remove-DailyShutdownJob
   #>
   [CmdletBinding()]
+  [OutputType([Bool])]
   Param(
     [Switch] $PassThru
   )
@@ -919,6 +964,7 @@ function Use-Speech {
   Load System.Speech type if it is not already loaded.
   #>
   [CmdletBinding()]
+  [OutputType([Bool])]
   Param(
     [Switch] $PassThru
   )

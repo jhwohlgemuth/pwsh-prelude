@@ -31,6 +31,12 @@ Describe 'ConvertTo-PlainText' {
   }
 }
 Describe 'Find-Duplicates' {
+  AfterEach {
+    Remove-Item "TestDrive:\foo"
+    Remove-Item "TestDrive:\bar"
+    Remove-Item "TestDrive:\baz"
+    Remove-Item "TestDrive:\sub" -Recurse -Force
+  }
   It 'can identify duplicate files' {
     $Same = 'these files have identical content'
     $Same | Out-File 'TestDrive:\foo'
@@ -40,6 +46,18 @@ Describe 'Find-Duplicates' {
     $Same | Out-File 'TestDrive:\sub\bam'
     'also unique' | Out-File 'TestDrive:\sub\bat'
     Find-Duplicate 'TestDrive:\' | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
+  }
+  It 'can identify duplicate files as a job' {
+    $Same = 'these files have identical content'
+    $Same | Out-File 'TestDrive:\foo'
+    'unique' | Out-File 'TestDrive:\bar'
+    $Same | Out-File 'TestDrive:\baz'
+    mkdir 'TestDrive:\sub'
+    $Same | Out-File 'TestDrive:\sub\bam'
+    'also unique' | Out-File 'TestDrive:\sub\bat'
+    Find-Duplicate 'TestDrive:\' -AsJob
+    Wait-Job -Name 'Find-Duplicate'
+    Receive-Job 'Find-Duplicate' | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
   }
 }
 Describe 'Find-FirstTrueVariable' {
