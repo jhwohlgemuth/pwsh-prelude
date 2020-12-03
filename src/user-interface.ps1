@@ -335,9 +335,9 @@ function Invoke-Menu {
     [Switch] $SingleSelect,
     [String] $HighlightColor = 'Cyan',
     [Switch] $ReturnIndex = $False,
+    [Switch] $FolderContent,
     [Int] $Limit = 0,
-    [Int] $Indent = 0,
-    [Switch] $FolderContent
+    [Int] $Indent = 0
   )
   Begin {
     function Invoke-MenuDraw {
@@ -346,11 +346,11 @@ function Invoke-Menu {
       Param(
         [Array] $VisibleItems,
         [Int] $Position,
+        [Int] $PageNumber,
         [Array] $Selection,
         [Switch] $MultiSelect,
         [Switch] $SingleSelect,
-        [Bool] $ShowHeader,
-        [Int] $PageNumber,
+        [Switch] $ShowHeader,
         [Int] $Indent = 0
       )
       $Index = 0
@@ -367,11 +367,12 @@ function Invoke-Menu {
       }
       foreach($Item in $VisibleItems) {
         if ($Null -ne $Item) {
+          $ModularIndex = ($PageNumber * $Limit) + $Index
           if ($MultiSelect) {
-            $Item = if ($Selection -contains $Index) { "[x] $Item$Clear" } else { "[ ] $Item$Clear" }
+            $Item = if ($Selection -contains $ModularIndex) { "[x] $Item$Clear" } else { "[ ] $Item$Clear" }
           } else {
             if ($SingleSelect) {
-              $Item = if ($Selection -contains $Index) { "(o) $Item$Clear" } else { "( ) $Item$Clear" }
+              $Item = if ($Selection -contains $ModularIndex) { "(o) $Item$Clear" } else { "( ) $Item$Clear" }
             }
           }
           $Parameters = if ($Index -eq $Position) { @{ Color = $HighlightColor } } else { @{} }
@@ -385,17 +386,19 @@ function Invoke-Menu {
       [CmdletBinding()]
       Param(
         [Int] $Position,
+        [Int] $PageNumber,
         [Array] $Selection,
         [Switch] $MultiSelect,
         [Switch] $SingleSelect
       )
-      if ($Selection -contains $Position) {
-        $Result = $Selection | Where-Object { $_ -ne $Position }
+      $ModularPosition = (($PageNumber * $Limit) + $Position)
+      if ($Selection -contains $ModularPosition) {
+        $Result = $Selection | Where-Object { $_ -ne $ModularPosition }
       } else {
         if ($MultiSelect) {
-          $Selection += $Position
+          $Selection += $ModularPosition
         } else {
-          $Selection = ,$Position
+          $Selection = ,$ModularPosition
         }
         $Result = $Selection
       }
@@ -460,6 +463,7 @@ function Invoke-Menu {
         $Keycodes.space {
           $Parameters = @{
             Position = $Position
+            PageNumber = $PageNumber
             Selection = $Selection
             MultiSelect = $MultiSelect
             SingleSelect = $SingleSelect
@@ -522,12 +526,12 @@ function Invoke-Menu {
     if ($ReturnIndex -eq $False -and $Null -ne $Position) {
       if ($MultiSelect -or $SingleSelect) {
         if ($Selection.Length -gt 0) {
-          return $VisibleItems[$Selection]
+          return $Items[$Selection]
         } else {
           return $Null
         }
       } else {
-        return $VisibleItems[$Position]
+        return $Items[$Position]
       }
     } else {
       if ($MultiSelect -or $SingleSelect) {
