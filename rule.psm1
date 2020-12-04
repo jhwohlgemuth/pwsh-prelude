@@ -102,6 +102,62 @@ function Measure-ParamPascalCase {
     }
   }
 }
+function Measure-TypeAttributePascalCase {
+  <#
+  .SYNOPSIS
+  Type annotations ([String], [Array], etc...) should be PascalCase.
+  .DESCRIPTION
+  The first letter of type annotations should be capitalized.
+  .EXAMPLE
+  # BAD
+  [bool]$Foo = $False
+
+  #GOOD
+  [Bool]$Foo = $True
+
+  .INPUTS
+  [System.Management.Automation.Language.ScriptBlockAst]
+  .OUTPUTS
+  [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]
+  .NOTES
+  Reference: Personal preference
+  Note: Whether you prefer PascalCase type names or otherwise, consistency is what matters most.
+  #>
+  [CmdletBinding()]
+  [OutputType([Object[]])]
+  Param(
+    [Parameter(Mandatory=$True)]
+    [ValidateNotNullOrEmpty()]
+    [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
+  )
+  Process {
+    [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]$Results = @()
+    try {
+      $Predicate = {
+        Param(
+          [System.Management.Automation.Language.Ast] $Ast
+        )
+        $IsVariableExpression = $Ast -is [System.Management.Automation.Language.VariableExpressionAst]
+        $VariableAnnotation = $Ast.Parent.Attribute.Extent.Text
+        $IsVariableViolation = $IsVariableExpression -and ($VariableAnnotation -match '^\[.*\]') -and -not ($VariableAnnotation -cmatch '^\[[A-Z]')
+        # Check for param block parameter type attributes
+        $IsVariableViolation
+      }
+      $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
+      foreach ($Violation in $Violations) {
+        $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
+          Message  = "The type attribute, `"$($Violation.Parent.Attribute.Extent)`", should be PascalCase."
+          RuleName = 'TypeAttributePascalCase'
+          Severity = 'Warning'
+          Extent   = $Violation.Extent
+        }
+      }
+      return $Results
+    } catch {
+      $PSCmdlet.ThrowTerminatingError($PSItem)
+    }
+  }
+}
 function Measure-VariablePascalCase {
   <#
   .SYNOPSIS
