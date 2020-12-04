@@ -4,6 +4,7 @@
   Operators (-join, -split, etc...) should be lowercase.
   .DESCRIPTION
   Operators should not be capitalized.
+  This rule can auto-fix violations.
   .EXAMPLE
   # BAD
   $Foo -Join $Bar
@@ -67,12 +68,13 @@
     }
   }
 }
-function Measure-ParamPascalCase {
+function Measure-ParamPascalCaseNoTrailingSpace {
   <#
   .SYNOPSIS
   Param block keyword should be PascalCase.
   .DESCRIPTION
   The "p" of "param" should be capitalized.
+  This rule can auto-fix violations.
   .EXAMPLE
   # BAD
   param()
@@ -102,15 +104,28 @@ function Measure-ParamPascalCase {
         Param(
           [System.Management.Automation.Language.Ast] $Ast
         )
-        ($Ast -is [System.Management.Automation.Language.ParamBlockAst]) -and -not ($Ast.Extent.Text -cmatch 'Param\s*\(')
+        ($Ast -is [System.Management.Automation.Language.ParamBlockAst]) -and -not ($Ast.Extent.Text -cmatch 'Param\(')
       }
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
+        $Extent = $Violation.Extent
+        $Correction = $Extent.Text -replace '^param\s*\(','Param('
+        $CorrectionExtent = [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent]::New(
+          $Extent.StartLineNumber,
+          $Extent.EndLineNumber,
+          $Extent.StartColumnNumber,
+          $Extent.EndColumnNumber,
+          $Correction,
+          ''# optional description - intentionally left blank
+        )
+        $SuggestedCorrections = New-Object System.Collections.ObjectModel.Collection['Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent']
+        [Void]$SuggestedCorrections.Add($CorrectionExtent)
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Param block keyword should be PascalCase'
-          RuleName = 'ParamPascalCase'
+          Message  = 'Param block keyword should be PascalCase with no trailing spaces'
+          RuleName = 'ParamPascalCaseNoTrailingSpace'
           Severity = 'Warning'
-          Extent   = $Violation.Extent
+          Extent   = $Extent
+          SuggestedCorrections = $SuggestedCorrections
         }
       }
       return $Results
