@@ -1,4 +1,4 @@
-function Measure-OperatorLowerCase {
+﻿function Measure-OperatorLowerCase {
   <#
   .SYNOPSIS
   Operators (-join, -split, etc...) should be lowercase.
@@ -37,11 +37,28 @@ function Measure-OperatorLowerCase {
       }
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
+        $Extent = $Violation.Extent
+        $ErrorPosition = $Violation.ErrorPosition
+        $StartColumnNumber = $Extent.StartColumnNumber
+        $Start = $ErrorPosition.StartColumnNumber - $StartColumnNumber
+        $End = $ErrorPosition.EndColumnNumber - $StartColumnNumber
+        $Correction = $Extent.Text.SubString(0, $Start) + $ErrorPosition.Text.ToLower() + $Extent.Text.SubString($End)
+        $CorrectionExtent = [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent]::New(
+          $Extent.StartLineNumber,
+          $Extent.EndLineNumber,
+          $StartColumnNumber,
+          $Extent.EndColumnNumber,
+          $Correction,
+          ''# optional description - intentionally left blank
+        )
+        $SuggestedCorrections = New-Object System.Collections.ObjectModel.Collection['Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent']
+        [Void]$SuggestedCorrections.Add($CorrectionExtent)
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Operators should be lowercase.'
+          Message  = 'Operators should be lowercase'
           RuleName = 'OperatorLowerCase'
           Severity = 'Warning'
-          Extent   = $Violation.Extent
+          Extent   = $Extent
+          SuggestedCorrections = $SuggestedCorrections
         }
       }
       return $Results
@@ -90,7 +107,7 @@ function Measure-ParamPascalCase {
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Param block keyword should be PascalCase.'
+          Message  = 'Param block keyword should be PascalCase'
           RuleName = 'ParamPascalCase'
           Severity = 'Warning'
           Extent   = $Violation.Extent
@@ -145,7 +162,7 @@ function Measure-TypeAttributePascalCase {
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = "The type attribute, `"$($Violation.Extent.Text)`", should be PascalCase."
+          Message  = "Type attribute, `"$($Violation.Extent.Text)`", should be PascalCase"
           RuleName = 'TypeAttributePascalCase'
           Severity = 'Warning'
           Extent   = $Violation.Extent
@@ -201,7 +218,7 @@ function Measure-VariablePascalCase {
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = "The variable name, `"$($Violation.Extent.Text)`", should be PascalCase."
+          Message  = "Variable name, `"$($Violation.Extent.Text)`", should be PascalCase"
           RuleName = 'VariablePascalCase'
           Severity = 'Warning'
           Extent   = $Violation.Extent
