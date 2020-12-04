@@ -235,7 +235,7 @@ function Invoke-DropWhile {
         [Parameter(Position=0)]
         [Array] $InputObject,
         [Parameter(Position=1)]
-        [scriptblock] $Predicate
+        [ScriptBlock] $Predicate
       )
       if ($InputObject.Count -gt 0) {
         $Continue = $False

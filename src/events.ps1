@@ -85,7 +85,7 @@ function Invoke-ListenTo {
     [Parameter(ParameterSetName='custom', Mandatory=$True, ValueFromPipeline=$True)]
     [Parameter(ParameterSetName='variable', Mandatory=$True, ValueFromPipeline=$True)]
     [Parameter(ParameterSetName='filesystem', Mandatory=$True, ValueFromPipeline=$True)]
-    [scriptblock] $Callback,
+    [ScriptBlock] $Callback,
     [Parameter(ParameterSetName='custom')]
     [Parameter(ParameterSetName='filesystem')]
     [Switch] $Forward,

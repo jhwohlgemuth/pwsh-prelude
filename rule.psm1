@@ -137,16 +137,15 @@ function Measure-TypeAttributePascalCase {
         Param(
           [System.Management.Automation.Language.Ast] $Ast
         )
-        $IsVariableExpression = $Ast -is [System.Management.Automation.Language.VariableExpressionAst]
-        $VariableAnnotation = $Ast.Parent.Attribute.Extent.Text
-        $IsVariableViolation = $IsVariableExpression -and ($VariableAnnotation -match '^\[.*\]') -and -not ($VariableAnnotation -cmatch '^\[[A-Z]')
-        # Check for param block parameter type attributes
-        $IsVariableViolation
+        $IsApplicable = ($Ast -is [System.Management.Automation.Language.TypeExpressionAst]) -or ($Ast -is [System.Management.Automation.Language.TypeConstraintAst])
+        $Text = $Ast.Extent.Text -replace '[\[\]]',''
+        $IsViolation = $IsApplicable -and -not ($Text -cmatch '^([A-Z]+[a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?')
+        $IsViolation
       }
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = "The type attribute, `"$($Violation.Parent.Attribute.Extent)`", should be PascalCase."
+          Message  = "The type attribute, `"$($Violation.Extent.Text)`", should be PascalCase."
           RuleName = 'TypeAttributePascalCase'
           Severity = 'Warning'
           Extent   = $Violation.Extent
