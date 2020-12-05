@@ -172,41 +172,50 @@ function Get-GithubOAuthToken {
     [Parameter(Position=1)]
     [String[]] $Scope
   )
-  $DeviceRequestParameters = @{
-    Post = $True
-    Uri = 'https://github.com/login/device/code'
-    Query = @{
-      client_id = $ClientId
-      scope = $Scope -join '%20'
-    }
+  $ValidScopes = 'repo','repo:status','repo_deployment','public_repo','repo:invite','security_events','admin:repo_hook','write:repo_hook','read:repo_hook','admin:org','write:org','read:org','admin:public_key','write:public_key','read:public_key','admin:org_hook','gist','notifications','user','read:user','user:email','user:follow','delete_repo','write:discussion','read:discussion','write:packages','read:packages','delete:packages','admin:gpg_key','write:gpg_key','read:gpg_key','workflow'
+  $IsValidScope = $Scope | Invoke-Reduce {
+    Param($Acc,$Item)
+    $Acc -and ($Item -in $ValidScopes)
   }
-  $DeviceData = Invoke-WebRequestBasicAuth @DeviceRequestParameters |
-    ForEach-Object -MemberName 'Content' |
-    ConvertFrom-ByteArray |
-    ConvertFrom-QueryString
-  $DeviceData | ConvertTo-Json | Write-Verbose
-  $TokenRequestParameters = @{
-    Post = $True
-    Uri = 'https://github.com/login/oauth/access_token'
-    Query = @{
-      client_id = $ClientId
-      device_code = $DeviceData['device_code']
-      grant_type = 'urn:ietf:params:oauth:grant-type:device_code'
+  if ($IsValidScope) {
+    $DeviceRequestParameters = @{
+      Post = $True
+      Uri = 'https://github.com/login/device/code'
+      Query = @{
+        client_id = $ClientId
+        scope = $Scope -join '%20'
+      }
     }
-  }
-  $DeviceData['user_code'] | Write-Title -Green -PassThru | Set-Clipboard
-  Start-Process $DeviceData['verification_uri']
-  $Success = $False
-  while (-not $Success) {
-    Start-Sleep $DeviceData.interval
-    $TokenData = Invoke-WebRequestBasicAuth @TokenRequestParameters |
+    $DeviceData = Invoke-WebRequestBasicAuth @DeviceRequestParameters |
       ForEach-Object -MemberName 'Content' |
       ConvertFrom-ByteArray |
       ConvertFrom-QueryString
-    $Success = $TokenData['token_type'] -eq 'bearer'
+    $DeviceData | ConvertTo-Json | Write-Verbose
+    $TokenRequestParameters = @{
+      Post = $True
+      Uri = 'https://github.com/login/oauth/access_token'
+      Query = @{
+        client_id = $ClientId
+        device_code = $DeviceData['device_code']
+        grant_type = 'urn:ietf:params:oauth:grant-type:device_code'
+      }
+    }
+    $DeviceData['user_code'] | Write-Title -Green -PassThru | Set-Clipboard
+    Start-Process $DeviceData['verification_uri']
+    $Success = $False
+    while (-not $Success) {
+      Start-Sleep $DeviceData.interval
+      $TokenData = Invoke-WebRequestBasicAuth @TokenRequestParameters |
+        ForEach-Object -MemberName 'Content' |
+        ConvertFrom-ByteArray |
+        ConvertFrom-QueryString
+      $Success = $TokenData['token_type'] -eq 'bearer'
+    }
+    $TokenData | ConvertTo-Json | Write-Verbose
+    $TokenData['access_token']
+  } else {
+    "One or more scope values are invalid (Scopes: $(Join-StringsWithGrammar $Scope))" | Write-Error
   }
-  $TokenData | ConvertTo-Json | Write-Verbose
-  $TokenData['access_token']
 }
 function Import-Html {
   <#
