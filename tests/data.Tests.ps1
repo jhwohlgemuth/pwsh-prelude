@@ -149,3 +149,24 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
     { Import-Excel -Path $Path -Password 'wrong' } | Should -Throw -Because 'the password is not correct'
   }
 }
+Describe 'Import-Raw' {
+  It 'can import lines of a file' {
+    $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
+    $Data = Import-Raw -File $Path
+    $Data.Count | Should -Be 37
+    $Data[1] | Should -Be '<html lang="en">'
+  }
+  It 'can peek first line of a file' {
+    $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
+    Import-Raw -File $Path -Peek | Should -Be '<!DOCTYPE html>'
+  }
+  It 'can import lines of a file and apply a transform to each line' {
+    $Path = Join-Path $PSScriptRoot '\fixtures\example.txt'
+    $Transform = {
+      Param($Line)
+      $Line.ToUpper()
+    }
+    $Data = Import-Raw $Path $Transform
+    $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
+  }
+}

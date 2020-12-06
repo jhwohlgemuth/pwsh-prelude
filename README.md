@@ -164,6 +164,7 @@ Functions
 - `Get-Variance`
 - `Import-Excel`
 - `Import-Html` <sup>[[3]](#footnotes)</sup>
+- `Import-Raw`
 - `Install-SshServer` <sup>[[3]](#footnotes)</sup>
 - `Invoke-Chunk`
 - `Invoke-DropWhile`

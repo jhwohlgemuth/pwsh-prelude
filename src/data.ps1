@@ -1,4 +1,4 @@
-function Format-MoneyValue {
+﻿function Format-MoneyValue {
   <#
   .SYNOPSIS
   Helper function to create human-readable money (USD) values as strings.
@@ -169,4 +169,39 @@ function Import-Excel {
     Cells = $Cells
     Rows = $Cells | Invoke-Chunk -Size $ColumnCount
   }
+}
+function Import-Raw {
+  <#
+  .SYNOPSIS
+  Import large files as lines of raw text using StreamReader
+
+  Note: For large files, this function can be 2-10 times faster than Get-Content or Import-Csv
+  .PARAMETER Transform
+  Function that will be applied to every line.
+  .PARAMETER Peek
+  Return only the first line.
+  .EXAMPLE
+  Import-Raw -File 'data.csv' -Transform { Param($Line) $Line -split ',' }
+  .EXAMPLE
+  Import-Raw 'data.csv' -Peek
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$True, Position=0)]
+    [ValidateScript({ Test-Path $_ })]
+    [String] $File,
+    [Parameter(Position=1)]
+    [ScriptBlock] $Transform,
+    [Switch] $Peek
+  )
+  $Stream = New-Object -Type System.IO.StreamReader -ArgumentList (Get-Item $File)
+  do {
+    $Line = $Stream.ReadLine()
+    if ($Transform) {
+      & $Transform $Line
+    } else {
+      $Line
+    }
+  } while (-not $Peek -and $Stream.Peek() -ge 0)
+  [Void]$Stream.Dispose()
 }

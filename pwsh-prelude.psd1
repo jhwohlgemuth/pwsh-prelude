@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.54'
+  ModuleVersion = '0.0.55'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
@@ -115,6 +115,7 @@
     'Home'
     'Import-Excel'
     'Import-Html'
+    'Import-Raw'
     'Install-SshServer'
     'Invoke-Chunk'
     'Invoke-DockerInspectAddress'
