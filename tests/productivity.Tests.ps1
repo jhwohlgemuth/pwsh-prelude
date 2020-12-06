@@ -13,7 +13,7 @@ Describe 'ConvertTo-AbstractSyntaxTree' {
     $Code = '$Answer = 42'
     $Code | Out-File $Path
     $Ast = ConvertTo-AbstractSyntaxTree $Path
-    $Ast.Extent.Text -replace '\r\n','' | Should -Be $Code
+    $Ast.Extent.Text | Should -Match "^\$Code"
     Remove-Item $Path
   }
   It 'can convert a string input to AST' {
@@ -30,32 +30,42 @@ Describe 'ConvertTo-PlainText' {
     $Secure | ConvertTo-PlainText | Should -Be $Message
   }
 }
-Describe 'Find-Duplicates' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicates' {
   AfterEach {
-    Remove-Item "TestDrive:\foo"
-    Remove-Item "TestDrive:\bar"
-    Remove-Item "TestDrive:\baz"
-    Remove-Item "TestDrive:\sub" -Recurse -Force
+    if (Test-Path (Join-Path $TestDrive 'foo')) {
+      Remove-Item (Join-Path $TestDrive 'foo')
+      Remove-Item (Join-Path $TestDrive 'bar')
+      Remove-Item (Join-Path $TestDrive 'baz')
+      Remove-Item (Join-Path $TestDrive 'sub') -Recurse -Force
+    }
   }
   It 'can identify duplicate files' {
+    $Foo = Join-Path $TestDrive 'foo'
+    $Bar = Join-Path $TestDrive 'bar'
+    $Baz = Join-Path $TestDrive 'baz'
+    $Sub = Join-Path $TestDrive 'sub'
     $Same = 'these files have identical content'
-    $Same | Out-File 'TestDrive:\foo'
-    'unique' | Out-File 'TestDrive:\bar'
-    $Same | Out-File 'TestDrive:\baz'
-    mkdir 'TestDrive:\sub'
-    $Same | Out-File 'TestDrive:\sub\bam'
-    'also unique' | Out-File 'TestDrive:\sub\bat'
-    Find-Duplicate 'TestDrive:\' | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
+    $Same | Out-File $Foo
+    'unique' | Out-File $Bar
+    $Same | Out-File $Baz
+    mkdir $Sub
+    $Same | Out-File (Join-Path $Sub 'bam')
+    'also unique' | Out-File (Join-Path $Sub 'bat')
+    Find-Duplicate $TestDrive | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
   }
-  It 'can identify duplicate files as a job' {
+  It -Skip:($Env:ProjectName -ne 'pwsh-prelude' -or $Env:BuildSystem -ne 'Unknown') 'can identify duplicate files as a job' {
+    $Foo = Join-Path $TestDrive 'foo'
+    $Bar = Join-Path $TestDrive 'bar'
+    $Baz = Join-Path $TestDrive 'baz'
+    $Sub = Join-Path $TestDrive 'sub'
     $Same = 'these files have identical content'
-    $Same | Out-File 'TestDrive:\foo'
-    'unique' | Out-File 'TestDrive:\bar'
-    $Same | Out-File 'TestDrive:\baz'
-    mkdir 'TestDrive:\sub'
-    $Same | Out-File 'TestDrive:\sub\bam'
-    'also unique' | Out-File 'TestDrive:\sub\bat'
-    Find-Duplicate 'TestDrive:\' -AsJob
+    $Same | Out-File $Foo
+    'unique' | Out-File $Bar
+    $Same | Out-File $Baz
+    mkdir $Sub
+    $Same | Out-File (Join-Path $Sub 'bam')
+    'also unique' | Out-File (Join-Path $Sub 'bat')
+    Find-Duplicate $TestDrive -AsJob
     Wait-Job -Name 'Find-Duplicate'
     Receive-Job 'Find-Duplicate' | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
   }
@@ -94,12 +104,12 @@ Describe 'Find-FirstTrueVariable' {
 }
 Describe 'Get-HostsContent / Update-HostsFile' {
   It 'can get content of hosts file from path' {
-    $Content = Get-HostsContent (Join-Path $PSScriptRoot "fixtures\hosts")
+    $Content = Get-HostsContent (Join-Path $PSScriptRoot 'fixtures/hosts')
     $Content.Count | Should -Be 3
     $Content | ForEach-Object Hostname | Should -Be 'foo','bar','foo.bar.baz'
     $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111','127.0.0.1','192.168.0.2'
     $Content | ForEach-Object Comment | Should -Be '','some random comment',''
-    $Content = (Join-Path $PSScriptRoot "fixtures\hosts") | Get-HostsContent
+    $Content = (Join-Path $PSScriptRoot 'fixtures/hosts') | Get-HostsContent
     $Content.Count | Should -Be 3
     $Content | ForEach-Object Hostname | Should -Be 'foo','bar','foo.bar.baz'
     $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111','127.0.0.1','192.168.0.2'
@@ -121,71 +131,47 @@ Describe 'Get-HostsContent / Update-HostsFile' {
     $NewComment = 'this is an updated comment'
     $Updated = $A.Clone(),@{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge
     Update-HostsFile @A -Path $Path
-    Get-HostsContent $Path | ConvertTo-Json | Should -Be @"
-{
-    "LineNumber":  1,
-    "IPAddress":  "$($A.IPAddress)",
-    "IsValidIP":  true,
-    "Hostname":  "$($A.Hostname)",
-    "Comment":  "$($A.Comment)"
-}
-"@
+    $Content = Get-HostsContent $Path
+    $Content.LineNumber | Should -Be 1
+    $Content.IPAddress | Should -Be $A.IPAddress
+    $Content.IsValidIP | Should -Be $True
+    $Content.Hostname | Should -Be $A.Hostname
+    $Content.Comment | Should -Be ''
     Update-HostsFile @B -Path $Path
-    Get-HostsContent $Path | ConvertTo-Json | Should -Be @"
-[
-    {
-        "LineNumber":  1,
-        "IPAddress":  "$($A.IPAddress)",
-        "IsValidIP":  true,
-        "Hostname":  "$($A.Hostname)",
-        "Comment":  "$($A.Comment)"
-    },
-    {
-        "LineNumber":  3,
-        "IPAddress":  "$($B.IPAddress)",
-        "IsValidIP":  true,
-        "Hostname":  "$($B.Hostname)",
-        "Comment":  "$($B.Comment)"
-    }
-]
-"@
+    $Content = Get-HostsContent $Path
+    $Content[0].LineNumber | Should -Be 1
+    $Content[0].IPAddress | Should -Be $A.IPAddress
+    $Content[0].IsValidIP | Should -Be $True
+    $Content[0].Hostname | Should -Be $A.Hostname
+    $Content[0].Comment | Should -Be ''
+    $Content[1].LineNumber | Should -Be 3
+    $Content[1].IPAddress | Should -Be $B.IPAddress
+    $Content[1].IsValidIP | Should -Be $True
+    $Content[1].Hostname | Should -Be $B.Hostname
+    $Content[1].Comment | Should -Be $B.Comment
     Update-HostsFile @Updated -Path $Path
-    Get-HostsContent $Path | ConvertTo-Json | Should -Be @"
-[
-    {
-        "LineNumber":  1,
-        "IPAddress":  "$NewIpAddress",
-        "IsValidIP":  true,
-        "Hostname":  "$($A.Hostname)",
-        "Comment":  "$NewComment"
-    },
-    {
-        "LineNumber":  3,
-        "IPAddress":  "$($B.IPAddress)",
-        "IsValidIP":  true,
-        "Hostname":  "$($B.Hostname)",
-        "Comment":  "$($B.Comment)"
-    }
-]
-"@
-    Update-HostsFile @B -Path $Path -PassThru | ConvertTo-Json | Should -Be @"
-[
-    {
-        "LineNumber":  1,
-        "IPAddress":  "$NewIpAddress",
-        "IsValidIP":  true,
-        "Hostname":  "$($A.Hostname)",
-        "Comment":  "$NewComment"
-    },
-    {
-        "LineNumber":  3,
-        "IPAddress":  "$($B.IPAddress)",
-        "IsValidIP":  true,
-        "Hostname":  "$($B.Hostname)",
-        "Comment":  "$($B.Comment)"
-    }
-]
-"@
+    $Content = Get-HostsContent $Path
+    $Content[0].LineNumber | Should -Be 1
+    $Content[0].IPAddress | Should -Be $NewIpAddress
+    $Content[0].IsValidIP | Should -Be $True
+    $Content[0].Hostname | Should -Be $A.Hostname
+    $Content[0].Comment | Should -Be $NewComment
+    $Content[1].LineNumber | Should -Be 3
+    $Content[1].IPAddress | Should -Be $B.IPAddress
+    $Content[1].IsValidIP | Should -Be $True
+    $Content[1].Hostname | Should -Be $B.Hostname
+    $Content[1].Comment | Should -Be $B.Comment
+    $Content = Update-HostsFile @B -Path $Path -PassThru
+    $Content[0].LineNumber | Should -Be 1
+    $Content[0].IPAddress | Should -Be $NewIpAddress
+    $Content[0].IsValidIP | Should -Be $True
+    $Content[0].Hostname | Should -Be $A.Hostname
+    $Content[0].Comment | Should -Be $NewComment
+    $Content[1].LineNumber | Should -Be 3
+    $Content[1].IPAddress | Should -Be $B.IPAddress
+    $Content[1].IsValidIP | Should -Be $True
+    $Content[1].Hostname | Should -Be $B.Hostname
+    $Content[1].Comment | Should -Be $B.Comment
     Remove-Item $Path
   }
   It 'supports WhatIf parameter' {
@@ -211,7 +197,7 @@ Describe 'Get-HostsContent / Update-HostsFile' {
     Remove-Item $Path
   }
 }
-Describe 'Invoke-Speak (say)' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' {
   It 'can passthru text without speaking' {
     $Text = 'this should not be heard'
     Invoke-Speak $Text -Silent | Should -BeNullOrEmpty
@@ -230,17 +216,17 @@ Describe 'Invoke-Speak (say)' {
 }
 Describe 'New-File (touch)' {
   AfterAll {
-    Remove-Item -Path .\SomeFile
+    Remove-Item -Path ./SomeFile
   }
   It 'can create a file' {
     Mock Write-Color {} -ModuleName 'pwsh-prelude'
     $Content = 'testing'
-    '.\SomeFile' | Should -not -Exist
+    './SomeFile' | Should -not -Exist
     New-File SomeFile
     New-File SomeFile
     { New-File SomeFile -WhatIf } | Should -not -Throw
-    Write-Output $Content >> .\SomeFile
-    '.\SomeFile' | Should -FileContentMatch $Content
+    Write-Output $Content >> ./SomeFile
+    './SomeFile' | Should -FileContentMatch $Content
   }
   It 'supports WhatIf parameter' {
     Mock Write-Color {} -ModuleName 'pwsh-prelude'
@@ -250,9 +236,9 @@ Describe 'New-File (touch)' {
 Describe 'Remove-DirectoryForce (rf)' {
   It 'can remove a file' {
     New-File SomeFile
-    '.\SomeFile' | Should -Exist
-    Remove-DirectoryForce .\SomeFile
-    '.\SomeFile' | Should -Not -Exist
+    './SomeFile' | Should -Exist
+    Remove-DirectoryForce ./SomeFile
+    './SomeFile' | Should -Not -Exist
   }
   It 'can remove multiple files' {
     $Foo = Join-Path $TestDrive 'foo.txt'
@@ -353,13 +339,17 @@ Describe -Skip 'Test-Admin' {
 }
 Describe 'Test-Empty' {
   It 'should return true for directories with no contents' {
-    'TestDrive:\Foo' | Should -not -Exist
-    mkdir 'TestDrive:\Foo'
-    'TestDrive:\Foo' | Should -Exist
-    Test-Empty 'TestDrive:\Foo' | Should -BeTrue
-    mkdir 'TestDrive:\Foo\Bar'
-    mkdir 'TestDrive:\Foo\Bar\Baz'
-    Test-Empty 'TestDrive:\Foo' | Should -BeFalse
+    $Foo = Join-Path $TestDrive 'Foo'
+    $Foo | Should -not -Exist
+    mkdir $Foo
+    $Foo | Should -Exist
+    Test-Empty $Foo | Should -BeTrue
+    $Bar = Join-Path $Foo 'Bar'
+    $Baz = Join-Path $Bar 'Baz'
+    mkdir $Bar
+    mkdir $Baz
+    Test-Empty $Foo | Should -BeFalse
+    Remove-Item $Foo -Recurse
   }
 }
 Describe 'Test-Installed' {

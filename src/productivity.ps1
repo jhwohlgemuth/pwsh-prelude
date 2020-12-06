@@ -171,10 +171,17 @@ function Get-HostsContent {
   [CmdletBinding()]
   [OutputType([String])]
   Param(
-    [ValidateScript({Test-Path $_})]
     [Parameter(Position=0, ValueFromPipeline=$True)]
-    [String] $Path = (Join-Path $Env:SystemRoot 'System32\drivers\etc\hosts')
+    [ValidateScript({ Test-Path $_ })]
+    [String] $Path
   )
+  if (-not $Path) {
+    $Path = if (-not $IsLinux) {
+      Join-Path $Env:SystemRoot 'System32\drivers\etc\hosts'
+    } else {
+      '/etc/hosts'
+    }
+  }
   $CommentLine = '^\s*#'
   $HostLine = '^\s*(?<IPAddress>\S+)\s+(?<Hostname>\S+)(\s*|\s+#(?<Comment>.*))$'
   $HomeAddress = [Net.IPAddress]'127.0.0.1'

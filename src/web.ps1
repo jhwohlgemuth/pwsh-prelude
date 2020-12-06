@@ -90,7 +90,7 @@ function ConvertFrom-QueryString {
       $Decoded -split '&' | Invoke-Reduce {
         Param($Acc, $Item)
         $Key,$Value = $Item -split '='
-        $Acc.$Key = $Value
+        $Acc.$Key = $Value.Trim()
       } -InitialValue @{}
     } else {
       $Decoded

@@ -56,11 +56,11 @@ function Invoke-Test {
       }
     }
   } elseif ($CI) {
-    Set-BuildEnvironment -VariableNamePrefix ''
+    Set-BuildEnvironment -VariableNamePrefix '' -Force
     "==> Executing tests on $Env:BuildSystem" | Write-Output
     $Configuration = [PesterConfiguration]@{
       Run = @{
-        Exit = $True
+        Exit = $False
         PassThru = $True
       }
       CodeCoverage = @{
@@ -85,7 +85,8 @@ function Invoke-Test {
   }
   $Result = Invoke-Pester -Configuration $Configuration
   if ($Result.FailedCount -gt 0) {
-    "`nFAILED - $($Result.FailedCount) tests failed.`n" | Write-Output
+    $FailedMessage = "==> FAILED - $($Result.FailedCount) test(s) failed"
+    throw $FailedMessage
   } else {
     "`nSUCCESS`n" | Write-Output
   }

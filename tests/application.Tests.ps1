@@ -1,6 +1,6 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'application'
 
-Describe 'Application State' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Application State' {
   It 'can save and get state using ID' {
     $Id = 'pester-test'
     $Value = (New-Guid).Guid
@@ -63,31 +63,7 @@ Describe 'ConvertTo-PowershellSyntax' {
     '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
   }
 }
-Describe 'ConvertFrom-QueryString' {
-  It 'can parse single-value inputs as strings' {
-    $Expected = 'hello world'
-    $Expected | ConvertFrom-QueryString | Should -Be $Expected
-    'foo','bar','baz' | ConvertFrom-QueryString | Should -Be 'foo','bar','baz'
-  }
-  It 'can parse complex query strings as objects' {
-    $DeviceCode = 'ac921e83b6d04d0709a627f4ede70dee1f86204f'
-    $UserCode = '7B7F-4F10'
-    $InputString = "device_code=${DeviceCode}&expires_in=8999&interval=5&user_code=${UserCode}&verification_uri=https%3A%2F%2Fgithub.com%2Flogin%2Fdevice"
-    $Result = $InputString | ConvertFrom-QueryString
-    $Result['device_code'] | Should -Be $DeviceCode
-    $Result['expires_in'] | Should -Be '8999'
-    $Result['user_code'] | Should -Be $UserCode
-  }
-  it 'can easily be chained with other conversions' {
-    $Result = [System.Text.Encoding]::Unicode.GetBytes('first=1&second=2&third=last') |
-      ConvertFrom-ByteArray |
-      ConvertFrom-QueryString
-    $Result.first | Should -Be '1'
-    $Result.second | Should -Be '2'
-    $Result.third | Should -Be 'last'
-  }
-}
-Describe 'Invoke-RunApplication' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-RunApplication' {
   It 'can pass state to Init/Loop functions and execute Loop one time' {
     $Script:Count = 0
     $Init = {
