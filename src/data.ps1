@@ -99,6 +99,8 @@ function Import-Excel {
   .PARAMETER FirstRowHeaders
   Treat first row as headers. Exclude first row cells from Cells and Rows in output.
   Note: When an empty cell is encountered, a placeholder will be used of the form, column<COLUMN NUMBER>
+  .PARAMETER Peek
+  Return first row of data only. Useful for quickly identifying the shape of the data without importing the entire file.
   #>
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'EmptyValue')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
@@ -112,7 +114,8 @@ function Import-Excel {
     [String] $Password,
     [Switch] $FirstRowHeaders,
     [String] $EmptyValue = 'EMPTY',
-    [Switch] $ShowProgress
+    [Switch] $ShowProgress,
+    [Switch] $Peek
   )
   $FileName = Resolve-Path $Path
   $Excel = New-Object -ComObject 'Excel.Application'
@@ -130,7 +133,7 @@ function Import-Excel {
   } else {
     $Workbook.Worksheets(1)
   }
-  $RowCount = $Worksheet.UsedRange.Rows.Count
+  $RowCount = if ($Peek) { 1 } else { $Worksheet.UsedRange.Rows.Count }
   $ColumnCount = $Worksheet.UsedRange.Columns.Count
   $StartIndex = if ($FirstRowHeaders) { 2 } else { 1 }
   $Cells = @()

@@ -83,6 +83,12 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
     $Data | Get-Property 'Rows.0' | Should -Be 'a','EMPTY','foo','EMPTY'
     $Data | Get-Property 'Rows.1' | Should -Be 'b',1,'bar','red'
   }
+  It 'peek data and import only the first row' {
+    $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
+    $Data = Import-Excel -Path $Path -Peek -WorksheetName 'with-headers'
+    $Data.Size | Should -Be 1,2
+    $Data.Cells | Should -Be 'Disciples','Gospels'
+  }
   It 'will import first worksheet by default and display progress' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -ShowProgress
