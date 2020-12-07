@@ -593,6 +593,12 @@ function Get-Permutation {
   }
 }
 function Get-Sum {
+  <#
+  .SYNOPSIS
+  Calculate sum of list of numbers
+  .EXAMPLE
+  1..100 | sum
+  #>
   [CmdletBinding()]
   [Alias('sum')]
   Param(

@@ -342,7 +342,6 @@ function Invoke-Menu {
   Begin {
     function Invoke-MenuDraw {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
-      [CmdletBinding()]
       Param(
         [Array] $VisibleItems,
         [Int] $Position,
@@ -383,7 +382,6 @@ function Invoke-Menu {
     }
     function Update-MenuSelection {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SingleSelect')]
-      [CmdletBinding()]
       Param(
         [Int] $Position,
         [Int] $PageNumber,
@@ -697,6 +695,13 @@ function Write-Label {
   Write-Color "$Text " -Color $Color -NoNewLine:$(-not $NewLine)
 }
 function Write-Repeat {
+  <#
+  .SYNOPSIS
+  Create string by repeating input -Value -Times times
+  .EXAMPLE
+  'nana' | repeat -Times 4
+  # returns 'nananananananana'
+  #>
   [CmdletBinding()]
   [Alias('repeat')]
   Param(

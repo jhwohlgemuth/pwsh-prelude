@@ -98,6 +98,12 @@ function ConvertFrom-QueryString {
   }
 }
 function ConvertTo-Iso8601 {
+  <#
+  .SYNOPSIS
+  Convert value to date in ISO 8601 format
+  .NOTES
+  See https://www.iso.org/iso-8601-date-and-time-format.html
+  #>
   [CmdletBinding()]
   Param(
     [Parameter(Position=0, ValueFromPipeline=$True)]

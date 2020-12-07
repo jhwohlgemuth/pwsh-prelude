@@ -1,5 +1,6 @@
 ﻿#Requires -Modules BuildHelpers,pester
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding()]
 Param(
   [Switch] $Lint,

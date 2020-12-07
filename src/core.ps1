@@ -220,6 +220,15 @@ function Invoke-Chunk {
   }
 }
 function Invoke-DropWhile {
+  <#
+  .SYNOPSIS
+  Create slice of array excluding elements dropped from the beginning
+  .PARAMETER Predicate
+  Function that returns $True or $False
+  .EXAMPLE
+  1..10 | dropWhile { $Args[0] -lt 6 }
+  # 6,7,8,9,10
+  #>
   [CmdletBinding()]
   [Alias('dropwhile')]
   Param(
@@ -264,6 +273,13 @@ function Invoke-DropWhile {
   }
 }
 function Invoke-Flatten {
+  <#
+  .SYNOPSIS
+  Recursively flatten array
+  .EXAMPLE
+  @(1,@(2,3,@(4,5))) | flatten
+  # 1,2,3,4,5
+  #>
   [CmdletBinding()]
   [Alias('flatten')]
   Param(
@@ -678,7 +694,6 @@ function Invoke-PropertyTransform {
   )
   Begin {
     function New-PropertyExpression {
-      [CmdletBinding()]
       Param(
         [Parameter(Mandatory=$True)]
         [String] $Name,
@@ -801,6 +816,13 @@ function Invoke-Reduce {
   }
 }
 function Invoke-TakeWhile {
+  <#
+  .SYNOPSIS
+  Create slice of array with elements taken from the beginning
+  .EXAMPLE
+  1..10 | takeWhile { $Args[0] -lt 6 }
+  # 1,2,3,4,5
+  #>
   [CmdletBinding()]
   [Alias('takeWhile')]
   Param(
@@ -891,6 +913,13 @@ function Invoke-Tap {
   }
 }
 function Invoke-Unzip {
+  <#
+  .SYNOPSIS
+  The reverse of Invoke-Zip
+  .EXAMPLE
+  @(@(1,'a'),@(2,'b'),@(3,'c')) | unzip
+  # @(1,2,3),@('a','b','c')
+  #>
   [CmdletBinding()]
   [Alias('unzip')]
   [OutputType([Array])]
@@ -1065,6 +1094,19 @@ function Join-StringsWithGrammar {
   }
 }
 function Remove-Character {
+  <#
+  .SYNOPSIS
+  Remove character from -At index of string -Value
+  .EXAMPLE
+  'abcd' | remove -At 2
+  # 'abd'
+  .EXAMPLE
+  'abcd' | remove -First
+  # 'bcd'
+  .EXAMPLE
+  'abcd' | remove -Last
+  # 'abc'
+  #>
   [CmdletBinding()]
   [Alias('remove')]
   [OutputType([String])]

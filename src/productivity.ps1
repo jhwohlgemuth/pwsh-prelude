@@ -117,6 +117,16 @@ function Find-Duplicate {
   }
 }
 function Find-FirstTrueVariable {
+  <#
+  .SYNOPSIS
+  Given list of variable names, returns string name of first variable that returns $True
+  .EXAMPLE
+  $Foo = $False
+  $Bar = $True
+  $Baz = $False
+  Find-FirstTrueVariable 'Foo','Bar','Baz'
+  # returns 'Bar'
+  #>
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$True, Position=0)]
@@ -278,7 +288,6 @@ function Get-Screenshot {
   }
 }
 function Home {
-  [CmdletBinding()]
   [Alias('~')]
   Param()
   Set-Location ~
@@ -640,6 +649,10 @@ function New-ProxyCommand {
   }"
 }
 function New-SshKey {
+  <#
+  .SYNOPSIS
+  Create new SSH key with passphrase, "123456"
+  #>
   [CmdletBinding()]
   Param(
     [String] $Name = 'id_rsa'
@@ -765,8 +778,16 @@ function Remove-DirectoryForce {
   }
 }
 function Rename-FileExtension {
+  <#
+  .SYNOPSIS
+  Change the extension of one or more files
+  .EXAMPLE
+  'foo.bar' | Rename-FileExtension -To 'baz'
+  # new name of file will be 'foo.baz'
+  #>
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
   [CmdletBinding(SupportsShouldProcess=$True)]
+  [OutputType([String])]
   Param(
     [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Path,
@@ -775,7 +796,8 @@ function Rename-FileExtension {
     [Switch] $JPG,
     [Switch] $PNG,
     [Switch] $GIF,
-    [Switch] $MD
+    [Switch] $MD,
+    [Switch] $PassThru
   )
   Process {
     $NewExtension = if ($To.Length -gt 0) {
@@ -789,6 +811,9 @@ function Rename-FileExtension {
       "==> Renamed $Path to $NewName" | Write-Verbose
     } else {
       "==> Rename $Path to $NewName" | Write-Color -DarkGray
+    }
+    if ($PassThru) {
+      $NewName
     }
   }
 }
@@ -864,6 +889,12 @@ function Test-Empty {
   Get-Item $Name | ForEach-Object { $_.psiscontainer -and $_.GetFileSystemInfos().Count -eq 0 } | Write-Output
 }
 function Test-Installed {
+  <#
+  .SYNOPSIS
+  Return $True if module is installed, $False otherwise
+  .EXAMPLE
+  Test-Installed 'pwsh-prelude'
+  #>
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(

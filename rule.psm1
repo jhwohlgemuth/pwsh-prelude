@@ -1,4 +1,77 @@
-﻿function Measure-NamedBlockPascalCase {
+﻿function Measure-AdvancedFunctionHelp {
+  <#
+  .SYNOPSIS
+  Named script blocks (Begin, Process, etc...) should be PascalCase.
+  .DESCRIPTION
+  The first letter of named script block names should be capitalized.
+  This rule can auto-fix violations.
+  .EXAMPLE
+  # BAD
+  function Get-Example {
+    [CmdletBinding()]
+    Param()
+    'Bad' | Write-Color -Red
+  }
+
+  # GOOD
+  function Get-Example {
+    < Help Content Goes Here >
+    [CmdletBinding()]
+    Param()
+    'Good' | Write-Color -Green
+  }
+
+  .INPUTS
+  [System.Management.Automation.Language.ScriptBlockAst]
+  .OUTPUTS
+  [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]
+  .NOTES
+  Reference: Common software standard
+  #>
+  [CmdletBinding()]
+  [OutputType([Object[]])]
+  Param(
+    [Parameter(Mandatory=$True)]
+    [ValidateNotNullOrEmpty()]
+    [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
+  )
+  Begin {
+    $Results = @()
+    $IsFunctionDefinition = {
+      Param(
+        [System.Management.Automation.Language.Ast] $Ast
+      )
+      $Ast -is [System.Management.Automation.Language.FunctionDefinitionAst]
+    }
+    $HasCmdletBinding = {
+      Param(
+        [System.Management.Automation.Language.Ast] $Ast
+      )
+      $Ast -is [System.Management.Automation.Language.AttributeAst] -and ($Ast.TypeName.Name -eq 'CmdletBinding')
+    }
+  }
+  Process {
+    try {
+      $Functions = $ScriptBlockAst.FindAll($IsFunctionDefinition, $False)
+      foreach ($Function in $Functions) {
+        $IsAdvancedFunction = $Function.Find($HasCmdletBinding, $True)
+        $Help = $Function.GetHelpContent()
+        if (-not $Function.IsWorkflow -and $IsAdvancedFunction -and -not $Help.Synopsis) {
+          $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
+            Message  = "$($Function.Name) should have help content"
+            RuleName = 'AdvancedFunctionHelpContent'
+            Severity = 'Information'
+            Extent   = $Function.Extent
+          }
+        }
+      }
+      return $Results
+    } catch {
+      $PSCmdlet.ThrowTerminatingError($PSItem)
+    }
+  }
+}
+function Measure-NamedBlockPascalCase {
   <#
   .SYNOPSIS
   Named script blocks (Begin, Process, etc...) should be PascalCase.
