@@ -1,4 +1,4 @@
-& (Join-Path $PSScriptRoot '_setup.ps1') 'classes'
+& (Join-Path $PSScriptRoot '_setup.ps1') 'matrix'
 
 Describe 'Matrix class static methods' {
   It 'can create an NxN multi-dimensional array' {
