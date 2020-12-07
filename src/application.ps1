@@ -16,6 +16,154 @@ function ConvertTo-PowershellSyntax {
     ForEach-Object { $_ -replace '(?<!(}}[\w\s]*))(?<!{{#[\w\s\-_]*)\s*}}', ')' } |
     ForEach-Object { $_ -replace '{{(?!#)\s*', "`$(`$$DataVariableName." }
 }
+function Get-State {
+  <#
+  .SYNOPSIS
+  Load state from file
+  .EXAMPLE
+  $State = Get-State -Id 'abc-def-ghi'
+
+  .EXAMPLE
+  $State = 'abc-def-ghi' | Get-State
+
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [String] $Id,
+    [AllowEmptyString()]
+    [String] $Path
+  )
+  if ($Path.Length -gt 0 -and (Test-Path $Path)) {
+    "==> Resolved $Path" | Write-Verbose
+  } else {
+    $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+    $Path = Join-Path $TempRoot "state-$Id.xml"
+  }
+  "==> Loading state from $Path" | Write-Verbose
+  Import-Clixml -Path $Path
+}
+function Invoke-RunApplication {
+  <#
+  .SYNOPSIS
+  Entry point for Powershell CLI application
+  .PARAMETER Init
+  Function to initialize application, executed when application is started.
+  .PARAMETER Loop
+  Code to execute during every application loop, executed when ShouldContinue returns True.
+  .PARAMETER BeforeNext
+  Code to execute at the end of each application loop. It should be used to update the return of ShouldContinue.
+  .PARAMETER SingleRun
+  As its name implies - use this flag to execute one loop of the application
+  .PARAMETER NoCleanup
+  Use this switch to disable removing the application event listeners when the application exits.
+  Application event listeners can be removed manually with: 'application:' | Invoke-StopListen
+  .EXAMPLE
+  # Make a simple app
+
+  # Initialize your app - $Init is only run once
+  $Init = {
+    'Getting things ready...' | Write-Color -Green
+  }
+
+  # Define what your app should do every iteration - $Loop is executed until ShouldContinue returns False
+  $Loop = {
+    Clear-Host
+    'Doing something super important...' | Write-Color -Gray
+    Start-Sleep 5
+  }
+
+  # Start your app
+  Invoke-RunApplication $Init $Loop
+
+  .EXAMPLE
+  # Make a simple app with state
+  # Note: State is passed to Init, Loop, ShouldContinue, and BeforeNext
+
+  New-ApplicationTemplate -Save
+
+  .EXAMPLE
+  # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
+  { say 'Hello' } | on 'application:init'
+  { say 'Wax on' } | on 'application:loop:before'
+  { say 'Wax off' } | on 'application:loop:after'
+  { say 'Goodbye' } | on 'application:exit'
+
+  # The triggered event will include State as MessageData
+  {
+
+    $Id = $Event.MessageData.State.Id
+    "`nApplication ID: $Id" | Write-Color -Green
+
+  } | Invoke-ListenTo 'application:init'
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$True, Position=0)]
+    [ScriptBlock] $Init,
+    [Parameter(Mandatory=$True, Position=1)]
+    [ScriptBlock] $Loop,
+    [Parameter(Position=2)]
+    [ApplicationState] $State,
+    [String] $Id,
+    [ScriptBlock] $ShouldContinue,
+    [ScriptBlock] $BeforeNext,
+    [Switch] $ClearState,
+    [Switch] $SingleRun,
+    [Switch] $NoCleanup
+  )
+  if ($Id.Length -gt 0) {
+    $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+    $Path = Join-Path $TempRoot "state-$Id.xml"
+    if ($ClearState -and (Test-Path $Path)) {
+      Remove-Item $Path
+    }
+    if (Test-Path $Path) {
+      "==> Resolved state with ID: $Id" | Write-Verbose
+      try {
+        [ApplicationState]$State = Get-State $Id
+        $State.Id = $Id
+      } catch {
+        "==> Failed to get state with ID: $Id" | Write-Verbose
+        $State = [ApplicationState]@{ Id = $Id }
+      }
+    } else {
+      $State = [ApplicationState]@{ Id = $Id }
+    }
+  }
+  if (-not $State) {
+    $State = [ApplicationState]@{}
+  }
+  if (-not $ShouldContinue) {
+    $ShouldContinue = { $State.Continue -eq $True }
+  }
+  if (-not $BeforeNext) {
+    $BeforeNext = {
+      "`n`nContinue?" | Write-Label -NewLine
+      $State.Continue = ('yes','no' | Invoke-Menu) -eq 'yes'
+    }
+  }
+  "Application ID: $($State.Id)" | Write-Verbose
+  'application:init' | Invoke-FireEvent
+  & $Init $State
+  if ($SingleRun) {
+    'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
+    & $Loop $State
+    'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
+  } else {
+    While (& $ShouldContinue $State) {
+      'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
+      & $Loop $State
+      'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
+      & $BeforeNext $State
+    }
+  }
+  'application:exit' | Invoke-FireEvent -Data @{ State = $State }
+  if (-not $NoCleanup) {
+    'application:' | Invoke-StopListen
+  }
+  $State.Id
+}
 function New-ApplicationTemplate {
   <#
   .SYNOPSIS
@@ -159,125 +307,29 @@ function New-Template {
     $Renderer
   }
 }
-function Invoke-RunApplication {
+function Remove-Indent {
   <#
   .SYNOPSIS
-  Entry point for Powershell CLI application
-  .PARAMETER Init
-  Function to initialize application, executed when application is started.
-  .PARAMETER Loop
-  Code to execute during every application loop, executed when ShouldContinue returns True.
-  .PARAMETER BeforeNext
-  Code to execute at the end of each application loop. It should be used to update the return of ShouldContinue.
-  .PARAMETER SingleRun
-  As its name implies - use this flag to execute one loop of the application
-  .PARAMETER NoCleanup
-  Use this switch to disable removing the application event listeners when the application exits.
-  Application event listeners can be removed manually with: 'application:' | Invoke-StopListen
-  .EXAMPLE
-  # Make a simple app
-
-  # Initialize your app - $Init is only run once
-  $Init = {
-    'Getting things ready...' | Write-Color -Green
-  }
-
-  # Define what your app should do every iteration - $Loop is executed until ShouldContinue returns False
-  $Loop = {
-    Clear-Host
-    'Doing something super important...' | Write-Color -Gray
-    Start-Sleep 5
-  }
-
-  # Start your app
-  Invoke-RunApplication $Init $Loop
-
-  .EXAMPLE
-  # Make a simple app with state
-  # Note: State is passed to Init, Loop, ShouldContinue, and BeforeNext
-
-  New-ApplicationTemplate -Save
-
-  .EXAMPLE
-  # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
-  { say 'Hello' } | on 'application:init'
-  { say 'Wax on' } | on 'application:loop:before'
-  { say 'Wax off' } | on 'application:loop:after'
-  { say 'Goodbye' } | on 'application:exit'
-
-  # The triggered event will include State as MessageData
-  {
-
-    $Id = $Event.MessageData.State.Id
-    "`nApplication ID: $Id" | Write-Color -Green
-
-  } | Invoke-ListenTo 'application:init'
+  Remove indentation of multi-line (or single line) strings
+  ==> Good for removing spaces added to template strings because of alignment with code.
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Size')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0)]
-    [ScriptBlock] $Init,
-    [Parameter(Mandatory=$True, Position=1)]
-    [ScriptBlock] $Loop,
-    [Parameter(Position=2)]
-    [ApplicationState] $State,
-    [String] $Id,
-    [ScriptBlock] $ShouldContinue,
-    [ScriptBlock] $BeforeNext,
-    [Switch] $ClearState,
-    [Switch] $SingleRun,
-    [Switch] $NoCleanup
+    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+    [AllowEmptyString()]
+    [String] $From,
+    [Int] $Size = 2
   )
-  if ($Id.Length -gt 0) {
-    $Path = Join-Path $Env:temp "state-$Id.xml"
-    if ($ClearState -and (Test-Path $Path)) {
-      Remove-Item $Path
-    }
-    if (Test-Path $Path) {
-      "==> Resolved state with ID: $Id" | Write-Verbose
-      try {
-        [ApplicationState]$State = Get-State $Id
-        $State.Id = $Id
-      } catch {
-        "==> Failed to get state with ID: $Id" | Write-Verbose
-        $State = [ApplicationState]@{ Id = $Id }
-      }
-    } else {
-      $State = [ApplicationState]@{ Id = $Id }
-    }
+  Process {
+    $Lines = $From -split '\n'
+    $Delimiter = if($Lines.Count -eq 1) { '' } else { "`n" }
+    $Callback = { $Args[0],$Args[1] -join $Delimiter }
+    $Lines |
+      Where-Object { $_.Length -ge $Size } |
+      ForEach-Object { $_.SubString($Size) } |
+      Invoke-Reduce -Callback $Callback -InitialValue ''
   }
-  if (-not $State) {
-    $State = [ApplicationState]@{}
-  }
-  if (-not $ShouldContinue) {
-    $ShouldContinue = { $State.Continue -eq $True }
-  }
-  if (-not $BeforeNext) {
-    $BeforeNext = {
-      "`n`nContinue?" | Write-Label -NewLine
-      $State.Continue = ('yes','no' | Invoke-Menu) -eq 'yes'
-    }
-  }
-  "Application ID: $($State.Id)" | Write-Verbose
-  'application:init' | Invoke-FireEvent
-  & $Init $State
-  if ($SingleRun) {
-    'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
-    & $Loop $State
-    'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
-  } else {
-    While (& $ShouldContinue $State) {
-      'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
-      & $Loop $State
-      'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
-      & $BeforeNext $State
-    }
-  }
-  'application:exit' | Invoke-FireEvent -Data @{ State = $State }
-  if (-not $NoCleanup) {
-    'application:' | Invoke-StopListen
-  }
-  $State.Id
 }
 function Save-State {
   <#
@@ -302,7 +354,8 @@ function Save-State {
     [String] $Path
   )
   if (-not $Path) {
-    $Path = Join-Path $Env:temp "state-$Id.xml"
+    $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+    $Path = Join-Path $TempRoot "state-$Id.xml"
   }
   if ($PSCmdlet.ShouldProcess($Path)) {
     $State = [ApplicationState]$State
@@ -315,54 +368,4 @@ function Save-State {
     "==> Would have saved state to $Path" | Write-Verbose
   }
   $Path
-}
-function Get-State {
-  <#
-  .SYNOPSIS
-  Load state from file
-  .EXAMPLE
-  $State = Get-State -Id 'abc-def-ghi'
-
-  .EXAMPLE
-  $State = 'abc-def-ghi' | Get-State
-
-  #>
-  [CmdletBinding()]
-  Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
-    [String] $Id,
-    [AllowEmptyString()]
-    [String] $Path
-  )
-  if ($Path.Length -gt 0 -and (Test-Path $Path)) {
-    "==> Resolved $Path" | Write-Verbose
-  } else {
-    $Path = Join-Path $Env:temp "state-$Id.xml"
-  }
-  "==> Loading state from $Path" | Write-Verbose
-  Import-Clixml -Path $Path
-}
-function Remove-Indent {
-  <#
-  .SYNOPSIS
-  Remove indentation of multi-line (or single line) strings
-  ==> Good for removing spaces added to template strings because of alignment with code.
-  #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Size')]
-  [CmdletBinding()]
-  Param(
-    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
-    [AllowEmptyString()]
-    [String] $From,
-    [Int] $Size = 2
-  )
-  Process {
-    $Lines = $From -split '\n'
-    $Delimiter = if($Lines.Count -eq 1) { '' } else { "`n" }
-    $Callback = { $Args[0],$Args[1] -join $Delimiter }
-    $Lines |
-      Where-Object { $_.Length -ge $Size } |
-      ForEach-Object { $_.SubString($Size) } |
-      Invoke-Reduce -Callback $Callback -InitialValue ''
-  }
 }

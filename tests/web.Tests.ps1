@@ -106,18 +106,18 @@ Describe 'ConvertTo-QueryString' {
     @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-WebRequestBasicAuth' {
+Describe 'Invoke-WebRequestBasicAuth' {
   It 'can make a simple request' {
     Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
-    # Headers
-    $Request[1].Authorization | Should -Be "Bearer $Token"
-    # Method
-    $Request[3] | Should -Be 'Get'
-    # Uri
-    $Request[5] | Should -Be $Uri
+    $Values = $Request[1,3,5] | Sort-Object
+    $Values |
+      Where-Object { $_ -is [Hashtable] } |
+      ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+    $Values | Should -Contain 'Get'
+    $Values | Should -Contain $Uri
   }
   It 'can make a simple request with a username and password' {
     Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
@@ -125,12 +125,12 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-WebRequestBasicAuth' 
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
-    # Headers
-    $Request[1].Authorization | Should -Be 'Basic dXNlcjp0b2tlbg=='
-    # Method
-    $Request[3] | Should -Be 'Get'
-    # Uri
-    $Request[5] | Should -Be $Uri
+    $Values = $Request[1,3,5] | Sort-Object
+    $Values |
+      Where-Object { $_ -is [Hashtable] } |
+      ForEach-Object { $_.Authorization | Should -Be 'Basic dXNlcjp0b2tlbg==' }
+    $Values | Should -Contain 'Get'
+    $Values | Should -Contain $Uri
   }
   It 'can make a simple request with query parameters' {
     Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
@@ -138,8 +138,12 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-WebRequestBasicAuth' 
     $Uri = 'https://example.com/'
     $Query = @{ foo = 'bar' }
     $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
-    $Request[1].Authorization | Should -Be "Bearer $Token"
-    $Request[5] | Should -Be "${Uri}?foo=bar"
+    $Values = $Request[1,3,5] | Sort-Object
+    $Values |
+      Where-Object { $_ -is [Hashtable] } |
+      ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+    $Values | Should -Contain 'Get'
+    $Values | Should -Contain "${Uri}?foo=bar"
   }
   It 'can make a simple request with URL-encoded query parameters' {
     Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
@@ -147,17 +151,27 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-WebRequestBasicAuth' 
     $Uri = 'https://example.com/'
     $Query = @{ answer = 42 }
     $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
-    $Request[1].Authorization | Should -Be "Bearer $Token"
-    $Request[5] | Should -Be "${Uri}?answer=42"
+    $Values = $Request[1,3,5] | Sort-Object
+    $Values |
+      Where-Object { $_ -is [Hashtable] } |
+      ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+    $Values | Should -Contain 'Get'
+    $Values |
+      Where-Object { $_ -match $Uri } |
+      Should -Match "$Uri\?answer(=|%3d)42$"
   }
   It 'can make a simple PUT request' {
     Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
-    $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data @{ answer = 42 }
-    $Request[1] | Should -Match '"answer": '
-    $Request[3].Authorization | Should -Be "Bearer $Token"
-    $Request[5] | Should -Be 'Put'
-    $Request[7] | Should -Be $Uri
+    $Data = @{ answer = 42 }
+    $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data $Data
+    $Values = $Request[1,3,5,7] | Sort-Object
+    $Values |
+      Where-Object { $_ -is [Hashtable] } |
+      ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+    $Values | Should -Contain 'Put'
+    $Values | Should -Contain $Uri
+    $Values | Should -Contain (ConvertTo-Json $Data)
   }
 }

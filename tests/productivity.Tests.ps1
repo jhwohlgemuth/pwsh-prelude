@@ -332,11 +332,6 @@ Describe 'Rename-FileExtension' {
     Remove-Item (Join-Path $TestDrive 'foo.bar')
   }
 }
-Describe -Skip 'Test-Admin' {
-  It 'should return false if not Administrator' {
-    Test-Admin | Should -Be $False
-  }
-}
 Describe 'Test-Empty' {
   It 'should return true for directories with no contents' {
     $Foo = Join-Path $TestDrive 'Foo'

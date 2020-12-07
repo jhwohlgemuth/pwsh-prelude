@@ -1,6 +1,6 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'application'
 
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Application State' {
+Describe 'Application State' {
   It 'can save and get state using ID' {
     $Id = 'pester-test'
     $Value = (New-Guid).Guid
@@ -63,7 +63,7 @@ Describe 'ConvertTo-PowershellSyntax' {
     '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-RunApplication' {
+Describe 'Invoke-RunApplication' {
   It 'can pass state to Init/Loop functions and execute Loop one time' {
     $Script:Count = 0
     $Init = {
@@ -120,7 +120,8 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-RunApplication' {
     $Loop = {
       $Script:Count++
     }
-    $Path = Join-Path $Env:temp "state-$Script:ApplicationId.xml"
+    $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+    $Path = Join-Path $TempRoot "state-$Script:ApplicationId.xml"
     (Test-Path $Path) | Should -BeTrue
     Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId -ClearState
     (Test-Path $Path) | Should -BeFalse

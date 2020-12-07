@@ -42,7 +42,7 @@ function ConvertTo-PlainText {
   Process {
     try {
       $BinaryString = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Value);
-      $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BinaryString);
+      $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($BinaryString);
     } finally {
       if ($BinaryString -ne [IntPtr]::Zero) {
         [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BinaryString);
