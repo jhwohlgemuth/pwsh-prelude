@@ -140,6 +140,8 @@ Functions
 - `ConvertTo-PlainText`
 - `ConvertTo-QueryString`
 - `ConvertTo-Radian`
+- `Deny-Empty`
+- `Deny-Null`
 - `Enable-Remoting`
 - `Find-Duplicate`
 - `Find-FirstIndex`

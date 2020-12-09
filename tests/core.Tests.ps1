@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' {
   Context 'meta validation' {
     It 'should import exports' {
-      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 113
+      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 115
     }
     It 'should import aliases' {
       (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 54
@@ -59,6 +59,20 @@ Describe 'ConvertTo-Pair' {
     $Pair = @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair
     $Pair[0] | Sort-Object | Should -Be @('a','b','c')
     $Pair[1] | Sort-Object | Should -Be @(1,2,3)
+  }
+}
+Describe 'Deny-Empty' {
+  It 'can filter our empty strings from pipeline chains' {
+    '','b','' | Deny-Empty | Should -Be 'b'
+    'a','','b','','d' | Deny-Empty | Should -Be 'a','b','d'
+    Deny-Empty 'a','b','','d' | Should -Be 'a','b','d'
+  }
+}
+Describe 'Deny-Null' {
+  It 'can filter our $Null values from pipeline chains' {
+    $Null,2,$Null | Deny-Null | Should -Be 2
+    1,$Null,2,$Null,4 | Deny-Null | Should -Be 1,2,4
+    Deny-Null 1,2,$Null,4 | Should -Be 1,2,4
   }
 }
 Describe 'Find-FirstIndex' {

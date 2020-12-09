@@ -71,6 +71,60 @@ function ConvertTo-Pair {
     }
   }
 }
+function Deny-Empty {
+  <#
+  .SYNOPSIS
+  Remove empty string values from pipeline chains
+  .EXAMPLE
+  'a','b','','d' | Deny-Empty
+  # returns 'a','b','d'
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [AllowNull()]
+    [AllowEmptyString()]
+    [Array] $InputObject
+  )
+  Begin {
+    $IsNotEmptyString = { -not ($_ -is [String]) -or ($_.Length -gt 0) }
+    if ($InputObject.Count -gt 0) {
+      $InputObject | Where-Object $IsNotEmptyString
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Where-Object $IsNotEmptyString
+    }
+  }
+}
+function Deny-Null {
+  <#
+  .SYNOPSIS
+  Remove null values from pipeline chains
+  .EXAMPLE
+  1,2,$Null,4 | Deny-Null
+  # returns 1,2,4
+  #>
+  [CmdletBinding()]
+  Param(
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [AllowNull()]
+    [AllowEmptyString()]
+    [Array] $InputObject
+  )
+  Begin {
+    $IsNotNull = { $Null -ne $_ }
+    if ($InputObject.Count -gt 0) {
+      $InputObject | Where-Object $IsNotNull
+    }
+  }
+  End {
+    if ($Input.Count -gt 0) {
+      $Input | Where-Object $IsNotNull
+    }
+  }
+}
 function Find-FirstIndex {
   <#
   .SYNOPSIS
