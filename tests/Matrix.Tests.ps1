@@ -1,20 +1,20 @@
 & (Join-Path $PSScriptRoot '_setup.ps1') 'matrix'
 
 Describe 'Matrix class static methods' {
-  It 'can create an NxN multi-dimensional array' {
+  It -Skip 'can create an NxN multi-dimensional array' {
     $N = 5
     $Matrix = [MatrixTest]::New($N)
     $Matrix.Rows.Count | Should -Be $N
     $Matrix.Rows[0].Count | Should -Be $N
   }
-  It 'can create an MxN multi-dimensional array' {
+  It -Skip 'can create an MxN multi-dimensional array' {
     $M = 8
     $N = 6
     $Matrix = [MatrixTest]::New($M,$N)
     $Matrix.Rows.Count | Should -Be $M
     $Matrix.Rows[0].Count | Should -Be $N
   }
-  It 'can create unit matrices' {
+  It -Skip 'can create unit matrices' {
     $Unit = [MatrixTest]::Unit(1)
     $Unit.Size | Should -Be 1,1
     $Unit.Rows[0] | Should -Be 1
@@ -28,7 +28,7 @@ Describe 'Matrix class static methods' {
     $Unit.Rows[1] | Should -Be 1,1,1
     $Unit.Rows[2] | Should -Be 1,1,1
   }
-  It 'can create identity matrices' {
+  It -Skip 'can create identity matrices' {
     $Identity = [MatrixTest]::Identity(2)
     $Identity.Size | Should -Be 2,2
     $Identity.Rows[0] | Should -Be 1,0
@@ -40,7 +40,7 @@ Describe 'Matrix class static methods' {
     $Identity.Rows[2] | Should -Be 0,0,1,0
     $Identity.Rows[3] | Should -Be 0,0,0,1
   }
-  It 'can transpose matrices' {
+  It -Skip 'can transpose matrices' {
     $A = [MatrixTest]::New(3)
     $A.Rows = (1..9)
     $Transposed = [MatrixTest]::Transpose($A)
@@ -55,7 +55,7 @@ Describe 'Matrix class static methods' {
     $T.Rows[0] | Should -Be 1,3,5
     $T.Rows[1] | Should -Be 2,4,6
   }
-  It 'can add two or more Matrices' {
+  It -Skip 'can add two or more Matrices' {
     $A = [MatrixTest]::Identity(2)
     $Sum = [MatrixTest]::Add($A,$A)
     $Sum.Rows[0] | Should -Be 2,0
@@ -64,14 +64,14 @@ Describe 'Matrix class static methods' {
     $Sum.Rows[0] | Should -Be 3,0
     $Sum.Rows[1] | Should -Be 0,3
   }
-  It 'can calculate the determinant for 2x2 matrices' {
+  It -Skip 'can calculate the determinant for 2x2 matrices' {
     [MatrixTest]::Det([MatrixTest]::Unit(2)) | Should -Be 0
     [MatrixTest]::Det([MatrixTest]::Identity(2)) | Should -Be 1
     $A = [MatrixTest]::New(2)
     $A.Rows = (1..4)
     [MatrixTest]::Det($A) | Should -Be -2
   }
-  It 'can calculate the determinant for 3x3 matrices' {
+  It -Skip 'can calculate the determinant for 3x3 matrices' {
     [MatrixTest]::Det([MatrixTest]::Unit(3)) | Should -Be 0
     [MatrixTest]::Det([MatrixTest]::Identity(3)) | Should -Be 1
     $A = [MatrixTest]::New(3)
@@ -85,7 +85,7 @@ Describe 'Matrix class static methods' {
     $A.Rows[2] = 2,5,-1
     [MatrixTest]::Det($A) | Should -Be 79
   }
-  It 'can calculate the determinant for 4x4 matrices' {
+  It -Skip 'can calculate the determinant for 4x4 matrices' {
     [MatrixTest]::Det([MatrixTest]::Unit(4)) | Should -Be 0
     [MatrixTest]::Det([MatrixTest]::Identity(4)) | Should -Be 1
     $A = [MatrixTest]::New(4)
@@ -101,7 +101,7 @@ Describe 'Matrix class static methods' {
     $A.Rows[3] = 1,-2,-1,4
     [MatrixTest]::Det($A) | Should -Be 38
   }
-  It 'can calculate the determinant for matrices larger than 4x4' {
+  It -Skip 'can calculate the determinant for matrices larger than 4x4' {
     [MatrixTest]::Det([MatrixTest]::Unit(10)) | Should -Be 0
     [MatrixTest]::Det([MatrixTest]::Identity(10)) | Should -Be 1
     $A = [MatrixTest]::New(6)
@@ -113,7 +113,7 @@ Describe 'Matrix class static methods' {
     $A.Rows[5] = 24,6,6,3,4,22
     [MatrixTest]::Det($A) | Should -Be 12228
   }
-  It 'can produce the dot product of two matrices' {
+  It -Skip 'can produce the dot product of two matrices' {
     $Identity = [MatrixTest]::Identity(2)
     $A = $Identity.Clone()
     $A.Rows[1][1] = 0
@@ -149,14 +149,14 @@ Describe 'Matrix class static methods' {
     $B.Rows[1] = -1,2
     [MatrixTest]::Dot($A,$B) | Test-Equal $Identity | Should -BeTrue -Because '$A and $B are invertible'
   }
-  It 'can multiply matrices by a scalar constant' {
+  It -Skip 'can multiply matrices by a scalar constant' {
     $A = [MatrixTest]::Identity(2)
     [MatrixTest]::Add($A,$A,$A) | Test-Equal ([MatrixTest]::Multiply($A,3)) | Should -BeTrue
     $Product = [MatrixTest]::Multiply($A,7)
     $Product.Rows[0] | Should -Be 7,0
     $Product.Rows[1] | Should -Be 0,7
   }
-  It 'can calulate the inverse of a given matrix' {
+  It -Skip 'can calulate the inverse of a given matrix' {
     $A = [MatrixTest]::New(3);
     $A.Rows[0] = 1,2,3
     $A.Rows[1] = 2,3,4
