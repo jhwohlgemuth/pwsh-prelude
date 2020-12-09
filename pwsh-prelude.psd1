@@ -1,5 +1,5 @@
 ﻿@{
-  ModuleVersion = '0.0.57'
+  ModuleVersion = '0.0.58'
   RootModule = 'pwsh-prelude.psm1'
   GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
   CompanyName = 'Wohlgemuth Technology Foundation'
@@ -51,6 +51,7 @@
     'on'
     'op'
     'partition'
+    'pick'
     'plain'
     'permute'
     'prop'
@@ -147,6 +148,7 @@
     'Invoke-Once'
     'Invoke-Operator'
     'Invoke-Partition'
+    'Invoke-Pick'
     'Invoke-PropertyTransform'
     'Invoke-Reduce'
     'Invoke-RemoteCommand'

@@ -182,8 +182,9 @@ Functions
 - `Invoke-ObjectMerge`
 - `Invoke-Once`
 - `Invoke-Operator`
-- `Invoke-PropertyTransform`
 - `Invoke-Partition`
+- `Invoke-Pick`
+- `Invoke-PropertyTransform`
 - `Invoke-Reduce`
 - `Invoke-RemoteCommand`
 - `Invoke-RunApplication`

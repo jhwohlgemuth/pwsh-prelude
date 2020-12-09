@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' {
   Context 'meta validation' {
     It 'should import exports' {
-      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 115
+      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 116
     }
     It 'should import aliases' {
-      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 54
+      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 55
     }
   }
 }
@@ -352,6 +352,48 @@ Describe 'Invoke-Partition' {
     1..10 | Invoke-Partition $IsNegative | Should -Be @(@(),@(1,2,3,4,5,6,7,8,9,10))
     $IsEven = { Param($X) $X % 2 -eq 0 }
     0..9 | Invoke-Partition $IsEven | Should -Be @(0,2,4,6,8),@(1,3,5,7,9)
+  }
+}
+Describe 'Invoke-Pick' {
+  It 'can create hashtable from picked properties' {
+    $Name = 'a','c'
+    $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name
+    $Result.keys | Sort-Object | Should -Be 'a','c'
+    $Result.values | Sort-Object | Should -Be 1,3
+  }
+  It 'can create hashtable from all picked properties' {
+    $Name = 'a','c','x'
+    $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name -All
+    $Result.keys | Sort-Object | Should -Be 'a','c','x'
+    $Result.values | Sort-Object | Should -Be 1,3
+    $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name -All -EmptyValue 'EMPTY'
+    $Result.keys | Sort-Object | Should -Be 'a','c','x'
+    $Result.values | Sort-Object | Should -Be 1,3,'EMPTY'
+  }
+  It 'can create custom object from picked properties' {
+    $Name = 'a','c'
+    $Result = [PSCustomObject]@{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name
+    $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','c'
+    $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,3
+  }
+  It 'can create custom object from all picked properties' {
+    $Name = 'a','c','x'
+    $Result = [PSCustomObject]@{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name -All
+    $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','c','x'
+    $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,3
+    $Result = [PSCustomObject]@{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name -All -EmptyValue 'EMPTY'
+    $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a','c','x'
+    $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1,3,'EMPTY'
+  }
+  It 'should always return an object' {
+    $Name = 'foo','bar'
+    $Result = 'Not an object' | Invoke-Pick $Name
+    $Result | Should -BeOfType [Hashtable]
+    $Result.keys.Count | Sort-Object | Should -Be 0
+    $Result | Should -BeOfType [Hashtable]
+    $Result = 'Not an object' | Invoke-Pick $Name -All -EmptyValue 'NOTHING'
+    $Result.keys | Sort-Object | Should -Be 'bar','foo'
+    $Result.values | Sort-Object | Should -Be 'NOTHING','NOTHING'
   }
 }
 Describe 'Invoke-PropertyTransform' {

@@ -668,6 +668,73 @@ function Invoke-Partition {
     Invoke-Partition_ $Input $Predicate
   }
 }
+function Invoke-Pick {
+  <#
+  .SYNOPSIS
+  Create an object composed of the picked object properties
+  .DESCRIPTION
+  This function behaves very much like Select-Object, but with normalized behavior that works on hashtables and custom objects.
+  .PARAMETER All
+  Include non-existent properties. For non-existent properties, set value to -EmptyValue.
+  .EXAMPLE
+  @{ a = 1; b = 2; c = 3 } | pick 'a','c'
+  # returns @{ a }
+  #>
+  [CmdletBinding()]
+  [Alias('pick')]
+  [OutputType([Hashtable])]
+  [OutputType([PSCustomObject])]
+  Param(
+    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+    [PSObject] $From,
+    [Parameter(Position=0)]
+    [Array] $Name,
+    [Switch] $All,
+    [AllowNull()]
+    [AllowEmptyString()]
+    $EmptyValue = $Null
+  )
+  Process {
+    $Type = $From.GetType().Name
+    switch ($Type) {
+      'PSCustomObject' {
+        $Result = [PSCustomObject]@{}
+        $Keys = $From.PSObject.Properties.Name
+        foreach($Property in $Name.Where({ $_ -in $Keys })) {
+          $Result | Add-Member -MemberType NoteProperty -Name $Property -Value $From.$Property
+        }
+        if ($All) {
+          foreach($Property in $Name.Where({ $_ -notin $Keys })) {
+            $Result | Add-Member -MemberType NoteProperty -Name $Property -Value $EmptyValue
+          }
+        }
+        $Result
+      }
+      'Hashtable' {
+        $Result = @{}
+        $Keys = $From.keys
+        foreach($Property in $Name.Where({ $_ -in $Keys })) {
+          $Result.$Property = $From.$Property
+        }
+        if ($All) {
+          foreach($Property in $Name.Where({ $_ -notin $Keys })) {
+            $Result.$Property = $EmptyValue
+          }
+        }
+        $Result
+      }
+      Default {
+        $Result = @{}
+        if ($All) {
+          foreach($Property in $Name) {
+            $Result.$Property = $EmptyValue
+          }
+        }
+        $Result
+      }
+    }
+  }
+}
 function Invoke-PropertyTransform {
   <#
   .SYNOPSIS
@@ -1254,10 +1321,10 @@ function Test-Equal {
           }
           'PSCustomObject' {
             $Every = { $Args[0] -and $Args[1] }
-            $LeftKeys = $Left.psobject.properties | Select-Object -ExpandProperty Name
-            $RightKeys = $Right.psobject.properties | Select-Object -ExpandProperty Name
-            $LeftValues = $Left.psobject.properties | Select-Object -ExpandProperty Value
-            $RightValues = $Right.psobject.properties | Select-Object -ExpandProperty Value
+            $LeftKeys = $Left.PSObject.Properties.Name
+            $RightKeys = $Right.PSObject.Properties.Name
+            $LeftValues = $Left.PSObject.Properties.Value
+            $RightValues = $Right.PSObject.Properties.Value
             $Index = 0
             $HasSameKeys = $LeftKeys |
               ForEach-Object { Test-Equal $_ $RightKeys[$Index]; $Index++ } |
