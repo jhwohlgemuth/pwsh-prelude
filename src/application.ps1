@@ -174,6 +174,16 @@ function New-ApplicationTemplate {
   #>
   [CmdletBinding()]
   Param()
+  $Snippet = if (-not $IsLinux) {
+    "
+    {
+      Invoke-Speak 'Goodbye'
+      {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
+      `"`{{ Grave }}nApplication ID: {{ Dollar }}Id`{{ Grave }}n`" | Write-Color -Magenta
+    } | Invoke-ListenTo 'application:exit' | Out-Null"
+  } else {
+    ''
+  }
   "  #Requires -Modules pwsh-prelude
   [CmdletBinding()]
   Param(
@@ -185,16 +195,11 @@ function New-ApplicationTemplate {
   $Empty
   {{ Dollar }}Init = {
     Clear-Host
-    {{ Dollar }}State = {{ Dollar }}args[0]
+    {{ Dollar }}State = {{ Dollar }}Args[0]
     {{ Dollar }}Id = {{ Dollar }}State.Id
     'Application Information:' | Write-Color
     `"ID = {{#green {{ Dollar }}Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-    'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine
-    {
-      Invoke-Speak 'Goodbye'
-      {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
-      `"`{{ Grave }}nApplication ID: {{ Dollar }}Id`{{ Grave }}n`" | Write-Color -Magenta
-    } | Invoke-ListenTo 'application:exit' | Out-Null
+    'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine$Snippet
     '' | Write-Color
     Start-Sleep 2
   }
