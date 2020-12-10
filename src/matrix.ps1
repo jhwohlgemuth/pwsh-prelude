@@ -1,7 +1,7 @@
 ﻿if ('Matrix' -as [Type]) {
   # Do nothing
 } else {
-  Add-Type -TypeDefinition (Get-Content -Path (Join-Path $PSScriptRoot 'csharp/Matrix/Matrix.cs'))
+  Add-Type -TypeDefinition (Get-Content -Path (Join-Path $PSScriptRoot 'csharp/Matrix/Matrix.cs').ToString())
 }
 
 function New-Matrix {
