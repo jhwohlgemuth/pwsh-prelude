@@ -1,4 +1,10 @@
-﻿function New-Matrix {
+﻿if ('Matrix' -as [Type]) {
+  # Do nothing
+} else {
+  Add-Type -TypeDefinition (Get-Content -Path './csharp/Matrix/Matrix.cs')
+}
+
+function New-Matrix {
   <#
   .SYNOPSIS
   Utility wrapper function for creating matrices
