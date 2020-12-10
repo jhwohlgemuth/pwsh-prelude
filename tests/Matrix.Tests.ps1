@@ -174,12 +174,12 @@ Describe 'Matrix class static methods' {
   }
 }
 Describe 'Matrix class instance' {
-  It 'does not allow for setting matrix Size' {
+  It -Skip 'does not allow for setting matrix Size' {
     $A = [MatrixTest]::Identity(3)
     $A.Size | Should -Be 3,3
     { $A.Size = 2,2,2 } | Should -Throw
   }
-  It 'will ensure row and column data adheres to restrictions of matrix size' {
+  It -Skip 'will ensure row and column data adheres to restrictions of matrix size' {
     $A = [MatrixTest]::New(3)
     $A.Rows = (1..9)
     $A.Rows[0] | Should -Be 1,2,3
@@ -198,18 +198,18 @@ Describe 'Matrix class instance' {
     $A.Rows[0] | Should -Be  1,2,3
     $A.Rows[1] | Should -Be  4,5,6 -Because 'non-square sizes should be supported'
   }
-  It 'provides iterator of index element index pairs' {
+  It -Skip 'provides iterator of index element index pairs' {
     $A = [MatrixTest]::New(3)
     $A.Indexes() | Should -HaveCount 9
   }
-  It 'can create clones' {
+  It -Skip 'can create clones' {
     $A = [MatrixTest]::New(2)
     $A.Rows = (1..4)
     $Clone = $A.Clone()
     $Clone.Rows[0] | Should -Be 1,2
     $Clone.Rows[1] | Should -Be 3,4
   }
-  It 'can remove rows' {
+  It -Skip 'can remove rows' {
     $A = [MatrixTest]::New(3)
     $A.Rows = (1..9)
     $Edited = $A.RemoveRow(0)
@@ -226,7 +226,7 @@ Describe 'Matrix class instance' {
     $Edited.Rows[1] | Should -Be 4,5,6
     $Edited = $A.RemoveRow(2).RemoveColumn(0)
   }
-  It 'can remove columns' {
+  It -Skip 'can remove columns' {
     $A = [MatrixTest]::New(3)
     $A.Rows = (1..9)
     $Edited = $A.RemoveColumn(0)
@@ -249,7 +249,7 @@ Describe 'Matrix class instance' {
     $Edited.Rows[0] | Should -Be 5,6
     $Edited.Rows[1] | Should -Be 8,9
   }
-  It 'can be converted to string output' {
+  It -Skip 'can be converted to string output' {
     $A = [MatrixTest]::New(2)
     $A.Rows = (1..4)
     $A.ToString() | ConvertTo-Json | Should -Be '"1,2\r\n3,4"'
