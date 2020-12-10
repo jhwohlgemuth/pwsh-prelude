@@ -2,7 +2,7 @@ using System;
 using Xunit;
 
 namespace Prelude.MatrixTests {
-    public class StaticTests {
+    public class UnitTests {
         [Theory]
         [InlineData(1)]
         [InlineData(5)]
@@ -256,8 +256,6 @@ namespace Prelude.MatrixTests {
             }
             Assert.Equal(15, Matrix.Trace(A));
         }
-    }
-    public class InstanceTests {
         [Fact]
         public void Can_Create_Clones() {
             var A = new Matrix(2);
@@ -352,8 +350,6 @@ namespace Prelude.MatrixTests {
             string output = A.ToString();
             Assert.Equal("1,2\r\n3,4", output);
         }
-    }
-    public class DeterminantTests {
         [Fact]
         public void Can_Calculate_Determinant_for_2x2_Matrices() {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(2)));
