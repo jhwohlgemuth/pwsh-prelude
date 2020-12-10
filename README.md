@@ -277,14 +277,6 @@ Type Accelerators
   ```PowerShell
   # Example code will go here
   ```
-- `[Constant]`
-  > Various constants that do not come with PowerShell
-  ```PowerShell
-  [Constant]::Euler
-  # 2.71828182845905
-  ```
-- `[Prelude]`
-  > Helper class that makes some functions available as static class methods.
 
 Type Extensions
 ---------------

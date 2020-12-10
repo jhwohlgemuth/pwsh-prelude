@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Matrix\Matrix.csproj" />
+    <ProjectReference Include="..\Coordinate\Coordinate.csproj" />
   </ItemGroup>
 
 </Project>

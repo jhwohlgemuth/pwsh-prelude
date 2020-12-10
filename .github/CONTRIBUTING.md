@@ -23,11 +23,6 @@ Project Architecture
 --------------------
 
 The main module file, [pwsh-prelude.psm1](../pwsh-prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
-- `classes/`
-  - `Constant.ps1`: Container class for constant values
-  - `Coordinate.ps1`: Data type for working with geodetic data values
-  - `Matrix.ps1`: Data type for working with "rectangular" data values
-  - `Prelude.ps1`: Container class for utility methods and elements that are difficult to categorize
 - `application.ps1`: Collection of functions that can be used to create a PowerShell command line application
 - `applied.ps1`: Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
 - `core.ps1`: Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
