@@ -1,60 +1,5 @@
 & (Join-Path $PSScriptRoot '_setup.ps1') 'applied'
 
-Describe 'Constant Class' {
-  It 'provides immutable values' {
-    [Math]::Round([ConstantTest]::Phi, 3) | Should -Be 1.618
-    { [ConstantTest]::Phi = 5 } | Should -Throw -Because 'constants are immutable'
-  }
-}
-Describe 'Coordinate Class' {
-  It 'can dynamically assign cardinal directions at constuction' {
-    $A = [CoordinateTest]::New(37, -111)
-    $A.Hemisphere | Should -Be 'N','W'
-    $A = [CoordinateTest]::New(-41.25, 96.4)
-    $A.Hemisphere | Should -Be 'S','E'
-    $A = [CoordinateTest]@{ Latitude = 37; Longitude = -111 }
-    $A.Hemisphere | Should -Be 'N','W'
-    $A = [CoordinateTest]@{ Latitude = -41; Longitude = 96.4 }
-    $A.Hemisphere | Should -Be 'S','E'
-  }
-  It 'can convert geodetic values to cartesian' {
-    [CoordinateTest]::ToCartesian(41.25, 96.0) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -501980.22547,4776022.81393,4183337.2134
-    [CoordinateTest]::ToCartesian(41.25, 96.0, 1000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502058.81413,4776770.53508,4183996.55921
-    [CoordinateTest]::ToCartesian(41.25, 96.0, 10000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -502766.11207,4783500.02543,4189930.67155
-    [CoordinateTest]::ToCartesian(41.25, 96.0, 100000) | ForEach-Object { [Math]::Round($_, 5) } | Should -Be -509839.09144,4850794.92896,4249271.79491
-  }
-  It 'can convert cartesian to geodetic' {
-    $X = -501980.22547
-    $Y = 4776022.81393
-    $Z = 4183337.2134
-    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,0
-    $X = -502058.81413
-    $Y = 4776770.53508
-    $Z = 4183996.55921
-    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,1000
-    $X = -502766.11207
-    $Y = 4783500.02543
-    $Z = 4189930.67155
-    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,10000
-    $X = -509839.09144
-    $Y = 4850794.92896
-    $Z = 4249271.79491
-    [CoordinateTest]::ToGeodetic($X, $Y, $Z) | ForEach-Object { [Math]::Round($_, 2) } | Should -Be 41.25,96,100000
-    $X = -501980.22547
-    $Y = 4776022.81393
-    $Z = 4183337.2134
-    $Geodetic = [CoordinateTest]::FromCartesian($X, $Y, $Z)
-    [Math]::Round($Geodetic.Latitude, 2) | Should -Be 41.25
-    [Math]::Round($Geodetic.Longitude, 2) | Should -Be 96
-    [Math]::Round($Geodetic.Height, 2) | Should -Be 0
-  }
-  It 'can convert decimal to sexagesimal' {
-    [CoordinateTest]::ToSexagesimal(32.7157) | Should -Be 32,42,56.52
-    [CoordinateTest]::ToSexagesimal(96) | Should -Be 96,0,0
-    [CoordinateTest]::ToSexagesimal(116.7762) | Should -Be 116,46,34.32
-    [CoordinateTest]::ToSexagesimal(-116.7762) | Should -Be -116,46,34.32
-  }
-}
 Describe 'ConvertTo-Degree' {
   It 'can convert radian values to degrees' {
     $PI = [Math]::Pi
@@ -76,8 +21,8 @@ Describe 'ConvertTo-Radian' {
 }
 Describe 'Get-EarthRadius' {
   It 'can return earth radius for a given latitude' {
-    $SemiMajorAxis = [CoordinateTest]::SemiMajorAxis
-    $SemiMinorAxis = [CoordinateTest]::SemiMinorAxis
+    $SemiMajorAxis = [Coordinate]::SemiMajorAxis
+    $SemiMinorAxis = [Coordinate]::SemiMinorAxis
     -90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
     Get-EarthRadius | Should -Be $SemiMajorAxis
     0 | Get-EarthRadius | Should -Be $SemiMajorAxis -Because 'the radius is equal to semi-major axis at the equator'

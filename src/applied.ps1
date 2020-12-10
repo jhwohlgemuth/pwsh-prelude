@@ -1,4 +1,10 @@
-﻿function ConvertTo-Degree {
+﻿if ('Coordinate' -as [Type]) {
+  # Do nothing
+} else {
+  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Coordinate/Coordinate.cs')
+}
+
+function ConvertTo-Degree {
   <#
   .SYNOPSIS
   Convert radians to degrees

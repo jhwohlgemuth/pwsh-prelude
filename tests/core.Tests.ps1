@@ -746,12 +746,12 @@ Describe 'Test-Equal' {
     Test-Equal $M $O | Should -BeFalse
   }
   It 'can compare [Matrix] objects' {
-    $A = [MatrixTest]::New(2)
+    $A = [Matrix]::New(2)
     $A.Rows[0][0] = 1
     $A.Rows[0][1] = 2
     $A.Rows[1][0] = 3
     $A.Rows[1][1] = 4
-    $B = [MatrixTest]::Identity(2)
+    $B = [Matrix]::Identity(2)
     $C = $A.Clone()
     $A,'Not a Matrix' | Test-Equal | Should -BeFalse
     $A,$B | Test-Equal | Should -BeFalse
