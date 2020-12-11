@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Matrix\Matrix.csproj" />
     <ProjectReference Include="..\Coordinate\Coordinate.csproj" />
+    <ProjectReference Include="..\Graph\Graph.csproj" />
+    <ProjectReference Include="..\Edge\Edge.csproj" />
   </ItemGroup>
 
 </Project>
