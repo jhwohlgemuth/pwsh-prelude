@@ -43,5 +43,14 @@ namespace Prelude.CoordinateTests {
             Assert.Equal(minutes, sexagesimal[1]);
             Assert.Equal(seconds, sexagesimal[2]);
         }
+        [Theory]
+        [InlineData(0, 0, 0, "0°0'0\"N 0°0'0\"E")]
+        [InlineData(42.62, -123, 10, "42°37'12\"N 123°0'0\"W")]
+        [InlineData(-12.75, 77, 10, "12°45'0\"S 77°0'0\"E")]
+        [Trait("Category", "Instance")]
+        public void Can_Override_ToString(double lat, double lon, double height, string expected) {
+            var latlon = new Coordinate(lat, lon, height);
+            Assert.Equal(expected, latlon.ToString());
+        }
     }
 }

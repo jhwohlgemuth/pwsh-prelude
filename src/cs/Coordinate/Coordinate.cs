@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 
 public class Coordinate {
     public const double SemiMajorAxis = 6378137.0; // a (in meters)
@@ -26,7 +25,7 @@ public class Coordinate {
             return _Latitude;
         }
         set {
-            this.Hemisphere[0] = value < 0 ? "S" : "N";
+            Hemisphere[0] = value < 0 ? "S" : "N";
             _Latitude = value;
         }
     }
@@ -35,20 +34,13 @@ public class Coordinate {
             return _Longitude;
         }
         set {
-            this.Hemisphere[1] = value < 0 ? "W" : "E";
+            Hemisphere[1] = value < 0 ? "W" : "E";
             _Longitude = value;
         }
     }
     public double Height;
-    private static double ToDegree(double value) {
-        return value * (180 / Math.PI);
-    }
-    private static double ToRadian(double value) {
-        return value * (Math.PI / 180);
-    }
-    private static double Hav(double value) {
-        return 0.5 * (1 - Math.Cos(ToRadian(value)));
-    }
+    private static double ToDegree(double value) => value * (180 / Math.PI);
+    private static double ToRadian(double value) => value * (Math.PI / 180);
     public static double[] ToSexagesimal(double value) {
         double fractionalPart = Math.Abs(value - Math.Truncate(value));
         double degree = Math.Truncate(value);
@@ -57,14 +49,14 @@ public class Coordinate {
         return new double[] { degree, minute, second };
     }
     public Coordinate() {
-        this.Latitude = 0.0;
-        this.Longitude = 0.0;
-        this.Height = 0.0;
+        Latitude = 0.0;
+        Longitude = 0.0;
+        Height = 0.0;
     }
     public Coordinate(double latitude, double longitude, double height = 0.0) {
-        this.Latitude = latitude;
-        this.Longitude = longitude;
-        this.Height = height;
+        Latitude = latitude;
+        Longitude = longitude;
+        Height = height;
     }
     public static Coordinate FromCartesian(double x, double y, double z) {
         double[] geodetic = ToGeodetic(x, y, z);
@@ -102,12 +94,12 @@ public class Coordinate {
         return new double[] { x, y, z };
     }
     public override string ToString() {
-        double latitude = Math.Abs(this.Latitude);
-        double longitude = Math.Abs(this.Longitude);
-        string NS = this.Hemisphere[0];
-        string WE = this.Hemisphere[1];
+        double latitude = Math.Abs(Latitude);
+        double longitude = Math.Abs(Longitude);
+        string NS = Hemisphere[0];
+        string WE = Hemisphere[1];
         string[] lat = Array.ConvertAll(ToSexagesimal(latitude), Convert.ToString);
         string[] lon = Array.ConvertAll(ToSexagesimal(longitude), Convert.ToString);
-        return lat[0] + "°" + lat[1] + "'" + lat[2] + "\"" + NS + " " + lon[0] + "°" + lon[1] + "'" + lon[2] + "\"" + WE;
+        return $"{lat[0]}°{lat[1]}'{lat[2]}\"{NS} {lon[0]}°{lon[1]}'{lon[2]}\"{WE}";
     }
 }
