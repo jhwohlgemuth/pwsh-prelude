@@ -91,37 +91,6 @@ namespace Prelude.MatrixTests {
             foreach (var Row in sum.Rows)
                 Assert.Equal(expected, Row);
         }
-        [Theory]
-        [InlineData(4)]
-        public void Can_Calculate_Determinant_for_4x4_Matrices(int N) {
-            Assert.Equal(0, Matrix.Det(Matrix.Unit(N)));
-            Assert.Equal(1, Matrix.Det(Matrix.Identity(N)));
-            var A = new Matrix(N);
-            double[,] rows = new double[N,N];
-            rows = new double[,] {
-                { 3,-2,-5,4 },
-                { -5,2,8,-5 },
-                { -2,4,7,-3 },
-                { 2,-3,-5,8 }
-            };
-            foreach (var Index in A.Indexes()) {
-                int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i,j];
-            }
-            Assert.Equal(-54, Matrix.Det(A));
-            A = new Matrix(N);
-            rows = new double[,] {
-                { 5,4,2,1 },
-                { 2,3,1,-2 },
-                { -5,-7,-3,9 },
-                { 1,-2,-1,4 }
-            };
-            foreach (var Index in A.Indexes()) {
-                int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i,j];
-            }
-            Assert.Equal(38, Matrix.Det(A));
-        }
         [Fact]
         public void Can_Calculate_Dot_Product_of_Two_NxN_Matrices() {
             var A = Matrix.Identity(2);
@@ -257,6 +226,7 @@ namespace Prelude.MatrixTests {
             Assert.Equal(15, Matrix.Trace(A));
         }
         [Fact]
+        [Trait("Category", "Instance")]
         public void Can_Create_Clones() {
             var A = new Matrix(2);
             double[,] rows = new double[2,2];
@@ -273,6 +243,7 @@ namespace Prelude.MatrixTests {
             Assert.Equal(new double[] { 3,4 }, B.Rows[1]);
         }
         [Fact]
+        [Trait("Category", "Instance")]
         public void Can_Remove_Rows() {
             var A = new Matrix(3);
             double[,] rows = new double[3,3];
@@ -303,6 +274,7 @@ namespace Prelude.MatrixTests {
             Assert.Equal(new double[] { 5,6 }, edited.Rows[1]);
         }
         [Fact]
+        [Trait("Category", "Instance")]
         public void Can_Remove_Columns() {
             var A = new Matrix(3);
             double[,] rows = new double[3,3];
@@ -336,6 +308,7 @@ namespace Prelude.MatrixTests {
             Assert.Equal(new double[] { 8,9 }, edited.Rows[1]);
         }
         [Fact]
+        [Trait("Category", "Instance")]
         public void Can_Be_Converted_to_String() {
             var A = new Matrix(2);
             double[,] rows = new double[2,2];
@@ -351,6 +324,7 @@ namespace Prelude.MatrixTests {
             Assert.Equal("1,2\r\n3,4", output);
         }
         [Fact]
+        [Trait("Category", "Determinant")]
         public void Can_Calculate_Determinant_for_2x2_Matrices() {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(2)));
             var A = new Matrix(2);
@@ -366,6 +340,7 @@ namespace Prelude.MatrixTests {
         }
         [Theory]
         [InlineData(3)]
+        [Trait("Category", "Determinant")]
         public void Can_Calculate_Determinant_for_3x3_Matrices(int N) {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(N)));
             Assert.Equal(1, Matrix.Det(Matrix.Identity(N)));
@@ -394,7 +369,41 @@ namespace Prelude.MatrixTests {
             Assert.Equal(79, Matrix.Det(A));
         }
         [Theory]
+        [InlineData(4)]
+        [Trait("Category", "Determinant")]
+        public void Can_Calculate_Determinant_for_4x4_Matrices(int N) {
+            Assert.Equal(0, Matrix.Det(Matrix.Unit(N)));
+            Assert.Equal(1, Matrix.Det(Matrix.Identity(N)));
+            var A = new Matrix(N);
+            double[,] rows = new double[N,N];
+            rows = new double[,] {
+                { 3,-2,-5,4 },
+                { -5,2,8,-5 },
+                { -2,4,7,-3 },
+                { 2,-3,-5,8 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i,j];
+            }
+            Assert.Equal(-54, Matrix.Det(A));
+            A = new Matrix(N);
+            rows = new double[,] {
+                { 5,4,2,1 },
+                { 2,3,1,-2 },
+                { -5,-7,-3,9 },
+                { 1,-2,-1,4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i,j];
+            }
+            Assert.Equal(38, Matrix.Det(A));
+        }
+        [Theory]
         [InlineData(6)]
+        [Trait("Category", "Determinant")]
+        [Trait("Category", "LongDuration")]
         public void Can_Calculate_Determinant_for_Matrices_Larger_than_4x4(int N) {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(10)));
             Assert.Equal(1, Matrix.Det(Matrix.Identity(10)));
