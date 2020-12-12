@@ -95,14 +95,16 @@ function Find-Duplicate {
   [CmdletBinding()]
   Param(
     [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
-    [String] $Name,
+    [String] $Path,
     [Switch] $AsJob
   )
-  $Path = Get-Item $Name
+  $Path = Get-Item $Path
   "==> Finding duplicate files in `"$Path`"" | Write-Verbose
   if ($AsJob) {
-    $Job = Start-Job -Name 'Find-Duplicate' -ArgumentList $Path -ScriptBlock {
-      Find-Duplicate $Args[0]
+    $ModulePath = Join-Path $PSScriptRoot 'productivity.ps1'
+    $Job = Start-Job -Name 'Find-Duplicate' -ScriptBlock {
+      . $Using:ModulePath
+      Find-Duplicate -Path $Using:Path
     }
     "==> Started job (Id=$($Job.Id)) to find duplicate files" | Write-Verbose
     "==> To get results, use `"`$Files = Receive-Job $($Job.Name)`"" | Write-Verbose

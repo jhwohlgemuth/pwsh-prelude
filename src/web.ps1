@@ -64,8 +64,12 @@ function ConvertFrom-Html {
     [String] $Value
   )
   $Html = New-Object -ComObject 'HTMLFile'
-  if ($Null -ne $Html) {
+  try { # This works in PowerShell with Office installed
     $Html.IHTMLDocument2_write($Value)
+  }
+  catch { # This works when Office is not installed    
+    $Content = [System.Text.Encoding]::Unicode.GetBytes($Value)
+    $Html.Write($Content)
   }
   $Html
 }

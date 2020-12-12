@@ -1,7 +1,7 @@
 ﻿if ('Coordinate' -as [Type]) {
   # Do nothing
 } else {
-  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Coordinate/Coordinate.cs')
+  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Coordinate/Coordinate.dll')
 }
 
 function ConvertTo-Degree {

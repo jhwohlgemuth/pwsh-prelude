@@ -30,7 +30,7 @@ Describe 'ConvertTo-PlainText' {
     $Secure | ConvertTo-PlainText | Should -Be $Message
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicates' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' {
   AfterEach {
     if (Test-Path (Join-Path $TestDrive 'foo')) {
       Remove-Item (Join-Path $TestDrive 'foo')
@@ -51,9 +51,9 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicates' {
     mkdir $Sub
     $Same | Out-File (Join-Path $Sub 'bam')
     'also unique' | Out-File (Join-Path $Sub 'bat')
-    Find-Duplicate $TestDrive | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
+    Find-Duplicate -Path $TestDrive | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
   }
-  It -Skip:($Env:ProjectName -ne 'pwsh-prelude' -or $Env:BuildSystem -ne 'Unknown') 'can identify duplicate files as a job' {
+  It 'can identify duplicate files as a job' {
     $Foo = Join-Path $TestDrive 'foo'
     $Bar = Join-Path $TestDrive 'bar'
     $Baz = Join-Path $TestDrive 'baz'
@@ -65,9 +65,10 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicates' {
     mkdir $Sub
     $Same | Out-File (Join-Path $Sub 'bam')
     'also unique' | Out-File (Join-Path $Sub 'bat')
-    Find-Duplicate $TestDrive -AsJob
+    Find-Duplicate -Path $TestDrive -AsJob
     Wait-Job -Name 'Find-Duplicate'
-    Receive-Job 'Find-Duplicate' | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
+    $Results = Receive-Job -Name 'Find-Duplicate'
+    $Results | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
   }
 }
 Describe 'Find-FirstTrueVariable' {

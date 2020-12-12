@@ -1,7 +1,7 @@
 ﻿if ('Matrix' -as [Type]) {
   # Do nothing
 } else {
-  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Matrix/Matrix.cs')
+  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Matrix/Matrix.dll')
 }
 
 function New-Matrix {
