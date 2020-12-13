@@ -1,4 +1,5 @@
 ﻿using System;
+using static System.Math;
 
 public class Coordinate {
     public const double SemiMajorAxis = 6378137.0; // a (in meters)
@@ -39,13 +40,13 @@ public class Coordinate {
         }
     }
     public double Height;
-    private static double ToDegree(double value) => value * (180 / Math.PI);
-    private static double ToRadian(double value) => value * (Math.PI / 180);
+    private static double ToDegree(double value) => value * (180 / PI);
+    private static double ToRadian(double value) => value * (PI / 180);
     public static double[] ToSexagesimal(double value) {
-        double fractionalPart = Math.Abs(value - Math.Truncate(value));
-        double degree = Math.Truncate(value);
-        double minute = Math.Truncate(fractionalPart * 60);
-        double second = Math.Round(((fractionalPart * 60) - minute) * 60, 2);
+        double fractionalPart = Abs(value - Truncate(value));
+        double degree = Truncate(value);
+        double minute = Truncate(fractionalPart * 60);
+        double second = Round(((fractionalPart * 60) - minute) * 60, 2);
         return new double[] { degree, minute, second };
     }
     public Coordinate() {
@@ -69,16 +70,16 @@ public class Coordinate {
         double a = SemiMajorAxis;
         double b = SemiMinorAxis;
         double E = LinearEccentricity;
-        double E2 = Math.Pow(E, 2);
-        double x2 = Math.Pow(x, 2), y2 = Math.Pow(y, 2), z2 = Math.Pow(z, 2);
+        double E2 = Pow(E, 2);
+        double x2 = Pow(x, 2), y2 = Pow(y, 2), z2 = Pow(z, 2);
         double r2 = x2 + y2 + z2;
-        double Q = Math.Sqrt(x2 + y2);
-        double u = Math.Sqrt((0.5 * (r2 - E2)) + (0.5 * Math.Sqrt(Math.Pow(r2 - E2, 2) + (4 * E2 * z2))));
-        double u2 = Math.Pow(u, 2);
-        double beta = Math.Atan((Math.Sqrt(u2 + E2) * z) / (u * Q));
-        double latitude = Math.Atan((a / b) * Math.Tan(beta));
-        double longitude = Math.Atan2(y, x);
-        double height = Math.Sqrt(Math.Pow(z - (b * Math.Sin(beta)), 2) + Math.Pow(Q - (a * Math.Cos(beta)), 2));
+        double Q = Sqrt(x2 + y2);
+        double u = Sqrt((0.5 * (r2 - E2)) + (0.5 * Sqrt(Pow(r2 - E2, 2) + (4 * E2 * z2))));
+        double u2 = Pow(u, 2);
+        double beta = Atan((Sqrt(u2 + E2) * z) / (u * Q));
+        double latitude = Atan((a / b) * Tan(beta));
+        double longitude = Atan2(y, x);
+        double height = Sqrt(Pow(z - (b * Sin(beta)), 2) + Pow(Q - (a * Cos(beta)), 2));
         return new double[] { ToDegree(latitude), ToDegree(longitude), height };
     }
     public static double[] ToCartesian(double latitude, double longitude, double height = 0) {
@@ -87,15 +88,15 @@ public class Coordinate {
         double lat = ToRadian(latitude);
         double lon = ToRadian(longitude);
         double h = height;
-        double v = a / Math.Sqrt(1 - (e2 * Math.Pow(Math.Sin(lat), 2)));
-        double x = Math.Cos(lat) * Math.Cos(lon) * (v + h);
-        double y = Math.Cos(lat) * Math.Sin(lon) * (v + h);
-        double z = Math.Sin(lat) * ((v * (1 - e2)) + h);
+        double v = a / Sqrt(1 - (e2 * Pow(Sin(lat), 2)));
+        double x = Cos(lat) * Cos(lon) * (v + h);
+        double y = Cos(lat) * Sin(lon) * (v + h);
+        double z = Sin(lat) * ((v * (1 - e2)) + h);
         return new double[] { x, y, z };
     }
     public override string ToString() {
-        double latitude = Math.Abs(Latitude);
-        double longitude = Math.Abs(Longitude);
+        double latitude = Abs(Latitude);
+        double longitude = Abs(Longitude);
         string NS = Hemisphere[0];
         string WE = Hemisphere[1];
         string[] lat = Array.ConvertAll(ToSexagesimal(latitude), Convert.ToString);

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using static System.Math;
 
 public class Matrix {
     public int[] Size {
@@ -15,9 +15,9 @@ public class Matrix {
         set {
             int rows = Size[0], cols = Size[1];
             if (value.Length > rows) {
-                var limit = Math.Min(value.Length, (rows * cols));
+                var limit = Min(value.Length, (rows * cols));
                 for (var i = 0; i < limit; ++i) {
-                    int row = (int)(Math.Floor((double)(i / cols)));
+                    int row = (int)(Floor((double)(i / cols)));
                     int col = i % cols;
                     _Rows[row][col] = value[i][0];
                 }
@@ -143,7 +143,7 @@ public class Matrix {
         }
         return clone;
     }
-    public double Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
+    public double Cofactor(int i = 0, int j = 0) => Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
     public List<int[]> Indexes(int offset = 0) {
         int rows = Size[0], cols = Size[1];
         var pairs = new List<int[]>();
