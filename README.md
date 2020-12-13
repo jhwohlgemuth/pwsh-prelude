@@ -1,7 +1,7 @@
 Powershell Prelude <sup>[[1]](#footnotes)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge)](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
-[![Build Status](https://travis-ci.com/jhwohlgemuth/pwsh-prelude.svg?branch=master)](https://travis-ci.com/jhwohlgemuth/pwsh-prelude)
+[![Build Status](https://travis-ci.org/jhwohlgemuth/pwsh-prelude.svg?branch=master)](https://travis-ci.org/jhwohlgemuth/pwsh-prelude)
 [![codecov](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/branch/master/graph/badge.svg?token=3NMKOGN0Q8)](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude)](https://www.powershellgallery.com/packages/pwsh-prelude)
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg)](#quick-start)
