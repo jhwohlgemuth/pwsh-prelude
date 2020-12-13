@@ -21,8 +21,8 @@ Describe 'ConvertTo-Radian' {
 }
 Describe 'Get-EarthRadius' {
   It 'can return earth radius for a given latitude' {
-    $SemiMajorAxis = [Coordinate]::SemiMajorAxis
-    $SemiMinorAxis = [Coordinate]::SemiMinorAxis
+    $SemiMajorAxis = [Datum]::SemiMajorAxis
+    $SemiMinorAxis = [Datum]::SemiMinorAxis
     -90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
     Get-EarthRadius | Should -Be $SemiMajorAxis
     0 | Get-EarthRadius | Should -Be $SemiMajorAxis -Because 'the radius is equal to semi-major axis at the equator'

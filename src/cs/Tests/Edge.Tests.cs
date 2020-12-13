@@ -1,11 +1,12 @@
 using Xunit;
+using Prelude;
 
-namespace Prelude.EdgeTests {
+namespace EdgeTests {
     public class UnitTests {
         [Theory]
         [InlineData("a", "b")]
         [InlineData("a", "b", 42)]
-        public void Can_Be_Created_With_String_Parameters(string to, string from, double weight = 1) {
+        public void Edge_Can_Be_Created_With_String_Parameters(string to, string from, double weight = 1) {
             var e = new Edge(to, from, weight);
             Assert.Equal(36, e.Id.ToString().Length);
             Assert.Equal(to, e.To);
@@ -13,7 +14,7 @@ namespace Prelude.EdgeTests {
             Assert.Equal(weight, e.Weight);
         }
         [Fact]
-        public void Can_Be_Created_With_Integer_Parameters() {
+        public void Edge_Can_Be_Created_With_Integer_Parameters() {
             var e = new Edge(1, 2);
             Assert.Equal(36, e.Id.ToString().Length);
             Assert.Equal("1", e.To);

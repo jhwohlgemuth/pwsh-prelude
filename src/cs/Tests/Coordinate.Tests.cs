@@ -1,6 +1,7 @@
 using Xunit;
+using Prelude.Geodetic;
 
-namespace Prelude.CoordinateTests {
+namespace CoordinateTests {
     public class UnitTests {
         [Theory]
         [InlineData(0, 0, "N", "E")]

@@ -1,7 +1,8 @@
-﻿if ('Coordinate' -as [Type]) {
-  # Do nothing
-} else {
-  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Coordinate/Coordinate.dll')
+﻿if (-not ('Prelude.Geodetic' -as [Type])) {
+  Add-Type -Path (Join-Path $PSScriptRoot 'cs/Geodetic/Coordinate.dll')
+  $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
+  $Accelerators::Add('Coordinate', 'Prelude.Geodetic.Coordinate')
+  $Accelerators::Add('Datum', 'Prelude.Geodetic.Datum')
 }
 
 function ConvertTo-Degree {
@@ -109,8 +110,8 @@ function Get-EarthRadius {
     [Double] $Latitude
   )
   Process {
-    $a = [Coordinate]::SemiMajorAxis
-    $b = [Coordinate]::SemiMinorAxis
+    $a = [Datum]::SemiMajorAxis
+    $b = [Datum]::SemiMinorAxis
     $Beta = ConvertTo-Radian $Latitude
     [Math]::Sqrt(
       ([Math]::Pow(([Math]::Pow($a, 2) * [Math]::Cos($Beta)), 2) + [Math]::Pow(([Math]::Pow($b, 2) * [Math]::Sin($Beta)), 2)) /

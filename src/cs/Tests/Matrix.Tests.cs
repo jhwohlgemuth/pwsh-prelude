@@ -1,7 +1,8 @@
 using System;
 using Xunit;
+using Prelude;
 
-namespace Prelude.MatrixTests {
+namespace MatrixTests {
     public class UnitTests {
         [Theory]
         [InlineData(1)]

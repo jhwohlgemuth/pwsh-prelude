@@ -1,9 +1,10 @@
 using Xunit;
+using Prelude;
 
-namespace Prelude.GraphTests {
+namespace GraphTests {
     public class UnitTests {
         [Fact]
-        public void Can_Be_Created() {
+        public void Graph_Can_Be_Created() {
             var g = new Graph();
             Assert.Equal(36, g.Id.ToString().Length);
         }
