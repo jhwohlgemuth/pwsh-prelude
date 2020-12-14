@@ -8,14 +8,6 @@ using Prelude;
 
 namespace MatrixTests {
     public class UnitTests {
-        private readonly ITestOutputHelper _TestOutputHelper;
-        public UnitTests(ITestOutputHelper testOutputHelper) {
-            _TestOutputHelper = testOutputHelper;
-        }
-        public static class SizeGenerator {
-            public static Arbitrary<NonNegativeInt> Generate() =>
-                    Arb.Default.NonNegativeInt();
-        }
         [Property]
         public Property NxN_Matrix_Has_N_Rows_and_N_Columns(NonNegativeInt n) {
             var size = n.Get + 1;
@@ -24,16 +16,21 @@ namespace MatrixTests {
                 .And(matrix.Rows.Length == matrix.Rows[0].Length).Label("NxN matrix has same number of rows and columns")
                 .And(matrix.Size[0] == matrix.Rows.Length).Label("NxN is characterized by N rows and N columns");
         }
-        [Fact]
-        [Trait("Category", "Property")]
-        public void MxN_Matrix_Has_M_Rows_and_N_Columns() {
-            Prop.ForAll<int, int>((m,n) => {
-                var rows = Abs(m) + 1;
-                var cols = Abs(n) + 1;
-                var matrix = new Matrix(rows, cols);
-                return (matrix.Size[0] == rows && (matrix.Rows.Length == rows)).Label("MxN matrix has M rows")
-                   .And(matrix.Size[1] == cols && (matrix.Rows[0].Length == cols)).Label("MxN matrix has N columns");
-            }).VerboseCheckThrowOnFailure(_TestOutputHelper);
+        [Property]
+        public Property MxN_Matrix_Has_M_Rows_and_N_Columns(NonNegativeInt m, NonNegativeInt n) {
+            var rows = m.Get + 1;
+            var cols = n.Get + 1;
+            var matrix = new Matrix(rows, cols);
+            return (matrix.Size[0] == rows && (matrix.Rows.Length == rows)).Label("MxN matrix has M rows")
+                .And(matrix.Size[1] == cols && (matrix.Rows[0].Length == cols)).Label("MxN matrix has N columns");
+        }
+        [Property]
+        public Property Identity_Matrix_is_Square(NonNegativeInt n) {
+            var size = n.Get + 1;
+            var matrix = new Matrix(size);
+            var rows = matrix.Size[0];
+            var cols = matrix.Size[1];
+            return (rows == size && rows == cols).Label("Identity matrix has same number of rows and columns");
         }
         [Theory]
         [InlineData(1)]
@@ -51,11 +48,9 @@ namespace MatrixTests {
         [Fact]
         public void Can_Create_Identity_Matrix() {
             var identity2 = Matrix.Identity(2);
-            Assert.Equal(new int[] { 2,2 }, identity2.Size);
             Assert.Equal(new double[] { 1,0 }, identity2.Rows[0]);
             Assert.Equal(new double[] { 0,1 }, identity2.Rows[1]);
             var identity4 = Matrix.Identity(4);
-            Assert.Equal(new int[] { 4,4 }, identity4.Size);
             Assert.Equal(new double[] { 1,0,0,0 }, identity4.Rows[0]);
             Assert.Equal(new double[] { 0,1,0,0 }, identity4.Rows[1]);
             Assert.Equal(new double[] { 0,0,1,0 }, identity4.Rows[2]);
