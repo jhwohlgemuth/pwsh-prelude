@@ -1,32 +1,33 @@
 using Xunit;
-using Xunit.Abstractions;
 using FsCheck;
 using FsCheck.Xunit;
 using System;
-using static System.Math;
 using Prelude;
 
 namespace MatrixTests {
     public class UnitTests {
-        [Property]
+        public static class PositiveIntegerGenerator {
+            public static Arbitrary<NonNegativeInt> Generate() => Arb.Default.NonNegativeInt().Filter(x => x.Get > 0);
+        }
+        [Property(Arbitrary = new[] { typeof(PositiveIntegerGenerator) })]
         public Property NxN_Matrix_Has_N_Rows_and_N_Columns(NonNegativeInt n) {
-            var size = n.Get + 1;
+            var size = n.Get;
             var matrix = new Matrix(size);
             return (matrix.Size[0] == matrix.Size[1]).Label("NxN matrix has square shape")
                 .And(matrix.Rows.Length == matrix.Rows[0].Length).Label("NxN matrix has same number of rows and columns")
                 .And(matrix.Size[0] == matrix.Rows.Length).Label("NxN is characterized by N rows and N columns");
         }
-        [Property]
+        [Property(Arbitrary = new[] { typeof(PositiveIntegerGenerator) })]
         public Property MxN_Matrix_Has_M_Rows_and_N_Columns(NonNegativeInt m, NonNegativeInt n) {
-            var rows = m.Get + 1;
-            var cols = n.Get + 1;
+            var rows = m.Get;
+            var cols = n.Get;
             var matrix = new Matrix(rows, cols);
             return (matrix.Size[0] == rows && (matrix.Rows.Length == rows)).Label("MxN matrix has M rows")
                 .And(matrix.Size[1] == cols && (matrix.Rows[0].Length == cols)).Label("MxN matrix has N columns");
         }
-        [Property]
+        [Property(Arbitrary = new[] { typeof(PositiveIntegerGenerator) })]
         public Property Identity_Matrix_is_Square(NonNegativeInt n) {
-            var size = n.Get + 1;
+            var size = n.Get;
             var matrix = new Matrix(size);
             var rows = matrix.Size[0];
             var cols = matrix.Size[1];
