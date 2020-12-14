@@ -1,25 +1,39 @@
-using System;
 using Xunit;
+using Xunit.Abstractions;
+using FsCheck;
+using FsCheck.Xunit;
+using System;
+using static System.Math;
 using Prelude;
 
 namespace MatrixTests {
     public class UnitTests {
-        [Theory]
-        [InlineData(1)]
-        [InlineData(5)]
-        [InlineData(10)]
-        public void Can_Create_NxN_Matrix(int N) {
-            var matrix = new Matrix(N);
-            Assert.Equal(N, matrix.Rows.Length);
-            Assert.Equal(N, matrix.Rows[0].Length);
+        private readonly ITestOutputHelper _TestOutputHelper;
+        public UnitTests(ITestOutputHelper testOutputHelper) {
+            _TestOutputHelper = testOutputHelper;
+        }
+        public static class SizeGenerator {
+            public static Arbitrary<NonNegativeInt> Generate() =>
+                    Arb.Default.NonNegativeInt();
+        }
+        [Property]
+        public Property NxN_Matrix_Has_N_Rows_and_N_Columns(NonNegativeInt n) {
+            var size = n.Get + 1;
+            var matrix = new Matrix(size);
+            return (matrix.Size[0] == matrix.Size[1]).Label("NxN matrix has square shape")
+                .And(matrix.Rows.Length == matrix.Rows[0].Length).Label("NxN matrix has same number of rows and columns")
+                .And(matrix.Size[0] == matrix.Rows.Length).Label("NxN is characterized by N rows and N columns");
         }
         [Fact]
-        public void Can_Create_MxN_Matrix() {
-            int M = 8;
-            int N = 6;
-            var matrix = new Matrix(M,N);
-            Assert.Equal(M, matrix.Rows.Length);
-            Assert.Equal(N, matrix.Rows[0].Length);
+        [Trait("Category", "Property")]
+        public void MxN_Matrix_Has_M_Rows_and_N_Columns() {
+            Prop.ForAll<int, int>((m,n) => {
+                var rows = Abs(m) + 1;
+                var cols = Abs(n) + 1;
+                var matrix = new Matrix(rows, cols);
+                return (matrix.Size[0] == rows && (matrix.Rows.Length == rows)).Label("MxN matrix has M rows")
+                   .And(matrix.Size[1] == cols && (matrix.Rows[0].Length == cols)).Label("MxN matrix has N columns");
+            }).VerboseCheckThrowOnFailure(_TestOutputHelper);
         }
         [Theory]
         [InlineData(1)]
