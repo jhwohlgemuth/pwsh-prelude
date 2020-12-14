@@ -289,11 +289,6 @@ function Get-Screenshot {
     }
   }
 }
-function Home {
-  [Alias('~')]
-  Param()
-  Set-Location ~
-}
 function Install-SshServer {
   <#
   .SYNOPSIS
@@ -316,54 +311,6 @@ function Install-SshServer {
     '==> Would have added windows OpenSSH.Server capability, started "sshd" service, and added a firewall rule for "sshd"' | Write-Color -DarkGray
   }
 }
-function Invoke-DockerInspectAddress {
-  <#
-  .SYNOPSIS
-  Get IP address of Docker container at given name (or ID)
-  .EXAMPLE
-  dip <container name | id>
-  .EXAMPLE
-  echo <container name/id> | dip
-  #>
-  [CmdletBinding()]
-  [Alias('dip')]
-  Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
-    [String] $Name
-  )
-  docker inspect --format '{{ .NetworkSettings.IPAddress }}' $Name
-}
-function Invoke-DockerRemoveAll {
-  <#
-  .SYNOPSIS
-  Remove ALL Docker containers
-  .EXAMPLE
-  dra <container name | id>
-  #>
-  [CmdletBinding()]
-  [Alias('dra')]
-  Param()
-  docker stop $(docker ps -a -q); docker rm $(docker ps -a -q)
-}
-function Invoke-DockerRemoveAllImage {
-  <#
-  .SYNOPSIS
-  Remove ALL Docker images
-  .EXAMPLE
-  drai <container name | id>
-  #>
-  [CmdletBinding()]
-  [Alias('drai')]
-  Param()
-  docker rmi $(docker images -a -q)
-}
-function Invoke-GitCommand { git $Args }
-function Invoke-GitCommit { git commit -vam $Args }
-function Invoke-GitDiff { git diff $Args }
-function Invoke-GitPushMaster { git push origin master }
-function Invoke-GitStatus { git status -sb }
-function Invoke-GitRebase { git rebase -i $Args }
-function Invoke-GitLog { git log --oneline --decorate }
 function Invoke-ListenForWord {
   <#
   .SYNOPSIS

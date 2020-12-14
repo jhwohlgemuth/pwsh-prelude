@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' {
   Context 'meta validation' {
     It 'should import exports' {
-      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 116
+      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 105
     }
     It 'should import aliases' {
-      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 55
+      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 51
     }
   }
 }
