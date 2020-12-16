@@ -136,7 +136,7 @@ if ($Test -and -not $SkipChecks) {
 if ($ShowCoverageReport -and (Test-Path (Join-Path (Get-Location) 'coverage.xml'))) {
   $ReportTypes = 'Html;HtmlSummary;HtmlChart'
   if ($Test -and $WithCoverage) {
-    $SourceDirs = "$SourceDirectory;src\classes"
+    $SourceDirs = "$SourceDirectory"
     reportgenerator.exe -reports:coverage.xml -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
   } else {
     reportgenerator.exe -reports:coverage.xml -targetdir:coverage -sourcedirs:$SourceDirectory -reporttypes:$ReportTypes

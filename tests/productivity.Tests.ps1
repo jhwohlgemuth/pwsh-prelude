@@ -215,6 +215,14 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' {
     Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
   }
 }
+Describe 'Measure-Performance' {
+  It 'can provide measures of execution performance' {
+    $Runs = 10
+    $Results = { Get-Process } | Measure-Performance -Runs $Runs
+    $Results.Runs | Should -HaveCount $Runs
+    $Results.Min | Should -BeLessOrEqual $Results.Max
+  }
+}
 Describe 'New-File (touch)' {
   AfterAll {
     Remove-Item -Path ./SomeFile

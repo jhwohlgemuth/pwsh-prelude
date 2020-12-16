@@ -147,6 +147,7 @@
     'Invoke-Zip'
     'Invoke-ZipWith'
     'Join-StringsWithGrammar'
+    'Measure-Performance'
     'New-ApplicationTemplate'
     'New-DailyShutdownJob'
     'New-File'

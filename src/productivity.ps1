@@ -508,6 +508,63 @@ function Invoke-Speak {
     }
   }
 }
+function Measure-Performance {
+  <#
+  .SYNOPSIS
+  Measure the execution of a scriptblock a certain number of times. Return analysis of results.
+  .DESCRIPTION
+  This function returns the results as an object with the following keys:
+  - Min
+  - Max
+  - Range
+  - Mean
+  - TrimmedMean (mean trimmed 10% on both sides)
+  - Median
+  - StandardDeviation
+  - Runs (the original results of each run - can be used for custom analysis beyond these results)
+  .PARAMETER Sample
+  Use ($Runs - 1) instead of $Runs when calculating the standard deviation
+  .EXAMPLE
+  { Get-Process } | Measure-Performance -Runs 500
+  #>
+  [CmdletBinding()]
+  [OutputType([PSObject])]
+  Param(
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [ScriptBlock] $ScriptBlock,
+    [Parameter(Position=1)]
+    [Int] $Runs = 100,
+    [Switch] $Sample
+  )
+  $Results = @()
+  for ($Index = 0; $Index -lt $Runs; $Index++) {
+    Write-Progress -Activity 'Measuring Performance' -CurrentOperation "Run #$($Index + 1) of ${Runs}" -PercentComplete ([Math]::Ceiling(($Index / $Runs) * 100))
+    $Results += (Measure-Command -Expression $ScriptBlock).Ticks
+  }
+  Write-Progress -Activity 'Analyzing performance data...'
+  $Minimum = Get-Minimum $Results
+  $Maximum = Get-Maximum $Results
+  $Mean = Get-Mean $Results
+  $TrimmedMean = Get-Mean $Results -Trim 0.1
+  $Median = Get-Median $Results
+  $StandardDeviation = [Math]::Sqrt((Get-Variance $Results -Sample:$Sample))
+  "Results for $Runs run(s):" | Write-Verbose
+  "==> Mean = $Mean" | Write-Verbose
+  "==> Mean (10% trimmed) = $TrimmedMean" | Write-Verbose
+  "==> Median = $Median" | Write-Verbose
+  "==> Standard Deviation = $StandardDeviation" | Write-Verbose
+  Write-Progress -Activity 'Measuring Performance' -Completed
+  @{
+    Min = $Minimum
+    Max = $Maximum
+    Range = ($Maximum - $Minimum)
+    Mean = $Mean
+    TrimmedMean = $TrimmedMean
+    Median = $Median
+    StandardDeviation = $StandardDeviation
+    Runs = $Results
+  }
+}
 function New-DailyShutdownJob {
   <#
   .SYNOPSIS
