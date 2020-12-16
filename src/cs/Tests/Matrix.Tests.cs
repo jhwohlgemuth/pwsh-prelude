@@ -73,6 +73,10 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 1,4,7 }, T.Rows[0]);
             Assert.Equal(new double[] { 2,5,8 }, T.Rows[1]);
             Assert.Equal(new double[] { 3,6,9 }, T.Rows[2]);
+            var B = Matrix.Transpose(T);
+            Assert.Equal(new double[] { 1, 2, 3 }, B.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, B.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, B.Rows[2]);
         }
         [Fact]
         public void Can_Transpose_MxN_Matrices() {
@@ -86,6 +90,9 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 1,4 }, T.Rows[0]);
             Assert.Equal(new double[] { 2,5 }, T.Rows[1]);
             Assert.Equal(new double[] { 3,6 }, T.Rows[2]);
+            var B = Matrix.Transpose(T);
+            Assert.Equal(new double[] { 1, 2, 3 }, B.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, B.Rows[1]);
         }
         [Theory]
         [InlineData(2)]
