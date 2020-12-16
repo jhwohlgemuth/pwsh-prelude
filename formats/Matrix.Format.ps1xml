@@ -51,7 +51,7 @@
         <View>
             <Name>Matrix</Name>
             <ViewSelectedBy>
-                <TypeName>Matrix</TypeName>
+                <TypeName>Prelude.Matrix</TypeName>
             </ViewSelectedBy>
             <CustomControl>
                 <CustomEntries>

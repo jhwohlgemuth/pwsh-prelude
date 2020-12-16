@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Types>
     <Type>
-        <Name>Matrix</Name>
+        <Name>Prelude.Matrix</Name>
         <Members>
             <ScriptMethod>
                 <Name>Add</Name>
                 <Script>
-                    [Matrix]::Add($this, $args[0])
+                    [Prelude.Matrix]::Add($this, $args[0])
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
                 <Name>Adj</Name>
                 <Script>
-                    [Matrix]::Adj($this)
+                    [Prelude.Matrix]::Adj($this)
                 </Script>
             </ScriptMethod>
             <ScriptProperty>
                 <Name>Columns</Name>
                 <GetScriptBlock>
-                    [Matrix]::Transpose($this).Rows
+                    [Prelude.Matrix]::Transpose($this).Rows
                 </GetScriptBlock>
             </ScriptProperty>
             <ScriptMethod>
                 <Name>Det</Name>
                 <Script>
                     if ($this.IsSquare()) {
-                      [Matrix]::Det($this)
+                      [Prelude.Matrix]::Det($this)
                     } else {
                       'ERROR: Determinant can only be calculated for square matrices' | Write-Color -Red
                     }
@@ -34,13 +34,13 @@
             <ScriptMethod>
                 <Name>Dot</Name>
                 <Script>
-                    [Matrix]::Dot($this, $args[0])
+                    [Prelude.Matrix]::Dot($this, $args[0])
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
                 <Name>Inverse</Name>
                 <Script>
-                    [Matrix]::Invert($this)
+                    [Prelude.Matrix]::Invert($this)
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
@@ -64,19 +64,19 @@
             <ScriptMethod>
                 <Name>Multiply</Name>
                 <Script>
-                    [Matrix]::Multiply($this, $args[0])
+                    [Prelude.Matrix]::Multiply($this, $args[0])
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
                 <Name>Trace</Name>
                 <Script>
-                    [Matrix]::Trace($this)
+                    [Prelude.Matrix]::Trace($this)
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
                 <Name>Transpose</Name>
                 <Script>
-                    [Matrix]::Transpose($this)
+                    [Prelude.Matrix]::Transpose($this)
                 </Script>
             </ScriptMethod>
         </Members>
