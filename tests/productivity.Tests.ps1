@@ -216,11 +216,15 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' {
   }
 }
 Describe 'Measure-Performance' {
-  It 'can provide measures of execution performance' {
+  It 'can provide measures of execution performance (ticks or milliseconds)' {
     $Runs = 10
     $Results = { Get-Process } | Measure-Performance -Runs $Runs
     $Results.Runs | Should -HaveCount $Runs
     $Results.Min | Should -BeLessOrEqual $Results.Max
+    $ResultsMilliseconds = { Get-Process } | Measure-Performance -Runs $Runs -Milliseconds
+    $ResultsMilliseconds.Runs | Should -HaveCount $Runs
+    $ResultsMilliseconds.Min | Should -BeLessOrEqual $ResultsMilliseconds.Max
+    $Results.Mean | Should -BeGreaterThan $ResultsMilliseconds.Mean
   }
 }
 Describe 'New-File (touch)' {

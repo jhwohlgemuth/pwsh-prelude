@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<coverage version="1.0" date="2020-12-16_12-29-32" tag="">
+<coverage version="1.0" date="2020-12-16_13-16-52" tag="">
   <assembly name="src">
     <class name="src/application" coveredlines="82" coverablelines="95" totallines="376" coveredbranches="0" totalbranches="0" />
     <class name="src/applied" coveredlines="172" coverablelines="173" totallines="673" coveredbranches="0" totalbranches="0" />
@@ -7,7 +7,7 @@
     <class name="src/data" coveredlines="87" coverablelines="87" totallines="207" coveredbranches="0" totalbranches="0" />
     <class name="src/events" coveredlines="5" coverablelines="52" totallines="196" coveredbranches="0" totalbranches="0" />
     <class name="src/matrix" coveredlines="34" coverablelines="37" totallines="179" coveredbranches="0" totalbranches="0" />
-    <class name="src/productivity" coveredlines="151" coverablelines="332" totallines="1025" coveredbranches="0" totalbranches="0" />
+    <class name="src/productivity" coveredlines="152" coverablelines="333" totallines="1029" coveredbranches="0" totalbranches="0" />
     <class name="src/user-interface" coveredlines="1" coverablelines="351" totallines="836" coveredbranches="0" totalbranches="0" />
     <class name="src/web" coveredlines="58" coverablelines="142" totallines="460" coveredbranches="0" totalbranches="0" />
   </assembly>

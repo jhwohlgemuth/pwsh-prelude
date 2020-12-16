@@ -522,6 +522,8 @@ function Measure-Performance {
   - Median
   - StandardDeviation
   - Runs (the original results of each run - can be used for custom analysis beyond these results)
+  .PARAMETER Milliseconds
+  Output results in milliseconds instead of "ticks"
   .PARAMETER Sample
   Use ($Runs - 1) instead of $Runs when calculating the standard deviation
   .EXAMPLE
@@ -534,12 +536,14 @@ function Measure-Performance {
     [ScriptBlock] $ScriptBlock,
     [Parameter(Position=1)]
     [Int] $Runs = 100,
+    [Switch] $Milliseconds,
     [Switch] $Sample
   )
   $Results = @()
+  $Units = if ($Milliseconds) { 'TotalMilliseconds' } else { 'Ticks' }
   for ($Index = 0; $Index -lt $Runs; $Index++) {
     Write-Progress -Activity 'Measuring Performance' -CurrentOperation "Run #$($Index + 1) of ${Runs}" -PercentComplete ([Math]::Ceiling(($Index / $Runs) * 100))
-    $Results += (Measure-Command -Expression $ScriptBlock).Ticks
+    $Results += (Measure-Command -Expression $ScriptBlock).$Units
   }
   Write-Progress -Activity 'Analyzing performance data...'
   $Minimum = Get-Minimum $Results
@@ -548,7 +552,7 @@ function Measure-Performance {
   $TrimmedMean = Get-Mean $Results -Trim 0.1
   $Median = Get-Median $Results
   $StandardDeviation = [Math]::Sqrt((Get-Variance $Results -Sample:$Sample))
-  "Results for $Runs run(s):" | Write-Verbose
+  "Results for $Runs run(s) (values in $Units):" | Write-Verbose
   "==> Mean = $Mean" | Write-Verbose
   "==> Mean (10% trimmed) = $TrimmedMean" | Write-Verbose
   "==> Median = $Median" | Write-Verbose
