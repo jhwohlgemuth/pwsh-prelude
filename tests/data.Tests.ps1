@@ -75,6 +75,30 @@ Describe 'Format-MoneyValue' {
     { $False | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
   }
 }
+Describe 'Get-SyllableCount' {
+  It 'can count syllables of simple words' {
+    '' | Get-SyllableCount | Should -Be 0
+    'wine' | Get-SyllableCount | Should -Be 1
+    'foo' | Get-SyllableCount | Should -Be 1
+    'hello' | Get-SyllableCount | Should -Be 2
+    'pizza' | Get-SyllableCount | Should -Be 2
+    'bottle' | Get-SyllableCount | Should -Be 2
+    'project' | Get-SyllableCount | Should -Be 2
+    'syllable' | Get-SyllableCount | Should -Be 3
+    'innovation' | Get-SyllableCount | Should -Be 4
+  }
+  It 'can count syllables for "problematic" words' {
+    'queue' | Get-SyllableCount | Should -Be 1
+    'anyone' | Get-SyllableCount | Should -Be 3
+    'maybe' | Get-SyllableCount | Should -Be 2
+    'phoebe' | Get-SyllableCount | Should -Be 2
+    'simile' | Get-SyllableCount | Should -Be 3
+  }
+  It -Skip 'can count syllables for international words' {
+    'Zoë' | Get-SyllableCount | Should -Be 2
+    'Åland' | Get-SyllableCount | Should -Be 2
+  }
+}
 Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
   It 'will import first worksheet by default' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
@@ -168,5 +192,11 @@ Describe 'Import-Raw' {
     }
     $Data = Import-Raw $Path $Transform
     $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
+  }
+}
+Describe -Skip 'Invoke-Normalize' {
+  It 'can normalize strings to UTF-8' {
+    'Zoë' | Invoke-Normalize | Should -Be 'Zoe'
+    'Åland' | Invoke-Normalize | Should -Be 'Aland'
   }
 }
