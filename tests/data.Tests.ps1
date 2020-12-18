@@ -75,6 +75,44 @@ Describe 'Format-MoneyValue' {
     { $False | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
   }
 }
+Describe 'Get-Plural/Singular' {
+  It 'can return plural version of a noun' {
+    'goose' | Get-Plural | Should -Be 'geese'
+    'mouse' | Get-Plural | Should -Be 'mice'
+    'house' | Get-Plural | Should -Be 'houses'
+    'banana' | Get-Plural | Should -Be 'bananas'
+    'quiz' | Get-Plural | Should -Be 'quizzes'
+    'geese' | Get-Plural | Should -Be 'geese'
+    'houses' | Get-Plural | Should -Be 'houses'
+    'quizzes' | Get-Plural | Should -Be 'quizzes'
+    'bananas' | Get-Plural | Should -Be 'bananas'
+    'buffalo' | Get-Plural | Should -Be 'buffalo'
+    'money' | Get-Plural | Should -Be 'money'
+    'radius' | Get-Plural | Should -Be 'radii'
+    'matrix' | Get-Plural | Should -Be 'matrices'
+    'index' | Get-Plural | Should -Be 'indices'
+    'vertex' | Get-Plural | Should -Be 'vertices'
+  }
+  It 'can return singular version of a noun' {
+    'geese' | Get-Singular | Should -Be 'goose'
+    'mice' | Get-Singular | Should -Be 'mouse'
+    'houses' | Get-Singular | Should -Be 'house'
+    'bananas' | Get-Singular | Should -Be 'banana'
+    'quizzes' | Get-Singular | Should -Be 'quiz'
+    'goose' | Get-Singular | Should -Be 'goose'
+    'house' | Get-Singular | Should -Be 'house'
+    'quiz' | Get-Singular | Should -Be 'quiz'
+    'banana' | Get-Singular | Should -Be 'banana'
+    'buffalo' | Get-Singular | Should -Be 'buffalo'
+    'money' | Get-Singular | Should -Be 'money'
+    'radii' | Get-Singular | Should -Be 'radius'
+    'matrices' | Get-Singular | Should -Be 'matrix'
+    'indices' | Get-Singular | Should -Be 'index'
+    'vertices' | Get-Singular | Should -Be 'vertex'
+    'aborigines' | Get-Singular | Should -Be 'aborigine'
+    'cafes' | Get-Singular | Should -Be 'cafe'
+  }
+}
 Describe 'Get-SyllableCount' {
   It 'can count syllables of simple words' {
     '' | Get-SyllableCount | Should -Be 0
@@ -97,6 +135,12 @@ Describe 'Get-SyllableCount' {
   It -Skip 'can count syllables for international words' {
     'Zoë' | Get-SyllableCount | Should -Be 2
     'Åland' | Get-SyllableCount | Should -Be 2
+  }
+  It 'can count syllables for all words supported by ancestor source code' {
+    $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\words.json') | ConvertFrom-Json
+    foreach ($Word in $Data.PSObject.Properties.Name) {
+      $Word | Get-SyllableCount | Should -Be $Data.$Word
+    }
   }
 }
 Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
@@ -192,11 +236,5 @@ Describe 'Import-Raw' {
     }
     $Data = Import-Raw $Path $Transform
     $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
-  }
-}
-Describe -Skip 'Invoke-Normalize' {
-  It 'can normalize strings to UTF-8' {
-    'Zoë' | Invoke-Normalize | Should -Be 'Zoe'
-    'Åland' | Invoke-Normalize | Should -Be 'Aland'
   }
 }

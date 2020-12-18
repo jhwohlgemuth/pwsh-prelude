@@ -531,6 +531,7 @@ function Measure-Performance {
   #>
   [CmdletBinding()]
   [OutputType([PSObject])]
+  [OutputType([Hashtable])]
   Param(
     [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [ScriptBlock] $ScriptBlock,

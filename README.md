@@ -159,10 +159,13 @@ Functions
 - `Get-LogisticSigmoid`
 - `Get-Maximum`
 - `Get-Minimum`
-- `Get-Property`
 - `Get-Permutation`
+- `Get-Plural`
+- `Get-Property`
 - `Get-Screenshot`
+- `Get-Singular`
 - `Get-State`
+- `Get-SyllableCount`
 - `Get-Variance`
 - `Import-Excel`
 - `Import-Html` <sup>[[3]](#footnotes)</sup>
@@ -243,6 +246,7 @@ Type Accelerators
   [Coordinate]::ToCartesian(41.25, -96)
   # -501980.225469305,-4776022.81392779,4183337.21339675
   ```
+  > **Note:** Full class name is `Prelude.Geodetic.Coordinate`
 - `[Matrix]`
   > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#footnotes)</sup>
   ```PowerShell
@@ -267,16 +271,19 @@ Type Accelerators
   # ==> The result is a 2x1 matrix with the necessary values (1 and 0.7, in this case)
 
   ```
+  > **Note:** Full class name is `Prelude.Matrix`
 - `[Graph]`
   > ***UNDER CONSTRUCTION***
   ```PowerShell
   # Example code will go here
   ```
+  > **Note:** Full class name is `Prelude.Graph`
 - `[Edge]`
   > ***UNDER CONSTRUCTION***
   ```PowerShell
   # Example code will go here
   ```
+  > **Note:** Full class name is `Prelude.Edge`
 
 Type Extensions
 ---------------
