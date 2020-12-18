@@ -90,7 +90,7 @@ namespace Prelude {
                 case 1:
                     return a.Rows[0][0];
                 case 2:
-                    return a.Rows[0][0] * a.Rows[1][1] - a.Rows[0][1] * a.Rows[1][0];
+                    return (a.Rows[0][0] * a.Rows[1][1]) - (a.Rows[0][1] * a.Rows[1][0]);
                 default:
                     double sum = 0;
                     for (int i = 0; i < rows; ++i)

@@ -49,7 +49,7 @@ namespace Prelude.Geodetic {
             double fractionalPart = Abs(value - Truncate(value));
             double degree = Truncate(value);
             double minute = Truncate(fractionalPart * 60);
-            double second = Round((fractionalPart * 60 - minute) * 60, 2);
+            double second = Round(((fractionalPart * 60) - minute) * 60, 2);
             return new double[] { degree, minute, second };
         }
         public Coordinate() {
@@ -77,12 +77,12 @@ namespace Prelude.Geodetic {
             double x2 = Pow(x, 2), y2 = Pow(y, 2), z2 = Pow(z, 2);
             double r2 = x2 + y2 + z2;
             double Q = Sqrt(x2 + y2);
-            double u = Sqrt(0.5 * (r2 - E2) + 0.5 * Sqrt(Pow(r2 - E2, 2) + 4 * E2 * z2));
+            double u = Sqrt(0.5 * (r2 - E2) + 0.5 * Sqrt(Pow(r2 - E2, 2) + (4 * E2 * z2)));
             double u2 = Pow(u, 2);
             double beta = Atan(Sqrt(u2 + E2) * z / (u * Q));
             double latitude = Atan(a / b * Tan(beta));
             double longitude = Atan2(y, x);
-            double height = Sqrt(Pow(z - b * Sin(beta), 2) + Pow(Q - a * Cos(beta), 2));
+            double height = Sqrt(Pow(z - (b * Sin(beta)), 2) + Pow(Q - a * Cos(beta), 2));
             return new double[] { ToDegree(latitude), ToDegree(longitude), height };
         }
         public static double[] ToCartesian(double latitude, double longitude, double height = 0) {
@@ -91,10 +91,10 @@ namespace Prelude.Geodetic {
             double lat = ToRadian(latitude);
             double lon = ToRadian(longitude);
             double h = height;
-            double v = a / Sqrt(1 - e2 * Pow(Sin(lat), 2));
+            double v = a / Sqrt(1 - (e2 * Pow(Sin(lat), 2)));
             double x = Cos(lat) * Cos(lon) * (v + h);
             double y = Cos(lat) * Sin(lon) * (v + h);
-            double z = Sin(lat) * (v * (1 - e2) + h);
+            double z = Sin(lat) * ((v * (1 - e2)) + h);
             return new double[] { x, y, z };
         }
         public override string ToString() {
