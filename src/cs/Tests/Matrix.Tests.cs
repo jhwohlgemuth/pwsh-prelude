@@ -6,32 +6,57 @@ using Prelude;
 
 namespace MatrixTests {
     public class UnitTests {
-        public static class PositiveIntegerGenerator {
-            public static Arbitrary<NonNegativeInt> Generate() => Arb.Default.NonNegativeInt().Filter(x => x.Get > 0);
-        }
-        [Property(Arbitrary = new[] { typeof(PositiveIntegerGenerator) })]
-        public Property NxN_Matrix_Has_N_Rows_and_N_Columns(NonNegativeInt n) {
+        [Property]
+        public Property NxN_Matrix_Has_N_Rows_and_N_Columns(PositiveInt n) {
             var size = n.Get;
             var matrix = new Matrix(size);
             return (matrix.Size[0] == matrix.Size[1]).Label("NxN matrix has square shape")
                 .And(matrix.Rows.Length == matrix.Rows[0].Length).Label("NxN matrix has same number of rows and columns")
                 .And(matrix.Size[0] == matrix.Rows.Length).Label("NxN is characterized by N rows and N columns");
         }
-        [Property(Arbitrary = new[] { typeof(PositiveIntegerGenerator) })]
-        public Property MxN_Matrix_Has_M_Rows_and_N_Columns(NonNegativeInt m, NonNegativeInt n) {
+        [Property]
+        public Property MxN_Matrix_Has_M_Rows_and_N_Columns(PositiveInt m, PositiveInt n) {
             var rows = m.Get;
             var cols = n.Get;
             var matrix = new Matrix(rows, cols);
             return (matrix.Size[0] == rows && (matrix.Rows.Length == rows)).Label("MxN matrix has M rows")
                 .And(matrix.Size[1] == cols && (matrix.Rows[0].Length == cols)).Label("MxN matrix has N columns");
         }
-        [Property(Arbitrary = new[] { typeof(PositiveIntegerGenerator) })]
-        public Property Identity_Matrix_is_Square(NonNegativeInt n) {
+        [Property]
+        public Property Identity_Matrix_is_Square(PositiveInt n) {
             var size = n.Get;
             var matrix = new Matrix(size);
             var rows = matrix.Size[0];
             var cols = matrix.Size[1];
             return (rows == size && rows == cols).Label("Identity matrix has same number of rows and columns");
+        }
+        [Property]
+        [Trait("Category", "Determinant")]
+        public Property Multiplying_Row_By_K_Multiplies_Det_By_K(PositiveInt k, PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+            var A = new Matrix(2);
+            var B = new Matrix(2);
+            A.Rows[0] = new double[] { a.Get, b.Get };
+            A.Rows[1] = new double[] { c.Get, d.Get };
+            B.Rows[0] = new double[] { (k.Get * a.Get), (k.Get * b.Get) };
+            B.Rows[1] = new double[] { c.Get, d.Get };
+            return (Matrix.Det(B) == (k.Get * Matrix.Det(A))).Label("Multiply row in A by k ==> k * Det(A)");
+        }
+        [Property]
+        [Trait("Category", "Determinant")]
+        public Property Determinants_Are_Invariant_Under_Matrix_Transposition(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+            var A = new Matrix(2);
+            A.Rows[0] = new double[] { a.Get, b.Get };
+            A.Rows[1] = new double[] { c.Get, d.Get };
+            return (Matrix.Det(A) == Matrix.Det(Matrix.Transpose(A))).Label("Determinant is invariant under matrix transpose");
+        }
+        [Property]
+        [Trait("Category", "Determinant")]
+        public Property Two_Identical_Rows_Makes_Determinant_Zero(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d, PositiveInt e, PositiveInt f) {
+            var A = new Matrix(3);
+            A.Rows[0] = new double[] { a.Get, b.Get, c.Get };
+            A.Rows[1] = new double[] { d.Get, e.Get, f.Get };
+            A.Rows[2] = new double[] { a.Get, b.Get, c.Get };
+            return (Matrix.Det(A) == 0).Label("A has two identical rows ==> Det(A) == 0");
         }
         [Theory]
         [InlineData(1)]
