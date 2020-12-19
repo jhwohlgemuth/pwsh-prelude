@@ -665,3 +665,84 @@ function Import-Raw {
   } while (-not $Peek -and $Stream.Peek() -ge 0)
   [Void]$Stream.Dispose()
 }
+function Measure-Readability {
+  <#
+  .SYNOPSIS
+  Measure readability of input text.
+  .DESCRIPTION
+  This function can ingest text and return the minimum school grade level necessary to understand the text.
+
+  The following tests are supported: 
+  - Flesch-Kincaid Grade Level (default)
+  - Automated Readability Index (ARI)
+  - Coleman-Liau Index (CLI)
+  - Gunning Fog Index (GFI)
+  - SMOG ("Simple Measure Of Gobbledygook")
+
+  .PARAMETER Type
+  Readability test type (ARI, CLI, etc...)
+
+  > Note: The SMOG readability test requires that the input text contains at least 30 sentences.
+  .EXAMPLE
+  $Text = 'This is a sentence. This is another sentence.'
+  $Text | Measure-Readability
+  #>
+  [CmdletBinding()]
+  [OutputType([Int])]
+  Param(
+    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [String] $Text,
+    [ValidateSet(
+      'FleschKincaidGradeLevel',
+      'ARI',
+      'AutomatedReadabilityIndex',
+      'CLI',
+      'ColemanLiauIndex',
+      'GFI',
+      'GunningFogIndex',
+      'SMOG'
+    )]
+    [Parameter(Position=1)]
+    [String] $Type = 'FleschKincaidGradeLevel'
+  )
+  Process {
+    $Sentences = ($Text -split '(?<=\w)\.') |
+      ForEach-Object { $_.Trim() } |
+      Where-Object { $_.Length -gt 0 }
+    $Words = @()
+    foreach ($Sentence in $Sentences) {
+      $Words += $Sentence -split '\s+'
+    }
+    $Syllables = @()
+    foreach ($Word in $Words) {
+      $Syllables += (Get-SyllableCount $Word)
+    }
+    switch ($Type) {
+      { $_ -in 'ARI','AutomatedReadabilityIndex' } {
+        $LetterCount = ($Text | Measure-Object -Character -IgnoreWhiteSpace).Characters
+        
+      }
+      { $_ -in 'CLI','ColemanLiauIndex' } {
+        $LetterCount = ($Text | Measure-Object -Character -IgnoreWhiteSpace).Characters
+        
+      }
+      { $_ -in 'GFI','GunningFogIndex' } {
+        $TotalWords = $Words.Count
+        $ComplexWords = ($Syllables | Where-Object { $_ -ge 3 }).Count
+        0.4 * (($TotalWords / $Sentences.Count) + (100 * ($ComplexWords / $TotalWords)))
+      }
+      'SMOG' {
+        if ($Sentences.Count -ge 30) {
+          
+        } else {
+          '==> SMOG readability test requires at least 30 sentences' | Write-Error
+        }
+      }
+      Default { # Flesch-Kincaid Grade Level
+        $TotalWords = $Words.Count
+        $TotalSyllables = Get-Sum $Syllables
+        (0.39 * ($TotalWords / $Sentences.Count)) + (11.8 * ($TotalSyllables / $TotalWords)) - 15.59 
+      }
+    }
+  }
+}

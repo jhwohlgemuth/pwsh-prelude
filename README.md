@@ -199,6 +199,8 @@ Functions
 - `Invoke-Zip`
 - `Invoke-ZipWith`
 - `Join-StringsWithGrammar`
+- `Measure-Performance`
+- `Measure-Readability`
 - `New-ApplicationTemplate`
 - `New-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
 - `New-File`

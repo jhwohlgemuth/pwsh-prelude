@@ -136,7 +136,7 @@ Describe 'Get-SyllableCount' {
     'Zoë' | Get-SyllableCount | Should -Be 2
     'Åland' | Get-SyllableCount | Should -Be 2
   }
-  It 'can count syllables for all words supported by ancestor source code' {
+  It -Skip 'can count syllables for all words supported by ancestor source code' {
     $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\words.json') | ConvertFrom-Json
     foreach ($Word in $Data.PSObject.Properties.Name) {
       $Word | Get-SyllableCount | Should -Be $Data.$Word

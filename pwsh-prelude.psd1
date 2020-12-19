@@ -153,6 +153,7 @@
     'Invoke-ZipWith'
     'Join-StringsWithGrammar'
     'Measure-Performance'
+    'Measure-Readability'
     'New-ApplicationTemplate'
     'New-DailyShutdownJob'
     'New-File'
