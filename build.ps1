@@ -1,16 +1,36 @@
 ﻿#Requires -Modules BuildHelpers,pester
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName='build')]
 Param(
+  [Parameter(ParameterSetName='build')]
+  [Parameter(ParameterSetName='lint')]
   [Switch] $Lint,
+  [Parameter(ParameterSetName='build')]
+  [Parameter(ParameterSetName='test')]
+  [Parameter(ParameterSetName='customtest')]
   [Switch] $Test,
+  [Parameter(ParameterSetName='build')]
+  [Parameter(ParameterSetName='test')]
   [Switch] $WithCoverage,
+  [Parameter(ParameterSetName='build')]
+  [Parameter(ParameterSetName='test')]
   [Switch] $ShowCoverageReport,
+  [Parameter(ParameterSetName='build')]
+  [Parameter(ParameterSetName='test')]
   [Switch] $CI,
+  [Parameter(ParameterSetName='build')]
+  [Parameter(ParameterSetName='test')]
   [Switch] $SkipChecks,
+  [Parameter(ParameterSetName='customtest')]
+  [String] $Filter = '*',
+  [Parameter(ParameterSetName='customtest')]
+  [String[]] $Tags = '',
+  [Parameter(ParameterSetName='build')]
   [Switch] $DryRun,
+  [Parameter(ParameterSetName='build')]
   [Switch] $Major,
+  [Parameter(ParameterSetName='build')]
   [Switch] $Minor
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
@@ -19,19 +39,9 @@ function Invoke-Lint {
   [CmdletBinding()]
   Param()
   '==> Linting code' | Write-Output
-  $Settings = @{
-    ExcludeRules = @(
-      'PSAvoidUsingWriteHost'
-      'PSUseBOMForUnicodeEncodedFile'
-      'PSAvoidOverwritingBuiltInCmdlets'
-      'PSUseProcessBlockForPipelineCommand'
-      'PSUseShouldProcessForStateChangingFunctions'
-    )
-    CustomRulePath = (Join-Path $PSScriptRoot 'rule.psm1').ToString()
-  }
   $Parameters = @{
     Path = $PSScriptRoot
-    Settings = $Settings
+    Settings = 'PSScriptAnalyzerSettings.psd1'
     IncludeDefaultRules = $True
     Fix = $True
     EnableExit = $CI
@@ -77,6 +87,10 @@ function Invoke-Test {
     $Configuration = [PesterConfiguration]@{
       Run = @{
         PassThru = $True
+      }
+      Filter = @{
+        FullName = $Filter
+        Tag = $Tags
       }
       Debug = @{
         ShowNavigationMarkers = $True
