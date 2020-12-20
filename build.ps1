@@ -26,6 +26,8 @@ Param(
   [String] $Filter = '*',
   [Parameter(ParameterSetName='customtest')]
   [String[]] $Tags = '',
+  [Parameter(ParameterSetName='customtest')]
+  [String] $Exclude = '',
   [Parameter(ParameterSetName='build')]
   [Switch] $DryRun,
   [Parameter(ParameterSetName='build')]
@@ -91,6 +93,7 @@ function Invoke-Test {
       Filter = @{
         FullName = $Filter
         Tag = $Tags
+        ExcludeTag = $Exclude
       }
       Debug = @{
         ShowNavigationMarkers = $True
