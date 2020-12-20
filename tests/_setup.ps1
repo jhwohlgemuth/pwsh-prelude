@@ -1,8 +1,7 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
 Param()
-Set-BuildEnvironment -VariableNamePrefix '' -Force
-if (Get-Module -Name $Env:ProjectName) {
-  Remove-Module -Name $Env:ProjectName
+$Name = 'pwsh-prelude'
+if (Get-Module -Name $Name) {
+  Remove-Module -Name $Name
 }
-$Path = Join-Path $Env:ProjectPath "${Env:ProjectName}.psm1"
-Import-Module $Path -Force
+Import-Module "${PSScriptRoot}\..\${Name}.psm1"
