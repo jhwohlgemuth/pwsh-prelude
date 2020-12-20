@@ -125,6 +125,25 @@ Describe 'Get-SyllableCount' {
     'syllable' | Get-SyllableCount | Should -Be 3
     'innovation' | Get-SyllableCount | Should -Be 4
   }
+  It 'can count syllables of words with uppercase letters' {
+    'Foo' | Get-SyllableCount | Should -Be 1
+    'Hello' | Get-SyllableCount | Should -Be 2
+    'PIZZA' | Get-SyllableCount | Should -Be 2
+    'PROJECT' | Get-SyllableCount | Should -Be 2
+    'Syllable' | Get-SyllableCount | Should -Be 3
+    'Innovation' | Get-SyllableCount | Should -Be 4
+  }
+  It 'can count syllables for selected "difficult" words' {
+    'cliche' | Get-SyllableCount | Should -Be 2
+    'christian' | Get-SyllableCount | Should -Be 2
+    'scotias' | Get-SyllableCount | Should -Be 3
+    'uncreates' | Get-SyllableCount | Should -Be 3
+    'viceroyship' | Get-SyllableCount | Should -Be 3
+    'accouchements' | Get-SyllableCount | Should -Be 3
+    'contrariety' | Get-SyllableCount | Should -Be 4
+    'pertinacious' | Get-SyllableCount | Should -Be 5
+    'moderatenesses' | Get-SyllableCount | Should -Be 5
+  }
   It 'can count syllables for "problematic" words' {
     'queue' | Get-SyllableCount | Should -Be 1
     'anyone' | Get-SyllableCount | Should -Be 3
@@ -132,11 +151,15 @@ Describe 'Get-SyllableCount' {
     'phoebe' | Get-SyllableCount | Should -Be 2
     'simile' | Get-SyllableCount | Should -Be 3
   }
+  It -Skip 'can handle hyphenated words' {
+    'good-natured' | Get-SyllableCount | Should -Be 3
+    'ninety-nine' | Get-SyllableCount | Should -Be 3
+  }
   It -Skip 'can count syllables for international words' {
     'Zoë' | Get-SyllableCount | Should -Be 2
     'Åland' | Get-SyllableCount | Should -Be 2
   }
-  It -Skip 'can count syllables for all words supported by ancestor source code' {
+  It 'can count syllables for all words supported by ancestor source code' -Tag 'Intense' {
     $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\words.json') | ConvertFrom-Json
     foreach ($Word in $Data.PSObject.Properties.Name) {
       $Word | Get-SyllableCount | Should -Be $Data.$Word
@@ -236,5 +259,13 @@ Describe 'Import-Raw' {
     }
     $Data = Import-Raw $Path $Transform
     $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
+  }
+}
+Describe 'Measure-Readability' {
+  It 'can measure the readability of given text using various methods' {
+    $Verbose = $False
+    $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
+    Measure-Readability $Text -Verbose:$Verbose | Should -Be 11.12 #8.1
+    Measure-Readability $Text -Type 'GunningFogIndex' -Verbose:$Verbose | Should -Be 13.96 #11.1
   }
 }

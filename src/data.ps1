@@ -367,7 +367,7 @@ function Get-Singular {
 function Get-SyllableCount {
   <#
   .SYNOPSIS
-  Get number of syllables in a word (used within Get-Readability function)
+  Get number of syllables in an English word (used within Get-Readability function)
   .EXAMPLE
   'hello' | Get-SylallableCount
   # returns 2
@@ -422,6 +422,8 @@ function Get-SyllableCount {
       'chile' = 2
       'chloe' = 2
       'circe' = 2
+      'cliche' = 2
+      'contrariety' = 4
       'coyote' = 3
       'daphne' = 2
       'epitome' = 4
@@ -441,6 +443,7 @@ function Get-SyllableCount {
       'maybe' = 2
       'naive' = 2
       'newlywed' = 3
+      'ninety' = 2
       'penelope' = 4
       'people' = 2
       'persephone' = 4
@@ -449,6 +452,7 @@ function Get-SyllableCount {
       'queue' = 1
       'recipe' = 3
       'riverbed' = 3
+      'scotias' = 3
       'sesame' = 3
       'shoreline' = 2
       'simile' = 3
@@ -458,6 +462,7 @@ function Get-SyllableCount {
       'tamale' = 3
       'waterbed' = 3
       'wednesday' = 2
+      'viceroyship' = 3
       'yosemite' = 4
       'zoe' = 2
     }
@@ -503,7 +508,9 @@ function Get-SyllableCount {
     $Count = 0
   }
   Process {
-    switch ($Text.ToLower() -replace $NonAlphabetic,'') {
+    $Text = $Text.ToLower() -replace $NonAlphabetic,''
+    $Text = $Text -replace $Apostrophe,''
+    switch ($Text) {
       { $_.Length -eq 0 } {
         0
         Break
@@ -531,7 +538,6 @@ function Get-SyllableCount {
         Break
       }
       Default {
-        $Text = $Text -replace $Apostrophe,''
         $Count += (3 * ($Text | Select-String -Pattern $Triple).Matches.Value.Count)
         $Text = $Text -replace $Triple,''
         $Count += (2 * ($Text | Select-String -Pattern $Double).Matches.Value.Count)
@@ -672,7 +678,7 @@ function Measure-Readability {
   .DESCRIPTION
   This function can ingest text and return the minimum school grade level necessary to understand the text.
 
-  The following tests are supported: 
+  The following tests are supported:
   - Flesch-Kincaid Grade Level (default)
   - Automated Readability Index (ARI)
   - Coleman-Liau Index (CLI)
@@ -692,17 +698,8 @@ function Measure-Readability {
   Param(
     [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     [String] $Text,
-    [ValidateSet(
-      'FleschKincaidGradeLevel',
-      'ARI',
-      'AutomatedReadabilityIndex',
-      'CLI',
-      'ColemanLiauIndex',
-      'GFI',
-      'GunningFogIndex',
-      'SMOG'
-    )]
     [Parameter(Position=1)]
+    [ValidateSet('FleschKincaidGradeLevel','ARI','AutomatedReadabilityIndex','CLI','ColemanLiauIndex','GFI','GunningFogIndex','SMOG')]
     [String] $Type = 'FleschKincaidGradeLevel'
   )
   Process {
@@ -717,32 +714,54 @@ function Measure-Readability {
     foreach ($Word in $Words) {
       $Syllables += (Get-SyllableCount $Word)
     }
-    switch ($Type) {
+    $Result = switch ($Type) {
       { $_ -in 'ARI','AutomatedReadabilityIndex' } {
+        '==> Measuring readability with Automated Readability Index' | Write-Verbose
         $LetterCount = ($Text | Measure-Object -Character -IgnoreWhiteSpace).Characters
-        
+        "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
+        "==> # of Words: $($Words.Count)" | Write-Verbose
+        "==> # of Letters: ${LetterCount}" | Write-Verbose
+        (4.71 * ($LetterCount / $Words.Count)) + (0.5 * ($Words.Count / $Sentences.Count)) - 21.43
       }
       { $_ -in 'CLI','ColemanLiauIndex' } {
+        '==> Measuring readability with Coleman-Liau Index' | Write-Verbose
         $LetterCount = ($Text | Measure-Object -Character -IgnoreWhiteSpace).Characters
-        
+        $L = 100 * ($LetterCount / $Words.Count)
+        $S = 100 * ($Sentences.Count / $Words.Count)
+        "==> L: ${L}" | Write-Verbose
+        "==> S: ${S}" | Write-Verbose
+        (0.0588 * $L) - (0.296 * $S) - 15.8
       }
       { $_ -in 'GFI','GunningFogIndex' } {
+        '==> Measuring readability with Gunning Fog Index' | Write-Verbose
         $TotalWords = $Words.Count
         $ComplexWords = ($Syllables | Where-Object { $_ -ge 3 }).Count
+        "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
+        "==> # of Words: ${TotalWords}" | Write-Verbose
+        "==> # of Complex Words: ${ComplexWords}" | Write-Verbose
         0.4 * (($TotalWords / $Sentences.Count) + (100 * ($ComplexWords / $TotalWords)))
       }
       'SMOG' {
         if ($Sentences.Count -ge 30) {
-          
+          '==> Measuring readability with SMOG' | Write-Verbose
+          $ComplexWords = ($Syllables | Where-Object { $_ -ge 3 }).Count
+          "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
+          "==> # of Complex Words: ${ComplexWords}" | Write-Verbose
+          (1.043 * [Math]::Sqrt($ComplexWords * (30 / $Sentences.Count))) + 3.1291
         } else {
           '==> SMOG readability test requires at least 30 sentences' | Write-Error
         }
       }
       Default { # Flesch-Kincaid Grade Level
+        '==> Measuring readability with Flesch-Kincaid Grade Level' | Write-Verbose
         $TotalWords = $Words.Count
         $TotalSyllables = Get-Sum $Syllables
-        (0.39 * ($TotalWords / $Sentences.Count)) + (11.8 * ($TotalSyllables / $TotalWords)) - 15.59 
+        "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
+        "==> # of Words: ${TotalWords}" | Write-Verbose
+        "==> # of Syllables: ${TotalSyllables}" | Write-Verbose
+        (0.39 * ($TotalWords / $Sentences.Count)) + (11.8 * ($TotalSyllables / $TotalWords)) - 15.59
       }
     }
+    [Math]::Round($Result, 2)
   }
 }
