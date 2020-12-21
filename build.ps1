@@ -18,6 +18,7 @@ Param(
   [Switch] $ShowCoverageReport,
   [Parameter(ParameterSetName='build')]
   [Parameter(ParameterSetName='test')]
+  [Parameter(ParameterSetName='customtest')]
   [Switch] $CI,
   [Parameter(ParameterSetName='build')]
   [Parameter(ParameterSetName='test')]

@@ -165,10 +165,10 @@ Describe 'Get-SyllableCount' {
     'good-natured' | Get-SyllableCount | Should -Be 3
     'ninety-nine' | Get-SyllableCount | Should -Be 3
   }
-  It 'can count syllables for words with accented letters' {
+  It -Skip 'can count syllables for words with accented letters' {
     'Zoë' | Get-SyllableCount | Should -Be 2
     'Åland' | Get-SyllableCount | Should -Be 2
-    # 'resumé' | Get-SyllableCount | Should -Be 3
+    'resumé' | Get-SyllableCount | Should -Be 3
   }
   It 'can count syllables for all words supported by ancestor source code' -Tag 'Intense' {
     $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\words.json') | ConvertFrom-Json
@@ -272,8 +272,8 @@ Describe 'Import-Raw' {
     $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
   }
 }
-Describe 'Invoke-Normalize' {
-  It 'can normalize strings to UTF-6' {
+Describe -Skip 'Invoke-Normalize' {
+  It 'can normalize strings to UTF-8' {
     'resumé' | Invoke-Normalize | Should -BeExactly 'resume'
     'Resumé' | Invoke-Normalize | Should -BeExactly 'Resume'
   }

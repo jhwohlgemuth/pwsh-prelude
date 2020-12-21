@@ -417,12 +417,14 @@ function Get-SyllableCount {
       'apostrophe' = 4
       'ariadne' = 4
       'cafe' = 2
+      'café' = 2
       'calliope' = 4
       'catastrophe' = 4
       'chile' = 2
       'chloe' = 2
       'circe' = 2
       'cliche' = 2
+      'cliché' = 2
       'contrariety' = 4
       'coyote' = 3
       'daphne' = 2
@@ -452,8 +454,9 @@ function Get-SyllableCount {
       'queue' = 1
       'recipe' = 3
       'reptilian' = 4
+      'resumé' = 2
       'riverbed' = 3
-      'scotias' = 3
+      'scotia' = 3
       'sesame' = 3
       'shoreline' = 2
       'simile' = 3
@@ -465,7 +468,7 @@ function Get-SyllableCount {
       'wednesday' = 2
       'viceroyship' = 3
       'yosemite' = 4
-      'zoe' = 2
+      'zoë' = 2
     }
     $NeedToBeFixed = @{ # all counts are (correct - 1)
       'ayo' = 2
@@ -558,7 +561,7 @@ function Get-SyllableCount {
       }
     }
     $TotalSyllables = 0
-    $Parts = (((Invoke-Normalize $Word) -replace $Apostrophe,'') -split '\b')
+    $Parts = (($Word -replace $Apostrophe,'') -split '\b')
     foreach ($Part in $Parts) {
       $Part = $Part.ToLower() -replace $NonAlphabetic,''
       $TotalSyllables += (& $Syllables $Part)
@@ -696,43 +699,48 @@ function Invoke-Normalize {
     [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
     $Text
   )
-  $CharacterMap = @{
-    'ß' = 'ss'
-    'à' = 'a'
-    'á' = 'a'
-    'â' = 'a'
-    'ã' = 'a'
-    'ä' = 'a'
-    'å' = 'a'
-    'æ' = 'ae'
-    'ç' = 'c'
-    'è' = 'e'
-    'é' = 'e'
-    'ê' = 'e'
-    'ë' = 'e'
-    'ì' = 'i'
-    'í' = 'i'
-    'î' = 'i'
-    'ï' = 'i'
-    'ð' = 'd'
-    'ñ' = 'n'
-    'ò' = 'o'
-    'ó' = 'o'
-    'ô' = 'o'
-    'õ' = 'o'
-    'ö' = 'o'
-    'ø' = 'o'
-    'ù' = 'u'
-    'ú' = 'u'
-    'û' = 'u'
-    'ü' = 'u'
-    'ý' = 'y'
+  Begin {
+    $CharacterMap = @{
+      'ß' = 'ss'
+      'à' = 'a'
+      'á' = 'a'
+      'â' = 'a'
+      'ã' = 'a'
+      'ä' = 'a'
+      'å' = 'a'
+      'æ' = 'ae'
+      'ç' = 'c'
+      'è' = 'e'
+      'é' = 'e'
+      'ê' = 'e'
+      'ë' = 'e'
+      'ì' = 'i'
+      'í' = 'i'
+      'î' = 'i'
+      'ï' = 'i'
+      'ð' = 'd'
+      'ñ' = 'n'
+      'ò' = 'o'
+      'ó' = 'o'
+      'ô' = 'o'
+      'õ' = 'o'
+      'ö' = 'o'
+      'ø' = 'o'
+      'ù' = 'u'
+      'ú' = 'u'
+      'û' = 'u'
+      'ü' = 'u'
+      'ý' = 'y'
+    }
   }
-  $Output = $Text
-  foreach ($Key in $CharacterMap.Keys) {
-    $Output = $Output.Replace($Key, $CharacterMap.$Key).Replace($Key.ToUpper(), $CharacterMap.$Key.ToUpper())
+  Process {
+    # [Text.Encoding]::ASCII.GetString([Text.Encoding]::GetEncoding("Cyrillic").GetBytes($Text))
+    $Output = $Text
+    foreach ($Key in $CharacterMap.Keys) {
+      $Output = $Output.Replace($Key, $CharacterMap.$Key).Replace($Key.ToUpper(), $CharacterMap.$Key.ToUpper())
+    }
+    $Output
   }
-  $Output
 }
 function Measure-Readability {
   <#
