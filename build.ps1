@@ -76,6 +76,11 @@ function Invoke-Test {
         Exit = $False
         PassThru = $True
       }
+      Filter = @{
+        FullName = $Filter
+        Tag = $Tags
+        ExcludeTag = $Exclude
+      }
       CodeCoverage = @{
         Enabled = $True
         Path = $Files
