@@ -285,8 +285,8 @@ Describe 'Measure-Readability' {
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
     Measure-Readability $Text -Verbose:$Verbose | Should -Be 11.1
     Measure-Readability $Text -Type 'GFI' -Verbose:$Verbose | Should -Be 14
-    Measure-Readability $Text -Type 'CLI' -Verbose:$Verbose | Should -Be 9.2
-    Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 11.9
+    Measure-Readability $Text -Type 'CLI' -Verbose:$Verbose | Should -Be 9.3
+    Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 12
     Measure-Readability $Text -Type 'SMOG' -Verbose:$Verbose | Should -Be 12.2
   }
 }
