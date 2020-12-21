@@ -181,6 +181,7 @@ Functions
 - `Invoke-ListenForWord` <sup>[[3]](#footnotes)</sup>
 - `Invoke-Menu`
 - `Invoke-Method`
+- `Invoke-Normalize`
 - `Invoke-ObjectInvert`
 - `Invoke-ObjectMerge`
 - `Invoke-Once`
