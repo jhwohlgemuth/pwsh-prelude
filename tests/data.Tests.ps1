@@ -116,6 +116,9 @@ Describe 'Get-Plural/Singular' {
 Describe 'Get-SyllableCount' {
   It 'can count syllables of simple words' {
     '' | Get-SyllableCount | Should -Be 0
+    'a','of','the','and','is' | ForEach-Object {
+      $_ | Get-SyllableCount | Should -Be 1
+    }
     'wine' | Get-SyllableCount | Should -Be 1
     'foo' | Get-SyllableCount | Should -Be 1
     'hello' | Get-SyllableCount | Should -Be 2
@@ -134,6 +137,13 @@ Describe 'Get-SyllableCount' {
     'Innovation' | Get-SyllableCount | Should -Be 4
   }
   It 'can count syllables for selected "difficult" words' {
+    'hybrid' | Get-SyllableCount | Should -Be 2
+    'mammal' | Get-SyllableCount | Should -Be 2
+    'seemingly' | Get-SyllableCount | Should -Be 3
+    'creature' | Get-SyllableCount | Should -Be 2
+    'platypus' | Get-SyllableCount | Should -Be 3
+    'reptilian' | Get-SyllableCount | Should -Be 4
+    'Australian' | Get-SyllableCount | Should -Be 3
     'cliche' | Get-SyllableCount | Should -Be 2
     'christian' | Get-SyllableCount | Should -Be 2
     'scotias' | Get-SyllableCount | Should -Be 3
@@ -151,7 +161,7 @@ Describe 'Get-SyllableCount' {
     'phoebe' | Get-SyllableCount | Should -Be 2
     'simile' | Get-SyllableCount | Should -Be 3
   }
-  It -Skip 'can handle hyphenated words' {
+  It 'can handle hyphenated words' {
     'good-natured' | Get-SyllableCount | Should -Be 3
     'ninety-nine' | Get-SyllableCount | Should -Be 3
   }
@@ -264,8 +274,12 @@ Describe 'Import-Raw' {
 Describe 'Measure-Readability' {
   It 'can measure the readability of given text using various methods' {
     $Verbose = $False
+    'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
-    Measure-Readability $Text -Verbose:$Verbose | Should -Be 11.12 #8.1
-    Measure-Readability $Text -Type 'GunningFogIndex' -Verbose:$Verbose | Should -Be 13.96 #11.1
+    Measure-Readability $Text -Verbose:$Verbose | Should -Be 11.1
+    Measure-Readability $Text -Type 'GFI' -Verbose:$Verbose | Should -Be 14
+    Measure-Readability $Text -Type 'CLI' -Verbose:$Verbose | Should -Be 9.2
+    Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 11.9
+    Measure-Readability $Text -Type 'SMOG' -Verbose:$Verbose | Should -Be 12.2
   }
 }

@@ -381,7 +381,7 @@ function Get-SyllableCount {
   Param(
     [Parameter(Position=0, ValueFromPipeline=$True)]
     [AllowEmptyString()]
-    [String] $Text
+    [String] $Word
   )
   Begin {
     # Match single syllable pre- and suffixes
@@ -451,6 +451,7 @@ function Get-SyllableCount {
       'pulse' = 1
       'queue' = 1
       'recipe' = 3
+      'reptilian' = 4
       'riverbed' = 3
       'scotias' = 3
       'sesame' = 3
@@ -468,6 +469,7 @@ function Get-SyllableCount {
     }
     $NeedToBeFixed = @{ # all counts are (correct - 1)
       'ayo' = 2
+      'australian' = 3
       'dionysius' = 5
       'disbursement' = 3
       'discouragement' = 4
@@ -508,52 +510,59 @@ function Get-SyllableCount {
     $Count = 0
   }
   Process {
-    $Text = $Text.ToLower() -replace $NonAlphabetic,''
-    $Text = $Text -replace $Apostrophe,''
-    switch ($Text) {
-      { $_.Length -eq 0 } {
-        0
-        Break
-      }
-      { $_.Length -in 1,2 } {
-        1
-        Break
-      }
-      { $_ -in $Problematic.Keys } {
-        $Problematic.$_
-        Break
-      }
-      { (Get-Singular $_) -in $Problematic.Keys } {
-        $Word = (Get-Singular $_)
-        $Problematic.$Word
-        Break
-      }
-      { $_ -in $NeedToBeFixed.Keys } {
-        $NeedToBeFixed.$_
-        Break
-      }
-      { (Get-Singular $_) -in $NeedToBeFixed.Keys } {
-        $Word = Get-Singular $_
-        $NeedToBeFixed.$Word
-        Break
-      }
-      Default {
-        $Count += (3 * ($Text | Select-String -Pattern $Triple).Matches.Value.Count)
-        $Text = $Text -replace $Triple,''
-        $Count += (2 * ($Text | Select-String -Pattern $Double).Matches.Value.Count)
-        $Text = $Text -replace $Double,''
-        $Count += (1 * ($Text | Select-String -Pattern $Single).Matches.Value.Count)
-        $Text = $Text -replace $Single,''
-        $Count -= ($Text | Select-String -Pattern $SingleSyllabicOne).Matches.Value.Count
-        $Count -= ($Text | Select-String -Pattern $SingleSyllabicTwo).Matches.Value.Count
-        $Count += ($Text | Select-String -Pattern $DoubleSyllabicOne).Matches.Value.Count
-        $Count += ($Text | Select-String -Pattern $DoubleSyllabicTwo).Matches.Value.Count
-        $Count += ($Text | Select-String -Pattern $DoubleSyllabicThree).Matches.Value.Count
-        $Count += ($Text | Select-String -Pattern $DoubleSyllabicFour).Matches.Value.Count
-        $Count += ($Text -split [Regex]'[^aeiouy]+' | Where-Object { $_ -ne '' }).Count
-        $Count
+    $Syllables = {
+      Param($Word)
+      switch ($Word) {
+        { $_.Length -eq 0 } {
+          0
+          Break
+        }
+        { $_.Length -in 1,2 } {
+          1
+          Break
+        }
+        { $_ -in $Problematic.Keys } {
+          $Problematic.$_
+          Break
+        }
+        { (Get-Singular $_) -in $Problematic.Keys } {
+          $Word = (Get-Singular $_)
+          $Problematic.$Word
+          Break
+        }
+        { $_ -in $NeedToBeFixed.Keys } {
+          $NeedToBeFixed.$_
+          Break
+        }
+        { (Get-Singular $_) -in $NeedToBeFixed.Keys } {
+          $Word = Get-Singular $_
+          $NeedToBeFixed.$Word
+          Break
+        }
+        Default {
+          $Count += (3 * ($Word | Select-String -Pattern $Triple).Matches.Value.Count)
+          $Word = $Word -replace $Triple,''
+          $Count += (2 * ($Word | Select-String -Pattern $Double).Matches.Value.Count)
+          $Word = $Word -replace $Double,''
+          $Count += (1 * ($Word | Select-String -Pattern $Single).Matches.Value.Count)
+          $Word = $Word -replace $Single,''
+          $Count -= ($Word | Select-String -Pattern $SingleSyllabicOne).Matches.Value.Count
+          $Count -= ($Word | Select-String -Pattern $SingleSyllabicTwo).Matches.Value.Count
+          $Count += ($Word | Select-String -Pattern $DoubleSyllabicOne).Matches.Value.Count
+          $Count += ($Word | Select-String -Pattern $DoubleSyllabicTwo).Matches.Value.Count
+          $Count += ($Word | Select-String -Pattern $DoubleSyllabicThree).Matches.Value.Count
+          $Count += ($Word | Select-String -Pattern $DoubleSyllabicFour).Matches.Value.Count
+          $Count += ($Word -split [Regex]'[^aeiouy]+' | Where-Object { $_ -ne '' }).Count
+          $Count
+        }
       }
     }
+    $TotalSyllables = 0
+    $Parts = (($Word -replace $Apostrophe,'') -split '\b')
+    foreach ($Part in $Parts) {
+      $TotalSyllables += (& $Syllables ($Part.ToLower() -replace $NonAlphabetic,''))
+    }
+    $TotalSyllables
   }
 }
 function Import-Excel {
@@ -742,15 +751,14 @@ function Measure-Readability {
         0.4 * (($TotalWords / $Sentences.Count) + (100 * ($ComplexWords / $TotalWords)))
       }
       'SMOG' {
-        if ($Sentences.Count -ge 30) {
-          '==> Measuring readability with SMOG' | Write-Verbose
-          $ComplexWords = ($Syllables | Where-Object { $_ -ge 3 }).Count
-          "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
-          "==> # of Complex Words: ${ComplexWords}" | Write-Verbose
-          (1.043 * [Math]::Sqrt($ComplexWords * (30 / $Sentences.Count))) + 3.1291
-        } else {
-          '==> SMOG readability test requires at least 30 sentences' | Write-Error
+        if ($Sentences.Count -lt 30) {
+          '==> SMOG readability test is not accurate with less than 30 sentences' | Write-Warning
         }
+        '==> Measuring readability with SMOG' | Write-Verbose
+        $ComplexWords = ($Syllables | Where-Object { $_ -ge 3 }).Count
+        "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
+        "==> # of Complex Words: ${ComplexWords}" | Write-Verbose
+        (1.043 * [Math]::Sqrt($ComplexWords * (30 / $Sentences.Count))) + 3.1291
       }
       Default { # Flesch-Kincaid Grade Level
         '==> Measuring readability with Flesch-Kincaid Grade Level' | Write-Verbose
@@ -762,6 +770,6 @@ function Measure-Readability {
         (0.39 * ($TotalWords / $Sentences.Count)) + (11.8 * ($TotalSyllables / $TotalWords)) - 15.59
       }
     }
-    [Math]::Round($Result, 2)
+    [Math]::Round($Result, 1)
   }
 }
