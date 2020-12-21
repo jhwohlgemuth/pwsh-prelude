@@ -118,7 +118,6 @@ $Irregular = @{
   'foot' = 'feet'
   'goose' = 'geese'
   'man' = 'men'
-  'mouse' = 'mice'
   'move' = 'moves'
   'person' = 'people'
   'radius' = 'radii'
