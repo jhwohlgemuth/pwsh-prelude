@@ -1,8 +1,8 @@
-
 Getting Started
----------------
-- Read this guide
+===============
+- Read this guide (including the [Code of Conduct](CODE_OF_CONDUCT.md))
 - Fork this repository and clone your fork locally
+- [Setup your environment](#project-setup) to use development tasks (test, lint, etc...)
 - Adhere to the [project standards](#project-standards)
 - Write some code and stuff...
 - Push your changes and create a pull request
@@ -32,31 +32,59 @@ The main module file, [pwsh-prelude.psm1](../pwsh-prelude.psm1), simply imports 
 - `productivity.ps1`: A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
 - `user-interface.ps1`: Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
 - `web.ps1`: Functions for working with web technology
+- `cs/Matrix`: C# files for `[Matrix]` type accelator
+- `cs/Geodetic`: C# files for `[Coordinate]` and `[Datum]` type accelators
+- `cs/Graph`: C# files for `[Graph]`, `[Edge]`, and `[Node]` type accelators
 
-Project Setup
--------------
+
+Project Setup <sup>[[1]](#footnotes)</sup>
+=============
 > Friends don't let friends use Powershell without [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab). Please follow [these instructions](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal) to customize your terminal and achieve new levels of epic productivity — *"I can't believe it's not Linux!"* ™
 
-As a Powershell module, all that is really required for developing `pwsh-prelude` is that Powershell be installed (on Windows or [Linux](https://github.com/PowerShell/PowerShell))
+Prelude uses a build script for PowerShell development tasks and `dotnet` for C# tasks.
 
-> ***NOTE***: Although almost all functions work on Windows and Linux, certain functions (like `Invoke-Speak` are intrinsically dependent on Windows DLLs and therefor do not work on Linux Powershell installations)
+PowerShell Workflow Tasks
+-------------------------
+**Requirements**
+- Run `./Invoke-Setup.ps1` to install PowerShell development depencencies
+> ***NOTE*** You may need to run `Set-ExecutionPolicy Unrestricted` before executing `Invoke-Setup.ps1`
 
-Workflow tasks are contained within [build.ps1]() and can be executed via the following commands:
+All PowerShell tasks are contained within [build.ps1](../build.ps1) and can be executed via the following commands:
 - Lint code: `./build.ps1 -Lint`
 - Run tests: `./build.ps1 -Test`
+> ***NOTE***: PowerShell tests are located in the `/tests` directory
 - Lint code and run tests: `./build.ps1 -Lint -Test`
 - Run tests (with coverage): `./build.ps1 -Test -WithCoverage`
 - Run tests (with coverage) and show report: `./build.ps1 -Test -WithCoverage -ShowCoverageReport`
 
-> ***NOTE***: Using `-ShowCoverageReport` requires that [ReportGenerator]() is installed and `reportgenerator.exe` is available from the command line.
+> ***NOTE***: Using `-ShowCoverageReport` requires that [ReportGenerator](https://danielpalme.github.io/ReportGenerator/) is installed and `reportgenerator.exe` is available from the command line.
+
+C# Workflow Tasks
+-----------------
+**Requirements**
+- [.NET SDK v5.0](https://dotnet.microsoft.com/download/visual-studio-sdks)
+> ***NOTE***: The easiest way to install .NET is to use [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/)
+
+**Run Tests**
+> ***NOTE***: C# tests are located in the `src/cs/Tests` directory
+- Within the `src/cs` directory, run `dotnet test`
+
+Visual Studio Code Configuration
+--------------------------------
+**General Development**
+- Install [VSCode](https://code.visualstudio.com/)
+- Install [PowerShell VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell)
+
+**Linux Development within Docker Container**
+- [Follow the instructions of this article](https://code.visualstudio.com/docs/remote/containers)
 
 Project Standards
------------------
+=================
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
 - Running `./build.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
-- Running `./build.ps1 -Test` should have no failures (local and [CI](https://travis-ci.com/github/jhwohlgemuth/pwsh-prelude))
+- Running `./build.ps1 -Test -Tag 'Local' -Exclude 'LinuxOnly'` should have no failures (local and [remote](https://travis-ci.com/github/jhwohlgemuth/pwsh-prelude))
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
-- Beyond the rules identified by `./build.ps1 -Lint`<sup>[[1]](#footnotes)</sup>, all code additions should adhere to the following:
+- Beyond the rules identified by `./build.ps1 -Lint` <sup>[[2]](#footnotes)</sup>, all code additions should adhere to the following:
   - Use two-spaces for indentation
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
@@ -107,4 +135,6 @@ Project Standards
 
 Footnotes
 ---------
-> **[1]** `.\build.ps1 -Lint` uses the [built-in PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules) ***and*** custom rules contained within [`.\rule.psm1`](..\rule.psm1)
+> **[1]** In an effor to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
+
+> **[2]** `.\build.ps1 -Lint` uses the [built-in PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules) ***and*** custom rules contained within [`.\rule.psm1`](..\rule.psm1)

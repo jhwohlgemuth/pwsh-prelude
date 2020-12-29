@@ -1,4 +1,4 @@
-﻿#Requires -Modules PowerShellGet,BuildHelpers,pester
+﻿#Requires -Modules BuildHelpers,pester
 <#
 .SYNOPSIS
 Build tasks
