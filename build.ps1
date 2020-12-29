@@ -1,4 +1,20 @@
 ﻿#Requires -Modules BuildHelpers,pester
+<#
+.SYNOPSIS
+Build tasks
+.PARAMETER Filter
+Only run tests (Describe or It) that match filter string (-like wildcards allowed)
+.PARAMETER Tags
+Only run tests (Describe or It) with certain tags
+.PARAMETER Exclude
+Exclude running tests (Describe or It) with certain tags
+.EXAMPLE
+.\build.ps1 -Test -Filter '*Readability*' -Exclude 'LinuxOnly'
+
+.EXAMPLE
+.\build.ps1 -Test -Filter '*Readability*' -Tags 'WindowsOnly'
+
+#>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding(DefaultParameterSetName='build')]
@@ -24,9 +40,9 @@ Param(
   [Parameter(ParameterSetName='test')]
   [Switch] $SkipChecks,
   [Parameter(ParameterSetName='customtest')]
-  [String] $Filter = '*',
+  [String] $Filter,
   [Parameter(ParameterSetName='customtest')]
-  [String[]] $Tags = '',
+  [String[]] $Tags,
   [Parameter(ParameterSetName='customtest')]
   [String] $Exclude = '',
   [Parameter(ParameterSetName='build')]
@@ -78,8 +94,6 @@ function Invoke-Test {
         PassThru = $True
       }
       Filter = @{
-        FullName = $Filter
-        Tag = $Tags
         ExcludeTag = $Exclude
       }
       CodeCoverage = @{
@@ -90,6 +104,11 @@ function Invoke-Test {
         Enabled = $True
       }
     }
+    if ($Filter) {
+      $Configuration.Filter.FullName = $Filter
+    } elseif ($Tags) {
+      $Configuration.Filter.Tag = $Tags
+    }
   } else {
     '==> Executing tests' | Write-Output
     $Configuration = [PesterConfiguration]@{
@@ -97,14 +116,17 @@ function Invoke-Test {
         PassThru = $True
       }
       Filter = @{
-        FullName = $Filter
-        Tag = $Tags
         ExcludeTag = $Exclude
       }
       Debug = @{
         ShowNavigationMarkers = $True
         WriteVSCodeMarker = $True
       }
+    }
+    if ($Filter) {
+      $Configuration.Filter.FullName = $Filter
+    } elseif ($Tags) {
+      $Configuration.Filter.Tag = $Tags
     }
   }
   $Result = Invoke-Pester -Configuration $Configuration

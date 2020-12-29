@@ -278,8 +278,8 @@ Describe -Skip 'Invoke-Normalize' {
     'Resumé' | Invoke-Normalize | Should -BeExactly 'Resume'
   }
 }
-Describe -Skip 'Measure-Readability' {
-  It 'can measure the readability of given text using various methods' {
+Describe 'Measure-Readability' {
+  It 'can measure the readability of given text using various methods' -Tag 'WindowsOnly' {
     $Verbose = $False
     'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
@@ -287,6 +287,16 @@ Describe -Skip 'Measure-Readability' {
     Measure-Readability $Text -Type 'GFI' -Verbose:$Verbose | Should -Be 14
     Measure-Readability $Text -Type 'CLI' -Verbose:$Verbose | Should -Be 9.3
     Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 12
+    Measure-Readability $Text -Type 'SMOG' -Verbose:$Verbose | Should -Be 12.2
+  }
+  It 'can measure the readability of given text using various methods' -Tag 'LinuxOnly' {
+    $Verbose = $False
+    'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
+    $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
+    Measure-Readability $Text -Verbose:$Verbose | Should -Be 11.1
+    Measure-Readability $Text -Type 'GFI' -Verbose:$Verbose | Should -Be 14
+    Measure-Readability $Text -Type 'CLI' -Verbose:$Verbose | Should -Be 9.2
+    Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 11.9
     Measure-Readability $Text -Type 'SMOG' -Verbose:$Verbose | Should -Be 12.2
   }
 }
