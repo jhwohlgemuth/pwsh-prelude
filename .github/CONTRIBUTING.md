@@ -23,18 +23,18 @@ Project Architecture
 --------------------
 
 The main module file, [pwsh-prelude.psm1](../pwsh-prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
-- `application.ps1`: Collection of functions that can be used to create a PowerShell command line application
-- `applied.ps1`: Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
-- `core.ps1`: Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
-- `data.ps1`: Functions for ingesting and converting data
-- `events.ps1`: Functions needed for event-driven operations (inspired by `Backbone.Events`)
-- `matrix.ps1`: Helper functions for using `[Matrix]` objects
-- `productivity.ps1`: A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
-- `user-interface.ps1`: Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
-- `web.ps1`: Functions for working with web technology
-- `cs/Matrix`: C# files for `[Matrix]` type accelator
-- `cs/Geodetic`: C# files for `[Coordinate]` and `[Datum]` type accelators
-- `cs/Graph`: C# files for `[Graph]`, `[Edge]`, and `[Node]` type accelators
+- [`application.ps1`](../src/application.ps1): Collection of functions that can be used to create a PowerShell command line application
+- [`applied.ps1`](../src/applied.ps1): Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
+- [`core.ps1`](../src/core.ps1): Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
+- [`data.ps1`](../src/data.ps1): Functions for ingesting and converting data
+- [`events.ps1`](../src/events.ps1): Functions needed for event-driven operations (inspired by `Backbone.Events`)
+- [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` objects
+- [`productivity.ps1`](../src/productivity.ps1): A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
+- [`user-interface.ps1`](../src/user-interface.ps1): Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
+- [`web.ps1`](../src/web.ps1): Functions for working with web technology
+- [`cs/Matrix`](../src/cs/Matrix): C# project directory for `[Matrix]` type accelator
+- [`cs/Geodetic`](../src/cs/Geodetic): C# project directory for `[Coordinate]` and `[Datum]` type accelators
+- [`cs/Graph`](../src/cs/Graph): C# project directory for `[Graph]`, `[Edge]`, and `[Node]` type accelators
 
 
 Project Setup <sup>[[1]](#footnotes)</sup>
