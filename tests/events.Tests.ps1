@@ -1,6 +1,6 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'events'
 
-Describe -Skip 'Invoke-ListenTo' {
+Describe -Skip 'Invoke-ListenTo' -Tag 'Local','Remote' {
   AfterEach {
     'TestEvent' | Invoke-StopListen
   }

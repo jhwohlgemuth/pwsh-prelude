@@ -7,7 +7,7 @@ $ExcelSupported = try {
   $False
 }
 
-Describe 'Format-MoneyValue' {
+Describe 'Format-MoneyValue' -Tag 'Local','Remote' {
   It 'can convert numbers' {
     0 | Format-MoneyValue | Should -Be '$0.00'
     0.0 | Format-MoneyValue | Should -Be '$0.00'
@@ -75,7 +75,7 @@ Describe 'Format-MoneyValue' {
     { $False | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
   }
 }
-Describe 'Get-Plural/Singular' {
+Describe 'Get-Plural/Singular' -Tag 'Local','Remote' {
   It 'can return plural version of a noun' {
     'goose' | Get-Plural | Should -Be 'geese'
     'mouse' | Get-Plural | Should -Be 'mice'
@@ -114,7 +114,7 @@ Describe 'Get-Plural/Singular' {
   }
 }
 Describe 'Get-SyllableCount' {
-  It 'can count syllables of simple words' {
+  It 'can count syllables of simple words' -Tag 'Local','Remote'{
     '' | Get-SyllableCount | Should -Be 0
     'a','of','the','and','is' | ForEach-Object {
       $_ | Get-SyllableCount | Should -Be 1
@@ -128,7 +128,7 @@ Describe 'Get-SyllableCount' {
     'syllable' | Get-SyllableCount | Should -Be 3
     'innovation' | Get-SyllableCount | Should -Be 4
   }
-  It 'can count syllables of words with uppercase letters' {
+  It 'can count syllables of words with uppercase letters' -Tag 'Local','Remote' {
     'Foo' | Get-SyllableCount | Should -Be 1
     'Hello' | Get-SyllableCount | Should -Be 2
     'PIZZA' | Get-SyllableCount | Should -Be 2
@@ -136,7 +136,7 @@ Describe 'Get-SyllableCount' {
     'Syllable' | Get-SyllableCount | Should -Be 3
     'Innovation' | Get-SyllableCount | Should -Be 4
   }
-  It 'can count syllables for selected "difficult" words' {
+  It 'can count syllables for selected "difficult" words' -Tag 'Local','Remote' {
     'hybrid' | Get-SyllableCount | Should -Be 2
     'mammal' | Get-SyllableCount | Should -Be 2
     'seemingly' | Get-SyllableCount | Should -Be 3
@@ -154,30 +154,30 @@ Describe 'Get-SyllableCount' {
     'pertinacious' | Get-SyllableCount | Should -Be 5
     'moderatenesses' | Get-SyllableCount | Should -Be 5
   }
-  It 'can count syllables for "problematic" words' {
+  It 'can count syllables for "problematic" words' -Tag 'Local','Remote' {
     'queue' | Get-SyllableCount | Should -Be 1
     'anyone' | Get-SyllableCount | Should -Be 3
     'maybe' | Get-SyllableCount | Should -Be 2
     'phoebe' | Get-SyllableCount | Should -Be 2
     'simile' | Get-SyllableCount | Should -Be 3
   }
-  It 'can handle hyphenated words' {
+  It 'can handle hyphenated words' -Tag 'Local','Remote' {
     'good-natured' | Get-SyllableCount | Should -Be 3
     'ninety-nine' | Get-SyllableCount | Should -Be 3
   }
-  It -Skip 'can count syllables for words with accented letters' {
+  It -Skip 'can count syllables for words with accented letters' -Tag 'Local','Remote' {
     'Zoë' | Get-SyllableCount | Should -Be 2
     'Åland' | Get-SyllableCount | Should -Be 2
     'resumé' | Get-SyllableCount | Should -Be 3
   }
-  It 'can count syllables for all words supported by ancestor source code' -Tag 'Intense' {
+  It 'can count syllables for all words supported by ancestor source code' -Tag 'Local' {
     $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\words.json') | ConvertFrom-Json
     foreach ($Word in $Data.PSObject.Properties.Name) {
       $Word | Get-SyllableCount | Should -Be $Data.$Word
     }
   }
 }
-Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
+Describe -Skip:(-not $ExcelSupported) 'Import-Excel' -Tag 'Local','Remote' {
   It 'will import first worksheet by default' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path
@@ -251,7 +251,7 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' {
     { Import-Excel -Path $Path -Password 'wrong' } | Should -Throw -Because 'the password is not correct'
   }
 }
-Describe 'Import-Raw' {
+Describe 'Import-Raw' -Tag 'Local','Remote' {
   It 'can import lines of a file' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
     $Data = Import-Raw -File $Path
@@ -272,14 +272,14 @@ Describe 'Import-Raw' {
     $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
   }
 }
-Describe -Skip 'Invoke-Normalize' {
+Describe -Skip 'Invoke-Normalize' -Tag 'Local','Remote' {
   It 'can normalize strings to UTF-8' {
     'resumé' | Invoke-Normalize | Should -BeExactly 'resume'
     'Resumé' | Invoke-Normalize | Should -BeExactly 'Resume'
   }
 }
 Describe 'Measure-Readability' {
-  It 'can measure the readability of given text using various methods' -Tag 'WindowsOnly' {
+  It 'can measure the readability of given text using various methods on Windows' -Tag 'Local','Remote','WindowsOnly' {
     $Verbose = $False
     'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
@@ -289,7 +289,7 @@ Describe 'Measure-Readability' {
     Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 12
     Measure-Readability $Text -Type 'SMOG' -Verbose:$Verbose | Should -Be 12.2
   }
-  It 'can measure the readability of given text using various methods' -Tag 'LinuxOnly' {
+  It 'can measure the readability of given text using various methods on Linux' -Tag 'Local','Remote','LinuxOnly' {
     $Verbose = $False
     'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '

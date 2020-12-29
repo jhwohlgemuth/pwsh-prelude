@@ -3,7 +3,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
 
-Describe 'Powershell Prelude Module' {
+Describe 'Powershell Prelude Module' -Tag 'Local','Remote' {
   Context 'meta validation' {
     It 'should import exports' {
       (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 111
@@ -13,7 +13,7 @@ Describe 'Powershell Prelude Module' {
     }
   }
 }
-Describe 'ConvertFrom-Pair' {
+Describe 'ConvertFrom-Pair' -Tag 'Local','Remote' {
   It 'can create and object from two arrays' {
     $Result = @('a','b','c'),@(1,2,3) | ConvertFrom-Pair
     $Result.a | Should -Be 1
@@ -35,7 +35,7 @@ Describe 'ConvertFrom-Pair' {
     $Result.c | Should -Be 3
   }
 }
-Describe 'ConvertTo-Pair' {
+Describe 'ConvertTo-Pair' -Tag 'Local','Remote' {
   It 'can create key and value arrays from an object' {
     $Pair = @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair
     $Pair[0] | Sort-Object | Should -Be @('a','b','c')
@@ -61,21 +61,21 @@ Describe 'ConvertTo-Pair' {
     $Pair[1] | Sort-Object | Should -Be @(1,2,3)
   }
 }
-Describe 'Deny-Empty' {
+Describe 'Deny-Empty' -Tag 'Local','Remote' {
   It 'can filter our empty strings from pipeline chains' {
     '','b','' | Deny-Empty | Should -Be 'b'
     'a','','b','','d' | Deny-Empty | Should -Be 'a','b','d'
     Deny-Empty 'a','b','','d' | Should -Be 'a','b','d'
   }
 }
-Describe 'Deny-Null' {
+Describe 'Deny-Null' -Tag 'Local','Remote' {
   It 'can filter our $Null values from pipeline chains' {
     $Null,2,$Null | Deny-Null | Should -Be 2
     1,$Null,2,$Null,4 | Deny-Null | Should -Be 1,2,4
     Deny-Null 1,2,$Null,4 | Should -Be 1,2,4
   }
 }
-Describe 'Find-FirstIndex' {
+Describe 'Find-FirstIndex' -Tag 'Local','Remote' {
   It 'can determine index of first item that satisfies default predicate' {
     Find-FirstIndex -Values $False,$True,$False | Should -Be 1
     $False,$True,$False | Find-FirstIndex | Should -Be 1
@@ -92,7 +92,7 @@ Describe 'Find-FirstIndex' {
     Find-FirstIndex -Values 2,0,0,0,2,0,0 -Predicate $Predicate | Should -Be 0
   }
 }
-Describe 'Get-Property' {
+Describe 'Get-Property' -Tag 'Local','Remote' {
   It 'can get object properties within a pipeline' {
     'hello' | Get-Property 'Length' | Should -Be 5
     'foo','bar','baz' | Get-Property 'Length' | Should -Be 3,3,3
@@ -118,7 +118,7 @@ Describe 'Get-Property' {
     1 | Get-Property '-Fake' | Should -Be $Null
   }
 }
-Describe 'Invoke-Chunk' {
+Describe 'Invoke-Chunk' -Tag 'Local','Remote' {
   It 'should passthru input object when size is 0 or bigger than the input size' {
     1..10 | Invoke-Chunk -Size 0 | Should -Be (1..10)
     1..10 | Invoke-Chunk -Size 10 | Should -Be (1..10)
@@ -139,7 +139,7 @@ Describe 'Invoke-Chunk' {
     1..5 | chunk -s 3 | Should -Be @(1,2,3),@(4,5)
   }
 }
-Describe 'Invoke-DropWhile' {
+Describe 'Invoke-DropWhile' -Tag 'Local','Remote' {
   It 'can drop elements until passed predicate is False' {
     $LessThan3 = { Param($X) $X -lt 3 }
     $GreaterThan10 = { Param($X) $X -gt 10 }
@@ -157,7 +157,7 @@ Describe 'Invoke-DropWhile' {
     Invoke-DropWhile -InputObject 'Hello World ###' $IsNotHash | Should -Be '###'
   }
 }
-Describe 'Invoke-Flatten' {
+Describe 'Invoke-Flatten' -Tag 'Local','Remote' {
   It 'can flatten multi-dimensional arrays' {
     @(1,@(2,3)) | Invoke-Flatten | Should -Be 1,2,3
     @(1,@(2,3,@(4,5))) | Invoke-Flatten | Should -Be 1,2,3,4,5
@@ -166,7 +166,7 @@ Describe 'Invoke-Flatten' {
     @(1,@(2,3,@(4,5,@(6,7,@(8,9)),10,@(11)))) | Invoke-Flatten | Should -Be 1,2,3,4,5,6,7,8,9,10,11
   }
 }
-Describe 'Invoke-InsertString' {
+Describe 'Invoke-InsertString' -Tag 'Local','Remote' {
   It 'can insert string into a string at a given index' {
     Invoke-InsertString -Value 'C' -To 'ABDE' -At 2 | Should -Be 'ABCDE'
     'ABDE' | Invoke-InsertString 'C' -At 2 | Should -Be 'ABCDE'
@@ -178,7 +178,7 @@ Describe 'Invoke-InsertString' {
     'JaneDoe','JohnDoe' | Invoke-InsertString ' ' -At 4 | Should -Be 'Jane Doe','John Doe'
   }
 }
-Describe 'Invoke-Method' {
+Describe 'Invoke-Method' -Tag 'Local','Remote' {
   It 'can apply a method within a pipeline' {
     '  foo','  bar','  baz' | Invoke-Method 'TrimStart' | Should -Be 'foo','bar','baz'
     $True,$False,42 | Invoke-Method 'ToString' | Should -Be 'True','False','42'
@@ -198,7 +198,7 @@ Describe 'Invoke-Method' {
     { 'foobar' | Invoke-Method 'Fake-Method' } | Should -Throw
   }
 }
-Describe 'Invoke-ObjectInvert' {
+Describe 'Invoke-ObjectInvert' -Tag 'Local','Remote' {
   It 'can invert objects with one key/value' {
     $Result = @{ foo = 'bar' } | Invoke-ObjectInvert
     $Result.bar | Should -Be 'foo'
@@ -232,7 +232,7 @@ Describe 'Invoke-ObjectInvert' {
     $Result.d | Should -Be $Null
   }
 }
-Describe 'Invoke-ObjectMerge' {
+Describe 'Invoke-ObjectMerge' -Tag 'Local','Remote' {
   It 'should function as passthru for one object' {
     $Result = @{ foo = 'bar' } | Invoke-ObjectMerge
     $Result.foo | Should -Be 'bar'
@@ -307,7 +307,7 @@ Describe 'Invoke-ObjectMerge' {
     $Result.b | Should -Be 2
   }
 }
-Describe 'Invoke-Once' {
+Describe 'Invoke-Once' -Tag 'Local','Remote' {
   It 'will return a function that will only be executed once' {
     function Test-Callback {}
     $Function:test = Invoke-Once { Test-Callback }
@@ -324,7 +324,7 @@ Describe 'Invoke-Once' {
     Assert-MockCalled Test-Callback -Times $Times
   }
 }
-Describe 'Invoke-Operator' {
+Describe 'Invoke-Operator' -Tag 'Local','Remote' {
   It 'can use operators within a pipeline' {
     'one,two' | Invoke-Operator 'split' ',' | Should -Be 'one','two'
     @(1,2,3),@(4,5,6),@(7,8,9) | Invoke-Operator 'join' '' | Should -Be '123','456','789'
@@ -344,7 +344,7 @@ Describe 'Invoke-Operator' {
     { 'foobar' | Invoke-Operator 'has space' 'operator' } | Should -Throw
   }
 }
-Describe 'Invoke-Partition' {
+Describe 'Invoke-Partition' -Tag 'Local','Remote' {
   It 'can separate an array of objects into two arrays' {
     $IsPositive = { Param($X) $X -gt 0 }
     $IsNegative = { Param($X) $X -lt 0 }
@@ -354,7 +354,7 @@ Describe 'Invoke-Partition' {
     0..9 | Invoke-Partition $IsEven | Should -Be @(0,2,4,6,8),@(1,3,5,7,9)
   }
 }
-Describe 'Invoke-Pick' {
+Describe 'Invoke-Pick' -Tag 'Local','Remote' {
   It 'can create hashtable from picked properties' {
     $Name = 'a','c'
     $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name
@@ -396,7 +396,7 @@ Describe 'Invoke-Pick' {
     $Result.values | Sort-Object | Should -Be 'NOTHING','NOTHING'
   }
 }
-Describe 'Invoke-PropertyTransform' {
+Describe 'Invoke-PropertyTransform' -Tag 'Local','Remote' {
   It 'can transform hashtable property names and values' {
     $Data = @{}
     $Data | Add-member -NotePropertyName 'fighter_power_level' -NotePropertyValue 90
@@ -430,7 +430,7 @@ Describe 'Invoke-PropertyTransform' {
     $Result.level | Should -Be 9001
   }
 }
-Describe 'Invoke-Reduce' {
+Describe 'Invoke-Reduce' -Tag 'Local','Remote' {
   It 'will use the first item when no initial value is passed' {
     $Expected = 55
     $AllTrue = $True,$True,$True
@@ -517,7 +517,7 @@ Describe 'Invoke-Reduce' {
     $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
   }
 }
-Describe 'Invoke-TakeWhile' {
+Describe 'Invoke-TakeWhile' -Tag 'Local','Remote' {
   It 'can take elements until passed predicate is False' {
     $LessThan3 = { Param($X) $X -lt 3 }
     $GreaterThan10 = { Param($X) $X -gt 10 }
@@ -535,7 +535,7 @@ Describe 'Invoke-TakeWhile' {
     Invoke-TakeWhile -InputObject 'Hello World' $IsNotSpace | Should -Be 'Hello'
   }
 }
-Describe 'Invoke-Tap' {
+Describe 'Invoke-Tap' -Tag 'Local','Remote' {
   It 'can execute a scriptblock and passthru values' {
     function Test-Function {}
     Mock Test-Function { $Args }
@@ -545,7 +545,7 @@ Describe 'Invoke-Tap' {
     1,2,3 | Invoke-Tap { Param($X) $X + 1 } | Should -Be 2,3,4
   }
 }
-Describe 'Invoke-Unzip' {
+Describe 'Invoke-Unzip' -Tag 'Local','Remote' {
   It 'can separate an array of pairs into two arrays' {
     @() | Invoke-Unzip | Should -Be $Null
     @(@(),@()) | Should -Be @(),@()
@@ -556,7 +556,7 @@ Describe 'Invoke-Unzip' {
     $Expected | Invoke-Zip | Invoke-Unzip | Should -Be $Expected
   }
 }
-Describe 'Invoke-Zip(With)' {
+Describe 'Invoke-Zip(With)' -Tag 'Local','Remote' {
   It 'can zip two arrays' {
     $Zipped = @('a'),@(1) | Invoke-Zip
     $Zipped.Length | Should -Be 2
@@ -602,7 +602,7 @@ Describe 'Invoke-Zip(With)' {
     Invoke-ZipWith $Add @('a','a'),@('b','b'),@('c','c','c') -EmptyValue '#' | Should -Be @('abc','abc', '##c')
   }
 }
-Describe 'Join-StringsWithGrammar' {
+Describe 'Join-StringsWithGrammar' -Tag 'Local','Remote' {
   It 'accepts one parameter' {
     Join-StringsWithGrammar 'one' | Should -Be 'one'
     Join-StringsWithGrammar -Items 'one' | Should -Be 'one'
@@ -625,7 +625,7 @@ Describe 'Join-StringsWithGrammar' {
     Join-StringsWithGrammar @('one', 'two', 'three', 'four') | Should -Be 'one, two, three, and four'
   }
 }
-Describe 'Remove-Character' {
+Describe 'Remove-Character' -Tag 'Local','Remote' {
   It 'can remove single character from string' {
     '012345' | Remove-Character -At 0 | Should -Be '12345'
     '012345' | Remove-Character -At 2 | Should -Be '01345'
@@ -647,7 +647,7 @@ Describe 'Remove-Character' {
     'A' | Remove-Character -At 0 | Should -Be ''
   }
 }
-Describe 'Test-Equal' {
+Describe 'Test-Equal' -Tag 'Local','Remote' {
   It 'should return true for single items (from pipeline only)' {
     42 | Test-Equal | Should -BeTrue
     'foobar' | Test-Equal | Should -BeTrue

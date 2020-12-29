@@ -3,7 +3,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
-Describe 'Write-Repeat' {
+Describe 'Write-Repeat' -Tag 'Local','Remote' {
   It 'can create string of repeated characters and strings' {
     Write-Repeat 'O' | Should -Be 'O'
     Write-Repeat 'O' -Times 0 | Should -Be ''

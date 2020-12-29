@@ -1,6 +1,6 @@
 & (Join-Path $PSScriptRoot '_setup.ps1') 'matrix'
 
-Describe 'Matrix helper functions' {
+Describe 'Matrix helper functions' -Tag 'Local','Remote' {
   It 'can provide wrapper for matrix creation' {
     $A = 1..9 | New-Matrix 3,3
     $A.Size | Should -Be 3,3

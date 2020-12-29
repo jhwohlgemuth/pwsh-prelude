@@ -6,7 +6,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
-Describe 'ConvertTo-AbstractSyntaxTree' {
+Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local','Remote' {
   It 'can convert the content of a file to AST' {
     $Path = Join-Path $TestDrive 'test.ps1'
     New-Item $Path
@@ -22,7 +22,7 @@ Describe 'ConvertTo-AbstractSyntaxTree' {
     $Ast.Extent.Text | Should -Be $Code
   }
 }
-Describe 'ConvertTo-PlainText' {
+Describe 'ConvertTo-PlainText' -Tag 'Local','Remote' {
   It 'can convert secure strings to plain text strings' {
     $Message = 'Powershell is awesome'
     $Secure = $Message | ConvertTo-SecureString -AsPlainText -Force
@@ -30,7 +30,7 @@ Describe 'ConvertTo-PlainText' {
     $Secure | ConvertTo-PlainText | Should -Be $Message
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local','Remote' {
   AfterEach {
     if (Test-Path (Join-Path $TestDrive 'foo')) {
       Remove-Item (Join-Path $TestDrive 'foo')
@@ -71,7 +71,7 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' {
     $Results | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
   }
 }
-Describe 'Find-FirstTrueVariable' {
+Describe 'Find-FirstTrueVariable' -Tag 'Local','Remote' {
   It 'should support default value' {
     $Global:foo = $False
     $Global:bar = $True
@@ -103,7 +103,7 @@ Describe 'Find-FirstTrueVariable' {
     Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
   }
 }
-Describe 'Get-HostsContent / Update-HostsFile' {
+Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local','Remote' {
   It 'can get content of hosts file from path' {
     $Content = Get-HostsContent (Join-Path $PSScriptRoot 'fixtures/hosts')
     $Content.Count | Should -Be 3
@@ -198,7 +198,7 @@ Describe 'Get-HostsContent / Update-HostsFile' {
     Remove-Item $Path
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local','Remote' {
   It 'can passthru text without speaking' {
     $Text = 'this should not be heard'
     Invoke-Speak $Text -Silent | Should -BeNullOrEmpty
@@ -215,7 +215,7 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' {
     Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
   }
 }
-Describe 'Measure-Performance' {
+Describe 'Measure-Performance' -Tag 'Local','Remote' {
   It 'can provide measures of execution performance (ticks or milliseconds)' {
     $Runs = 10
     $Results = { Get-Process } | Measure-Performance -Runs $Runs
@@ -227,7 +227,7 @@ Describe 'Measure-Performance' {
     $Results.Mean | Should -BeGreaterThan $ResultsMilliseconds.Mean
   }
 }
-Describe 'New-File (touch)' {
+Describe 'New-File (touch)' -Tag 'Local','Remote' {
   AfterAll {
     Remove-Item -Path ./SomeFile
   }
@@ -246,7 +246,7 @@ Describe 'New-File (touch)' {
     { New-File 'foo.txt' -WhatIf } | Should -not -Throw
   }
 }
-Describe 'Remove-DirectoryForce (rf)' {
+Describe 'Remove-DirectoryForce (rf)' -Tag 'Local','Remote' {
   It 'can remove a file' {
     New-File SomeFile
     './SomeFile' | Should -Exist
@@ -276,7 +276,7 @@ Describe 'Remove-DirectoryForce (rf)' {
     Remove-Item $Foo
   }
 }
-Describe 'Rename-FileExtension' {
+Describe 'Rename-FileExtension' -Tag 'Local','Remote' {
   It 'can rename file extensions using -TXT switch' {
     $Path = Join-Path $TestDrive 'foo.bar'
     New-Item $Path
@@ -345,7 +345,7 @@ Describe 'Rename-FileExtension' {
     Remove-Item (Join-Path $TestDrive 'foo.bar')
   }
 }
-Describe 'Test-Empty' {
+Describe 'Test-Empty' -Tag 'Local','Remote' {
   It 'should return true for directories with no contents' {
     $Foo = Join-Path $TestDrive 'Foo'
     $Foo | Should -not -Exist
@@ -360,7 +360,7 @@ Describe 'Test-Empty' {
     Remove-Item $Foo -Recurse
   }
 }
-Describe 'Test-Installed' {
+Describe 'Test-Installed' -Tag 'Local','Remote' {
   It 'should return true if passed module is installed' {
     Test-Installed Pester | Should -BeTrue
     Test-Installed NotInstalledModule | Should -BeFalse

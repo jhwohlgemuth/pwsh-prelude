@@ -1,6 +1,6 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'application'
 
-Describe 'Application State' {
+Describe 'Application State' -Tag 'Local','Remote' {
   It 'can save and get state using ID' {
     $Id = 'pester-test'
     $Value = (New-Guid).Guid
@@ -29,7 +29,7 @@ Describe 'Application State' {
     (Test-Path $Path) | Should -BeFalse
   }
 }
-Describe 'ConvertTo-PowershellSyntax' {
+Describe 'ConvertTo-PowershellSyntax' -Tag 'Local','Remote' {
   It 'can act as pass-thru for normal strings' {
     $Expected = 'normal string with not mustache templates'
     $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
@@ -63,7 +63,7 @@ Describe 'ConvertTo-PowershellSyntax' {
     '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
   }
 }
-Describe 'Invoke-RunApplication' {
+Describe 'Invoke-RunApplication' -Tag 'Local','Remote' {
   It 'can pass state to Init/Loop functions and execute Loop one time' {
     $Script:Count = 0
     $Init = {
@@ -146,7 +146,7 @@ Describe 'Invoke-RunApplication' {
     $Script:Count | Should -Be 2
   }
 }
-Describe 'New-ApplicationTemplate' {
+Describe 'New-ApplicationTemplate' -Tag 'Local','Remote' {
   It 'can interpolate values into template string' {
     New-ApplicationTemplate | Should -Match '#Requires -Modules pwsh-prelude'
     New-ApplicationTemplate | Should -Match '\$Init = {'
@@ -155,7 +155,7 @@ Describe 'New-ApplicationTemplate' {
     New-ApplicationTemplate | Should -not -Match '  \$State = {'
   }
 }
-Describe 'New-Template' {
+Describe 'New-Template' -Tag 'Local','Remote' {
   Context 'when passed an empty object' {
     $Script:Expected = '<div>Hello </div>'
     It 'can return function that accepts positional parameter' {
@@ -222,7 +222,7 @@ Describe 'New-Template' {
     render -Data @{ name = 'Jason' } -PassThru | Should -Be '{{#green Hello}} {{ name }}'
   }
 }
-Describe 'Remove-Indent' {
+Describe 'Remove-Indent' -Tag 'Local','Remote' {
   It 'can handle empty strings' {
     '' | Remove-Indent | Should -BeNullOrEmpty
     '' | Remove-Indent -Size 0 | Should -Be ''

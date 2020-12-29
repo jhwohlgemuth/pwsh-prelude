@@ -7,7 +7,7 @@ $HtmlFileSupported = try {
   $False
 }
 
-Describe 'ConvertFrom-ByteArray' {
+Describe 'ConvertFrom-ByteArray' -Tag 'Local','Remote' {
   it 'can convert an array of bytes to text' {
     $Expected = 'hello world'
     $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Expected)
@@ -20,7 +20,7 @@ Describe 'ConvertFrom-ByteArray' {
     ConvertFrom-ByteArray -Data $Expected | Should -Be $Expected
   }
 }
-Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' {
+Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag 'Local','Remote' {
   It 'can convert HTML strings' {
     $Html = '<html>
       <body>
@@ -55,7 +55,7 @@ Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' {
     $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'keywords'
   }
 }
-Describe 'ConvertFrom-QueryString' {
+Describe 'ConvertFrom-QueryString' -Tag 'Local','Remote' {
   It 'can parse single-value inputs as strings' {
     $Expected = 'hello world'
     $Expected | ConvertFrom-QueryString | Should -Be $Expected
@@ -78,7 +78,7 @@ Describe 'ConvertFrom-QueryString' {
     $Result.Values | Sort-Object | Should -Be '1','2','last'
   }
 }
-Describe 'ConvertTo-Iso8601' {
+Describe 'ConvertTo-Iso8601' -Tag 'Local','Remote' {
   It 'can convert values to ISO-8601 format' {
     $Expected = '2020-07-04T00:00:00.000Z'
     'July 4, 2020' | ConvertTo-Iso8601 | Should -Be $Expected
@@ -87,7 +87,7 @@ Describe 'ConvertTo-Iso8601' {
     '2020-07-04' | ConvertTo-Iso8601 | Should -Be $Expected
   }
 }
-Describe 'ConvertTo-QueryString' {
+Describe 'ConvertTo-QueryString' -Tag 'Local','Remote' {
   It 'can handle empty objects' {
     @{} | ConvertTo-QueryString | Should -Be ''
     @{} | ConvertTo-QueryString -UrlEncode | Should -Be ''
@@ -106,7 +106,7 @@ Describe 'ConvertTo-QueryString' {
     @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
   }
 }
-Describe 'Invoke-WebRequestBasicAuth' {
+Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local','Remote' {
   It 'can make a simple request' {
     Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
     $Token = 'token'

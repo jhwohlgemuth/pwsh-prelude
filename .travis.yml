@@ -11,7 +11,7 @@ matrix:
         - powershell -Command 'Import-Module -Name Pester'
         - powershell -Command 'Import-Module -Name BuildHelpers'
       script:
-        - powershell -File ./build.ps1 -Test -CI -Exclude 'Intense','LinuxOnly'
+        - powershell -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'LinuxOnly'
         - bash <(curl -s https://codecov.io/bash) -f coverage.xml
     - os: linux
       dist: trusty
@@ -30,4 +30,4 @@ matrix:
         - pwsh -Command 'Import-Module -Name Pester'
         - pwsh -Command 'Import-Module -Name BuildHelpers'
       script:
-        - pwsh -File ./build.ps1 -Test -CI -Exclude 'Intense','WindowsOnly'
+        - pwsh -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'WindowsOnly'

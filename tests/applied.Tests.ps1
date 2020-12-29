@@ -1,6 +1,6 @@
 & (Join-Path $PSScriptRoot '_setup.ps1') 'applied'
 
-Describe 'ConvertTo-Degree' {
+Describe 'ConvertTo-Degree' -Tag 'Local','Remote' {
   It 'can convert radian values to degrees' {
     $PI = [Math]::Pi
     0 | ConvertTo-Degree | Should -Be 0
@@ -9,7 +9,7 @@ Describe 'ConvertTo-Degree' {
     0,(2 * $PI),(4 * $PI) | ConvertTo-Degree | Should -Be 0,0,0
   }
 }
-Describe 'ConvertTo-Radian' {
+Describe 'ConvertTo-Radian' -Tag 'Local','Remote' {
   It 'can convert degree values to radians' {
     $PI = [Math]::Pi
     0 | ConvertTo-Radian | Should -Be 0
@@ -19,7 +19,7 @@ Describe 'ConvertTo-Radian' {
     0,360,720 | ConvertTo-Radian | Should -Be 0,0,0
   }
 }
-Describe 'Get-EarthRadius' {
+Describe 'Get-EarthRadius' -Tag 'Local','Remote' {
   It 'can return earth radius for a given latitude' {
     $SemiMajorAxis = [Datum]::SemiMajorAxis
     $SemiMinorAxis = [Datum]::SemiMinorAxis
@@ -31,7 +31,7 @@ Describe 'Get-EarthRadius' {
     90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
   }
 }
-Describe 'Get-Extremum' {
+Describe 'Get-Extremum' -Tag 'Local','Remote' {
   It 'can return maximum value from array of numbers' {
     $Max = 5
     $Values = 1,2,2,1,$Max,2,3
@@ -61,7 +61,7 @@ Describe 'Get-Extremum' {
     0,-1,4,2,7,2,0 | Get-Minimum | Should -Be -1
   }
 }
-Describe 'Get-Factorial' {
+Describe 'Get-Factorial' -Tag 'Local','Remote' {
   It 'can calculate n!' {
     0 | Get-Factorial | Should -Be 1
     1 | Get-Factorial | Should -Be 1
@@ -79,14 +79,14 @@ Describe 'Get-Factorial' {
     $Result.GetType().Name | Should -Be 'BigInteger'
   }
 }
-Describe 'Get-Haversine/ArcHaversine' {
+Describe 'Get-Haversine/ArcHaversine' -Tag 'Local','Remote' {
   It 'should return a value in the range [0..1]' {
     42,50,77 | Get-Haversine | ForEach-Object { [Math]::Round($_, 5) } | Should -Be 0.12843,0.17861,0.38752
     0.12843,0.17861,0.38752 | Get-ArcHaversine | ForEach-Object { [Math]::Round($_) } | Should -Be 42,50,77
     42,50,77 | Get-Haversine | Get-ArcHaversine | Should -Be 42,50,77
   }
 }
-Describe 'Get-HaversineDistance' {
+Describe 'Get-HaversineDistance' -Tag 'Local','Remote' {
   It 'can calculate the distance between two points on the earth' {
     Get-HaversineDistance -From @{} -To @{} | Should -Be 0
     $Omaha = @{ Latitude = 41.25; Longitude = -96 }
@@ -95,7 +95,7 @@ Describe 'Get-HaversineDistance' {
     [Math]::Round(($Omaha | Get-HaversineDistance -To $SanDiego), 4) | Should -Be 2097705.7401
   }
 }
-Describe 'Get-LogisticSigmoid' {
+Describe 'Get-LogisticSigmoid' -Tag 'Local','Remote' {
   It 'can return values along the logistic sigmoid curve' {
     0 | Get-LogisticSigmoid | Should -Be 0.5
     [Double]::NegativeInfinity | Get-LogisticSigmoid | Should -Be 0
@@ -107,7 +107,7 @@ Describe 'Get-LogisticSigmoid' {
     $Left | Should -Be $Right -Because 'it is a symmetry property of the logistic function'
   }
 }
-Describe 'Get-Mean/Median' {
+Describe 'Get-Mean/Median' -Tag 'Local','Remote' {
   It 'can calculate mean (average) for discrete uniform random variable' {
     1..10 | Get-Mean | Should -Be 5.5
     Get-Mean -Data (1..10) | Should -Be 5.5
@@ -133,7 +133,7 @@ Describe 'Get-Mean/Median' {
     Get-Median -Data (1..10) | Should -Be 5.5
   }
 }
-Describe 'Get-Permutation' {
+Describe 'Get-Permutation' -Tag 'Local','Remote' {
   It 'can return permutations for a given group of items' {
     Get-Permutation 'ab' | Should -Be @('a','b'),@('b','a')
     Get-Permutation 'abc' | Should -Be @('a','b','c'),@('a','c','b'),@('c','a','b'),@('c','b','a'),@('b','c','a'),@('b','a','c')
@@ -185,7 +185,7 @@ Describe 'Get-Permutation' {
     'hello' | Get-Permutation -Choose 3 -Unique -Words | Should -Be 'hel','hel','heo','hll','hlo','hlo','ell','elo','elo','llo'
   }
 }
-Describe 'Get-Sum' {
+Describe 'Get-Sum' -Tag 'Local','Remote' {
   It 'can return the sum of a list of numbers' {
     1..5 | Get-Sum | Should -Be 15
     1,1,1,1,1 | Get-Sum | Should -Be 5
@@ -197,7 +197,7 @@ Describe 'Get-Sum' {
     Get-Sum -Values 1,1,1,1,1 -Weight 1,2,3,4,5 | Should -Be 15
   }
 }
-Describe 'Get-Variance / Get-Covariance' {
+Describe 'Get-Variance / Get-Covariance' -Tag 'Local','Remote' {
   It 'can return variance for discrete uniform random variable' {
     $X = 1..10
     $Biased = $X | Get-Variance
