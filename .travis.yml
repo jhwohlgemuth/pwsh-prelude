@@ -4,7 +4,7 @@ matrix:
   include:
     - os: windows
       before_script:
-        - powershell -Command 'Sete-ExecutionPolicy Unrestricted'
+        - powershell -Command 'Set-ExecutionPolicy Unrestricted'
         - powershell -File ./Invoke-Setup.ps1
       script:
         - powershell -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'LinuxOnly'
