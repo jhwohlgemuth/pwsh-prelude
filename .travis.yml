@@ -3,9 +3,8 @@ matrix:
   fast_finish: true
   include:
     - os: windows
-      before_script:
-        - powershell -File ./Invoke-Setup.ps1
       script:
+        - powershell -File ./Invoke-Setup.ps1
         - powershell -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'LinuxOnly'
         - bash <(curl -s https://codecov.io/bash) -f coverage.xml
     - os: linux
