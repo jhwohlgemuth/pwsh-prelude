@@ -88,7 +88,7 @@ Project Standards
   - Use two-spaces for indentation
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
-  - Types should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...)
+  - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...). Also, use `[PSObject]` instead of `[PSCustomObject]`.
   - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...)
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
   - Do not use aliases (they will be replaced by `./build.ps1 -Lint` anyways)
@@ -131,7 +131,7 @@ Project Standards
       '==> Would have executed code code code' | Write-Color -DarkGray
     }
     ```
-  - When in doubt, write code that is consistent with preponderance of existing codebase. Let's call this the "priority of pre-existing preponderance rule".
+  - When in doubt, write code that is consistent with preponderance of existing codebase. Let's call this the "***priority of pre-existing preponderance rule***".
 
 Footnotes
 ---------
