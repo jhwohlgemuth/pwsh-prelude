@@ -278,7 +278,7 @@ Describe -Skip 'Invoke-Normalize' {
     'Resumé' | Invoke-Normalize | Should -BeExactly 'Resume'
   }
 }
-Describe 'Measure-Readability' {
+Describe -Skip 'Measure-Readability' {
   It 'can measure the readability of given text using various methods' {
     $Verbose = $False
     'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
