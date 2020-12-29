@@ -4,12 +4,7 @@ matrix:
   include:
     - os: windows
       before_script:
-        - powershell -Command 'Set-ExecutionPolicy Unrestricted'
-        - powershell -Command 'Import-Module -Name PowerShellGet'
-        - powershell -Command 'Install-Module -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4 -Scope CurrentUser -Force'
-        - powershell -Command 'Install-Module -Name BuildHelpers -Scope CurrentUser -Force'
-        - powershell -Command 'Import-Module -Name Pester'
-        - powershell -Command 'Import-Module -Name BuildHelpers'
+        - powershell -File ./Invoke-Setup.ps1
       script:
         - powershell -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'LinuxOnly'
         - bash <(curl -s https://codecov.io/bash) -f coverage.xml
@@ -24,10 +19,6 @@ matrix:
           packages:
             - powershell
       before_script:
-        - pwsh -Command 'Import-Module -Name PowerShellGet'
-        - pwsh -Command 'Install-Module -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4 -Scope CurrentUser -Force'
-        - pwsh -Command 'Install-Module -Name BuildHelpers -Scope CurrentUser -Force'
-        - pwsh -Command 'Import-Module -Name Pester'
-        - pwsh -Command 'Import-Module -Name BuildHelpers'
+        - pwsh -File ./Invoke-Setup.ps1
       script:
         - pwsh -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'WindowsOnly'

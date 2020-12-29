@@ -1,7 +1,11 @@
-﻿#Requires -Modules BuildHelpers,pester
+﻿#Requires -Modules PowerShellGet,BuildHelpers,pester
 <#
 .SYNOPSIS
 Build tasks
+.PARAMETER Lint
+Run static analysis on source code with PSScriptAnalyzer. -Lint can be used with -Test
+.PARAMETER Test
+Run PowerShell unit tests. -Test can be used with -Lint
 .PARAMETER Filter
 Only run tests (Describe or It) that match filter string (-like wildcards allowed)
 .PARAMETER Tags
