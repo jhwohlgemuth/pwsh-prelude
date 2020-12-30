@@ -88,7 +88,7 @@ Project Standards
   - Use two-spaces for indentation
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
-  - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...). Also, use `[PSObject]` instead of `[PSCustomObject]`.
+  - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...).
   - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...)
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
   - Do not use aliases (they will be replaced by `./build.ps1 -Lint` anyways)
