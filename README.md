@@ -128,106 +128,110 @@ Functions
 ---------
 > Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
 
-- `ConvertFrom-ByteArray`
-- `ConvertFrom-Html`
-- `ConvertFrom-Pair`
-- `ConvertFrom-QueryString`
-- `ConvertTo-AbstractSyntaxTree`
-- `ConvertTo-Degree`
-- `ConvertTo-PowershellSyntax`
-- `ConvertTo-Iso8601`
-- `ConvertTo-Pair`
-- `ConvertTo-PlainText`
-- `ConvertTo-QueryString`
-- `ConvertTo-Radian`
-- `Deny-Empty`
-- `Deny-Null`
-- `Enable-Remoting`
-- `Find-Duplicate`
-- `Find-FirstIndex`
-- `Format-MoneyValue`
-- `Get-ArcHaversine`
-- `Get-Covariance`
-- `Get-EarthRadius`
-- `Get-Extremum`
-- `Get-Factorial`
-- `Get-File`
-- `Get-GithubOAuthToken`
-- `Get-Haversine`
-- `Get-HaversineDistance`
-- `Get-HostsContent`
-- `Get-LogisticSigmoid`
-- `Get-Maximum`
-- `Get-Minimum`
-- `Get-Permutation`
-- `Get-Plural`
-- `Get-Property`
-- `Get-Screenshot`
-- `Get-Singular`
-- `Get-State`
-- `Get-SyllableCount`
-- `Get-Variance`
-- `Import-Excel`
-- `Import-Html` <sup>[[3]](#footnotes)</sup>
-- `Import-Raw`
-- `Install-SshServer` <sup>[[3]](#footnotes)</sup>
-- `Invoke-Chunk`
-- `Invoke-DropWhile`
-- `Invoke-Flatten`
-- `Invoke-FireEvent`
-- `Invoke-Input`
-- `Invoke-InsertString`
-- `Invoke-ListenTo`
-- `Invoke-ListenForWord` <sup>[[3]](#footnotes)</sup>
-- `Invoke-Menu`
-- `Invoke-Method`
-- `Invoke-Normalize`
-- `Invoke-ObjectInvert`
-- `Invoke-ObjectMerge`
-- `Invoke-Once`
-- `Invoke-Operator`
-- `Invoke-Partition`
-- `Invoke-Pick`
-- `Invoke-PropertyTransform`
-- `Invoke-Reduce`
-- `Invoke-RemoteCommand`
-- `Invoke-RunApplication`
-- `Invoke-Speak` <sup>[[3]](#footnotes)</sup>
-- `Invoke-TakeWhile`
-- `Invoke-Tap`
-- `Invoke-Unzip`
-- `Invoke-WebRequestBasicAuth`
-- `Invoke-Zip`
-- `Invoke-ZipWith`
-- `Join-StringsWithGrammar`
-- `Measure-Performance`
-- `Measure-Readability`
-- `New-ApplicationTemplate`
-- `New-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
-- `New-File`
-- `New-ProxyCommand`
-- `New-SshKey`
-- `New-Template`
-- `Open-Session`
-- `Remove-Character`
-- `Remove-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
-- `Remove-DirectoryForce`
-- `Remove-Indent`
-- `Rename-FileExtension`
-- `Save-State`
-- `Take`
-- `Test-Admin`
-- `Test-Empty`
-- `Test-Equal`
-- `Test-Installed`
-- `Update-HostsFile`
-- `Use-Grammar` <sup>[[3]](#footnotes)</sup>
-- `Use-Speech` <sup>[[3]](#footnotes)</sup>
-- `Use-Web` <sup>[[3]](#footnotes)</sup>
-- `Write-BarChart`
-- `Write-Color`
-- `Write-Label`
-- `Write-Title`
+<details>
+  <summary>list of functions</summary>
+  - `ConvertFrom-ByteArray`
+  - `ConvertFrom-Html`
+  - `ConvertFrom-Pair`
+  - `ConvertFrom-QueryString`
+  - `ConvertTo-AbstractSyntaxTree`
+  - `ConvertTo-Degree`
+  - `ConvertTo-PowershellSyntax`
+  - `ConvertTo-Iso8601`
+  - `ConvertTo-Pair`
+  - `ConvertTo-PlainText`
+  - `ConvertTo-QueryString`
+  - `ConvertTo-Radian`
+  - `Deny-Empty`
+  - `Deny-Null`
+  - `Enable-Remoting`
+  - `Find-Duplicate`
+  - `Find-FirstIndex`
+  - `Format-MoneyValue`
+  - `Get-ArcHaversine`
+  - `Get-Covariance`
+  - `Get-EarthRadius`
+  - `Get-Extremum`
+  - `Get-Factorial`
+  - `Get-File`
+  - `Get-GithubOAuthToken`
+  - `Get-Haversine`
+  - `Get-HaversineDistance`
+  - `Get-HostsContent`
+  - `Get-LogisticSigmoid`
+  - `Get-Maximum`
+  - `Get-Minimum`
+  - `Get-Permutation`
+  - `Get-Plural`
+  - `Get-Property`
+  - `Get-Screenshot`
+  - `Get-Singular`
+  - `Get-State`
+  - `Get-SyllableCount`
+  - `Get-Variance`
+  - `Import-Excel`
+  - `Import-Html` <sup>[[3]](#footnotes)</sup>
+  - `Import-Raw`
+  - `Install-SshServer` <sup>[[3]](#footnotes)</sup>
+  - `Invoke-Chunk`
+  - `Invoke-DropWhile`
+  - `Invoke-Flatten`
+  - `Invoke-FireEvent`
+  - `Invoke-Input`
+  - `Invoke-InsertString`
+  - `Invoke-ListenTo`
+  - `Invoke-ListenForWord` <sup>[[3]](#footnotes)</sup>
+  - `Invoke-Menu`
+  - `Invoke-Method`
+  - `Invoke-Normalize`
+  - `Invoke-ObjectInvert`
+  - `Invoke-ObjectMerge`
+  - `Invoke-Once`
+  - `Invoke-Operator`
+  - `Invoke-Partition`
+  - `Invoke-Pick`
+  - `Invoke-PropertyTransform`
+  - `Invoke-Reduce`
+  - `Invoke-RemoteCommand`
+  - `Invoke-RunApplication`
+  - `Invoke-Speak` <sup>[[3]](#footnotes)</sup>
+  - `Invoke-TakeWhile`
+  - `Invoke-Tap`
+  - `Invoke-Unzip`
+  - `Invoke-WebRequestBasicAuth`
+  - `Invoke-Zip`
+  - `Invoke-ZipWith`
+  - `Join-StringsWithGrammar`
+  - `Measure-Performance`
+  - `Measure-Readability`
+  - `New-ApplicationTemplate`
+  - `New-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
+  - `New-File`
+  - `New-ProxyCommand`
+  - `New-SshKey`
+  - `New-Template`
+  - `Open-Session`
+  - `Remove-Character`
+  - `Remove-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
+  - `Remove-DirectoryForce`
+  - `Remove-Indent`
+  - `Rename-FileExtension`
+  - `Save-State`
+  - `Take`
+  - `Test-Admin`
+  - `Test-Empty`
+  - `Test-Equal`
+  - `Test-Installed`
+  - `Update-HostsFile`
+  - `Use-Grammar` <sup>[[3]](#footnotes)</sup>
+  - `Use-Speech` <sup>[[3]](#footnotes)</sup>
+  - `Use-Web` <sup>[[3]](#footnotes)</sup>
+  - `Write-BarChart`
+  - `Write-Color`
+  - `Write-Label`
+  - `Write-Title`
+  
+</details>
 
 Aliases
 -------
