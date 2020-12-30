@@ -250,6 +250,13 @@ Type Accelerators
   # -501980.225469305,-4776022.81392779,4183337.21339675
   ```
   > **Note:** Full class name is `Prelude.Geodetic.Coordinate`
+- `[Datum]`
+  > Namespace for geodetic constants
+  ```PowerShell
+  [Datum]::Radius | Write-Color -Cyan
+  # output 6371001
+  ```
+  > **Note:** Full class name is `Prelude.Geodetic.Datum`
 - `[Matrix]`
   > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#footnotes)</sup>
   ```PowerShell
