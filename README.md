@@ -130,6 +130,7 @@ Functions
 
 <details>
   <summary>list of functions</summary>
+  
   - `ConvertFrom-ByteArray`
   - `ConvertFrom-Html`
   - `ConvertFrom-Pair`
