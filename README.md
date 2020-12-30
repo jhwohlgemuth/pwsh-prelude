@@ -57,7 +57,7 @@ $Sum = 1..100 | reduce -Add
 ```Powershell
 { whoami } | irc -ComputerNames PCNAME
 ```
-- Make your computer talk
+- Make your computer talk <sup>[[3]](#footnotes)</sup>
 ```Powershell
 say 'Hello World'
 ```
@@ -311,6 +311,10 @@ $Add = { Param($a,$b) $a + $b }
 
 ```
 > For the full list of functions, read through the `ps1xml` files in [`./types`](./types)
+
+Contributing
+------------
+Have an idea? Want to help implement a fix? Check out the [contributing guide](./.github/CONTRIBUTING.md).
 
 Credits
 -------
