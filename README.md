@@ -1,11 +1,10 @@
 Powershell Prelude <sup>[[1]](#footnotes)</sup>
 ==================
-[![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge)](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
-[![buddy pipeline](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "buddy pipeline")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)
-[![Build Status](https://travis-ci.org/jhwohlgemuth/pwsh-prelude.svg?branch=master)](https://travis-ci.org/jhwohlgemuth/pwsh-prelude)
-[![codecov](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/branch/master/graph/badge.svg?token=3NMKOGN0Q8)](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
-[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude)](https://www.powershellgallery.com/packages/pwsh-prelude)
-[![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg)](#quick-start)
+[![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
+[![Travis Build Status](https://img.shields.io/travis/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&logo=travis "Travis CI Build")](https://travis-ci.org/jhwohlgemuth/pwsh-prelude)
+[![Code Coverage](https://img.shields.io/codecov/c/github/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&token=3NMKOGN0Q8&logo=codecov "Codecov Code Coverage")](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude?label=version&style=for-the-badge&logo=powershell "PowerShell Gallery Version")](https://www.powershellgallery.com/packages/pwsh-prelude)
+[![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
 PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#footnotes)</sup> the typical use cases.
