@@ -1,7 +1,7 @@
 Powershell Prelude <sup>[[1]](#footnotes)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
-[![Travis Build Status](https://img.shields.io/travis/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&logo=travis "Travis CI Build")](https://travis-ci.org/jhwohlgemuth/pwsh-prelude)
+[![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/pwsh-prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude)
 [![Code Coverage](https://img.shields.io/codecov/c/github/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&token=3NMKOGN0Q8&logo=codecov "Codecov Code Coverage")](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude?label=version&style=for-the-badge&logo=powershell "PowerShell Gallery Version")](https://www.powershellgallery.com/packages/pwsh-prelude)
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
