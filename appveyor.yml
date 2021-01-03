@@ -3,6 +3,7 @@ image: Visual Studio 2019
 build_script:
 - ps: >-
     ./Invoke-Setup.ps1
+    
     ./build.ps1 -Lint
 test_script:
 - ps: ./build.ps1 -Test -Tags 'Remote' -Exclude 'LinuxOnly'
