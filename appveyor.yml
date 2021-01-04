@@ -1,14 +1,11 @@
 version: 1.0.{build}
 image: Visual Studio 2019
+install:
+  - ps: ./Invoke-Setup.ps1
+  - ps: dotnet tool install --global Codecov.Tool
 build_script:
-- ps: >-
-    ./Invoke-Setup.ps1
-    
-    ./build.ps1 -Lint -CI
+  - ps: ./build.ps1 -Lint -CI
 test_script:
-- ps: >-
-    ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
-
-    Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
-
-    bash codecov.sh -f "coverage.xml" -t $Env:CODECOV_TOKEN
+  - ps: ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
+after_test:
+  - ps: codecov -f "./coverage.xml" -t $Env:CODECOV_TOKEN
