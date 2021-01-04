@@ -7,4 +7,4 @@ build_script:
     ./build.ps1 -Lint -CI
 test_script:
 - ps: >-
-    ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly'
+    ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
