@@ -6,7 +6,6 @@ install:
 build_script:
   - ps: ./build.ps1 -Lint -CI
 test_script:
-  - ps: cd ./src/cs; dotnet test
   - ps: ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
 after_test:
-  - ps: codecov -f "./coverage.xml" -t $Env:CODECOV_TOKEN
+  - ps: codecov -f "**/*/coverage.xml" -t $Env:CODECOV_TOKEN
