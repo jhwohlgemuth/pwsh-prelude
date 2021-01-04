@@ -82,7 +82,14 @@ Project Standards
 =================
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
 - Running `./build.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
-- Running `./build.ps1 -Test -Tag 'Local' -Exclude 'LinuxOnly'` should have no failures (local and [remote](https://travis-ci.com/github/jhwohlgemuth/pwsh-prelude))
+- Tests should have no failures when run locally
+  > **Windows:** `./build.ps1 -Test -Tag 'Local' -Exclude 'LinuxOnly'`
+  
+  > **Linux:** `./build.ps1 -Test -Tag 'Local' -Exclude 'WindowsOnly'`
+- Tests should have no failures when run remotely
+  - [![buddy pipeline](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "Linux")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)
+  - [![Build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master)
+  - [![Travis (.org)](https://img.shields.io/travis/jhwohlgemuth/pwsh-prelude?logo=travis "Windows")](https://travis-ci.org/github/jhwohlgemuth/pwsh-prelude)
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
 - Beyond the rules identified by `./build.ps1 -Lint` <sup>[[2]](#footnotes)</sup>, all code additions should adhere to the following:
   - Use two-spaces for indentation
