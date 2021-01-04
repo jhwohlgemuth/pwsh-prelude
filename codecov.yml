@@ -1,7 +1,7 @@
 codecov:
   require_ci_to_pass: yes
   ci:
-    - "appveyor"
+    - appveyor
 
 coverage:
   precision: 2
