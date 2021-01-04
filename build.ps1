@@ -32,6 +32,7 @@ Param(
   [Switch] $Test,
   [Parameter(ParameterSetName='build')]
   [Parameter(ParameterSetName='test')]
+  [Parameter(ParameterSetName='customtest')]
   [Switch] $WithCoverage,
   [Parameter(ParameterSetName='build')]
   [Parameter(ParameterSetName='test')]
