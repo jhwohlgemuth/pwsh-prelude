@@ -8,3 +8,7 @@ build_script:
 test_script:
 - ps: >-
     ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
+
+    Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
+
+    bash codecov.sh -f "coverage.xml" -t $Env:CODECOV_TOKEN
