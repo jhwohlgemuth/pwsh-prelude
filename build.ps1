@@ -18,43 +18,25 @@ Exclude running tests (Describe or It) with certain tags
 .EXAMPLE
 .\build.ps1 -Test -Filter '*Readability*' -Tags 'WindowsOnly'
 
+.EXAMPLE
+.\build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
+
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
-[CmdletBinding(DefaultParameterSetName='build')]
+[CmdletBinding()]
 Param(
-  [Parameter(ParameterSetName='build')]
-  [Parameter(ParameterSetName='lint')]
   [Switch] $Lint,
-  [Parameter(ParameterSetName='build')]
-  [Parameter(ParameterSetName='test')]
-  [Parameter(ParameterSetName='customtest')]
   [Switch] $Test,
-  [Parameter(ParameterSetName='build')]
-  [Parameter(ParameterSetName='test')]
-  [Parameter(ParameterSetName='customtest')]
   [Switch] $WithCoverage,
-  [Parameter(ParameterSetName='build')]
-  [Parameter(ParameterSetName='test')]
   [Switch] $ShowCoverageReport,
-  [Parameter(ParameterSetName='build')]
-  [Parameter(ParameterSetName='test')]
-  [Parameter(ParameterSetName='customtest')]
   [Switch] $CI,
-  [Parameter(ParameterSetName='build')]
-  [Parameter(ParameterSetName='test')]
   [Switch] $SkipChecks,
-  [Parameter(ParameterSetName='customtest')]
   [String] $Filter,
-  [Parameter(ParameterSetName='customtest')]
   [String[]] $Tags,
-  [Parameter(ParameterSetName='customtest')]
   [String] $Exclude = '',
-  [Parameter(ParameterSetName='build')]
   [Switch] $DryRun,
-  [Parameter(ParameterSetName='build')]
   [Switch] $Major,
-  [Parameter(ParameterSetName='build')]
   [Switch] $Minor
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
@@ -78,12 +60,6 @@ function Invoke-Lint {
 function Invoke-Test {
   [CmdletBinding()]
   Param()
-  if ($CI) {
-    Set-BuildEnvironment -VariableNamePrefix '' -Force
-    "==> Executing tests on $Env:BuildSystem" | Write-Output
-  } else {
-    '==> Executing tests' | Write-Output
-  }
   $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
   $Configuration = [PesterConfiguration]@{
     Run = @{
@@ -110,6 +86,12 @@ function Invoke-Test {
     $Configuration.TestResult = @{
       Enabled = $False
     }
+  }
+  if ($CI) {
+    Set-BuildEnvironment -VariableNamePrefix '' -Force
+    "==> Executing tests on $Env:BuildSystem" | Write-Output
+  } else {
+    '==> Executing tests' | Write-Output
   }
   $Result = Invoke-Pester -Configuration $Configuration
   if ($Result.FailedCount -gt 0) {

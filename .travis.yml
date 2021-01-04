@@ -7,5 +7,4 @@ matrix:
         - powershell -Command 'Set-ExecutionPolicy Unrestricted'
         - powershell -File ./Invoke-Setup.ps1
       script:
-        - powershell -File ./build.ps1 -Test -CI -Tags 'Remote' -Exclude 'LinuxOnly'
-        - bash <(curl -s https://codecov.io/bash) -f coverage.xml
+        - powershell -File ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly'
