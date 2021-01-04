@@ -8,5 +8,3 @@ build_script:
 test_script:
 - ps: >-
     ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
-
-    bash <(curl -s https://codecov.io/bash) -f coverage.xml
