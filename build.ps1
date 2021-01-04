@@ -77,60 +77,37 @@ function Invoke-Lint {
 function Invoke-Test {
   [CmdletBinding()]
   Param()
-  $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
-  if ($WithCoverage) {
-    '==> Executing tests with coverage' | Write-Output
-    $Configuration = [PesterConfiguration]@{
-      Run = @{
-        PassThru = $True
-      }
-      CodeCoverage = @{
-        Enabled = $True
-        Path = $Files
-      }
-    }
-  } elseif ($CI) {
+  if ($CI) {
     Set-BuildEnvironment -VariableNamePrefix '' -Force
     "==> Executing tests on $Env:BuildSystem" | Write-Output
-    $Configuration = [PesterConfiguration]@{
-      Run = @{
-        Exit = $False
-        PassThru = $True
-      }
-      Filter = @{
-        ExcludeTag = $Exclude
-      }
-      CodeCoverage = @{
-        Enabled = $True
-        Path = $Files
-      }
-      TestResult = @{
-        Enabled = $True
-      }
-    }
-    if ($Filter) {
-      $Configuration.Filter.FullName = $Filter
-    } elseif ($Tags) {
-      $Configuration.Filter.Tag = $Tags
-    }
   } else {
     '==> Executing tests' | Write-Output
-    $Configuration = [PesterConfiguration]@{
-      Run = @{
-        PassThru = $True
-      }
-      Filter = @{
-        ExcludeTag = $Exclude
-      }
-      Debug = @{
-        ShowNavigationMarkers = $True
-        WriteVSCodeMarker = $True
-      }
+  }
+  $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
+  $Configuration = [PesterConfiguration]@{
+    Run = @{
+      PassThru = $True
     }
-    if ($Filter) {
-      $Configuration.Filter.FullName = $Filter
-    } elseif ($Tags) {
-      $Configuration.Filter.Tag = $Tags
+    Filter = @{
+      ExcludeTag = $Exclude
+    }
+    Debug = @{
+      ShowNavigationMarkers = $True
+      WriteVSCodeMarker = $True
+    }
+  }
+  if ($Filter) {
+    $Configuration.Filter.FullName = $Filter
+  } elseif ($Tags) {
+    $Configuration.Filter.Tag = $Tags
+  }
+  if ($WithCoverage) {
+    $Configuration.CodeCoverage = @{
+      Enabled = $True
+      Path = $Files
+    }
+    $Configuration.TestResult = @{
+      Enabled = $False
     }
   }
   $Result = Invoke-Pester -Configuration $Configuration

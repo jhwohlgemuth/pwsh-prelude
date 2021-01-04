@@ -4,6 +4,7 @@ build_script:
 - ps: >-
     ./Invoke-Setup.ps1
     
-    ./build.ps1 -Lint
+    ./build.ps1 -Lint -CI
 test_script:
-- ps: ./build.ps1 -Test -Tags 'Remote' -Exclude 'LinuxOnly'
+- ps: >-
+    ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly'
