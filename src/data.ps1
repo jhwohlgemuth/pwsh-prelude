@@ -143,7 +143,7 @@ function Format-MoneyValue {
   [Alias('money')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     $Value,
     [String] $Symbol = '$',
     [Switch] $AsNumber,
@@ -231,29 +231,29 @@ function Get-Plural {
   [Alias('plural')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Word
   )
   Begin {
     $Plural = @(
-      ('(quiz)$','${1}zes')
-      ('^(ox)$','${1}en')
-      ('([m|l])ouse$','${1}ice')
-      ('(matr|ind|vert)[i|e]x$','${1}ices')
-      ('(x|ch|ss|sh)$','${1}es')
-      ('([^aeiouy]|qu)y$','${1}ies')
-      ('(hive)$','${1}s')
-      ('(?:([^f])fe|([lr])f)$','${1}${2}ves')
-      ('(shea|lea|loa|thie)f$','${1}ves')
-      ('sis$','ses')
-      ('([ti])um$','${1}a')
-      ('(tomat|potat|ech|her|vet)o$','${1}oes')
-      ('(bu)s$','${1}ses')
-      ('(alias)$','${1}es')
-      ('(octop)us$','${1}i')
-      ('(ax|test)is$','${1}es')
-      ('(us)$','${1}es')
-      ('s$','s')
+      ('(quiz)$', '${1}zes')
+      ('^(ox)$', '${1}en')
+      ('([m|l])ouse$', '${1}ice')
+      ('(matr|ind|vert)[i|e]x$', '${1}ices')
+      ('(x|ch|ss|sh)$', '${1}es')
+      ('([^aeiouy]|qu)y$', '${1}ies')
+      ('(hive)$', '${1}s')
+      ('(?:([^f])fe|([lr])f)$', '${1}${2}ves')
+      ('(shea|lea|loa|thie)f$', '${1}ves')
+      ('sis$', 'ses')
+      ('([ti])um$', '${1}a')
+      ('(tomat|potat|ech|her|vet)o$', '${1}oes')
+      ('(bu)s$', '${1}ses')
+      ('(alias)$', '${1}es')
+      ('(octop)us$', '${1}i')
+      ('(ax|test)is$', '${1}es')
+      ('(us)$', '${1}es')
+      ('s$', 's')
     )
   }
   Process {
@@ -274,9 +274,9 @@ function Get-Plural {
         $Result = "${Word}s"
         $Pairs = Invoke-Chunk $Plural -Size 2
         foreach ($Pair in $Pairs) {
-          [Regex]$Re,$PluralVersion = $Pair
+          [Regex]$Re, $PluralVersion = $Pair
           if ($Word -match $Re) {
-            $Result = $Word -replace $Re,$PluralVersion
+            $Result = $Word -replace $Re, $PluralVersion
             Break
           }
         }
@@ -299,39 +299,39 @@ function Get-Singular {
   [Alias('singular')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Word
   )
   Begin {
     $Singular = @(
-      ('(quiz)zes$','${1}')
-      ('(matr)ices$','${1}ix')
-      ('(vert|ind)ices$','${1}ex')
-      ('^(ox)en$','${1}')
-      ('(alias)es$','${1}')
-      ('(octop|vir)i$','${1}us')
-      ('(cris|ax|test)es$','${1}is')
-      ('(shoe)s$','${1}')
-      ('(o)es$','${1}')
-      ('(bus)es$','${1}')
-      ('([m|l])ice$','${1}ouse')
-      ('(x|ch|ss|sh)es$','${1}')
-      ('(m)ovies$','${1}ovie')
-      ('(s)eries$','${1}eries')
-      ('([^aeiouy]|qu)ies$','${1}y')
-      ('([lr])ves$','${1}f')
-      ('(tive)s$','${1}')
-      ('(hive)s$','${1}')
-      ('(li|wi|kni)ves$','${1}fe')
-      ('(shea|loa|lea|thie)ves$','${1}f')
-      ('(^analy)ses$','${1}sis')
-      ('((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$','${1}${2}sis')
-      ('([ti])a$','${1}um')
-      ('(n)ews$','${1}ews')
-      ('(h|bl)ouses$','${1}ouse')
-      ('(corpse)s$','${1}')
-      ('(us)es$','${1}')
-      ('s$','')
+      ('(quiz)zes$', '${1}')
+      ('(matr)ices$', '${1}ix')
+      ('(vert|ind)ices$', '${1}ex')
+      ('^(ox)en$', '${1}')
+      ('(alias)es$', '${1}')
+      ('(octop|vir)i$', '${1}us')
+      ('(cris|ax|test)es$', '${1}is')
+      ('(shoe)s$', '${1}')
+      ('(o)es$', '${1}')
+      ('(bus)es$', '${1}')
+      ('([m|l])ice$', '${1}ouse')
+      ('(x|ch|ss|sh)es$', '${1}')
+      ('(m)ovies$', '${1}ovie')
+      ('(s)eries$', '${1}eries')
+      ('([^aeiouy]|qu)ies$', '${1}y')
+      ('([lr])ves$', '${1}f')
+      ('(tive)s$', '${1}')
+      ('(hive)s$', '${1}')
+      ('(li|wi|kni)ves$', '${1}fe')
+      ('(shea|loa|lea|thie)ves$', '${1}f')
+      ('(^analy)ses$', '${1}sis')
+      ('((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$', '${1}${2}sis')
+      ('([ti])a$', '${1}um')
+      ('(n)ews$', '${1}ews')
+      ('(h|bl)ouses$', '${1}ouse')
+      ('(corpse)s$', '${1}')
+      ('(us)es$', '${1}')
+      ('s$', '')
     )
   }
   Process {
@@ -352,9 +352,9 @@ function Get-Singular {
         $Result = $Word
         $Pairs = Invoke-Chunk $Singular -Size 2
         foreach ($Pair in $Pairs) {
-          [Regex]$Re,$SingularVersion = $Pair
+          [Regex]$Re, $SingularVersion = $Pair
           if ($Word -match $Re) {
-            $Result = $Word -replace $Re,$SingularVersion
+            $Result = $Word -replace $Re, $SingularVersion
             Break
           }
         }
@@ -378,7 +378,7 @@ function Get-SyllableCount {
   [CmdletBinding()]
   [OutputType([Int])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [AllowEmptyString()]
     [String] $Word
   )
@@ -519,7 +519,7 @@ function Get-SyllableCount {
           0
           Break
         }
-        { $_.Length -in 1,2 } {
+        { $_.Length -in 1, 2 } {
           1
           Break
         }
@@ -543,11 +543,11 @@ function Get-SyllableCount {
         }
         Default {
           $Count += (3 * ($Word | Select-String -Pattern $Triple).Matches.Value.Count)
-          $Word = $Word -replace $Triple,''
+          $Word = $Word -replace $Triple, ''
           $Count += (2 * ($Word | Select-String -Pattern $Double).Matches.Value.Count)
-          $Word = $Word -replace $Double,''
+          $Word = $Word -replace $Double, ''
           $Count += (1 * ($Word | Select-String -Pattern $Single).Matches.Value.Count)
-          $Word = $Word -replace $Single,''
+          $Word = $Word -replace $Single, ''
           $Count -= ($Word | Select-String -Pattern $SingleSyllabicOne).Matches.Value.Count
           $Count -= ($Word | Select-String -Pattern $SingleSyllabicTwo).Matches.Value.Count
           $Count += ($Word | Select-String -Pattern $DoubleSyllabicOne).Matches.Value.Count
@@ -560,9 +560,9 @@ function Get-SyllableCount {
       }
     }
     $TotalSyllables = 0
-    $Parts = (($Word -replace $Apostrophe,'') -split '\b')
+    $Parts = (($Word -replace $Apostrophe, '') -split '\b')
     foreach ($Part in $Parts) {
-      $Part = $Part.ToLower() -replace $NonAlphabetic,''
+      $Part = $Part.ToLower() -replace $NonAlphabetic, ''
       $TotalSyllables += (& $Syllables $Part)
     }
     $TotalSyllables
@@ -585,7 +585,7 @@ function Import-Excel {
   [CmdletBinding()]
   [OutputType([System.Collections.Hashtable])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [String] $Path,
     [String] $WorksheetName,
     [Array] $ColumnHeaders,
@@ -604,7 +604,7 @@ function Import-Excel {
   $Workbook = if (-not $Password) {
     $Excel.workbooks.open($FileName)
   } else {
-    $Excel.workbooks.open($FileName,0,0,$True,$Password)
+    $Excel.workbooks.open($FileName, 0, 0, $True, $Password)
   }
   $Worksheet = if ($WorksheetName) {
     $Workbook.Worksheets.Item($WorksheetName)
@@ -665,10 +665,10 @@ function Import-Raw {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0)]
-    [ValidateScript({ Test-Path $_ })]
+    [Parameter(Mandatory = $True, Position = 0)]
+    [ValidateScript( { Test-Path $_ })]
     [String] $File,
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [ScriptBlock] $Transform,
     [Switch] $Peek
   )
@@ -695,7 +695,7 @@ function Invoke-Normalize {
   [CmdletBinding()]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     $Text
   )
   Begin {
@@ -766,10 +766,10 @@ function Measure-Readability {
   [CmdletBinding()]
   [OutputType([Int])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Text,
-    [Parameter(Position=1)]
-    [ValidateSet('FleschKincaidGradeLevel','ARI','AutomatedReadabilityIndex','CLI','ColemanLiauIndex','GFI','GunningFogIndex','SMOG')]
+    [Parameter(Position = 1)]
+    [ValidateSet('FleschKincaidGradeLevel', 'ARI', 'AutomatedReadabilityIndex', 'CLI', 'ColemanLiauIndex', 'GFI', 'GunningFogIndex', 'SMOG')]
     [String] $Type = 'FleschKincaidGradeLevel'
   )
   Process {
@@ -785,7 +785,7 @@ function Measure-Readability {
       $Syllables += (Get-SyllableCount $Word)
     }
     $Result = switch ($Type) {
-      { $_ -in 'ARI','AutomatedReadabilityIndex' } {
+      { $_ -in 'ARI', 'AutomatedReadabilityIndex' } {
         '==> Measuring readability with Automated Readability Index' | Write-Verbose
         $LetterCount = ($Text | Measure-Object -Character -IgnoreWhiteSpace).Characters
         "==> # of Sentences: $($Sentences.Count)" | Write-Verbose
@@ -793,7 +793,7 @@ function Measure-Readability {
         "==> # of Letters: ${LetterCount}" | Write-Verbose
         (4.71 * ($LetterCount / $Words.Count)) + (0.5 * ($Words.Count / $Sentences.Count)) - 21.43
       }
-      { $_ -in 'CLI','ColemanLiauIndex' } {
+      { $_ -in 'CLI', 'ColemanLiauIndex' } {
         '==> Measuring readability with Coleman-Liau Index' | Write-Verbose
         $LetterCount = ($Text | Measure-Object -Character -IgnoreWhiteSpace).Characters
         $L = 100 * ($LetterCount / $Words.Count)
@@ -802,7 +802,7 @@ function Measure-Readability {
         "==> S: ${S}" | Write-Verbose
         (0.0588 * $L) - (0.296 * $S) - 15.8
       }
-      { $_ -in 'GFI','GunningFogIndex' } {
+      { $_ -in 'GFI', 'GunningFogIndex' } {
         '==> Measuring readability with Gunning Fog Index' | Write-Verbose
         $TotalWords = $Words.Count
         $ComplexWords = ($Syllables | Where-Object { $_ -ge 3 }).Count
@@ -821,7 +821,8 @@ function Measure-Readability {
         "==> # of Complex Words: ${ComplexWords}" | Write-Verbose
         (1.043 * [Math]::Sqrt($ComplexWords * (30 / $Sentences.Count))) + 3.1291
       }
-      Default { # Flesch-Kincaid Grade Level
+      Default {
+        # Flesch-Kincaid Grade Level
         '==> Measuring readability with Flesch-Kincaid Grade Level' | Write-Verbose
         $TotalWords = $Words.Count
         $TotalSyllables = Get-Sum $Syllables

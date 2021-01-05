@@ -1,19 +1,19 @@
 ﻿function Invoke-FireEvent {
-    <#
-    .SYNOPSIS
-    Create event
-    .EXAMPLE
-    'eventName' | Invoke-FireEvent
-    #>
-    [CmdletBinding()]
-    [Alias('trigger')]
-    Param(
-      [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
-      [String] $Name,
-      [PSObject] $Data
-    )
-    New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
-  }
+  <#
+  .SYNOPSIS
+  Create event
+  .EXAMPLE
+  'eventName' | Invoke-FireEvent
+  #>
+  [CmdletBinding()]
+  [Alias('trigger')]
+  Param(
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+    [String] $Name,
+    [PSObject] $Data
+  )
+  New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
+}
 function Invoke-ListenTo {
   <#
   .SYNOPSIS
@@ -68,38 +68,39 @@ function Invoke-ListenTo {
 
   Execute code when you exit the powershell terminal
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function')]
   [CmdletBinding(DefaultParameterSetName = 'custom')]
   [Alias('on', 'listenTo')]
   Param(
-    [Parameter(ParameterSetName='custom', Position=0)]
-    [Parameter(ParameterSetName='variable', Position=0)]
+    [Parameter(ParameterSetName = 'custom', Position = 0)]
+    [Parameter(ParameterSetName = 'variable', Position = 0)]
     [String] $Name,
-    [Parameter(ParameterSetName='custom')]
-    [Parameter(ParameterSetName='variable')]
+    [Parameter(ParameterSetName = 'custom')]
+    [Parameter(ParameterSetName = 'variable')]
     [Switch] $Once,
-    [Parameter(ParameterSetName='custom')]
+    [Parameter(ParameterSetName = 'custom')]
     [Switch] $Exit,
-    [Parameter(ParameterSetName='custom')]
+    [Parameter(ParameterSetName = 'custom')]
     [Switch] $Idle,
-    [Parameter(ParameterSetName='custom', Mandatory=$True, ValueFromPipeline=$True)]
-    [Parameter(ParameterSetName='variable', Mandatory=$True, ValueFromPipeline=$True)]
-    [Parameter(ParameterSetName='filesystem', Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(ParameterSetName = 'custom', Mandatory = $True, ValueFromPipeline = $True)]
+    [Parameter(ParameterSetName = 'variable', Mandatory = $True, ValueFromPipeline = $True)]
+    [Parameter(ParameterSetName = 'filesystem', Mandatory = $True, ValueFromPipeline = $True)]
     [ScriptBlock] $Callback,
-    [Parameter(ParameterSetName='custom')]
-    [Parameter(ParameterSetName='filesystem')]
+    [Parameter(ParameterSetName = 'custom')]
+    [Parameter(ParameterSetName = 'filesystem')]
     [Switch] $Forward,
-    [Parameter(ParameterSetName='filesystem', Mandatory=$True)]
+    [Parameter(ParameterSetName = 'filesystem', Mandatory = $True)]
     [String] $Path,
-    [Parameter(ParameterSetName='filesystem')]
+    [Parameter(ParameterSetName = 'filesystem')]
     [Switch] $IncludeSubDirectories,
-    [Parameter(ParameterSetName='filesystem')]
+    [Parameter(ParameterSetName = 'filesystem')]
     [Switch] $Absolute,
-    [Parameter(ParameterSetName='variable')]
+    [Parameter(ParameterSetName = 'variable')]
     [Switch] $Variable
   )
   $Action = $Callback
-  if ($Path.Length -gt 0) { # file system watcher events
+  if ($Path.Length -gt 0) {
+    # file system watcher events
     if (-not $Absolute) {
       $Path = Join-Path (Get-Location) $Path -Resolve
     }
@@ -110,11 +111,12 @@ function Invoke-ListenTo {
     $Watcher.EnableRaisingEvents = $True
     $Watcher.IncludeSubdirectories = $IncludeSubDirectories
     Write-Verbose '==> Creating file system watcher events'
-    'Created','Changed','Deleted','Renamed' | ForEach-Object {
+    'Created', 'Changed', 'Deleted', 'Renamed' | ForEach-Object {
       Register-ObjectEvent $Watcher $_ -Action $Action
     }
-  } elseif ($Variable) { # variable change events
-    $VariableNamespace = New-Guid | Select-Object -ExpandProperty Guid | ForEach-Object { $_ -replace "-", "_" }
+  } elseif ($Variable) {
+    # variable change events
+    $VariableNamespace = New-Guid | Select-Object -ExpandProperty Guid | ForEach-Object { $_ -replace '-', '_' }
     $Global:__NameVariableValue = $Name
     $Global:__VariableChangeEventLabel = "VariableChangeEvent_$VariableNamespace"
     $Global:__NameVariableLabel = "Name_$VariableNamespace"
@@ -138,7 +140,8 @@ function Invoke-ListenTo {
     }
     $UpdateValue | Invoke-ListenTo -Idle | Out-Null
     $Action | Invoke-ListenTo $Global:__VariableChangeEventLabel | Out-Null
-  } else { # custom and Powershell engine events
+  } else {
+    # custom and Powershell engine events
     if ($Exit) {
       $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
     } elseif ($Idle) {
@@ -179,7 +182,7 @@ function Invoke-StopListen {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(ValueFromPipeline=$True)]
+    [Parameter(ValueFromPipeline = $True)]
     [String] $Name,
     [PSObject] $EventData
   )

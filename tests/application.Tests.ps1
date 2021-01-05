@@ -1,10 +1,10 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'application'
 
-Describe 'Application State' -Tag 'Local','Remote' {
+Describe 'Application State' -Tag 'Local', 'Remote' {
   It 'can save and get state using ID' {
     $Id = 'pester-test'
     $Value = (New-Guid).Guid
-    $State = @{ Data = @{ Value = $Value }}
+    $State = @{ Data = @{ Value = $Value } }
     $Path = $State | Save-State $Id
     $Expected = Get-State $Id
     $Expected.Id | Should -Be $Id
@@ -15,7 +15,7 @@ Describe 'Application State' -Tag 'Local','Remote' {
     $Path = Join-Path $TestDrive 'state.xml'
     $Id = (New-Guid).Guid
     $Value = (New-Guid).Guid
-    $State = @{ Id = $Id; Data = @{ Value = $Value }}
+    $State = @{ Id = $Id; Data = @{ Value = $Value } }
     $State | Save-State -Path $Path
     $Expected = Get-State -Path $Path
     $Expected.Id | Should -Be $Id
@@ -29,7 +29,7 @@ Describe 'Application State' -Tag 'Local','Remote' {
     (Test-Path $Path) | Should -BeFalse
   }
 }
-Describe 'ConvertTo-PowershellSyntax' -Tag 'Local','Remote' {
+Describe 'ConvertTo-PowershellSyntax' -Tag 'Local', 'Remote' {
   It 'can act as pass-thru for normal strings' {
     $Expected = 'normal string with not mustache templates'
     $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
@@ -63,7 +63,7 @@ Describe 'ConvertTo-PowershellSyntax' -Tag 'Local','Remote' {
     '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
   }
 }
-Describe 'Invoke-RunApplication' -Tag 'Local','Remote' {
+Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
   It 'can pass state to Init/Loop functions and execute Loop one time' {
     $Script:Count = 0
     $Init = {
@@ -84,7 +84,7 @@ Describe 'Invoke-RunApplication' -Tag 'Local','Remote' {
     # First run with initial state passed to Invoke-RunApplication
     $Script:Count = 0
     $Script:Value = (New-Guid).Guid
-    $InitialState = @{ Data = @{ Value = $Script:Value }}
+    $InitialState = @{ Data = @{ Value = $Script:Value } }
     $Init = {
       $Script:Count++
     }
@@ -141,12 +141,12 @@ Describe 'Invoke-RunApplication' -Tag 'Local','Remote' {
       $State.Data.Value | Should -Be $Script:Value
       $Script:Count++
     }
-    $InitialState = @{ Data = @{ Value = $Script:Value }}
+    $InitialState = @{ Data = @{ Value = $Script:Value } }
     Invoke-RunApplication $Init $Loop $InitialState -SingleRun
     $Script:Count | Should -Be 2
   }
 }
-Describe 'New-ApplicationTemplate' -Tag 'Local','Remote' {
+Describe 'New-ApplicationTemplate' -Tag 'Local', 'Remote' {
   It 'can interpolate values into template string' {
     New-ApplicationTemplate | Should -Match '#Requires -Modules pwsh-prelude'
     New-ApplicationTemplate | Should -Match '\$Init = {'
@@ -155,7 +155,7 @@ Describe 'New-ApplicationTemplate' -Tag 'Local','Remote' {
     New-ApplicationTemplate | Should -not -Match '  \$State = {'
   }
 }
-Describe 'New-Template' -Tag 'Local','Remote' {
+Describe 'New-Template' -Tag 'Local', 'Remote' {
   Context 'when passed an empty object' {
     $Script:Expected = '<div>Hello </div>'
     It 'can return function that accepts positional parameter' {
@@ -222,7 +222,7 @@ Describe 'New-Template' -Tag 'Local','Remote' {
     render -Data @{ name = 'Jason' } -PassThru | Should -Be '{{#green Hello}} {{ name }}'
   }
 }
-Describe 'Remove-Indent' -Tag 'Local','Remote' {
+Describe 'Remove-Indent' -Tag 'Local', 'Remote' {
   It 'can handle empty strings' {
     '' | Remove-Indent | Should -BeNullOrEmpty
     '' | Remove-Indent -Size 0 | Should -Be ''
@@ -237,6 +237,6 @@ Describe 'Remove-Indent' -Tag 'Local','Remote' {
     "`n    foo`n    bar`n" | Remove-Indent -Size 4 | Should -Be "`nfoo`nbar"
   }
   It 'can process an array of strings' {
-    '  foobar',"`n  foo`n  bar`n" | Remove-Indent | Should -Be 'foobar',"`nfoo`nbar"
+    '  foobar', "`n  foo`n  bar`n" | Remove-Indent | Should -Be 'foobar', "`nfoo`nbar"
   }
 }

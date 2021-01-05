@@ -1,4 +1,4 @@
-& (Join-Path $PSScriptRoot '_setup.ps1') 'data'
+﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'data'
 
 $ExcelSupported = try {
   New-Object -ComObject 'Excel.Application'
@@ -7,7 +7,7 @@ $ExcelSupported = try {
   $False
 }
 
-Describe 'Format-MoneyValue' -Tag 'Local','Remote' {
+Describe 'Format-MoneyValue' -Tag 'Local', 'Remote' {
   It 'can convert numbers' {
     0 | Format-MoneyValue | Should -Be '$0.00'
     0.0 | Format-MoneyValue | Should -Be '$0.00'
@@ -46,8 +46,8 @@ Describe 'Format-MoneyValue' -Tag 'Local','Remote' {
     '-100' | Format-MoneyValue | Should -Be '-$100.00'
   }
   It 'can process arrays of values' {
-    1..5 | Format-MoneyValue | Should -Be '$1.00','$2.00','$3.00','$4.00','$5.00'
-    '$1.00','$2.00','$3.00','$4.00','$5.00' | Format-MoneyValue -AsNumber | Should -Be (1..5)
+    1..5 | Format-MoneyValue | Should -Be '$1.00', '$2.00', '$3.00', '$4.00', '$5.00'
+    '$1.00', '$2.00', '$3.00', '$4.00', '$5.00' | Format-MoneyValue -AsNumber | Should -Be (1..5)
   }
   It 'can retrieve numerical values from string input' {
     '0' | Format-MoneyValue -AsNumber | Should -Be 0
@@ -75,7 +75,7 @@ Describe 'Format-MoneyValue' -Tag 'Local','Remote' {
     { $False | Format-MoneyValue } | Should -Throw 'Format-MoneyValue only accepts strings and numbers'
   }
 }
-Describe 'Get-Plural/Singular' -Tag 'Local','Remote' {
+Describe 'Get-Plural/Singular' -Tag 'Local', 'Remote' {
   It 'can return plural version of a noun' {
     'goose' | Get-Plural | Should -Be 'geese'
     'mouse' | Get-Plural | Should -Be 'mice'
@@ -114,9 +114,9 @@ Describe 'Get-Plural/Singular' -Tag 'Local','Remote' {
   }
 }
 Describe 'Get-SyllableCount' {
-  It 'can count syllables of simple words' -Tag 'Local','Remote'{
+  It 'can count syllables of simple words' -Tag 'Local', 'Remote' {
     '' | Get-SyllableCount | Should -Be 0
-    'a','of','the','and','is' | ForEach-Object {
+    'a', 'of', 'the', 'and', 'is' | ForEach-Object {
       $_ | Get-SyllableCount | Should -Be 1
     }
     'wine' | Get-SyllableCount | Should -Be 1
@@ -128,7 +128,7 @@ Describe 'Get-SyllableCount' {
     'syllable' | Get-SyllableCount | Should -Be 3
     'innovation' | Get-SyllableCount | Should -Be 4
   }
-  It 'can count syllables of words with uppercase letters' -Tag 'Local','Remote' {
+  It 'can count syllables of words with uppercase letters' -Tag 'Local', 'Remote' {
     'Foo' | Get-SyllableCount | Should -Be 1
     'Hello' | Get-SyllableCount | Should -Be 2
     'PIZZA' | Get-SyllableCount | Should -Be 2
@@ -136,7 +136,7 @@ Describe 'Get-SyllableCount' {
     'Syllable' | Get-SyllableCount | Should -Be 3
     'Innovation' | Get-SyllableCount | Should -Be 4
   }
-  It 'can count syllables for selected "difficult" words' -Tag 'Local','Remote' {
+  It 'can count syllables for selected "difficult" words' -Tag 'Local', 'Remote' {
     'hybrid' | Get-SyllableCount | Should -Be 2
     'mammal' | Get-SyllableCount | Should -Be 2
     'seemingly' | Get-SyllableCount | Should -Be 3
@@ -154,18 +154,18 @@ Describe 'Get-SyllableCount' {
     'pertinacious' | Get-SyllableCount | Should -Be 5
     'moderatenesses' | Get-SyllableCount | Should -Be 5
   }
-  It 'can count syllables for "problematic" words' -Tag 'Local','Remote' {
+  It 'can count syllables for "problematic" words' -Tag 'Local', 'Remote' {
     'queue' | Get-SyllableCount | Should -Be 1
     'anyone' | Get-SyllableCount | Should -Be 3
     'maybe' | Get-SyllableCount | Should -Be 2
     'phoebe' | Get-SyllableCount | Should -Be 2
     'simile' | Get-SyllableCount | Should -Be 3
   }
-  It 'can handle hyphenated words' -Tag 'Local','Remote' {
+  It 'can handle hyphenated words' -Tag 'Local', 'Remote' {
     'good-natured' | Get-SyllableCount | Should -Be 3
     'ninety-nine' | Get-SyllableCount | Should -Be 3
   }
-  It -Skip 'can count syllables for words with accented letters' -Tag 'Local','Remote' {
+  It -Skip 'can count syllables for words with accented letters' -Tag 'Local', 'Remote' {
     'Zoë' | Get-SyllableCount | Should -Be 2
     'Åland' | Get-SyllableCount | Should -Be 2
     'resumé' | Get-SyllableCount | Should -Be 3
@@ -177,81 +177,81 @@ Describe 'Get-SyllableCount' {
     }
   }
 }
-Describe -Skip:(-not $ExcelSupported) 'Import-Excel' -Tag 'Local','Remote' {
+Describe -Skip:(-not $ExcelSupported) 'Import-Excel' -Tag 'Local', 'Remote' {
   It 'will import first worksheet by default' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path
-    $Data.Size | Should -Be 6,4
-    $Data | Get-Property 'Rows.0' | Should -Be 'a','EMPTY','foo','EMPTY'
-    $Data | Get-Property 'Rows.1' | Should -Be 'b',1,'bar','red'
+    $Data.Size | Should -Be 6, 4
+    $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
+    $Data | Get-Property 'Rows.1' | Should -Be 'b', 1, 'bar', 'red'
   }
   It 'peek data and import only the first row' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -Peek -WorksheetName 'with-headers'
-    $Data.Size | Should -Be 1,2
-    $Data.Cells | Should -Be 'Disciples','Gospels'
+    $Data.Size | Should -Be 1, 2
+    $Data.Cells | Should -Be 'Disciples', 'Gospels'
   }
   It 'will import first worksheet by default and display progress' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -ShowProgress
-    $Data.Size | Should -Be 6,4
-    $Data | Get-Property 'Rows.0' | Should -Be 'a','EMPTY','foo','EMPTY'
-    $Data | Get-Property 'Rows.1' | Should -Be 'b',1,'bar','red'
+    $Data.Size | Should -Be 6, 4
+    $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
+    $Data | Get-Property 'Rows.1' | Should -Be 'b', 1, 'bar', 'red'
   }
   It 'can import worksheet by name' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -WorksheetName 'with-headers'
-    $Data.Size | Should -Be 13,2
-    $Data | Get-Property 'Rows.0' | Should -Be 'Disciples','Gospels'
-    $Data | Get-Property 'Rows.1' | Should -Be 'Peter','Matthew'
+    $Data.Size | Should -Be 13, 2
+    $Data | Get-Property 'Rows.0' | Should -Be 'Disciples', 'Gospels'
+    $Data | Get-Property 'Rows.1' | Should -Be 'Peter', 'Matthew'
   }
   It 'can treat the cells in the first row as headers' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -WorksheetName 'with-headers' -FirstRowHeaders
-    $Data.Size | Should -Be 12,2
-    $Data | Get-Property 'Headers' | Should -Be 'Disciples','Gospels'
-    $Data | Get-Property 'Rows.0' | Should -Be 'Peter','Matthew'
-    $Data | Get-Property 'Rows.1' | Should -Be 'Andrew','Mark'
+    $Data.Size | Should -Be 12, 2
+    $Data | Get-Property 'Headers' | Should -Be 'Disciples', 'Gospels'
+    $Data | Get-Property 'Rows.0' | Should -Be 'Peter', 'Matthew'
+    $Data | Get-Property 'Rows.1' | Should -Be 'Andrew', 'Mark'
   }
   It 'can use custom header names' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
-    $Data = Import-Excel -Path $Path -ColumnHeaders 'A','B','C','D'
-    $Data.Size | Should -Be 6,4
-    $Data.Headers | Should -Be 'A','B','C','D'
-    $Data | Get-Property 'Rows.0' | Should -Be 'a','EMPTY','foo','EMPTY'
+    $Data = Import-Excel -Path $Path -ColumnHeaders 'A', 'B', 'C', 'D'
+    $Data.Size | Should -Be 6, 4
+    $Data.Headers | Should -Be 'A', 'B', 'C', 'D'
+    $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
   }
   It 'will only use the correct number of custom header names' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
-    $Data = Import-Excel -Path $Path -ColumnHeaders 'A','B'
+    $Data = Import-Excel -Path $Path -ColumnHeaders 'A', 'B'
     $Data.Headers | Should -BeNullOrEmpty -Because 'there should be 4 headers'
-    $Data | Get-Property 'Rows.0' | Should -Be 'a','EMPTY','foo','EMPTY'
+    $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
   }
   It 'will provide placeholder headers when missing' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -FirstRowHeaders
-    $Data.Headers | Should -Be 'a','column2','foo','column4' -Because 'there are empty cells in the first row'
-    $Data | Get-Property 'Rows.0' | Should -Be 'b',1,'bar','red'
+    $Data.Headers | Should -Be 'a', 'column2', 'foo', 'column4' -Because 'there are empty cells in the first row'
+    $Data | Get-Property 'Rows.0' | Should -Be 'b', 1, 'bar', 'red'
   }
   It 'supports custom "empty values"' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
     $Data = Import-Excel -Path $Path -EmptyValue 'BLANK'
-    $Data | Get-Property 'Rows.0' | Should -Be 'a','BLANK','foo','BLANK'
+    $Data | Get-Property 'Rows.0' | Should -Be 'a', 'BLANK', 'foo', 'BLANK'
   }
   It 'can open password-protected Workbooks' {
     $Password = '123456'
     $Path = Join-Path $PSScriptRoot '\fixtures\example_protected.xlsx'
     $Data = Import-Excel -Path $Path -Password $Password
-    $Data.Size | Should -Be 6,1
+    $Data.Size | Should -Be 6, 1
     $Data | Get-Property 'Rows.0' | Should -Be 'secret'
     $Data | Get-Property 'Rows.1' | Should -Be 'restricted'
     $Data = Import-Excel -Path $Path -Password $Password -WorksheetName 'unprotected'
-    $Data.Size | Should -Be 5,1
+    $Data.Size | Should -Be 5, 1
     $Data | Get-Property 'Rows.0' | Should -Be 'public'
     $Data | Get-Property 'Rows.1' | Should -Be 'open'
     { Import-Excel -Path $Path -Password 'wrong' } | Should -Throw -Because 'the password is not correct'
   }
 }
-Describe 'Import-Raw' -Tag 'Local','Remote' {
+Describe 'Import-Raw' -Tag 'Local', 'Remote' {
   It 'can import lines of a file' {
     $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
     $Data = Import-Raw -File $Path
@@ -272,14 +272,14 @@ Describe 'Import-Raw' -Tag 'Local','Remote' {
     $Data[3] | Should -Be 'GUN SWAB BRIGANTINE.'
   }
 }
-Describe -Skip 'Invoke-Normalize' -Tag 'Local','Remote' {
+Describe -Skip 'Invoke-Normalize' -Tag 'Local', 'Remote' {
   It 'can normalize strings to UTF-8' {
     'resumé' | Invoke-Normalize | Should -BeExactly 'resume'
     'Resumé' | Invoke-Normalize | Should -BeExactly 'Resume'
   }
 }
 Describe 'Measure-Readability' {
-  It 'can measure the readability of given text using various methods on Windows' -Tag 'Local','Remote','WindowsOnly' {
+  It 'can measure the readability of given text using various methods on Windows' -Tag 'Local', 'Remote', 'WindowsOnly' {
     $Verbose = $False
     'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
@@ -289,7 +289,7 @@ Describe 'Measure-Readability' {
     Measure-Readability $Text -Type 'ARI' -Verbose:$Verbose | Should -Be 12
     Measure-Readability $Text -Type 'SMOG' -Verbose:$Verbose | Should -Be 12.2
   }
-  It 'can measure the readability of given text using various methods on Linux' -Tag 'Local','Remote','LinuxOnly' {
+  It 'can measure the readability of given text using various methods on Linux' -Tag 'Local', 'Remote', 'LinuxOnly' {
     $Verbose = $False
     'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
     $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '

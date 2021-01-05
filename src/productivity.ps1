@@ -11,9 +11,9 @@ function ConvertTo-AbstractSyntaxTree {
   [CmdletBinding()]
   [OutputType([System.Management.Automation.Language.ScriptBlockAst])]
   Param(
-    [Parameter(Position=0)]
+    [Parameter(Position = 0)]
     [String] $File,
-    [Parameter(ValueFromPipeline=$True)]
+    [Parameter(ValueFromPipeline = $True)]
     [String] $String
   )
   Process {
@@ -36,7 +36,7 @@ function ConvertTo-PlainText {
   [Alias('plain')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [SecureString] $Value
   )
   Process {
@@ -94,7 +94,7 @@ function Find-Duplicate {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [String] $Path,
     [Switch] $AsJob
   )
@@ -113,7 +113,7 @@ function Find-Duplicate {
       Get-ChildItem -Recurse |
       Get-FileHash |
       Group-Object -Property Hash |
-      Where-Object Count -gt 1 |
+      Where-Object Count -GT 1 |
       ForEach-Object { $_.Group | Select-Object Path, Hash } |
       Sort-Object -Property Hash
   }
@@ -131,7 +131,7 @@ function Find-FirstTrueVariable {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0)]
+    [Parameter(Mandatory = $True, Position = 0)]
     [Array] $VariableNames,
     [Int] $DefaultIndex = 0,
     $DefaultValue = $Null
@@ -160,7 +160,7 @@ function Get-File {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Url,
     [String] $File = 'download.txt'
   )
@@ -183,8 +183,8 @@ function Get-HostsContent {
   [CmdletBinding()]
   [OutputType([String])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
-    [ValidateScript({ Test-Path $_ })]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
+    [ValidateScript( { Test-Path $_ })]
     [String] $Path
   )
   if (-not $Path) {
@@ -246,12 +246,12 @@ function Get-Screenshot {
   [Alias('screenshot')]
   [OutputType([String])]
   Param(
-    [Parameter(Position=0)]
-    [ValidateScript({ Test-Path $_ })]
+    [Parameter(Position = 0)]
+    [ValidateScript( { Test-Path $_ })]
     [String] $Path = (Get-Location),
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [String] $Name = ("screenshot-$(Get-Date -UFormat '+%y%m%d%H%M%S')"),
-    [Parameter(ValueFromPipeline=$True)]
+    [Parameter(ValueFromPipeline = $True)]
     [Int] $Monitor = 0
   )
   Process {
@@ -270,9 +270,9 @@ function Get-Screenshot {
       $Height = $ScreenBounds.Height
       $Left = if ($UseDifferentMonitor) { $ScreenBounds.X + ($ScreenWidth * ($Monitor - 1)) } else { $ScreenBounds.X }
       $Bottom = $ScreenBounds.Y
-      $Size = [System.Drawing.Size]::New($Width,$Height)
-      $Point = [System.Drawing.Point]::New($Left,$Bottom)
-      $Screenshot = [System.Drawing.Bitmap]::New($Width,$Height)
+      $Size = New-Object 'System.Drawing.Size' @($Width, $Height)
+      $Point = New-Object 'System.Drawing.Point' @($Left, $Bottom)
+      $Screenshot = New-Object 'System.Drawing.Bitmap' @($Width, $Height)
       $DrawingGraphics = [System.Drawing.Graphics]::FromImage($Screenshot)
       $DrawingGraphics.CopyFromScreen($Point, [System.Drawing.Point]::Empty, $Size)
       $DrawingGraphics.Dispose()
@@ -296,7 +296,7 @@ function Install-SshServer {
   .LINK
   https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
   #>
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   Param()
   if ($PSCmdlet.ShouldProcess('OpenSSH Server Configuration')) {
     Write-Verbose '==> Enabling OpenSSH server'
@@ -324,12 +324,12 @@ function Invoke-ListenForWord {
 
   An action will stop listening when it returns a "falsy" value like $True or $Null. Conversely, returning "truthy" values will continue the listening loop.
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Continue')]
   [CmdletBinding()]
   [Alias('listenFor')]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [String[]] $Triggers,
     [ScriptBlock[]] $Actions,
     [Double] $Threshhold = 0.85
@@ -380,32 +380,32 @@ function Invoke-RemoteCommand {
   .EXAMPLE
   { Get-Process } | irc -Name Mario -Parameters @{ HideComputerName = $True }
   #>
-  [CmdletBinding(DefaultParameterSetName='scriptblock')]
-  [Alias('irc')]
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope='Function')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
+  [CmdletBinding(DefaultParameterSetName = 'scriptblock')]
+  [Alias('irc')]
   Param(
-    [Parameter(ParameterSetName='scriptblock', Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(ParameterSetName = 'scriptblock', Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [ScriptBlock] $ScriptBlock,
-    [Parameter(ParameterSetName='file', Mandatory=$True, Position=0)]
-    [ValidateScript({ Test-Path $_ })]
+    [Parameter(ParameterSetName = 'file', Mandatory = $True, Position = 0)]
+    [ValidateScript( { Test-Path $_ })]
     [String] $FilePath,
-    [Parameter(ParameterSetName='scriptblock', Mandatory=$True)]
-    [Parameter(ParameterSetName='file', Mandatory=$True)]
+    [Parameter(ParameterSetName = 'scriptblock', Mandatory = $True)]
+    [Parameter(ParameterSetName = 'file', Mandatory = $True)]
     [Alias('Name')]
     [String[]] $ComputerName,
-    [Parameter(ParameterSetName='scriptblock')]
-    [Parameter(ParameterSetName='file')]
+    [Parameter(ParameterSetName = 'scriptblock')]
+    [Parameter(ParameterSetName = 'file')]
     [String] $Password,
-    [Parameter(ParameterSetName='scriptblock')]
-    [Parameter(ParameterSetName='file')]
+    [Parameter(ParameterSetName = 'scriptblock')]
+    [Parameter(ParameterSetName = 'file')]
     [PSObject] $Credential,
-    [Parameter(ParameterSetName='scriptblock')]
-    [Parameter(ParameterSetName='file')]
+    [Parameter(ParameterSetName = 'scriptblock')]
+    [Parameter(ParameterSetName = 'file')]
     [Switch] $AsJob,
-    [Parameter(ParameterSetName='scriptblock')]
-    [Parameter(ParameterSetName='file')]
+    [Parameter(ParameterSetName = 'scriptblock')]
+    [Parameter(ParameterSetName = 'file')]
     [PSObject] $Parameters = @{}
   )
   $User = whoami
@@ -415,7 +415,7 @@ function Invoke-RemoteCommand {
   } elseif ($Password) {
     "==> Creating credential for $User using -Password" | Write-Verbose
     $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-    $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User,$Pass
+    $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
   } else {
     $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerName)" -User $User
   }
@@ -443,7 +443,7 @@ function Invoke-Speak {
   [CmdletBinding()]
   [Alias('say')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [String] $Text = '',
     [String] $InputType = 'text',
     [Int] $Rate = 0,
@@ -461,8 +461,7 @@ function Invoke-Speak {
       Write-Verbose '==> Creating speech synthesizer'
       $Synthesizer = New-Object System.Speech.Synthesis.SpeechSynthesizer
       if (-not $Silent) {
-        switch ($InputType)
-        {
+        switch ($InputType) {
           'ssml' {
             Write-Verbose '==> Received SSML input'
             $Synthesizer.SpeakSsml($Text)
@@ -482,20 +481,20 @@ function Invoke-Speak {
       Write-Verbose '==> Invoke-Speak was not executed, no output was created'
     } else {
       $TotalText = $TotalText.Trim()
-      switch ($Output)
-      {
+      switch ($Output) {
         'file' {
           Write-Verbose '==> [UNDER CONSTRUCTION] save as .WAV file'
         }
         'ssml' {
-          $Function:render = New-Template `
-  '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
-      <voice xml:lang="en-US">
-          <prosody rate="{{ rate }}">
-              <p>{{ text }}</p>
-          </prosody>
-      </voice>
-  </speak>'
+          $Function:render = New-Template @'
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+    <voice xml:lang="en-US">
+        <prosody rate="{{ rate }}">
+            <p>{{ text }}</p>
+        </prosody>
+    </voice>
+</speak>
+'@
           render @{ rate = $Rate; text = $TotalText } | Write-Output
         }
         'text' {
@@ -533,9 +532,9 @@ function Measure-Performance {
   [OutputType([PSObject])]
   [OutputType([Hashtable])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [ScriptBlock] $ScriptBlock,
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [Int] $Runs = 100,
     [Switch] $Milliseconds,
     [Switch] $Sample
@@ -580,7 +579,7 @@ function New-DailyShutdownJob {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [String] $At,
     [Switch] $PassThru
   )
@@ -605,11 +604,11 @@ function New-File {
   .EXAMPLE
   touch <file name>
   #>
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   [Alias('touch')]
   [OutputType([Bool])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [String] $Name,
     [Switch] $PassThru
   )
@@ -649,7 +648,7 @@ function New-ProxyCommand {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Name
   )
   $Metadata = New-Object System.Management.Automation.CommandMetadata (Get-Command $Name)
@@ -703,11 +702,11 @@ function Open-Session {
   Enter-PSSession -Session $Sessions[1]
   #>
   [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope='Function')]
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function')]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String[]] $ComputerNames,
     [String] $Password,
     [PSObject] $Credential,
@@ -770,11 +769,11 @@ function Remove-DirectoryForce {
   .EXAMPLE
   rf <folder name>
   #>
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   [Alias('rf')]
   Param(
-    [Parameter(Mandatory=$True, Position=$True, ValueFromPipeline=$True)]
-    [ValidateScript({ Test-Path $_ })]
+    [Parameter(Mandatory = $True, Position = $True, ValueFromPipeline = $True)]
+    [ValidateScript( { Test-Path $_ })]
     [String] $Path
   )
   Process {
@@ -796,11 +795,11 @@ function Rename-FileExtension {
   'foo.bar' | Rename-FileExtension -To 'baz'
   # new name of file will be 'foo.baz'
   #>
-  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Path,
     [String] $To,
     [Switch] $TXT,
@@ -814,7 +813,7 @@ function Rename-FileExtension {
     $NewExtension = if ($To.Length -gt 0) {
       $To
     } else {
-      Find-FirstTrueVariable 'TXT','JPG','PNG','GIF','MD'
+      Find-FirstTrueVariable 'TXT', 'JPG', 'PNG', 'GIF', 'MD'
     }
     $NewName = [System.IO.Path]::ChangeExtension($Path, $NewExtension.ToLower())
     if ($PSCmdlet.ShouldProcess($Path)) {
@@ -837,9 +836,9 @@ function Take {
   .EXAMPLE
   take <folder name>
   #>
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [String] $Name
   )
   $Path = Join-Path (Get-Location) $Name
@@ -894,7 +893,7 @@ function Test-Empty {
   [ValidateNotNullorEmpty()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [String] $Name
   )
   Get-Item $Name | ForEach-Object { $_.psiscontainer -and $_.GetFileSystemInfos().Count -eq 0 } | Write-Output
@@ -909,7 +908,7 @@ function Test-Installed {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Name
   )
   if (Get-Module -ListAvailable -Name $Name) {
@@ -933,18 +932,18 @@ function Update-HostsFile {
   Update-HostsFile -IPAddress '127.0.0.1' -Hostname 'c2.evil.com' -Comment 'Malware C2'
 
   #>
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   Param(
-    [Parameter(Mandatory=$True, Position=0)]
+    [Parameter(Mandatory = $True, Position = 0)]
     [Alias('IP')]
     [Net.IpAddress] $IPAddress,
-    [Parameter(Mandatory=$True, Position=1)]
+    [Parameter(Mandatory = $True, Position = 1)]
     [ValidateNotNullOrEmpty()]
     [Alias('Name')]
     [String] $Hostname,
-    [Parameter(Position=2)]
+    [Parameter(Position = 2)]
     [String] $Comment,
-    [ValidateScript({ Test-Path $_ })]
+    [ValidateScript( { Test-Path $_ })]
     [String] $Path = (Join-Path $Env:SystemRoot 'System32\drivers\etc\hosts'),
     [Switch] $PassThru
   )
@@ -986,16 +985,16 @@ function Use-Grammar {
   [CmdletBinding()]
   [OutputType([System.Speech.Recognition.SpeechRecognitionEngine])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [String[]] $Words
   )
   Write-Verbose '==> Creating Speech Recognition Engine'
-  $Engine = [System.Speech.Recognition.SpeechRecognitionEngine]::New();
+  $Engine = New-Object 'System.Speech.Recognition.SpeechRecognitionEngine';
   $Engine.InitialSilenceTimeout = 15
   $Engine.SetInputToDefaultAudioDevice();
-  foreach($Word in $Words) {
+  foreach ($Word in $Words) {
     "==> Loading grammar for $Word" | Write-Verbose
-    $Grammar = [System.Speech.Recognition.GrammarBuilder]::New();
+    $Grammar = New-Object 'System.Speech.Recognition.GrammarBuilder';
     $Grammar.Append($Word)
     $Engine.LoadGrammar($Grammar)
   }

@@ -35,7 +35,7 @@
   [CmdletBinding()]
   [Alias('input')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [String] $LabelText = 'input:',
     [Switch] $Secret,
     [Switch] $Number,
@@ -52,7 +52,7 @@
   $StartPosition = [Console]::CursorLeft
   function Format-Output {
     Param(
-      [Parameter(Mandatory=$True, Position=0)]
+      [Parameter(Mandatory = $True, Position = 0)]
       [String] $Value
     )
     if ($Secret) {
@@ -63,7 +63,7 @@
   }
   function Invoke-OutputDraw {
     Param(
-      [Parameter(Mandatory=$True, Position=0)]
+      [Parameter(Mandatory = $True, Position = 0)]
       [String] $Output,
       [Int] $Left = 0
     )
@@ -105,7 +105,7 @@
       [Console]::SetCursorPosition($Left, [Console]::CursorTop)
     }
   }
-  Do  {
+  Do {
     $KeyInfo = [Console]::ReadKey($True)
     $KeyChar = $KeyInfo.KeyChar
     switch ($KeyInfo.Key) {
@@ -162,7 +162,7 @@
       'DownArrow' {
         if ($Number) {
           $Value = ($Result -as [Int]) - 1
-          if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -gt -[Math]::Pow(10, $MaxLength))) {
+          if (($MaxLength -eq 0) -or ($MaxLength -gt 0 -and $Value -gt (-1 * [Math]::Pow(10, $MaxLength)))) {
             $Left = [Console]::CursorLeft
             $Result = "$Value"
             [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
@@ -226,7 +226,8 @@
       Default {
         $Left = [Console]::CursorLeft
         $OnlyNumbers = [Regex]'^-?[0-9]*$'
-        if ($Left -eq $StartPosition) {# prepend character
+        if ($Left -eq $StartPosition) {
+          # prepend character
           if ($Number) {
             if ($KeyChar -match $OnlyNumbers) {
               $Result = "${KeyChar}$Result"
@@ -236,7 +237,8 @@
             $Result = "${KeyChar}$Result"
             Invoke-OutputDraw -Output (Format-Output $Result) -Left $Left
           }
-        } elseif ($Left -gt $StartPosition -and $Left -lt ($StartPosition + $Result.Length)) {# insert character
+        } elseif ($Left -gt $StartPosition -and $Left -lt ($StartPosition + $Result.Length)) {
+          # insert character
           if ($Number) {
             if ($KeyChar -match $OnlyNumbers) {
               $Result = $Result | Invoke-InsertString $KeyChar -At ($Left - $StartPosition)
@@ -246,7 +248,8 @@
             $Result = $Result | Invoke-InsertString $KeyChar -At ($Left - $StartPosition)
             Invoke-OutputDraw -Output $Result -Left $Left
           }
-        } else {# append character
+        } else {
+          # append character
           if ($Number) {
             if ($KeyChar -match $OnlyNumbers) {
               $Result += $KeyChar
@@ -329,7 +332,7 @@ function Invoke-Menu {
   [CmdletBinding()]
   [Alias('menu')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Array] $Items,
     [Switch] $MultiSelect,
     [Switch] $SingleSelect,
@@ -341,7 +344,7 @@ function Invoke-Menu {
   )
   Begin {
     function Invoke-MenuDraw {
-      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+      [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
       Param(
         [Array] $VisibleItems,
         [Int] $Position,
@@ -364,7 +367,7 @@ function Invoke-Menu {
         "${LeftPadding}<<prev  {{#${HighlightColor} ${CurrentPage}}}/${TotalPages}  next>>" | Write-Color -DarkGray
         $Clear | Write-Color -Cyan
       }
-      foreach($Item in $VisibleItems) {
+      foreach ($Item in $VisibleItems) {
         if ($Null -ne $Item) {
           $ModularIndex = ($PageNumber * $Limit) + $Index
           if ($MultiSelect) {
@@ -396,7 +399,7 @@ function Invoke-Menu {
         if ($MultiSelect) {
           $Selection += $ModularPosition
         } else {
-          $Selection = ,$ModularPosition
+          $Selection = , $ModularPosition
         }
         $Result = $Selection
       }
@@ -452,7 +455,7 @@ function Invoke-Menu {
       Indent = $Indent
     }
     Invoke-MenuDraw @Parameters
-    While ($Keycode -notin $Keycodes.enter,$Keycodes.escape) {
+    While ($Keycode -notin $Keycodes.enter, $Keycodes.escape) {
       $Keycode = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').virtualkeycode
       switch ($Keycode) {
         $Keycodes.escape {
@@ -563,10 +566,10 @@ function Write-BarChart {
 
   Easily display a bar chart of files using Invoke-Reduce
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [PSObject] $InputObject,
     [Int] $Width = 100,
     [Switch] $ShowValues,
@@ -618,16 +621,16 @@ function Write-Color {
   .EXAMPLE
   '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = 'World' } | Write-Color
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost', '', Scope = 'Function')]
   [CmdletBinding()]
   [OutputType([Void])]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [AllowEmptyString()]
     [String] $Text,
-    [ValidateSet('White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow')]
+    [ValidateSet('White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow')]
     [String] $Color,
     [Switch] $NoNewLine,
     [Switch] $Black,
@@ -652,7 +655,7 @@ function Write-Color {
     Write-Host '' -NoNewline:$NoNewLine
   } else {
     if (-not $Color) {
-      $Color = Find-FirstTrueVariable 'White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow'
+      $Color = Find-FirstTrueVariable 'White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow'
     }
     $Position = 0
     $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object Matches | ForEach-Object {
@@ -684,9 +687,9 @@ function Write-Label {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [String] $Text = 'label',
-    [ValidateSet('White','Black','DarkBlue','DarkGreen','DarkCyan','DarkRed','DarkMagenta','DarkYellow','Gray','DarkGray','Blue','Green','Cyan','Red','Magenta','Yellow')]
+    [ValidateSet('White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow')]
     [String] $Color = 'Cyan',
     [Int] $Indent = 0,
     [Switch] $NewLine
@@ -705,10 +708,10 @@ function Write-Repeat {
   [CmdletBinding()]
   [Alias('repeat')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [AllowEmptyString()]
     [String] $Value,
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [Alias('x')]
     [Int] $Times = 1
   )
@@ -754,7 +757,7 @@ function Write-Title {
   [OutputType([Void])]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Text,
     [String] $TextColor,
     [String] $SubText = '',
@@ -783,7 +786,7 @@ function Write-Title {
   } else {
     $TextLength = $Text.Length
   }
-  if ($Width -lt  $TextLength) {
+  if ($Width -lt $TextLength) {
     $Width = $TextLength + 4
   }
   $Space = ' '

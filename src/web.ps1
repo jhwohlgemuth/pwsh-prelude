@@ -28,13 +28,13 @@ function ConvertFrom-ByteArray {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Array] $Data
   )
   Begin {
     function Invoke-Convert {
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         $Data
       )
       if ($Data.Length -gt 0) {
@@ -60,14 +60,15 @@ function ConvertFrom-Html {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Value
   )
   $Html = New-Object -ComObject 'HTMLFile'
-  try { # This works in PowerShell with Office installed
+  try {
+    # This works in PowerShell with Office installed
     $Html.IHTMLDocument2_write($Value)
-  }
-  catch { # This works when Office is not installed
+  } catch {
+    # This works when Office is not installed
     $Content = [System.Text.Encoding]::Unicode.GetBytes($Value)
     $Html.Write($Content)
   }
@@ -82,7 +83,7 @@ function ConvertFrom-QueryString {
   [OutputType([Object[]])]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Query
   )
   Begin {
@@ -93,7 +94,7 @@ function ConvertFrom-QueryString {
     if ($Decoded -match '=') {
       $Decoded -split '&' | Invoke-Reduce {
         Param($Acc, $Item)
-        $Key,$Value = $Item -split '='
+        $Key, $Value = $Item -split '='
         $Acc.$Key = $Value.Trim()
       } -InitialValue @{}
     } else {
@@ -110,7 +111,7 @@ function ConvertTo-Iso8601 {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [String] $Value
   )
   Process {
@@ -125,7 +126,7 @@ function ConvertTo-QueryString {
   [CmdletBinding()]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [PSObject] $InputObject,
     [Switch] $UrlEncode
   )
@@ -177,14 +178,14 @@ function Get-GithubOAuthToken {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0)]
+    [Parameter(Mandatory = $True, Position = 0)]
     [String] $ClientId,
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [String[]] $Scope
   )
-  $ValidScopes = 'repo','repo:status','repo_deployment','public_repo','repo:invite','security_events','admin:repo_hook','write:repo_hook','read:repo_hook','admin:org','write:org','read:org','admin:public_key','write:public_key','read:public_key','admin:org_hook','gist','notifications','user','read:user','user:email','user:follow','delete_repo','write:discussion','read:discussion','write:packages','read:packages','delete:packages','admin:gpg_key','write:gpg_key','read:gpg_key','workflow'
+  $ValidScopes = 'repo', 'repo:status', 'repo_deployment', 'public_repo', 'repo:invite', 'security_events', 'admin:repo_hook', 'write:repo_hook', 'read:repo_hook', 'admin:org', 'write:org', 'read:org', 'admin:public_key', 'write:public_key', 'read:public_key', 'admin:org_hook', 'gist', 'notifications', 'user', 'read:user', 'user:email', 'user:follow', 'delete_repo', 'write:discussion', 'read:discussion', 'write:packages', 'read:packages', 'delete:packages', 'admin:gpg_key', 'write:gpg_key', 'read:gpg_key', 'workflow'
   $IsValidScope = $Scope | Invoke-Reduce {
-    Param($Acc,$Item)
+    Param($Acc, $Item)
     $Acc -and ($Item -in $ValidScopes)
   }
   if ($IsValidScope) {
@@ -238,7 +239,7 @@ function Import-Html {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Alias('Uri')]
     [String] $Path
   )
@@ -284,19 +285,19 @@ function Invoke-WebRequestBasicAuth {
   @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put
 
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
-  [CmdletBinding(DefaultParameterSetName='token')]
+  [CmdletBinding(DefaultParameterSetName = 'token')]
   [Alias('basicauth')]
   Param(
-    [Parameter(ParameterSetName='basic', Position=0)]
+    [Parameter(ParameterSetName = 'basic', Position = 0)]
     [String] $Username,
-    [Parameter(ParameterSetName='basic')]
+    [Parameter(ParameterSetName = 'basic')]
     [String] $Password,
-    [Parameter(ParameterSetName='token', Position=0)]
+    [Parameter(ParameterSetName = 'token', Position = 0)]
     [String] $Token,
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [UriBuilder] $Uri,
     [PSObject] $Query = @{},
     [Switch] $UrlEncode,
@@ -307,7 +308,7 @@ function Invoke-WebRequestBasicAuth {
     [Switch] $Post,
     [Switch] $Put,
     [Switch] $Delete,
-    [Parameter(ValueFromPipeline=$True)]
+    [Parameter(ValueFromPipeline = $True)]
     [PSObject] $Data = @{}
   )
   Process {
@@ -331,7 +332,7 @@ function Invoke-WebRequestBasicAuth {
         # Do nothing
       }
     }
-    $Method = Find-FirstTrueVariable 'Get','Post','Put','Delete'
+    $Method = Find-FirstTrueVariable 'Get', 'Post', 'Put', 'Delete'
     $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
     $Parameters = @{
       Headers = $Headers
@@ -341,7 +342,7 @@ function Invoke-WebRequestBasicAuth {
     "==> Headers: $($Parameters.Headers | ConvertTo-Json)" | Write-Verbose
     "==> Method: $($Parameters.Method)" | Write-Verbose
     "==> URI: $($Parameters.Uri)" | Write-Verbose
-    if ($Method -in 'Post','Put') {
+    if ($Method -in 'Post', 'Put') {
       $Parameters.Body = $Data | ConvertTo-Json
       "==> Data: $($Data | ConvertTo-Json)" | Write-Verbose
     }
@@ -377,10 +378,10 @@ function Out-Browser {
   }
   '<h1 contenteditable="true">Type Here</h1>' | Out-Browser -OnClose $OnClose | Out-Null
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Content,
     [FormOptions] $FormOptions = @{},
     [BrowserOptions] $BrowserOptions = @{},
@@ -390,19 +391,21 @@ function Out-Browser {
   )
   Begin {
     Use-Web -Browser
-    $Form = $FormOptions.SetProperties(([Windows.Forms.Form]::New()))
-    $Browser = $BrowserOptions.SetProperties(([Windows.Forms.WebBrowser]::New()))
+    $Form = $FormOptions.SetProperties((New-Object 'Windows.Forms.Form'))
+    $Browser = $BrowserOptions.SetProperties((New-Object 'Windows.Forms.WebBrowser'))
     $Browser.Size = @{ Width = $Form.Width; Height = $Form.Height }
     $Form.Controls.Add($Browser)
-    $Form.Add_Shown({
+    $ShownCallback = {
       '==> Form shown' | Write-Verbose
       $Form.BringToFront()
       & $OnShown -Form $Form -Browser $Browser
-    });
-    $Browser.Add_DocumentCompleted({
+    }
+    $CompletedCallback = {
       "==> Document load complete ($($_.Url))" | Write-Verbose
       & $OnComplete -Form $Form -Browser $Browser
-    })
+    }
+    $Form.Add_Shown($ShownCallback);
+    $Browser.Add_DocumentCompleted($CompletedCallback)
   }
   Process {
     "==> Browser is $(if($Browser.IsOffline) { 'OFFLINE' } else { 'ONLINE' })" | Write-Verbose

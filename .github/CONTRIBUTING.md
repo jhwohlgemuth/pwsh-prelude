@@ -91,34 +91,34 @@ Project Standards
   - [![Build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master)
   - [![Travis (.org)](https://img.shields.io/travis/jhwohlgemuth/pwsh-prelude?logo=travis "Windows")](https://travis-ci.org/github/jhwohlgemuth/pwsh-prelude)
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
-- Beyond the rules identified by `./build.ps1 -Lint` <sup>[[2]](#footnotes)</sup>, all code additions should adhere to the following:
-  - Use two-spaces for indentation
+- Although this project has many rules <sup>[[2]](#footnotes)</sup>, running `./build.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
+  - Use two-spaces for indentation <sup>[[3]](#footnotes)</sup>
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
   - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...).
-  - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...)
+  - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...) <sup>[[3]](#footnotes)</sup>
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
-  - Do not use aliases (they will be replaced by `./build.ps1 -Lint` anyways)
-  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...)
-  - Single space after higher-order functions like `ForEach-Object` and `Where-Object`
-  - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket
+  - Do not use aliases <sup>[[3]](#footnotes)</sup>
+  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...) <sup>[[3]](#footnotes)</sup>
+  - Single space after higher-order functions like `ForEach-Object` and `Where-Object` <sup>[[3]](#footnotes)</sup>
+  - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket <sup>[[3]](#footnotes)</sup>
     ```Powershell
     # Example
     Get-ChildItem -File | ForEach-Object { $_.FullName }
     ```
-  - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket
+  - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[3]](#footnotes)</sup>
     ```Powershell
     # Example
     @{ foo = "bar" }
     ```
-  - Semi-colons should be followed by a single space
+  - Semi-colons should be followed by a single space <sup>[[3]](#footnotes)</sup>
     ```Powershell
     # Examples
     @{ a = "a"; b = "b"; c = "c" }
     [PSCustomObject]@{ a = "a"; b = "b"; c = "c" }
     ```
-  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`)
-  - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS))
+  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[3]](#footnotes)</sup>
+  - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[3]](#footnotes)</sup>
     ```Powershell
     if ($Condition) {
       # code code code
@@ -144,4 +144,9 @@ Footnotes
 ---------
 > **[1]** In an effor to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
 
-> **[2]** `.\build.ps1 -Lint` uses the [built-in PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules) ***and*** custom rules contained within [`.\rule.psm1`](..\rule.psm1)
+> **[2]** The rules for this project are configured in three places:
+  1. [Default PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules)
+  2. Rules enabled by [`PSScriptAnalyzerSettings.psd1`](../PSScriptAnalyzerSettings.psd1)
+  3. Custom rules defined within [`PSScriptAnalyzerCustomRules.psm1`](../PSScriptAnalyzerCustomRules.psm1)
+
+> **[3]** Should be "auto-fixed" by `.\build.ps1 -Lint`

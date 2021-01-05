@@ -33,13 +33,13 @@ $FavoriteSaiyajin = Invoke-Input 'Favorite Saiya-jin?' -Autocomplete -Indent $In
 )
 
 'Favorite number?' | Write-Label @LabelParameters
-$FavoriteNumberWord = 'one','two','three' | Invoke-Menu -SingleSelect -Indent $Indent
+$FavoriteNumberWord = 'one', 'two', 'three' | Invoke-Menu -SingleSelect -Indent $Indent
 
 'Known mathematicians?' | Write-Label @LabelParameters
-$Choice = 'Godel','Gauss','Cantor' | Invoke-Menu -MultiSelect -Indent $Indent
+$Choice = 'Godel', 'Gauss', 'Cantor' | Invoke-Menu -MultiSelect -Indent $Indent
 
 '{{#red Red}}, {{#white White}}, or {{#blue Blue}}?' | Write-Label @LabelParameters
-$FavoriteColor = 'red','white','blue' | Invoke-Menu -Indent $Indent
+$FavoriteColor = 'red', 'white', 'blue' | Invoke-Menu -Indent $Indent
 
 'Favorite number between 1 and 100?' | Write-Label @LabelParameters
 $Space
@@ -61,7 +61,7 @@ $FavoriteNumber | Write-Label @ResultLabelParameters
 $Space
 
 'Show bar charts?' | Write-Label -NewLine
-$Choice = 'no','yes' | Invoke-Menu
+$Choice = 'no', 'yes' | Invoke-Menu
 if ($Choice -eq 'yes') {
   'Bar Charts' | Write-Title -Blue
   Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart

@@ -14,7 +14,7 @@ function ConvertTo-Degree {
   [Alias('toDegree')]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Double] $Radians
   )
   Process {
@@ -30,7 +30,7 @@ function ConvertTo-Radian {
   [Alias('toRadian')]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Double] $Degrees
   )
   Process {
@@ -47,7 +47,7 @@ function Get-ArcHaversine {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Double] $Value
   )
   Process {
@@ -75,18 +75,18 @@ function Get-Covariance {
   [CmdletBinding()]
   [Alias('covariance')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Array] $Data,
     [Switch] $Sample
   )
   End {
     $Values = if ($Input.Count -eq 2) { $Input } else { $Data }
-    $X,$Y = $Values
+    $X, $Y = $Values
     $MeanX = Get-Mean $X
     $MeanY = Get-Mean $Y
     $ResidualX = $X | ForEach-Object { $_ - $MeanX }
     $ResidualY = $Y | ForEach-Object { $_ - $MeanY }
-    $Values = $ResidualX,$ResidualY | Invoke-Zip | ForEach-Object { $_[0] * $_[1] }
+    $Values = $ResidualX, $ResidualY | Invoke-Zip | ForEach-Object { $_[0] * $_[1] }
     if ($Sample) {
       ($Values | Get-Sum) / ($Values.Count - 1)
     } else {
@@ -105,7 +105,7 @@ function Get-EarthRadius {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [ValidateRange(-90, 90)]
     [Double] $Latitude
   )
@@ -134,7 +134,7 @@ function Get-Extremum {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Minimum')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Array] $InputObject,
     [Alias('Max')]
     [Switch] $Maximum,
@@ -144,11 +144,11 @@ function Get-Extremum {
   Begin {
     function Invoke-GetExtremum {
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         [Array] $Values
       )
       if ($Values.Count -gt 0) {
-        $Type = Find-FirstTrueVariable 'Maximum','Minimum'
+        $Type = Find-FirstTrueVariable 'Maximum', 'Minimum'
         $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | ForEach-Object { $_.$Type }
       }
     }
@@ -172,7 +172,7 @@ function Get-Factorial {
   [CmdletBinding()]
   [OutputType([Int])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Int] $Value
   )
   Process {
@@ -201,7 +201,7 @@ function Get-Haversine {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Double] $Degrees
   )
   Process {
@@ -216,9 +216,9 @@ function Get-HaversineDistance {
   [CmdletBinding()]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Coordinate] $From,
-    [Parameter(Mandatory=$True, Position=1)]
+    [Parameter(Mandatory = $True, Position = 1)]
     [Coordinate] $To
   )
   $Radius = ((Get-EarthRadius $From.Latitude) + (Get-EarthRadius $To.Latitude)) / 2
@@ -240,12 +240,12 @@ function Get-LogisticSigmoid {
   .PARAMETER Derivative
   Switch parameter to determine which function to use, f(x) or f'(x) = f(x) * f(-x)
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
   [CmdletBinding()]
   [Alias('sigmoid')]
   [OutputType([Double])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Alias('x')]
     [Double] $Value,
     [Alias('k')]
@@ -257,7 +257,7 @@ function Get-LogisticSigmoid {
     [Switch] $Derivative
   )
   Process {
-    $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, -$GrowthRate * ($X - $Midpoint))) }
+    $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, (-1 * $GrowthRate) * ($X - $Midpoint))) }
     if ($Derivative) {
       (& $Sigmoid $Value) * (& $Sigmoid -$Value)
     } else {
@@ -273,7 +273,7 @@ function Get-Maximum {
   [CmdletBinding()]
   [Alias('max')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Array] $Values
   )
   Begin {
@@ -304,7 +304,7 @@ function Get-Mean {
   [CmdletBinding()]
   [Alias('mean')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Array] $Data,
     [ValidateRange(0, [Double]::PositiveInfinity)]
     [Double] $Trim = 0,
@@ -334,7 +334,7 @@ function Get-Median {
   [CmdletBinding()]
   [Alias('median')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Array] $Data
   )
   End {
@@ -361,7 +361,7 @@ function Get-Minimum {
   [CmdletBinding()]
   [Alias('min')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [Array] $Values
   )
   Begin {
@@ -417,13 +417,13 @@ function Get-Permutation {
   # 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
 
   #>
-  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
   [CmdletBinding()]
   [Alias('permute')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Array] $InputObject,
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [Int] $Offset = 0,
     [Int] $Choose,
     [Switch] $Unique,
@@ -445,11 +445,11 @@ function Get-Permutation {
     }
     function Test-Moveable {
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         [Array] $Work,
-        [Parameter(Position=1)]
+        [Parameter(Position = 1)]
         [Array] $Direction,
-        [Parameter(Position=2)]
+        [Parameter(Position = 2)]
         [Int] $Index
       )
       if (($Index -eq 0 -and $Direction[$Index] -eq 0) -or ($Index -eq ($Work.Count - 1) -and $Direction[$Index] -eq 1)) {
@@ -471,9 +471,9 @@ function Get-Permutation {
     function Test-MoveableExist {
       [OutputType([Bool])]
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         [Array] $Work,
-        [Parameter(Position=1)]
+        [Parameter(Position = 1)]
         [Array] $Direction
       )
       $IsMoveable = $False
@@ -488,9 +488,9 @@ function Get-Permutation {
     function Find-LargestMoveable {
       [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Position')]
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         [Array] $Work,
-        [Parameter(Position=1)]
+        [Parameter(Position = 1)]
         [Array] $Direction
       )
       $Index = 0
@@ -505,14 +505,14 @@ function Get-Permutation {
     }
     function Invoke-Permutation {
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         [Int] $Value,
-        [Parameter(Position=1)]
+        [Parameter(Position = 1)]
         [Int] $Offset,
         [Int] $Choose,
         [Switch] $Unique
       )
-      $Results = [Object[]]::New((Get-Factorial $Value))
+      $Results = New-Object 'Object[]' @((Get-Factorial $Value))
       $Work = 0..($Value - 1) | ForEach-Object { $_ + $Offset }
       $Direction = $Work | ForEach-Object { 0 }
       $Step = 1
@@ -529,14 +529,14 @@ function Get-Permutation {
         $Step++
       }
       if ($Choose -gt 0) {
-        $Items = [System.Collections.ArrayList]::New()
+        $Items = New-Object 'System.Collections.ArrayList'
         foreach ($Result in $Results) {
           [Void]$Items.Add($Result[0..($Choose - 1)])
         }
         $Results = $Items | Select-Object -Unique
       }
       if ($Unique) {
-        $Choices = [System.Collections.ArrayList]::New()
+        $Choices = New-Object 'System.Collections.ArrayList'
         foreach ($Result in $Results) {
           $Choice = $Result | Sort-Object
           [Void]$Choices.Add($Choice)
@@ -548,7 +548,7 @@ function Get-Permutation {
     }
     $GetResults = {
       Param(
-        [Parameter(Position=0)]
+        [Parameter(Position = 0)]
         [Array] $InputObject
       )
       $Count = $InputObject.Count
@@ -609,17 +609,17 @@ function Get-Sum {
   [CmdletBinding()]
   [Alias('sum')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Array] $Values,
-    [Parameter(Position=1)]
+    [Parameter(Position = 1)]
     [Array] $Weight
   )
   Begin {
     if ($Values.Count -gt 0) {
       if ($Weight.Count -eq $Values.Count) {
         $Size = $Values.Count
-        $X = $Values | New-Matrix -Size 1,$Size
-        $W = $Weight | New-Matrix -Size $Size,$Size -Diagonal
+        $X = $Values | New-Matrix -Size 1, $Size
+        $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
         $Values = [Matrix]::Dot($X, $W).Rows[0]
       }
       ($Values | Measure-Object -Sum).Sum
@@ -629,8 +629,8 @@ function Get-Sum {
     if ($Input.Count -gt 0) {
       if ($Weight.Count -eq $Input.Count) {
         $Size = $Input.Count
-        $X = $Input | New-Matrix -Size 1,$Size
-        $W = $Weight | New-Matrix -Size $Size,$Size -Diagonal
+        $X = $Input | New-Matrix -Size 1, $Size
+        $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
         $Values = [Matrix]::Dot($X, $W).Rows[0]
       } else {
         $Values = $Input
@@ -655,7 +655,7 @@ function Get-Variance {
   [CmdletBinding()]
   [Alias('variance')]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Array] $Data,
     [Switch] $Sample
   )

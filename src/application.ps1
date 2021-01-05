@@ -8,7 +8,7 @@ function ConvertTo-PowershellSyntax {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DataVariableName')]
   [OutputType([String])]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Value,
     [String] $DataVariableName = 'Data'
   )
@@ -29,7 +29,7 @@ function Get-State {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [String] $Id,
     [AllowEmptyString()]
     [String] $Path
@@ -99,11 +99,11 @@ function Invoke-RunApplication {
   #>
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, Position=0)]
+    [Parameter(Mandatory = $True, Position = 0)]
     [ScriptBlock] $Init,
-    [Parameter(Mandatory=$True, Position=1)]
+    [Parameter(Mandatory = $True, Position = 1)]
     [ScriptBlock] $Loop,
-    [Parameter(Position=2)]
+    [Parameter(Position = 2)]
     [ApplicationState] $State,
     [String] $Id,
     [ScriptBlock] $ShouldContinue,
@@ -140,7 +140,7 @@ function Invoke-RunApplication {
   if (-not $BeforeNext) {
     $BeforeNext = {
       "`n`nContinue?" | Write-Label -NewLine
-      $State.Continue = ('yes','no' | Invoke-Menu) -eq 'yes'
+      $State.Continue = ('yes', 'no' | Invoke-Menu) -eq 'yes'
     }
   }
   "Application ID: $($State.Id)" | Write-Verbose
@@ -262,23 +262,23 @@ function New-Template {
 
   Use -Data parameter cause template to return formatted string instead of template function
   #>
-  [CmdletBinding(DefaultParameterSetName='template')]
+  [CmdletBinding(DefaultParameterSetName = 'template')]
   [Alias('tpl')]
-  [OutputType([ScriptBlock], ParameterSetName='template')]
-  [OutputType([String], ParameterSetName='inline')]
+  [OutputType([ScriptBlock], ParameterSetName = 'template')]
+  [OutputType([String], ParameterSetName = 'inline')]
   Param(
-    [Parameter(Mandatory=$True, Position=0, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
     [String] $Template,
-    [Parameter(ParameterSetName='inline')]
+    [Parameter(ParameterSetName = 'inline')]
     [PSObject] $Data,
-    [Parameter(ValueFromPipelineByPropertyName=$True)]
+    [Parameter(ValueFromPipelineByPropertyName = $True)]
     [PSObject] $DefaultValues
   )
   $Script:__template = $Template # This line is super important
   $Script:__defaults = $DefaultValues # This line is also super important
   $Renderer = {
     Param(
-      [Parameter(Position=0, ValueFromPipeline=$True)]
+      [Parameter(Position = 0, ValueFromPipeline = $True)]
       [PSObject] $Data,
       [Switch] $PassThru
     )
@@ -321,15 +321,15 @@ function Remove-Indent {
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Size')]
   [CmdletBinding()]
   Param(
-    [Parameter(Mandatory=$True, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [AllowEmptyString()]
     [String] $From,
     [Int] $Size = 2
   )
   Process {
     $Lines = $From -split '\n'
-    $Delimiter = if($Lines.Count -eq 1) { '' } else { "`n" }
-    $Callback = { $Args[0],$Args[1] -join $Delimiter }
+    $Delimiter = if ($Lines.Count -eq 1) { '' } else { "`n" }
+    $Callback = { $Args[0], $Args[1] -join $Delimiter }
     $Lines |
       Where-Object { $_.Length -ge $Size } |
       ForEach-Object { $_.SubString($Size) } |
@@ -350,11 +350,11 @@ function Save-State {
   @{ Data = 42 } | Set-State 'my-app'
 
   #>
-  [CmdletBinding(SupportsShouldProcess=$True)]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   Param(
-    [Parameter(Position=0)]
+    [Parameter(Position = 0)]
     [String] $Id,
-    [Parameter(Mandatory=$True, Position=1, ValueFromPipeline=$True)]
+    [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
     [PSObject] $State,
     [String] $Path
   )

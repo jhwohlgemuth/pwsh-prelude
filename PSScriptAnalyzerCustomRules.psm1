@@ -31,7 +31,7 @@
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -58,10 +58,10 @@
         $Help = $Function.GetHelpContent()
         if (-not $Function.IsWorkflow -and $IsAdvancedFunction -and -not $Help.Synopsis) {
           $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-            Message  = "$($Function.Name) should have help content"
+            Message = "$($Function.Name) should have help content"
             RuleName = 'AdvancedFunctionHelpContent'
             Severity = 'Information'
-            Extent   = $Function.Extent
+            Extent = $Function.Extent
           }
         }
       }
@@ -96,7 +96,7 @@ function Measure-NamedBlockPascalCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -115,21 +115,14 @@ function Measure-NamedBlockPascalCase {
       foreach ($Violation in $Violations) {
         $Extent = $Violation.Extent
         $Correction = $Extent.Text[0].ToString().ToUpper() + $Extent.Text.SubString(1)
-        $CorrectionExtent = [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent]::New(
-          $Extent.StartLineNumber,
-          $Extent.EndLineNumber,
-          $Extent.StartColumnNumber,
-          $Extent.EndColumnNumber,
-          $Correction,
-          ''# optional description - intentionally left blank
-        )
+        $CorrectionExtent = New-Object 'Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent' @($Extent.StartLineNumber, $Extent.EndLineNumber, $Extent.StartColumnNumber, $Extent.EndColumnNumber, $Correction, '')
         $SuggestedCorrections = New-Object System.Collections.ObjectModel.Collection['Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent']
         [Void]$SuggestedCorrections.Add($CorrectionExtent)
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Named script block names should be PascalCase'
+          Message = 'Named script block names should be PascalCase'
           RuleName = 'NamedBlockPascalCase'
           Severity = 'Warning'
-          Extent   = $Extent
+          Extent = $Extent
           SuggestedCorrections = $SuggestedCorrections
         }
       }
@@ -164,7 +157,7 @@ function Measure-OperatorLowerCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -187,21 +180,14 @@ function Measure-OperatorLowerCase {
         $Start = $ErrorPosition.StartColumnNumber - $StartColumnNumber
         $End = $ErrorPosition.EndColumnNumber - $StartColumnNumber
         $Correction = $Extent.Text.SubString(0, $Start) + $ErrorPosition.Text.ToLower() + $Extent.Text.SubString($End)
-        $CorrectionExtent = [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent]::New(
-          $Extent.StartLineNumber,
-          $Extent.EndLineNumber,
-          $StartColumnNumber,
-          $Extent.EndColumnNumber,
-          $Correction,
-          ''# optional description - intentionally left blank
-        )
+        $CorrectionExtent = New-Object 'Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent' @($Extent.StartLineNumber, $Extent.EndLineNumber, $StartColumnNumber, $Extent.EndColumnNumber, $Correction, '')
         $SuggestedCorrections = New-Object System.Collections.ObjectModel.Collection['Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent']
         [Void]$SuggestedCorrections.Add($CorrectionExtent)
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Operators should be lowercase'
+          Message = 'Operators should be lowercase'
           RuleName = 'OperatorLowerCase'
           Severity = 'Warning'
-          Extent   = $Extent
+          Extent = $Extent
           SuggestedCorrections = $SuggestedCorrections
         }
       }
@@ -236,7 +222,7 @@ function Measure-ParamPascalCaseNoTrailingSpace {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -254,22 +240,15 @@ function Measure-ParamPascalCaseNoTrailingSpace {
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Extent = $Violation.Extent
-        $Correction = $Extent.Text -replace '^param\s*\(','Param('
-        $CorrectionExtent = [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent]::New(
-          $Extent.StartLineNumber,
-          $Extent.EndLineNumber,
-          $Extent.StartColumnNumber,
-          $Extent.EndColumnNumber,
-          $Correction,
-          ''# optional description - intentionally left blank
-        )
+        $Correction = $Extent.Text -replace '^param\s*\(', 'Param('
+        $CorrectionExtent = New-Object 'Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent' @($Extent.StartLineNumber, $Extent.EndLineNumber, $Extent.StartColumnNumber, $Extent.EndColumnNumber, $Correction, '')
         $SuggestedCorrections = New-Object System.Collections.ObjectModel.Collection['Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent']
         [Void]$SuggestedCorrections.Add($CorrectionExtent)
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = 'Param block keyword should be PascalCase with no trailing spaces'
+          Message = 'Param block keyword should be PascalCase with no trailing spaces'
           RuleName = 'ParamPascalCaseNoTrailingSpace'
           Severity = 'Warning'
-          Extent   = $Extent
+          Extent = $Extent
           SuggestedCorrections = $SuggestedCorrections
         }
       }
@@ -303,7 +282,7 @@ function Measure-TypeAttributePascalCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -314,7 +293,7 @@ function Measure-TypeAttributePascalCase {
         [System.Management.Automation.Language.Ast] $Ast
       )
       $IsApplicable = ($Ast -is [System.Management.Automation.Language.TypeExpressionAst]) -or ($Ast -is [System.Management.Automation.Language.TypeConstraintAst])
-      $Text = $Ast.Extent.Text -replace '[\[\]]',''
+      $Text = $Ast.Extent.Text -replace '[\[\]]', ''
       $IsViolation = $IsApplicable -and -not ($Text -cmatch '^([A-Z]+[a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?')
       $IsViolation
     }
@@ -324,10 +303,10 @@ function Measure-TypeAttributePascalCase {
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = "Type attribute, `"$($Violation.Extent.Text)`", should be PascalCase"
+          Message = "Type attribute, `"$($Violation.Extent.Text)`", should be PascalCase"
           RuleName = 'TypeAttributePascalCase'
           Severity = 'Warning'
-          Extent   = $Violation.Extent
+          Extent = $Violation.Extent
         }
       }
       return $Results
@@ -362,7 +341,7 @@ function Measure-VariablePascalCase {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -373,7 +352,7 @@ function Measure-VariablePascalCase {
         [System.Management.Automation.Language.Ast] $Ast
       )
       $IsVariableExpression = $Ast -is [System.Management.Automation.Language.VariableExpressionAst]
-      $Name = $Ast.Extent.Text -replace '[{}]',''
+      $Name = $Ast.Extent.Text -replace '[{}]', ''
       $IsVariableExpression -and -not $Name.StartsWith('$_') -and ($Name -ne '$this') -and ($Name[1] -cnotmatch '[A-Z]')
     }
   }
@@ -382,10 +361,10 @@ function Measure-VariablePascalCase {
       $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
       foreach ($Violation in $Violations) {
         $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-          Message  = "Variable name, `"$($Violation.Extent.Text)`", should be PascalCase"
+          Message = "Variable name, `"$($Violation.Extent.Text)`", should be PascalCase"
           RuleName = 'VariablePascalCase'
           Severity = 'Warning'
-          Extent   = $Violation.Extent
+          Extent = $Violation.Extent
         }
       }
       return $Results
@@ -418,7 +397,7 @@ function Measure-UseRequiresDirective {
   [CmdletBinding()]
   [OutputType([Object[]])]
   Param(
-    [Parameter(Mandatory=$True)]
+    [Parameter(Mandatory = $True)]
     [ValidateNotNullOrEmpty()]
     [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
   )
@@ -440,10 +419,10 @@ function Measure-UseRequiresDirective {
         if ($ScriptBlockAst.ScriptRequirements.RequiredModules.Count -eq 0) {
           foreach ($Violation in $Violations) {
             $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
-              Message  = $Message
+              Message = $Message
               RuleName = $RuleName
               Severity = 'Information'
-              Extent   = $Violation.Extent
+              Extent = $Violation.Extent
             }
           }
         }
@@ -451,9 +430,9 @@ function Measure-UseRequiresDirective {
         foreach ($Violation in $Violations) {
           $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
             RuleName = $RuleName
-            Message  = $Message
+            Message = $Message
             Severity = 'Information'
-            Extent   = $Violation.Extent
+            Extent = $Violation.Extent
           }
         }
       }

@@ -6,7 +6,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
-Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local','Remote' {
+Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local', 'Remote' {
   It 'can convert the content of a file to AST' {
     $Path = Join-Path $TestDrive 'test.ps1'
     New-Item $Path
@@ -22,7 +22,7 @@ Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local','Remote' {
     $Ast.Extent.Text | Should -Be $Code
   }
 }
-Describe 'ConvertTo-PlainText' -Tag 'Local','Remote' {
+Describe 'ConvertTo-PlainText' -Tag 'Local', 'Remote' {
   It 'can convert secure strings to plain text strings' {
     $Message = 'Powershell is awesome'
     $Secure = $Message | ConvertTo-SecureString -AsPlainText -Force
@@ -30,7 +30,7 @@ Describe 'ConvertTo-PlainText' -Tag 'Local','Remote' {
     $Secure | ConvertTo-PlainText | Should -Be $Message
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local','Remote' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local', 'Remote' {
   AfterEach {
     if (Test-Path (Join-Path $TestDrive 'foo')) {
       Remove-Item (Join-Path $TestDrive 'foo')
@@ -51,7 +51,7 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local'
     mkdir $Sub
     $Same | Out-File (Join-Path $Sub 'bam')
     'also unique' | Out-File (Join-Path $Sub 'bat')
-    Find-Duplicate -Path $TestDrive | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
+    Find-Duplicate -Path $TestDrive | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam', 'baz', 'foo'
   }
   It 'can identify duplicate files as a job' {
     $Foo = Join-Path $TestDrive 'foo'
@@ -68,15 +68,15 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local'
     Find-Duplicate -Path $TestDrive -AsJob
     Wait-Job -Name 'Find-Duplicate'
     $Results = Receive-Job -Name 'Find-Duplicate'
-    $Results | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam','baz','foo'
+    $Results | ForEach-Object { Get-Item $_.Path } | Select-Object -ExpandProperty Name | Sort-Object | Should -Be 'bam', 'baz', 'foo'
   }
 }
-Describe 'Find-FirstTrueVariable' -Tag 'Local','Remote' {
+Describe 'Find-FirstTrueVariable' -Tag 'Local', 'Remote' {
   It 'should support default value' {
     $Global:foo = $False
     $Global:bar = $True
     $Global:baz = $False
-    $Names = 'foo','bar','baz'
+    $Names = 'foo', 'bar', 'baz'
     Find-FirstTrueVariable $Names | Should -Be 'bar'
     Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'bar'
     Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'bar'
@@ -85,36 +85,36 @@ Describe 'Find-FirstTrueVariable' -Tag 'Local','Remote' {
     $Global:foo = $False
     $Global:bar = $False
     $Global:baz = $False
-    $Names = 'foo','bar','baz'
+    $Names = 'foo', 'bar', 'baz'
     Find-FirstTrueVariable $Names | Should -Be 'foo'
   }
   It 'should support default value passed as index' {
     $Global:foo = $False
     $Global:bar = $False
     $Global:baz = $False
-    $Names = 'foo','bar','baz'
+    $Names = 'foo', 'bar', 'baz'
     Find-FirstTrueVariable $Names -DefaultIndex 2 | Should -Be 'baz'
   }
   It 'should support default value passed as value' {
     $Global:foo = $False
     $Global:bar = $False
     $Global:baz = $False
-    $Names = 'foo','bar','baz'
+    $Names = 'foo', 'bar', 'baz'
     Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
   }
 }
-Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local','Remote' {
+Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
   It 'can get content of hosts file from path' {
     $Content = Get-HostsContent (Join-Path $PSScriptRoot 'fixtures/hosts')
     $Content.Count | Should -Be 3
-    $Content | ForEach-Object Hostname | Should -Be 'foo','bar','foo.bar.baz'
-    $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111','127.0.0.1','192.168.0.2'
-    $Content | ForEach-Object Comment | Should -Be '','some random comment',''
+    $Content | ForEach-Object Hostname | Should -Be 'foo', 'bar', 'foo.bar.baz'
+    $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111', '127.0.0.1', '192.168.0.2'
+    $Content | ForEach-Object Comment | Should -Be '', 'some random comment', ''
     $Content = (Join-Path $PSScriptRoot 'fixtures/hosts') | Get-HostsContent
     $Content.Count | Should -Be 3
-    $Content | ForEach-Object Hostname | Should -Be 'foo','bar','foo.bar.baz'
-    $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111','127.0.0.1','192.168.0.2'
-    $Content | ForEach-Object Comment | Should -Be '','some random comment',''
+    $Content | ForEach-Object Hostname | Should -Be 'foo', 'bar', 'foo.bar.baz'
+    $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111', '127.0.0.1', '192.168.0.2'
+    $Content | ForEach-Object Comment | Should -Be '', 'some random comment', ''
   }
   It 'can add an entry to a hosts file' {
     $Path = Join-Path $TestDrive 'hosts'
@@ -130,7 +130,7 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local','Remote' {
     }
     $NewIpAddress = '127.0.0.42'
     $NewComment = 'this is an updated comment'
-    $Updated = $A.Clone(),@{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge
+    $Updated = $A.Clone(), @{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge
     Update-HostsFile @A -Path $Path
     $Content = Get-HostsContent $Path
     $Content.LineNumber | Should -Be 1
@@ -198,7 +198,7 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local','Remote' {
     Remove-Item $Path
   }
 }
-Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local','Remote' {
+Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local', 'Remote' {
   It 'can passthru text without speaking' {
     $Text = 'this should not be heard'
     Invoke-Speak $Text -Silent | Should -BeNullOrEmpty
@@ -215,7 +215,7 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Lo
     Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
   }
 }
-Describe 'Measure-Performance' -Tag 'Local','Remote' {
+Describe 'Measure-Performance' -Tag 'Local', 'Remote' {
   It 'can provide measures of execution performance (ticks or milliseconds)' {
     $Runs = 10
     $Results = { Get-Process } | Measure-Performance -Runs $Runs
@@ -227,7 +227,7 @@ Describe 'Measure-Performance' -Tag 'Local','Remote' {
     $Results.Mean | Should -BeGreaterThan $ResultsMilliseconds.Mean
   }
 }
-Describe 'New-File (touch)' -Tag 'Local','Remote' {
+Describe 'New-File (touch)' -Tag 'Local', 'Remote' {
   AfterAll {
     Remove-Item -Path ./SomeFile
   }
@@ -246,7 +246,7 @@ Describe 'New-File (touch)' -Tag 'Local','Remote' {
     { New-File 'foo.txt' -WhatIf } | Should -not -Throw
   }
 }
-Describe 'Remove-DirectoryForce (rf)' -Tag 'Local','Remote' {
+Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {
   It 'can remove a file' {
     New-File SomeFile
     './SomeFile' | Should -Exist
@@ -263,7 +263,7 @@ Describe 'Remove-DirectoryForce (rf)' -Tag 'Local','Remote' {
     $Foo | Should -Exist
     $Bar | Should -Exist
     $Baz | Should -Exist
-    $Foo,$Bar,$Baz | Remove-DirectoryForce
+    $Foo, $Bar, $Baz | Remove-DirectoryForce
     $Foo | Should -not -Exist
     $Bar | Should -not -Exist
     $Baz | Should -not -Exist
@@ -276,12 +276,12 @@ Describe 'Remove-DirectoryForce (rf)' -Tag 'Local','Remote' {
     Remove-Item $Foo
   }
 }
-Describe 'Rename-FileExtension' -Tag 'Local','Remote' {
+Describe 'Rename-FileExtension' -Tag 'Local', 'Remote' {
   It 'can rename file extensions using -TXT switch' {
     $Path = Join-Path $TestDrive 'foo.bar'
     New-Item $Path
     Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-    Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -txt
+    Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -TXT
     Get-ChildItem -Path $TestDrive -Name '*.txt' -File | Should -Be 'foo.txt'
     Remove-Item (Join-Path $TestDrive 'foo.txt')
   }
@@ -289,7 +289,7 @@ Describe 'Rename-FileExtension' -Tag 'Local','Remote' {
     $Path = Join-Path $TestDrive 'foo.bar'
     New-Item $Path
     Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-    Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -png
+    Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -PNG
     Get-ChildItem -Path $TestDrive -Name '*.png' -File | Should -Be 'foo.png'
     Remove-Item (Join-Path $TestDrive 'foo.png')
   }
@@ -297,7 +297,7 @@ Describe 'Rename-FileExtension' -Tag 'Local','Remote' {
     $Path = Join-Path $TestDrive 'foo.bar'
     New-Item $Path
     Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-    Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -gif
+    Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -GIF
     Get-ChildItem -Path $TestDrive -Name '*.gif' -File | Should -Be 'foo.gif'
     Remove-Item (Join-Path $TestDrive 'foo.gif')
   }
@@ -340,12 +340,12 @@ Describe 'Rename-FileExtension' -Tag 'Local','Remote' {
     $Path = Join-Path $TestDrive 'foo.bar'
     New-Item $Path
     Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-    { Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -txt -WhatIf } | Should -not -Throw
+    { Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -TXT -WhatIf } | Should -not -Throw
     Get-ChildItem -Path $TestDrive -Name '*.txt' -File | Should -BeNullOrEmpty
     Remove-Item (Join-Path $TestDrive 'foo.bar')
   }
 }
-Describe 'Test-Empty' -Tag 'Local','Remote' {
+Describe 'Test-Empty' -Tag 'Local', 'Remote' {
   It 'should return true for directories with no contents' {
     $Foo = Join-Path $TestDrive 'Foo'
     $Foo | Should -not -Exist
@@ -360,7 +360,7 @@ Describe 'Test-Empty' -Tag 'Local','Remote' {
     Remove-Item $Foo -Recurse
   }
 }
-Describe 'Test-Installed' -Tag 'Local','Remote' {
+Describe 'Test-Installed' -Tag 'Local', 'Remote' {
   It 'should return true if passed module is installed' {
     Test-Installed Pester | Should -BeTrue
     Test-Installed NotInstalledModule | Should -BeFalse

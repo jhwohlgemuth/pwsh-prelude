@@ -14,16 +14,12 @@ Only run tests (Describe or It) with certain tags
 Exclude running tests (Describe or It) with certain tags
 .EXAMPLE
 .\build.ps1 -Test -Filter '*Readability*' -Exclude 'LinuxOnly'
-
 .EXAMPLE
 .\build.ps1 -Test -Filter '*Readability*' -Tags 'WindowsOnly'
-
 .EXAMPLE
 .\build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
-
 .EXAMPLE
 .\build.ps1 -Test -WithCoverage -Skip dotnet
-
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
@@ -53,13 +49,12 @@ function Invoke-Lint {
   $Parameters = @{
     Path = $PSScriptRoot
     Settings = 'PSScriptAnalyzerSettings.psd1'
-    IncludeDefaultRules = $True
     Fix = $True
     EnableExit = $CI
     ReportSummary = $True
     Recurse = $True
   }
-  Invoke-ScriptAnalyzer @Parameters -Confirm:$False
+  Invoke-ScriptAnalyzer @Parameters
   "`n" | Write-Output
 }
 function Invoke-Test {
@@ -68,7 +63,7 @@ function Invoke-Test {
   if (-not ($Skip -contains 'dotnet')) {
     $Message = if ($CI) { "==> Executing C# tests on $Env:BuildSystem" } else { '==> Executing C# tests' }
     $Message | Write-Output
-    $ProjectPath =  "$PSScriptRoot/src/cs/Tests/Tests.csproj"
+    $ProjectPath = "$PSScriptRoot/src/cs/Tests/Tests.csproj"
     if ($WithCoverage) {
       dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
     } else {

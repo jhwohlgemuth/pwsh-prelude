@@ -59,20 +59,20 @@ function New-Matrix {
   [Alias('matrix')]
   [OutputType([Matrix])]
   Param(
-    [Parameter(ValueFromPipeline=$True)]
+    [Parameter(ValueFromPipeline = $True)]
     [Array] $Values,
-    [Parameter(Position=0)]
-    [Array] $Size = @(2,2),
+    [Parameter(Position = 0)]
+    [Array] $Size = @(2, 2),
     [Switch] $Diagonal
   )
   Begin {
-    $Matrix = [Matrix]::New($Size[0], $Size[1])
+    $Matrix = New-Object 'Matrix' @($Size[0], $Size[1])
     if ($Values.Count -gt 0) {
       $Values = $Values | Invoke-Flatten
       if ($Diagonal) {
         $Index = 0
         foreach ($Pair in $Matrix.Indexes()) {
-          $Row,$Column = $Pair
+          $Row, $Column = $Pair
           if ($Row -eq $Column) {
             $Matrix.Rows[$Row][$Column] = $Values[$Index]
             $Index++
@@ -89,7 +89,7 @@ function New-Matrix {
       if ($Diagonal) {
         $Index = 0
         foreach ($Pair in $Matrix.Indexes()) {
-          $Row,$Column = $Pair
+          $Row, $Column = $Pair
           if ($Row -eq $Column) {
             $Matrix.Rows[$Row][$Column] = $Values[$Index]
             $Index++
@@ -117,14 +117,14 @@ function Test-DiagonalMatrix {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Matrix] $Value
   )
   Process {
     (Test-SquareMatrix $Value) -and ($Value.Indexes() | ForEach-Object {
-      $Row, $Col = $_
-      ($Row -eq $Col) -or ($Value.Rows[$Row][$Col] -eq 0)
-    } | Invoke-Reduce -Every)
+        $Row, $Col = $_
+        ($Row -eq $Col) -or ($Value.Rows[$Row][$Col] -eq 0)
+      } | Invoke-Reduce -Every)
   }
 }
 function Test-SquareMatrix {
@@ -142,7 +142,7 @@ function Test-SquareMatrix {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Matrix] $Value
   )
   Process {
@@ -167,13 +167,13 @@ function Test-SymmetricMatrix {
   [CmdletBinding()]
   [OutputType([Bool])]
   Param(
-    [Parameter(Position=0, ValueFromPipeline=$True)]
+    [Parameter(Position = 0, ValueFromPipeline = $True)]
     [Matrix] $Value
   )
   Process {
     (Test-SquareMatrix $Value) -and (0..($Value.Size[0] - 1) | ForEach-Object {
-      $Row = $_
-      0..$Row | ForEach-Object { $Value.Rows[$Row][$_] -eq $Value.Rows[$_][$Row] }
-    } | Invoke-Reduce -Every)
+        $Row = $_
+        0..$Row | ForEach-Object { $Value.Rows[$Row][$_] -eq $Value.Rows[$_][$Row] }
+      } | Invoke-Reduce -Every)
   }
 }
