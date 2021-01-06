@@ -1,2 +1,5 @@
+# Code Coverage Results
 coverage/
 coverage.xml
+# Benchmark Results
+BenchmarkDotNet.Artifacts

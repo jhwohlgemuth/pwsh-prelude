@@ -333,6 +333,7 @@ Credits
 - [Microsoft]() - *[Powershell](https://github.com/powershell/powershell) (d'uh), [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal), and [VS Code](https://code.visualstudio.com/) (the editor I use)*
 - [Pester](https://pester.dev/) - *testing*
 - [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) - *static analysis (linting)*
+- [BenchmarkDotNet](https://benchmarkdotnet.org/) - *C# benchmarks*
 - [janikvonrotz/awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) - *inspiration*
 - [chrisseroka/ps-menu](https://github.com/chrisseroka/ps-menu) - *inspiration*
 - [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*

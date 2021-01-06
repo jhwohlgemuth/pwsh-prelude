@@ -50,14 +50,19 @@ PowerShell Workflow Tasks
 > ***NOTE*** You may need to run `Set-ExecutionPolicy Unrestricted` before executing `Invoke-Setup.ps1`
 
 All PowerShell tasks are contained within [build.ps1](../build.ps1) and can be executed via the following commands:
-- Lint code: `./build.ps1 -Lint`
-- Run tests: `./build.ps1 -Test`
-> ***NOTE***: PowerShell tests are located in the `/tests` directory
-- Lint code and run tests: `./build.ps1 -Lint -Test`
-- Run tests (with coverage): `./build.ps1 -Test -WithCoverage`
-- Run tests (with coverage) and show report: `./build.ps1 -Test -WithCoverage -ShowCoverageReport`
 
-> ***NOTE***: Using `-ShowCoverageReport` requires that [ReportGenerator](https://danielpalme.github.io/ReportGenerator/) is installed and `reportgenerator.exe` is available from the command line.
+| Purpose                           | Command                                                   |
+| --------------------------------: | --------------------------------------------------------- |
+| Lint code                         | `./build.ps1 -Lint`                                       |
+| Lint code and run **ALL** tests   | `./build.ps1 -Lint -Test`                                 |
+| **ALL** tests                     | `./build.ps1 -Test`                                       |
+| **ONLY** PowerShell tests         | `./build.ps1 -Test -Skip 'dotnet'`                        |
+| **ONLY WINDOWS** PowerShell tests | `./build.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
+| **ONLY LINUX** PowerShell tests   | `./build.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
+| **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `./build.ps1 -Test -WithCoverage`  |
+| ...and open coverage report       | `./build.ps1 -Test -WithCoverage -ShowCoverageReport`     |
+
+> ***NOTE***: PowerShell tests are located in the `/tests` directory
 
 C# Workflow Tasks
 -----------------
@@ -66,8 +71,16 @@ C# Workflow Tasks
 > ***NOTE***: The easiest way to install .NET is to use [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/)
 
 **Run Tests**
+```powershell
+./build.ps1 -Test -Skip 'powershell'
+```
 > ***NOTE***: C# tests are located in the `src/cs/Tests` directory
-- Within the `src/cs` directory, run `dotnet test`
+
+**Run Benchmarks**
+> ***NOTE***: C# benchmarks depend on [BenchmarkDotNet](https://benchmarkdotnet.org/)
+```powershell
+./build.ps1 -Benchmark
+```
 
 Visual Studio Code Configuration
 --------------------------------
@@ -87,38 +100,41 @@ Project Standards
   
   > **Linux:** `./build.ps1 -Test -Tag 'Local' -Exclude 'WindowsOnly'`
 - Tests should have no failures when run remotely
-  - [![buddy pipeline](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "Linux")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)
-  - [![Build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master)
-  - [![Travis (.org)](https://img.shields.io/travis/jhwohlgemuth/pwsh-prelude?logo=travis "Windows")](https://travis-ci.org/github/jhwohlgemuth/pwsh-prelude)
+
+  | Platform | Status |
+  | :------: | ------ |
+  | Windows  | [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master)    |
+  | Linux    | [![Buddy pipeline status](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "Linux")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)    |
+
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
-- Although this project has many rules <sup>[[2]](#footnotes)</sup>, running `./build.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
-  - Use two-spaces for indentation <sup>[[3]](#footnotes)</sup>
+- Although this project has many rules <sup>[[3]](#footnotes)</sup>, running `./build.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
+  - Use two-spaces for indentation <sup>[[4]](#footnotes)</sup>
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
   - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...).
-  - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...) <sup>[[3]](#footnotes)</sup>
+  - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...) <sup>[[4]](#footnotes)</sup>
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
-  - Do not use aliases <sup>[[3]](#footnotes)</sup>
-  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...) <sup>[[3]](#footnotes)</sup>
-  - Single space after higher-order functions like `ForEach-Object` and `Where-Object` <sup>[[3]](#footnotes)</sup>
-  - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket <sup>[[3]](#footnotes)</sup>
+  - Do not use aliases <sup>[[4]](#footnotes)</sup>
+  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...) <sup>[[4]](#footnotes)</sup>
+  - Single space after higher-order functions like `ForEach-Object` and `Where-Object` <sup>[[4]](#footnotes)</sup>
+  - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#footnotes)</sup>
     ```Powershell
     # Example
     Get-ChildItem -File | ForEach-Object { $_.FullName }
     ```
-  - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[3]](#footnotes)</sup>
+  - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#footnotes)</sup>
     ```Powershell
     # Example
     @{ foo = "bar" }
     ```
-  - Semi-colons should be followed by a single space <sup>[[3]](#footnotes)</sup>
+  - Semi-colons should be followed by a single space <sup>[[4]](#footnotes)</sup>
     ```Powershell
     # Examples
     @{ a = "a"; b = "b"; c = "c" }
     [PSCustomObject]@{ a = "a"; b = "b"; c = "c" }
     ```
-  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[3]](#footnotes)</sup>
-  - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[3]](#footnotes)</sup>
+  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[4]](#footnotes)</sup>
+  - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[4]](#footnotes)</sup>
     ```Powershell
     if ($Condition) {
       # code code code
@@ -144,9 +160,11 @@ Footnotes
 ---------
 > **[1]** In an effor to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
 
-> **[2]** The rules for this project are configured in three places:
+> **[2]** `-WithCoverage` and `-ShowCoverageReport` require that [ReportGenerator](https://danielpalme.github.io/ReportGenerator/) is installed and `reportgenerator.exe` is available from the command line.
+
+> **[3]** The rules for this project are configured in three places:
   1. [Default PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules)
   2. Rules enabled by [`PSScriptAnalyzerSettings.psd1`](../PSScriptAnalyzerSettings.psd1)
   3. Custom rules defined within [`PSScriptAnalyzerCustomRules.psm1`](../PSScriptAnalyzerCustomRules.psm1)
 
-> **[3]** Should be "auto-fixed" by `.\build.ps1 -Lint`
+> **[4]** Should be "auto-fixed" by `.\build.ps1 -Lint`

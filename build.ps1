@@ -6,6 +6,8 @@ Build tasks
 Run static analysis on source code with PSScriptAnalyzer. -Lint can be used with -Test
 .PARAMETER Test
 Run PowerShell unit tests. -Test can be used with -Lint
+.PARAMETER Benchmark
+Run C# benchmarks using BenchmarkDotNet
 .PARAMETER Filter
 Only run tests (Describe or It) that match filter string (-like wildcards allowed)
 .PARAMETER Tags
@@ -27,6 +29,7 @@ Exclude running tests (Describe or It) with certain tags
 Param(
   [Switch] $Lint,
   [Switch] $Test,
+  [Switch] $Benchmark,
   [Switch] $WithCoverage,
   [Switch] $ShowCoverageReport,
   [Switch] $CI,
@@ -129,26 +132,32 @@ function Invoke-Publish {
     "${Prefix}==> DONE" | Write-Output
   }
 }
-if ($Lint -and -not $BuildOnly) {
-  Invoke-Lint
-}
-if ($Test -and -not $BuildOnly) {
-  Invoke-Test
-}
-if ($ShowCoverageReport) {
-  $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-  if ($Test -and $WithCoverage) {
-    $SourceDirs = "$SourceDirectory"
-    reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
-  } else {
-    reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -reporttypes:$ReportTypes
-  }
-  Invoke-Item './coverage/index.htm'
-}
-if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
-  if (-not $BuildOnly -and -not $DryRun) {
+if ($Benchmark) {
+  '==> Running C# Benchmarks' | Write-Output
+  $ProjectPath = "$PSScriptRoot/src/cs/Performance/Performance.csproj"
+  dotnet run --project $ProjectPath --configuration 'Release'
+} else {
+  if ($Lint -and -not $BuildOnly) {
     Invoke-Lint
+  }
+  if ($Test -and -not $BuildOnly) {
     Invoke-Test
   }
-  Invoke-Publish
+  if ($ShowCoverageReport) {
+    $ReportTypes = 'Html;HtmlSummary;HtmlChart'
+    if ($Test -and $WithCoverage) {
+      $SourceDirs = "$SourceDirectory"
+      reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
+    } else {
+      reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -reporttypes:$ReportTypes
+    }
+    Invoke-Item './coverage/index.htm'
+  }
+  if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
+    if (-not $BuildOnly -and -not $DryRun) {
+      Invoke-Lint
+      Invoke-Test
+    }
+    Invoke-Publish
+  }
 }
