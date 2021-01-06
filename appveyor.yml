@@ -1,8 +1,6 @@
 version: 1.0.{build}
 
-image:
-  - Visual Studio 2017
-  - Visual Studio 2019
+image: Visual Studio 2019
 
 platform:
   - Any CPU
@@ -19,6 +17,6 @@ build_script:
 
 test_script:
   - ps: ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
-  
+
 after_test:
   - ps: codecov -f "**/coverage.xml" -t $Env:CODECOV_TOKEN
