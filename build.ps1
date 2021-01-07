@@ -91,8 +91,8 @@ function Invoke-Test {
       $Configuration.TestResult = @{ Enabled = $False }
     }
     if ($CI) {
-      Set-BuildEnvironment -VariableNamePrefix '' -Force
-      "==> Executing PowerShell tests on $Env:BuildSystem" | Write-Output
+      Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
+      "==> Executing PowerShell tests on $Env:PreludeBuildSystem" | Write-Output
     } else {
       '==> Executing PowerShell tests' | Write-Output
     }
@@ -108,8 +108,8 @@ function Invoke-Test {
 function Invoke-Publish {
   [CmdletBinding()]
   Param()
-  Set-BuildEnvironment -VariableNamePrefix '' -Force
-  $ProjectManifestPath = "$PSScriptRoot/Prelude.psd1"
+  Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
+  $ProjectManifestPath = "$Env:PreludeProjectPath/Prelude.psd1"
   $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
   $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
   "${Prefix}==> $ValidateManifest" | Write-Output
@@ -125,7 +125,7 @@ function Invoke-Publish {
     "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
     Update-Metadata $ProjectManifestPath -Increment $Increment
     'Publishing module...' | Write-Output
-    Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+    Publish-Module -Name Prelude -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
     "`n==> DONE`n" | Write-Output
   } else {
     "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output

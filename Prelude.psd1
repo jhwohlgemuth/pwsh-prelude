@@ -10,6 +10,13 @@
   FileList = @()
   CmdletsToExport = @()
   VariablesToExport = @()
+  # Exclude = @(
+  #   'appveyor.yml'
+  #   'buddy.yml'
+  #   'codecov.yml'
+  #   'kitchensink.ps1'
+  #   'Invoke-Setup.ps1'
+  # )
   FormatsToProcess = @(
     'formats/Matrix.Format.ps1xml'
   )

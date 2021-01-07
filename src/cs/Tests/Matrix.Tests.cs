@@ -71,6 +71,19 @@ namespace MatrixTests {
                 Assert.Equal(expected, Row);
             }
         }
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void Can_Create_Integer_Unit_Matrix(int N) {
+            var unit = Matrix.Unit(N);
+            Assert.Equal(new int[] { N, N }, unit.Size);
+            var expected = new double[N];
+            Array.Fill(expected, 1);
+            foreach (double[] Row in unit.Rows) {
+                Assert.Equal(expected, Row);
+            }
+        }
         [Fact]
         public void Can_Create_Identity_Matrix() {
             var identity2 = Matrix.Identity(2);

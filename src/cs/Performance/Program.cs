@@ -28,9 +28,9 @@ namespace Performance {
             }
         }
         [Benchmark]
-        public void MatrixTranspose() => Matrix.Transpose(A);
+        public void Matrix_Transpose() => Matrix.Transpose(A);
         [Benchmark]
-        public void MatrixDeterminant() => Matrix.Det(A);
+        public void Matrix_Determinant() => Matrix.Det(A);
         static void Main(string[] args) {
             var results = BenchmarkRunner.Run<Program>();
             Console.WriteLine(results);

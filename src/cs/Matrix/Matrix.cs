@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using static System.Math;
 
 namespace Prelude {
@@ -23,7 +26,7 @@ namespace Prelude {
                         _Rows[row][col] = value[i][0];
                     }
                 } else {
-                    double[][] temp = Create(rows, cols);
+                    double[][] temp = Create<double>(rows, cols);
                     for (var row = 0; row < rows; ++row)
                         temp[row] = value[row].Take(cols).ToArray();
                     _Rows = temp;
@@ -32,16 +35,16 @@ namespace Prelude {
         }
         public Matrix(int n) {
             Size = new int[] { n, n };
-            Rows = Create(n, n);
+            Rows = Create<double>(n, n);
         }
         public Matrix(int rows, int cols) {
             Size = new int[] { rows, cols };
-            Rows = Create(rows, cols);
+            Rows = Create<double>(rows, cols);
         }
-        public static double[][] Create(int rows, int cols) {
-            double[][] result = new double[rows][];
+        public static T[][] Create<T>(int rows, int cols) {
+            T[][] result = new T[rows][];
             for (int i = 0; i < rows; ++i)
-                result[i] = new double[cols];
+                result[i] = new T[cols];
             return result;
         }
         public static Matrix Unit(int n) {
@@ -84,6 +87,22 @@ namespace Prelude {
             }
             return Transpose(temp);
         }
+        private static double InterlockAddDoubles(ref double a, double b) {
+            double newCurrentValue = a;
+            while (true) {
+                double currentValue = newCurrentValue;
+                double newValue = currentValue + b;
+                newCurrentValue = Interlocked.CompareExchange(ref a, newValue, currentValue);
+                if (newCurrentValue == currentValue)
+                    return newValue;
+            }
+        }
+        private static Func<int, ParallelLoopState, double, double> CalculateDeterminantParallel(Matrix a) {
+            return (i, loop, result) => {
+                result += a.Rows[0][i] * a.Cofactor(0, i);
+                return result;
+            };
+        }
         public static double Det(Matrix a) {
             int rows = a.Size[0];
             switch (rows) {
@@ -93,8 +112,7 @@ namespace Prelude {
                     return (a.Rows[0][0] * a.Rows[1][1]) - (a.Rows[0][1] * a.Rows[1][0]);
                 default:
                     double sum = 0;
-                    for (int i = 0; i < rows; ++i)
-                        sum += a.Rows[0][i] * a.Cofactor(0, i);
+                    Parallel.For(0, rows, () => 0, CalculateDeterminantParallel(a), x => InterlockAddDoubles(ref sum, x));
                     return sum;
             }
         }
