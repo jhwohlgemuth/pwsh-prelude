@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
   Context 'meta validation' {
     It 'should import exports' {
-      (Get-Module -Name pwsh-prelude).ExportedFunctions.Count | Should -Be 111
+      (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 111
     }
     It 'should import aliases' {
-      (Get-Module -Name pwsh-prelude).ExportedAliases.Count | Should -Be 53
+      (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 53
     }
   }
 }
@@ -512,8 +512,8 @@ Describe 'Invoke-Reduce' -Tag 'Local', 'Remote' {
   }
   It 'can combine FileInfo objects' {
     $Result = Get-ChildItem -File | Invoke-Reduce -FileInfo
-    $Result.Keys | Should -Contain 'pwsh-prelude.psm1'
-    $Result.Keys | Should -Contain 'pwsh-prelude.psd1'
+    $Result.Keys | Should -Contain 'Prelude.psm1'
+    $Result.Keys | Should -Contain 'Prelude.psd1'
     $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
   }
 }

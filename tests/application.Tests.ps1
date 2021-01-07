@@ -148,7 +148,7 @@ Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
 }
 Describe 'New-ApplicationTemplate' -Tag 'Local', 'Remote' {
   It 'can interpolate values into template string' {
-    New-ApplicationTemplate | Should -Match '#Requires -Modules pwsh-prelude'
+    New-ApplicationTemplate | Should -Match '#Requires -Modules Prelude'
     New-ApplicationTemplate | Should -Match '\$Init = {'
     New-ApplicationTemplate | Should -match '{{#green My-App}}'
     New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'

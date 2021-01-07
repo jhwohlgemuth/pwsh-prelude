@@ -176,7 +176,7 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
     Remove-Item $Path
   }
   It 'supports WhatIf parameter' {
-    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    Mock Write-Color {} -ModuleName 'Prelude'
     $Path = Join-Path $TestDrive 'hosts'
     New-Item $Path
     $A = @{
@@ -232,7 +232,7 @@ Describe 'New-File (touch)' -Tag 'Local', 'Remote' {
     Remove-Item -Path ./SomeFile
   }
   It 'can create a file' {
-    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    Mock Write-Color {} -ModuleName 'Prelude'
     $Content = 'testing'
     './SomeFile' | Should -not -Exist
     New-File SomeFile
@@ -242,7 +242,7 @@ Describe 'New-File (touch)' -Tag 'Local', 'Remote' {
     './SomeFile' | Should -FileContentMatch $Content
   }
   It 'supports WhatIf parameter' {
-    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    Mock Write-Color {} -ModuleName 'Prelude'
     { New-File 'foo.txt' -WhatIf } | Should -not -Throw
   }
 }
@@ -269,7 +269,7 @@ Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {
     $Baz | Should -not -Exist
   }
   It 'supports WhatIf parameter' {
-    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    Mock Write-Color {} -ModuleName 'Prelude'
     $Foo = Join-Path $TestDrive 'foo.txt'
     New-Item $Foo
     { Remove-DirectoryForce $Foo -WhatIf } | Should -not -Throw
@@ -336,7 +336,7 @@ Describe 'Rename-FileExtension' -Tag 'Local', 'Remote' {
     $Expected | ForEach-Object { Remove-Item (Join-Path $TestDrive $_) }
   }
   It 'supports WhatIf parameter' {
-    Mock Write-Color {} -ModuleName 'pwsh-prelude'
+    Mock Write-Color {} -ModuleName 'Prelude'
     $Path = Join-Path $TestDrive 'foo.bar'
     New-Item $Path
     Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'

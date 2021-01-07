@@ -109,7 +109,8 @@ function Invoke-Publish {
   [CmdletBinding()]
   Param()
   Set-BuildEnvironment -VariableNamePrefix '' -Force
-  $ValidateManifest = if (Test-ModuleManifest -Path $Env:PSModuleManifest) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
+  $ProjectManifestPath = "$PSScriptRoot/Prelude.psd1"
+  $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
   $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
   "${Prefix}==> $ValidateManifest" | Write-Output
   "${Prefix}==> $ValidateApiKey" | Write-Output
@@ -122,7 +123,7 @@ function Invoke-Publish {
   }
   if (-not $DryRun) {
     "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
-    Update-Metadata $Env:PSModuleManifest -Increment $Increment
+    Update-Metadata $ProjectManifestPath -Increment $Increment
     'Publishing module...' | Write-Output
     Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
     "`n==> DONE`n" | Write-Output

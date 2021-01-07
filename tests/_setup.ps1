@@ -1,6 +1,6 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
 Param()
-$Name = 'pwsh-prelude'
+$Name = 'Prelude'
 if (Get-Module -Name $Name) {
   Remove-Module -Name $Name
 }

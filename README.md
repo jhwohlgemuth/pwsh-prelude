@@ -3,14 +3,14 @@ Powershell Prelude <sup>[[1]](#footnotes)</sup>
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
 [![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/pwsh-prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude)
 [![Code Coverage](https://img.shields.io/codecov/c/github/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&token=3NMKOGN0Q8&logo=codecov "Codecov Code Coverage")](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
-[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/pwsh-prelude?label=version&style=for-the-badge&logo=powershell "PowerShell Gallery Version")](https://www.powershellgallery.com/packages/pwsh-prelude)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/Prelude?label=version&style=for-the-badge&logo=powershell "PowerShell Gallery Version")](https://www.powershellgallery.com/packages/Prelude)
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
 PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#footnotes)</sup> the typical use cases.
 
 This module provides functional programming patterns for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#footnotes)</sup>, and take control of your productivity.
-> For maximum effectiveness, it is recommended that you add `Import-Module -Name pwsh-prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
+> For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
 Naturally, it has ***ZERO external dependencies***<sup>[[2]](#footnotes)</sup> and (mostly) works on Linux<sup>[[3]](#footnotes)</sup> ;)
 
@@ -23,17 +23,17 @@ Quick Start
 
 1. Install module
 ```Powershell
-Install-Module -Name pwsh-prelude
+Install-Module -Name Prelude
 ```
 
 2. Import module
 ```Powershell
-Import-Module -Name pwsh-prelude
+Import-Module -Name Prelude
 ```
 
 Things You Can Do With Prelude
 ------------------------------
-> Although `pwsh-prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
+> Although `Prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
 - List all permutations of a word
 ```Powershell
 'cat' | Get-Permutation
@@ -100,7 +100,7 @@ Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 
 Be More Productive
 ------------------
-> `pwsh-prelude` includes a handful of functions and aliases that will make you more productive
+> `Prelude` includes a handful of functions and aliases that will make you more productive
 
 - Create a new file
 ```powershell
@@ -239,8 +239,8 @@ Aliases
 > Use `Get-Alias <Name>` to see alias details. **Example**: `Get-Alias dra`
 
 ```Powershell
-# View all pwsh-prelude aliases
-Get-Alias | Where-Object { $_.Source -eq 'pwsh-prelude' }
+# View all Prelude aliases
+Get-Alias | Where-Object { $_.Source -eq 'Prelude' }
 ```
 
 Type Accelerators

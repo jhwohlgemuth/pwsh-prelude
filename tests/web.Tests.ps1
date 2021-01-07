@@ -108,7 +108,7 @@ Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {
 }
 Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
   It 'can make a simple request' {
-    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
@@ -120,7 +120,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
       $Values | Should -Contain $Uri
     }
     It 'can make a simple request with a username and password' {
-      Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
+      Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
       $Username = 'user'
       $Token = 'token'
       $Uri = 'https://example.com/'
@@ -133,7 +133,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
         $Values | Should -Contain $Uri
       }
       It 'can make a simple request with query parameters' {
-        Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
+        Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Query = @{ foo = 'bar' }
@@ -146,7 +146,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
           $Values | Should -Contain "${Uri}?foo=bar"
         }
         It 'can make a simple request with URL-encoded query parameters' {
-          Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
+          Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
           $Token = 'token'
           $Uri = 'https://example.com/'
           $Query = @{ answer = 42 }
@@ -161,7 +161,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
               Should -Match "$Uri\?answer(=|%3d)42$"
   }
   It 'can make a simple PUT request' {
-    Mock Invoke-WebRequest { $Args } -ModuleName 'pwsh-prelude'
+    Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
     $Token = 'token'
     $Uri = 'https://example.com/'
     $Data = @{ answer = 42 }

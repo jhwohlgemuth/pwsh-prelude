@@ -903,7 +903,7 @@ function Test-Installed {
   .SYNOPSIS
   Return $True if module is installed, $False otherwise
   .EXAMPLE
-  Test-Installed 'pwsh-prelude'
+  Test-Installed 'Prelude'
   #>
   [CmdletBinding()]
   [OutputType([Bool])]

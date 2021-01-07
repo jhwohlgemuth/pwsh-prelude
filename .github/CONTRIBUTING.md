@@ -13,7 +13,7 @@ Code of Conduct
 
 Introduction
 ------------
-> First off, thank you for considering contributing to `pwsh-prelude`!
+> First off, thank you for considering contributing to `Prelude`!
 
 If you would like to make a feature request or enhancement suggestion, please open an issue.
 
@@ -22,7 +22,7 @@ If you would like to generously provide a pull request to correct a verified iss
 Project Architecture
 --------------------
 
-The main module file, [pwsh-prelude.psm1](../pwsh-prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
+The main module file, [Prelude.psm1](../Prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
 - [`application.ps1`](../src/application.ps1): Collection of functions that can be used to create a PowerShell command line application
 - [`applied.ps1`](../src/applied.ps1): Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
 - [`core.ps1`](../src/core.ps1): Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder

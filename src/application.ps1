@@ -184,7 +184,7 @@ function New-ApplicationTemplate {
   } else {
     ''
   }
-  "  #Requires -Modules pwsh-prelude
+  "  #Requires -Modules Prelude
   [CmdletBinding()]
   Param(
     [String] {{ Dollar }}Id,

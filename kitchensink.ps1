@@ -1,7 +1,7 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
 Param()
-Remove-Module -Name pwsh-prelude
-Import-Module './pwsh-prelude.psm1'
+Remove-Module -Name Prelude
+Import-Module './Prelude.psm1'
 
 $Space = ' '
 $Indent = 4
