@@ -125,7 +125,7 @@ function Invoke-Publish {
     "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
     Update-Metadata $ProjectManifestPath -Increment $Increment
     'Publishing module...' | Write-Output
-    Publish-Module -Name Prelude -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+    Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
     "`n==> DONE`n" | Write-Output
   } else {
     "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
