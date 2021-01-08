@@ -30,6 +30,8 @@ Param(
   [Switch] $Lint,
   [Switch] $Test,
   [Switch] $Benchmark,
+  [ValidateSet('windows', 'linux')]
+  [String] $Platform,
   [Switch] $WithCoverage,
   [Switch] $ShowCoverageReport,
   [Switch] $CI,
@@ -45,6 +47,14 @@ Param(
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
+switch ($Platform) {
+  'linux' { 
+    $Exclude += 'WindowsOnly'
+  }
+  Default {
+    $Exclude += 'LinuxOnly'
+  }
+}
 function Invoke-Lint {
   [CmdletBinding()]
   Param()
