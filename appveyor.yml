@@ -16,7 +16,7 @@ build_script:
   - ps: ./build.ps1 -Lint -CI
 
 test_script:
-  - ps: ./build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
+  - ps: ./build.ps1 -CI -Test -Tags 'Remote' -Platform 'windows' -WithCoverage
 
 after_test:
   - ps: codecov -f "**/coverage.xml" -t $Env:CODECOV_TOKEN

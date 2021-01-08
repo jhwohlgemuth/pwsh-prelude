@@ -31,7 +31,7 @@ Param(
   [Switch] $Test,
   [Switch] $Benchmark,
   [ValidateSet('windows', 'linux')]
-  [String] $Platform,
+  [String] $Platform = 'windows',
   [Switch] $WithCoverage,
   [Switch] $ShowCoverageReport,
   [Switch] $CI,
@@ -39,7 +39,9 @@ Param(
   [String[]] $Skip,
   [Switch] $BuildOnly,
   [String] $Filter,
+  [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
   [String[]] $Tags,
+  [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
   [String] $Exclude = '',
   [Switch] $DryRun,
   [Switch] $Major,
