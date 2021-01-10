@@ -125,7 +125,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i,j];
+                A.Rows[i][j] = rows[i, j];
             }
             var T = Matrix.Transpose(A);
             Assert.Equal(new double[] { 1, 4 }, T.Rows[0]);
@@ -146,7 +146,7 @@ namespace MatrixTests {
                 sum = Matrix.Add(sum, unit);
             }
             var expected = new double[N];
-            Array.Fill(expected,N);
+            Array.Fill(expected, N);
             foreach (var Row in sum.Rows)
                 Assert.Equal(expected, Row);
         }
@@ -224,7 +224,7 @@ namespace MatrixTests {
             };
             foreach (var Index in B.Indexes()) {
                 int i = Index[0], j = Index[1];
-                B.Rows[i][j] = rowsB[i,j];
+                B.Rows[i][j] = rowsB[i, j];
             }
             var product = Matrix.Dot(A, B);
             Assert.Equal(new int[] { 2, 2 }, product.Size);
@@ -237,7 +237,7 @@ namespace MatrixTests {
             var sum = new Matrix(2);
             var identity = Matrix.Identity(2);
             for (int i = 0; i < k; ++i) {
-                sum = Matrix.Add(sum,identity);
+                sum = Matrix.Add(sum, identity);
             }
             var A = Matrix.Identity(2);
             var product = Matrix.Multiply(A, k);
@@ -255,7 +255,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i,j];
+                A.Rows[i][j] = rows[i, j];
             }
             var inverse = Matrix.Invert(A);
             Assert.Equal(new double[] { 0.5, 0.5, -0.5 }, inverse.Rows[0]);
@@ -287,7 +287,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i,j];
+                A.Rows[i][j] = rows[i, j];
             }
             var B = A.Clone();
             Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
