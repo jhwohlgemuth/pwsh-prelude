@@ -27,169 +27,169 @@ Exclude running tests (Describe or It) with certain tags
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding()]
 Param(
-  [Switch] $Lint,
-  [Switch] $Test,
-  [Switch] $Benchmark,
-  [ValidateSet('windows', 'linux')]
-  [String] $Platform = 'windows',
-  [Switch] $WithCoverage,
-  [Switch] $ShowCoverageReport,
-  [Switch] $CI,
-  [ValidateSet('dotnet', 'powershell')]
-  [String[]] $Skip,
-  [Switch] $BuildOnly,
-  [String] $Filter,
-  [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
-  [String[]] $Tags,
-  [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
-  [String] $Exclude = '',
-  [Switch] $DryRun,
-  [Switch] $Major,
-  [Switch] $Minor
+    [Switch] $Lint,
+    [Switch] $Test,
+    [Switch] $Benchmark,
+    [ValidateSet('windows', 'linux')]
+    [String] $Platform = 'windows',
+    [Switch] $WithCoverage,
+    [Switch] $ShowCoverageReport,
+    [Switch] $CI,
+    [ValidateSet('dotnet', 'powershell')]
+    [String[]] $Skip,
+    [Switch] $BuildOnly,
+    [String] $Filter,
+    [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
+    [String[]] $Tags,
+    [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
+    [String] $Exclude = '',
+    [Switch] $DryRun,
+    [Switch] $Major,
+    [Switch] $Minor
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
 switch ($Platform) {
-  'linux' {
-    $Exclude += 'WindowsOnly'
-  }
-  Default {
-    $Exclude += 'LinuxOnly'
-  }
+    'linux' {
+        $Exclude += 'WindowsOnly'
+    }
+    Default {
+        $Exclude += 'LinuxOnly'
+    }
 }
 function Invoke-Lint {
-  [CmdletBinding()]
-  Param()
-  '==> Linting code' | Write-Output
-  if (-not ($Skip -contains 'dotnet')) {
-    $Format = {
-      Param(
-        [String] $Name
-      )
-      $Path = Join-Path "$PSScriptRoot/src/cs/$Name" "${Name}.csproj"
-      "==> Formatting $Path" | Write-Output
-      if ($DryRun) {
-        dotnet format --check $Path --verbosity diagnostic
-      } else {
-        dotnet format $Path --verbosity detailed
-      }
+    [CmdletBinding()]
+    Param()
+    '==> Linting code' | Write-Output
+    if (-not ($Skip -contains 'dotnet')) {
+        $Format = {
+            Param(
+                [String] $Name
+            )
+            $Path = Join-Path "$PSScriptRoot/src/cs/$Name" "${Name}.csproj"
+            "==> Formatting $Path" | Write-Output
+            if ($DryRun) {
+                dotnet format --check $Path --verbosity diagnostic
+            } else {
+                dotnet format $Path --verbosity detailed
+            }
+        }
+        'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
+            & $Format -Name $_
+        }
     }
-    'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
-      & $Format -Name $_
+    if (-not ($Skip -contains 'powershell')) {
+        $Parameters = @{
+            Path = $PSScriptRoot
+            Settings = 'PSScriptAnalyzerSettings.psd1'
+            Fix = $True
+            EnableExit = $CI
+            ReportSummary = $True
+            Recurse = $True
+        }
+        Invoke-ScriptAnalyzer @Parameters
     }
-  }
-  if (-not ($Skip -contains 'powershell')) {
-    $Parameters = @{
-      Path = $PSScriptRoot
-      Settings = 'PSScriptAnalyzerSettings.psd1'
-      Fix = $True
-      EnableExit = $CI
-      ReportSummary = $True
-      Recurse = $True
-    }
-    Invoke-ScriptAnalyzer @Parameters
-  }
-  "`n" | Write-Output
+    "`n" | Write-Output
 }
 function Invoke-Test {
-  [CmdletBinding()]
-  Param()
-  if (-not ($Skip -contains 'dotnet')) {
-    $Message = if ($CI) { "==> Executing C# tests on $Env:BuildSystem" } else { '==> Executing C# tests' }
-    $Message | Write-Output
-    $ProjectPath = "$PSScriptRoot/src/cs/Tests/Tests.csproj"
-    if ($WithCoverage) {
-      dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
-    } else {
-      dotnet test $ProjectPath --logger:'console;verbosity=detailed'
+    [CmdletBinding()]
+    Param()
+    if (-not ($Skip -contains 'dotnet')) {
+        $Message = if ($CI) { "==> Executing C# tests on $Env:BuildSystem" } else { '==> Executing C# tests' }
+        $Message | Write-Output
+        $ProjectPath = "$PSScriptRoot/src/cs/Tests/Tests.csproj"
+        if ($WithCoverage) {
+            dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
+        } else {
+            dotnet test $ProjectPath --logger:'console;verbosity=detailed'
+        }
+        "`n`n" | Write-Output
     }
-    "`n`n" | Write-Output
-  }
-  if (-not ($Skip -contains 'powershell')) {
-    $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
-    $Configuration = [PesterConfiguration]@{
-      Run = @{ PassThru = $True }
-      Filter = @{ ExcludeTag = $Exclude }
-      Debug = @{ ShowNavigationMarkers = $True; WriteVSCodeMarker = $True }
+    if (-not ($Skip -contains 'powershell')) {
+        $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
+        $Configuration = [PesterConfiguration]@{
+            Run = @{ PassThru = $True }
+            Filter = @{ ExcludeTag = $Exclude }
+            Debug = @{ ShowNavigationMarkers = $True; WriteVSCodeMarker = $True }
+        }
+        if ($Filter) {
+            $Configuration.Filter.FullName = $Filter
+        } elseif ($Tags) {
+            $Configuration.Filter.Tag = $Tags
+        }
+        if ($WithCoverage) {
+            $Configuration.CodeCoverage = @{ Enabled = $True; Path = $Files }
+            $Configuration.TestResult = @{ Enabled = $False }
+        }
+        if ($CI) {
+            Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
+            "==> Executing PowerShell tests on $Env:PreludeBuildSystem" | Write-Output
+        } else {
+            '==> Executing PowerShell tests' | Write-Output
+        }
+        $Result = Invoke-Pester -Configuration $Configuration
+        if ($Result.FailedCount -gt 0) {
+            $FailedMessage = "==> FAILED - $($Result.FailedCount) PowerShell test(s) failed"
+            throw $FailedMessage
+        } else {
+            "`nPowerShell SUCCESS`n" | Write-Output
+        }
     }
-    if ($Filter) {
-      $Configuration.Filter.FullName = $Filter
-    } elseif ($Tags) {
-      $Configuration.Filter.Tag = $Tags
-    }
-    if ($WithCoverage) {
-      $Configuration.CodeCoverage = @{ Enabled = $True; Path = $Files }
-      $Configuration.TestResult = @{ Enabled = $False }
-    }
-    if ($CI) {
-      Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
-      "==> Executing PowerShell tests on $Env:PreludeBuildSystem" | Write-Output
-    } else {
-      '==> Executing PowerShell tests' | Write-Output
-    }
-    $Result = Invoke-Pester -Configuration $Configuration
-    if ($Result.FailedCount -gt 0) {
-      $FailedMessage = "==> FAILED - $($Result.FailedCount) PowerShell test(s) failed"
-      throw $FailedMessage
-    } else {
-      "`nPowerShell SUCCESS`n" | Write-Output
-    }
-  }
 }
 function Invoke-Publish {
-  [CmdletBinding()]
-  Param()
-  Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
-  $ProjectManifestPath = "$Env:PreludeProjectPath/Prelude.psd1"
-  $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
-  $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
-  "${Prefix}==> $ValidateManifest" | Write-Output
-  "${Prefix}==> $ValidateApiKey" | Write-Output
-  $Increment = if ($Major) {
-    'Major'
-  } elseif ($Minor) {
-    'Minor'
-  } else {
-    'Build'
-  }
-  if (-not $DryRun) {
-    "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
-    Update-Metadata $ProjectManifestPath -Increment $Increment
-    'Publishing module...' | Write-Output
-    Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
-    "`n==> DONE`n" | Write-Output
-  } else {
-    "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
-    "${Prefix}Publishing module..." | Write-Output
-    "${Prefix}==> DONE" | Write-Output
-  }
+    [CmdletBinding()]
+    Param()
+    Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
+    $ProjectManifestPath = "$Env:PreludeProjectPath/Prelude.psd1"
+    $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
+    $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
+    "${Prefix}==> $ValidateManifest" | Write-Output
+    "${Prefix}==> $ValidateApiKey" | Write-Output
+    $Increment = if ($Major) {
+        'Major'
+    } elseif ($Minor) {
+        'Minor'
+    } else {
+        'Build'
+    }
+    if (-not $DryRun) {
+        "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+        Update-Metadata $ProjectManifestPath -Increment $Increment
+        'Publishing module...' | Write-Output
+        Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+        "`n==> DONE`n" | Write-Output
+    } else {
+        "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+        "${Prefix}Publishing module..." | Write-Output
+        "${Prefix}==> DONE" | Write-Output
+    }
 }
 if ($Benchmark) {
-  '==> Running C# Benchmarks' | Write-Output
-  $ProjectPath = "$PSScriptRoot/src/cs/Performance/Performance.csproj"
-  dotnet run --project $ProjectPath --configuration 'Release'
+    '==> Running C# Benchmarks' | Write-Output
+    $ProjectPath = "$PSScriptRoot/src/cs/Performance/Performance.csproj"
+    dotnet run --project $ProjectPath --configuration 'Release'
 } else {
-  if ($Lint -and -not $BuildOnly) {
-    Invoke-Lint
-  }
-  if ($Test -and -not $BuildOnly) {
-    Invoke-Test
-  }
-  if ($ShowCoverageReport) {
-    $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-    if ($Test -and $WithCoverage) {
-      $SourceDirs = "$SourceDirectory"
-      reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
-    } else {
-      reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -reporttypes:$ReportTypes
+    if ($Lint -and -not $BuildOnly) {
+        Invoke-Lint
     }
-    Invoke-Item './coverage/index.htm'
-  }
-  if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
-    if (-not $BuildOnly -and -not $DryRun) {
-      Invoke-Lint
-      Invoke-Test
+    if ($Test -and -not $BuildOnly) {
+        Invoke-Test
     }
-    Invoke-Publish
-  }
+    if ($ShowCoverageReport) {
+        $ReportTypes = 'Html;HtmlSummary;HtmlChart'
+        if ($Test -and $WithCoverage) {
+            $SourceDirs = "$SourceDirectory"
+            reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
+        } else {
+            reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -reporttypes:$ReportTypes
+        }
+        Invoke-Item './coverage/index.htm'
+    }
+    if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
+        if (-not $BuildOnly -and -not $DryRun) {
+            Invoke-Lint
+            Invoke-Test
+        }
+        Invoke-Publish
+    }
 }

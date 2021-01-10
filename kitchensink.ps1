@@ -6,13 +6,13 @@ Import-Module './Prelude.psm1'
 $Space = ' '
 $Indent = 4
 $LabelParameters = @{
-  Indent = $Indent
-  NewLine = $True
+    Indent = $Indent
+    NewLine = $True
 }
 $ResultLabelParameters = @{
-  Color = 'Green'
-  Indent = $Indent
-  NewLine = $True
+    Color = 'Green'
+    Indent = $Indent
+    NewLine = $True
 }
 
 Write-Title '   Kitchen Sink   ' -SubText '#allthethings' -Yellow
@@ -25,11 +25,11 @@ $Age = Invoke-Input 'Age?' -Number -Indent $Indent
 $Pass = Invoke-Input 'Password?' -Secret -Indent $Indent
 $FavoriteSaiyajin = Invoke-Input 'Favorite Saiya-jin?' -Autocomplete -Indent $Indent -Choices `
 @(
-  'Goku'
-  'Gohan'
-  'Goten'
-  'Vegeta'
-  'Trunks'
+    'Goku'
+    'Gohan'
+    'Goten'
+    'Vegeta'
+    'Trunks'
 )
 
 'Favorite number?' | Write-Label @LabelParameters
@@ -63,11 +63,11 @@ $Space
 'Show bar charts?' | Write-Label -NewLine
 $Choice = 'no', 'yes' | Invoke-Menu
 if ($Choice -eq 'yes') {
-  'Bar Charts' | Write-Title -Blue
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -Alternate
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -Alternate
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor
-  Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor -Alternate
+    'Bar Charts' | Write-Title -Blue
+    Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
+    Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -Alternate
+    Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues
+    Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -Alternate
+    Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor
+    Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor -Alternate
 }
