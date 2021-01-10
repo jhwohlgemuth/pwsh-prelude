@@ -1,6 +1,13 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding()]
 Param()
-Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
-Install-Module -Name BuildHelpers -Scope CurrentUser -Force
-Install-Module -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4 -Scope CurrentUser -Force
+function Test-Installed {
+  $Name = $Args[0]
+  Get-Module -ListAvailable -Name $Name
+}
+'PSScriptAnalyzer', 'BuildHelpers', 'Pester' | ForEach-Object {
+  $Installed = Test-Installed $_
+  if (-not $Installed) {
+    Install-Module -Name $_ -Socpe CurrentUser -Force
+  }
+}
