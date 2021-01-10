@@ -8,6 +8,6 @@ function Test-Installed {
 'PSScriptAnalyzer', 'BuildHelpers', 'Pester' | ForEach-Object {
   $Installed = Test-Installed $_
   if (-not $Installed) {
-    Install-Module -Name $_ -Socpe CurrentUser -Force
+    Install-Module -Name $_ -Scope CurrentUser -Force
   }
 }
