@@ -68,7 +68,11 @@ function Invoke-Lint {
       )
       $Path = Join-Path "$PSScriptRoot/src/cs/$Name" "${Name}.csproj"
       "==> Formatting $Path" | Write-Output
-      dotnet format --check $Path -v diagnostic
+      if ($DryRun) {
+        dotnet format --check $Path -v diagnostic
+      } else {
+        dotnet format $Path -v diagnostic
+      }
     }
     'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
       & $Format -Name $_
