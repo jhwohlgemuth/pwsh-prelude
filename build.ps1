@@ -50,7 +50,7 @@ Param(
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = 'src'
 switch ($Platform) {
-  'linux' { 
+  'linux' {
     $Exclude += 'WindowsOnly'
   }
   Default {
@@ -61,15 +61,30 @@ function Invoke-Lint {
   [CmdletBinding()]
   Param()
   '==> Linting code' | Write-Output
-  $Parameters = @{
-    Path = $PSScriptRoot
-    Settings = 'PSScriptAnalyzerSettings.psd1'
-    Fix = $True
-    EnableExit = $CI
-    ReportSummary = $True
-    Recurse = $True
+  if (-not ($Skip -contains 'dotnet')) {
+    $Format = {
+      Param(
+        [String] $Name
+      )
+      $Path = Join-Path "$PSScriptRoot/src/cs/$Name" "${Name}.csproj"
+      "==> Formatting $Path" | Write-Output
+      dotnet format --check $Path -v diagnostic
+    }
+    'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
+      & $Format -Name $_
+    }
   }
-  Invoke-ScriptAnalyzer @Parameters
+  if (-not ($Skip -contains 'powershell')) {
+    $Parameters = @{
+      Path = $PSScriptRoot
+      Settings = 'PSScriptAnalyzerSettings.psd1'
+      Fix = $True
+      EnableExit = $CI
+      ReportSummary = $True
+      Recurse = $True
+    }
+    Invoke-ScriptAnalyzer @Parameters
+  }
   "`n" | Write-Output
 }
 function Invoke-Test {

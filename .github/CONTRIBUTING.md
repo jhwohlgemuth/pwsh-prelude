@@ -53,10 +53,11 @@ All PowerShell tasks are contained within [build.ps1](../build.ps1) and can be e
 
 | Purpose                           | Command                                                   |
 | --------------------------------: | --------------------------------------------------------- |
-| Lint code                         | `./build.ps1 -Lint`                                       |
-| Lint code and run **ALL** tests   | `./build.ps1 -Lint -Test`                                 |
+| Lint **ALL** code                 | `./build.ps1 -Lint`                                       |
+| Lint **ONLY POWERSHELL** code     | `./build.ps1 -Lint -Skip dotnet`                          |
+| Lint **ALL** code and run **ALL** tests | `./build.ps1 -Lint -Test`                         |
 | **ALL** tests                     | `./build.ps1 -Test`                                       |
-| **ONLY** PowerShell tests         | `./build.ps1 -Test -Skip 'dotnet'`                        |
+| **ONLY** PowerShell tests         | `./build.ps1 -Test -Skip dotnet`                          |
 | **ONLY WINDOWS** PowerShell tests | `./build.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
 | **ONLY LINUX** PowerShell tests   | `./build.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
 | **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `./build.ps1 -Test -WithCoverage`  |
@@ -70,13 +71,18 @@ C# Workflow Tasks
 - [.NET SDK v5.0](https://dotnet.microsoft.com/download/visual-studio-sdks)
 > ***NOTE***: The easiest way to install .NET is to use [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/)
 
-**Run Tests**
+**Lint C# code**
+```PowerShell
+./build.ps1 -Lint -Skip powershell
+```
+
+**Run C# Tests**
 ```powershell
-./build.ps1 -Test -Skip 'powershell'
+./build.ps1 -Test -Skip powershell
 ```
 > ***NOTE***: C# tests are located in the `src/cs/Tests` directory
 
-**Run Benchmarks**
+**Run C# Benchmarks**
 > ***NOTE***: C# benchmarks depend on [BenchmarkDotNet](https://benchmarkdotnet.org/)
 ```powershell
 ./build.ps1 -Benchmark
