@@ -60,7 +60,7 @@ switch ($Platform) {
 function Invoke-Lint {
     [CmdletBinding()]
     Param()
-    '==> Linting code' | Write-Output
+    '==> Running formatting and static analysis' | Write-Output
     if (-not ($Skip -contains 'dotnet')) {
         $Format = {
             Param(
@@ -87,6 +87,7 @@ function Invoke-Lint {
             ReportSummary = $True
             Recurse = $True
         }
+        "`n==> Linting PowerShell code" | Write-Output
         Invoke-ScriptAnalyzer @Parameters
     }
     "`n" | Write-Output
