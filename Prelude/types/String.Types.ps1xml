@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+    <Type>
+        <Name>System.String</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>Permutations</Name>
+                <GetScriptBlock>
+                    Get-Permutation $this -Words
+                </GetScriptBlock>
+            </ScriptProperty>
+            <ScriptMethod>
+                <Name>ToMoney</Name>
+                <Script>
+                    Format-MoneyValue $this
+                </Script>
+            </ScriptMethod>
+        </Members>
+    </Type>
+    <Type>
+        <Name>System.Security.SecureString</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>PlainText</Name>
+                <GetScriptBlock>
+                    ConvertTo-PlainText $this
+                </GetScriptBlock>
+            </ScriptProperty>
+        </Members>
+    </Type>
+</Types>

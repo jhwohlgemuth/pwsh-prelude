@@ -48,7 +48,7 @@ Param(
     [Switch] $Minor
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
-$SourceDirectory = 'src'
+$SourceDirectory = Join-Path 'Prelude' 'src'
 switch ($Platform) {
     'linux' {
         $Exclude += 'WindowsOnly'
@@ -66,7 +66,7 @@ function Invoke-Lint {
             Param(
                 [String] $Name
             )
-            $Path = Join-Path "$PSScriptRoot/src/cs/$Name" "${Name}.csproj"
+            $Path = Join-Path "$PSScriptRoot/$SourceDirectory/cs/$Name" "${Name}.csproj"
             "==> Formatting $Path" | Write-Output
             if ($DryRun) {
                 dotnet format --check $Path --verbosity diagnostic
@@ -97,7 +97,7 @@ function Invoke-Test {
     if (-not ($Skip -contains 'dotnet')) {
         $Message = if ($CI) { "==> Executing C# tests on $Env:BuildSystem" } else { '==> Executing C# tests' }
         $Message | Write-Output
-        $ProjectPath = "$PSScriptRoot/src/cs/Tests/Tests.csproj"
+        $ProjectPath = "$PSScriptRoot/$SourceDirectory/cs/Tests/Tests.csproj"
         if ($WithCoverage) {
             dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
         } else {
@@ -139,8 +139,7 @@ function Invoke-Test {
 function Invoke-Publish {
     [CmdletBinding()]
     Param()
-    Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
-    $ProjectManifestPath = "$Env:PreludeProjectPath/Prelude.psd1"
+    $ProjectManifestPath = "$PSScriptRoot/Prelude/Prelude.psd1"
     $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
     $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
     "${Prefix}==> $ValidateManifest" | Write-Output
@@ -156,7 +155,7 @@ function Invoke-Publish {
         "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
         Update-Metadata $ProjectManifestPath -Increment $Increment
         'Publishing module...' | Write-Output
-        Publish-Module -Path (Get-Location) -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+        Publish-Module -Path "$PSScriptRoot/Prelude" -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
         "`n==> DONE`n" | Write-Output
     } else {
         "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
@@ -166,7 +165,7 @@ function Invoke-Publish {
 }
 if ($Benchmark) {
     '==> Running C# Benchmarks' | Write-Output
-    $ProjectPath = "$PSScriptRoot/src/cs/Performance/Performance.csproj"
+    $ProjectPath = "$PSScriptRoot/$SourceDirectory/cs/Performance/Performance.csproj"
     dotnet run --project $ProjectPath --configuration 'Release'
 } else {
     if ($Lint -and -not $BuildOnly) {
