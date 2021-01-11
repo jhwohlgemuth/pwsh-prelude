@@ -66,7 +66,7 @@ function Invoke-Lint {
             Param(
                 [String] $Name
             )
-            $Path = Join-Path "$PSScriptRoot/$SourceDirectory/cs/$Name" "${Name}.csproj"
+            $Path = Join-Path "$PSScriptRoot/csharp/$Name" "${Name}.csproj"
             "==> Formatting $Path" | Write-Output
             if ($DryRun) {
                 dotnet format --check $Path --verbosity diagnostic
@@ -98,7 +98,7 @@ function Invoke-Test {
     if (-not ($Skip -contains 'dotnet')) {
         $Message = if ($CI) { "==> Executing C# tests on $Env:BuildSystem" } else { '==> Executing C# tests' }
         $Message | Write-Output
-        $ProjectPath = "$PSScriptRoot/$SourceDirectory/cs/Tests/Tests.csproj"
+        $ProjectPath = "$PSScriptRoot/csharp/Tests/Tests.csproj"
         if ($WithCoverage) {
             dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
         } else {
@@ -166,7 +166,7 @@ function Invoke-Publish {
 }
 if ($Benchmark) {
     '==> Running C# Benchmarks' | Write-Output
-    $ProjectPath = "$PSScriptRoot/$SourceDirectory/cs/Performance/Performance.csproj"
+    $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
     dotnet run --project $ProjectPath --configuration 'Release'
 } else {
     if ($Lint -and -not $BuildOnly) {

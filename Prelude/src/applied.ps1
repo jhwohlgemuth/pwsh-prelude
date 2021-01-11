@@ -1,5 +1,5 @@
 ﻿if (-not ('Prelude.Geodetic' -as [Type])) {
-    Add-Type -Path (Join-Path $PSScriptRoot 'cs/Geodetic/Geodetic.dll')
+    Add-Type -Path (Join-Path $PSScriptRoot '../bin/Geodetic.dll')
     $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
     $Accelerators::Add('Coordinate', 'Prelude.Geodetic.Coordinate')
     $Accelerators::Add('Datum', 'Prelude.Geodetic.Datum')

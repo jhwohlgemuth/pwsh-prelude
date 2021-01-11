@@ -1,5 +1,5 @@
 ﻿if (-not ('Prelude.Matrix' -as [Type])) {
-    Add-Type -Path (Join-Path $PSScriptRoot 'cs/Matrix/Matrix.dll')
+    Add-Type -Path (Join-Path $PSScriptRoot '../bin/Matrix.dll')
     $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
     $Accelerators::Add('Matrix', 'Prelude.Matrix')
 }
