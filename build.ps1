@@ -2,6 +2,10 @@
 <#
 .SYNOPSIS
 Build tasks
+.PARAMETER Build
+Lint code, run tests and build C# link libraries
+.PARAMETER BuildOnly
+Do not lint code or run tests when used with -Build parameter
 .PARAMETER Lint
 Run static analysis on source code with PSScriptAnalyzer. -Lint can be used with -Test
 .PARAMETER Test
@@ -29,23 +33,24 @@ Exclude running tests (Describe or It) with certain tags
 Param(
     [Switch] $Lint,
     [Switch] $Test,
+    [Switch] $WithCoverage,
+    [Switch] $CI,
+    [Switch] $Build,
+    [Switch] $BuildOnly,
+    [Switch] $Publish,
+    [Switch] $Major,
+    [Switch] $Minor,
     [Switch] $Benchmark,
     [ValidateSet('windows', 'linux')]
     [String] $Platform = 'windows',
-    [Switch] $WithCoverage,
-    [Switch] $ShowCoverageReport,
-    [Switch] $CI,
     [ValidateSet('dotnet', 'powershell')]
     [String[]] $Skip,
-    [Switch] $BuildOnly,
     [String] $Filter,
     [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
     [String[]] $Tags,
     [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
     [String] $Exclude = '',
-    [Switch] $DryRun,
-    [Switch] $Major,
-    [Switch] $Minor
+    [Switch] $DryRun
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = Join-Path 'Prelude' 'src'
@@ -57,25 +62,47 @@ switch ($Platform) {
         $Exclude += 'LinuxOnly'
     }
 }
-function Invoke-Lint {
+function Invoke-Build {
     [CmdletBinding()]
-    Param()
-    '==> Running formatting and static analysis' | Write-Output
+    Param(
+        [String] $Version = '2019',
+        [String] $Offering = 'Community'
+    )
+    if ($Platform -ne 'windows') {
+        '==> Building Prelude link libraries is only supported on Windows' | Write-Warning
+    } else {
+        $ToolsDirectory = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering\Common7\Tools"
+    }
+    '==> BUILD TASK' | Write-Output
+    $ToolsDirectory | Write-Output
+}
+function Invoke-Lint {
+
+    [CmdletBinding()]
+    Param(
+        [Switch] $CI,
+        [Switch] $DryRun,
+        [String[]] $Skip
+    )
+    "==> Formatting C# code`n" | Write-Output
     if (-not ($Skip -contains 'dotnet')) {
         $Format = {
             Param(
                 [String] $Name
             )
             $Path = Join-Path "$PSScriptRoot/csharp/$Name" "${Name}.csproj"
-            "==> Formatting $Path" | Write-Output
             if ($DryRun) {
                 dotnet format --check $Path --verbosity diagnostic
             } else {
                 dotnet format $Path --verbosity detailed
             }
         }
-        'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
-            & $Format -Name $_
+        if ((Get-Command 'dotnet')) {
+            'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
+                & $Format -Name $_
+            }
+        } else {
+            'Global dotnet-format tool is required. Please run "./Invoke-Setup.ps1"' | Write-Error
         }
     }
     if (-not ($Skip -contains 'powershell')) {
@@ -94,9 +121,17 @@ function Invoke-Lint {
 }
 function Invoke-Test {
     [CmdletBinding()]
-    Param()
+    Param(
+        [Switch] $CI,
+        [String] $Exclude = '',
+        [String] $Filter,
+        [String[]] $Skip,
+        [String[]] $Tags,
+        [Switch] $WithCoverage
+    )
+    Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
     if (-not ($Skip -contains 'dotnet')) {
-        $Message = if ($CI) { "==> Executing C# tests on $Env:BuildSystem" } else { '==> Executing C# tests' }
+        $Message = if ($CI) { "==> Executing C# tests on $Env:PreludeBuildSystem" } else { '==> Executing C# tests' }
         $Message | Write-Output
         $ProjectPath = "$PSScriptRoot/csharp/Tests/Tests.csproj"
         if ($WithCoverage) {
@@ -123,7 +158,6 @@ function Invoke-Test {
             $Configuration.TestResult = @{ Enabled = $False }
         }
         if ($CI) {
-            Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
             "==> Executing PowerShell tests on $Env:PreludeBuildSystem" | Write-Output
         } else {
             '==> Executing PowerShell tests' | Write-Output
@@ -139,8 +173,13 @@ function Invoke-Test {
 }
 function Invoke-Publish {
     [CmdletBinding()]
-    Param()
-    $ProjectManifestPath = "$PSScriptRoot/Prelude/Prelude.psd1"
+    Param(
+        [Switch] $DryRun,
+        [Switch] $Major,
+        [Switch] $Minor
+    )
+    $ModulePath = Join-Path $PSScriptRoot 'Prelude'
+    $ProjectManifestPath = Join-Path $ModulePath 'Prelude.psd1'
     $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
     $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
     "${Prefix}==> $ValidateManifest" | Write-Output
@@ -156,7 +195,7 @@ function Invoke-Publish {
         "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
         Update-Metadata $ProjectManifestPath -Increment $Increment
         'Publishing module...' | Write-Output
-        Publish-Module -Path "$PSScriptRoot/Prelude" -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+        Publish-Module -Path $ModulePath -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
         "`n==> DONE`n" | Write-Output
     } else {
         "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
@@ -164,32 +203,74 @@ function Invoke-Publish {
         "${Prefix}==> DONE" | Write-Output
     }
 }
+$Tasks = @()
 if ($Benchmark) {
-    '==> Running C# Benchmarks' | Write-Output
-    $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
-    dotnet run --project $ProjectPath --configuration 'Release'
-} else {
-    if ($Lint -and -not $BuildOnly) {
-        Invoke-Lint
+    $Tasks += 'benchmark'
+}
+if ($Lint) {
+    $Tasks += 'lint'
+}
+if ($Test) {
+    $Tasks += 'test'
+}
+if ($Build) {
+    $Tasks += 'build'
+}
+if ($Publish) {
+    $Tasks += 'publish'
+}
+if ($Tasks.Count -eq 0) {
+    $Tasks += 'build'
+}
+switch ($Tasks) {
+    benchmark {
+        '==> Running C# Benchmarks' | Write-Output
+        $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
+        dotnet run --project $ProjectPath --configuration 'Release'
+        Break
     }
-    if ($Test -and -not $BuildOnly) {
-        Invoke-Test
+    lint {
+        $Parameters = @{
+            CI = $CI
+            DryRun = $DryRun
+            Skip = $Skip
+        }
+        Invoke-Lint @Parameters
     }
-    if ($ShowCoverageReport) {
-        $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-        if ($Test -and $WithCoverage) {
+    test {
+        $Parameters = @{
+            CI = $CI
+            Exclude = $Exclude
+            Filter = $Filter
+            Skip = $Skip
+            Tags = $Tags
+            WithCoverage = $WithCoverage
+        }
+        Invoke-Test @Parameters
+        if ($WithCoverage) {
             $SourceDirs = "$SourceDirectory"
+            $ReportTypes = 'Html;HtmlSummary;HtmlChart'
             reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
-        } else {
-            reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -reporttypes:$ReportTypes
         }
-        Invoke-Item './coverage/index.htm'
     }
-    if (-not $Lint -and -not $Test -and -not $ShowCoverageReport) {
-        if (-not $BuildOnly -and -not $DryRun) {
-            Invoke-Lint
-            Invoke-Test
+    build {
+        # Default task
+        if (-not $BuildOnly) {
+            Invoke-Lint -Skip 'powershell' -Platform 'windows'
+            Invoke-Test -Skip 'powershell'
         }
-        Invoke-Publish
+        Invoke-Build
+    }
+    publish {
+        $Parameters = @{
+            DryRun = $DryRun
+            Major = $Major
+            Minor = $Minor
+        }
+        Invoke-Publish @Parameters
+        Break
+    }
+    Default {
+        # Do nothing
     }
 }
