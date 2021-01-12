@@ -1,34 +1,4 @@
 ﻿#Requires -Modules BuildHelpers,pester
-<#
-.SYNOPSIS
-Build tasks
-.PARAMETER Build
-Lint code, run tests and build C# link libraries
-.PARAMETER BuildOnly
-Do not lint code or run tests when used with -Build parameter
-.PARAMETER Lint
-Run static analysis on source code with PSScriptAnalyzer. -Lint can be used with -Test
-.PARAMETER Test
-Run PowerShell unit tests. -Test can be used with -Lint
-.PARAMETER Benchmark
-Run C# benchmarks using BenchmarkDotNet
-.PARAMETER Check
-Verify development requirements are met, articulates which are not
-.PARAMETER Filter
-Only run tests (Describe or It) that match filter string (-like wildcards allowed)
-.PARAMETER Tags
-Only run tests (Describe or It) with certain tags
-.PARAMETER Exclude
-Exclude running tests (Describe or It) with certain tags
-.EXAMPLE
-.\Invoke-Task.ps1 -Test -Platform linux
-.EXAMPLE
-.\Invoke-Task.ps1 -Test -Filter '*Readability*'
-.EXAMPLE
-.\Invoke-Task.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
-.EXAMPLE
-.\Invoke-Task.ps1 -Test -WithCoverage -Skip dotnet
-#>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding()]
@@ -54,7 +24,8 @@ Param(
     [String[]] $Tags,
     [ValidateSet('Local', 'Remote', 'WindowsOnly', 'LinuxOnly')]
     [String] $Exclude = '',
-    [Switch] $DryRun
+    [Switch] $DryRun,
+    [Switch] $Help
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = Join-Path 'Prelude' 'src'
@@ -102,6 +73,7 @@ function Get-TaskList {
     [CmdletBinding()]
     Param()
     enum Task {
+        help
         benchmark
         check
         lint
@@ -110,6 +82,9 @@ function Get-TaskList {
         publish
     }
     $Tasks = @()
+    if ($Help) {
+        $Tasks += [Task]'help'
+    }
     if ($Benchmark) {
         $Tasks += [Task]'benchmark'
     }
@@ -130,7 +105,32 @@ function Get-TaskList {
     }
     $Tasks
 }
+function Invoke-Benchmark {
+    <#
+    .SYNOPSIS
+    Run C# benchmarks using BenchmarkDotNet
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Benchmark
+    .NOTES
+    When -Benchmark parameter is used, no other tasks will be executed.
+    #>
+    [CmdletBinding()]
+    Param()
+    '==> Running C# Benchmarks' | Write-Output
+    $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
+    dotnet run --project $ProjectPath --configuration 'Release'
+}
 function Invoke-Build {
+    <#
+    .SYNOPSIS
+    Format C# code, run C# tests, and build link libraries from C# code
+    .PARAMETER BuildOnly
+    Skip formatting code and running tests
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Build
+    .NOTES
+    Build link libraries are saved to ./Prelude/bin directory
+    #>
     [CmdletBinding()]
     Param(
         [String] $Version = '2019',
@@ -165,6 +165,17 @@ function Invoke-Build {
     }
 }
 function Invoke-Check {
+    <#
+    .SYNOPSIS
+    Run series of checks to determine if environment supports Prelude development.
+    .DESCRIPTION
+    Checks are run against Visual Studio 2019 Community Edition by default. Checks can be performed against other versions and offering using the -Version and -Offering parameters, respectively.
+    > Note: VS2019 Community Edition is the ONLY version currently support by the Prelude project.
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Check
+    .NOTES
+    When -Benchmark parameter is used, no other tasks will be executed.
+    #>
     [CmdletBinding()]
     Param(
         [String] $Version = '2019',
@@ -202,10 +213,29 @@ function Invoke-Check {
     Write-Message $Result
 }
 function Invoke-Lint {
-
+    <#
+    .SYNOPSIS
+    Format C# code using dotnet-format and run static analysis on PowerShell code (with auto-fix enabled) using PSScriptAnalyzer
+    .PARAMETER CI
+    Configure function for running on continuous integration (CI) server (example: AppVeyor)
+    .PARAMETER DryRun
+    Analyze code without saving any changes
+    .PARAMETER Skip
+    Skip static analysis powershell and/or dotnet
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Lint
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Lint -Skip dotnet
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Lint -Skip powershell
+    .NOTES
+    - PSScriptAnalyzer is configured by ./PSScriptAnalyzerSettings.psd1
+    - Custom PSScriptAnalyzer rules are added from ./PSScriptAnalyzerCustomRules.psm1
+    #>
     [CmdletBinding()]
     Param(
         [Switch] $CI,
+        [Alias('noop')]
         [Switch] $DryRun,
         [String[]] $Skip
     )
@@ -234,7 +264,7 @@ function Invoke-Lint {
         $Parameters = @{
             Path = $PSScriptRoot
             Settings = 'PSScriptAnalyzerSettings.psd1'
-            Fix = $True
+            Fix = (-not $DryRun)
             EnableExit = $CI
             ReportSummary = $True
             Recurse = $True
@@ -245,9 +275,32 @@ function Invoke-Lint {
     "`n" | Write-Output
 }
 function Invoke-Test {
+    <#
+    .SYNOPSIS
+    Run unit tests for C# using dotnet and PowerShell using Pester
+    .PARAMETER Exclude
+    Skip PowerShell tests with certain tag (example: LinuxOnly)
+    .PARAMETER Filter
+    Only run tests (Describe or It) that match filter string (-like wildcards allowed)
+    .PARAMETER Skip
+    Skip running tests for powershell and/or dotnet
+    .PARAMETER Tags
+    Only run tests (Describe or It) with certain tags
+    .PARAMETER WithCoverage
+    Generate code coverage data from unit tests
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Test -Skip powershell
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Test -WithCoverage
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Test -Tags Remote -Platform windows
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Test -Filter '*Readability*'
+    .NOTES
+    Coverage report can be opened with "Invoke-Item .\coverage\index.htm"
+    #>
     [CmdletBinding()]
     Param(
-        [Switch] $CI,
         [String] $Exclude = '',
         [String] $Filter,
         [String[]] $Skip,
@@ -256,9 +309,9 @@ function Invoke-Test {
     )
     Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
     if (-not ($Skip -contains 'dotnet')) {
-        $Message = if ($CI) { "==> Executing C# tests on $Env:PreludeBuildSystem" } else { '==> Executing C# tests' }
-        $Message | Write-Output
         $ProjectPath = "$PSScriptRoot/csharp/Tests/Tests.csproj"
+        $BuildSystem = if ($Env:PreludeBuildSystem -eq 'Unknown') { 'Local Computer' } else { $Env:PreludeBuildSystem }
+        "==> Executing C# tests on $BuildSystem" | Write-Output
         if ($WithCoverage) {
             dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
         } else {
@@ -282,11 +335,7 @@ function Invoke-Test {
             $Configuration.CodeCoverage = @{ Enabled = $True; Path = $Files }
             $Configuration.TestResult = @{ Enabled = $False }
         }
-        if ($CI) {
-            "==> Executing PowerShell tests on $Env:PreludeBuildSystem" | Write-Output
-        } else {
-            '==> Executing PowerShell tests' | Write-Output
-        }
+        "==> Executing PowerShell tests on $BuildSystem" | Write-Output
         $Result = Invoke-Pester -Configuration $Configuration
         if ($Result.FailedCount -gt 0) {
             $FailedMessage = "==> FAILED - $($Result.FailedCount) PowerShell test(s) failed"
@@ -297,8 +346,27 @@ function Invoke-Test {
     }
 }
 function Invoke-Publish {
+    <#
+    .SYNOPSIS
+    Update version and publish module to PowerShell Gallery
+    .PARAMETER DryRun
+    Go through steps without actually making changes or publishing module
+    .PARAMETER Major
+    Designate major version bump (i.e. 1.1.1 -> 2.0.0)
+    .PARAMETER Minor
+    Designate minor version bump (i.e. 1.1.1 -> 1.2.0)
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Publish
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Publish -Major
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Publish -Minor
+    .NOTES
+    When no version switch is used (-Major or -Minor), "build" version will be used (i.e. 1.1.1 -> 1.1.2)
+    #>
     [CmdletBinding()]
     Param(
+        [Alias('noop')]
         [Switch] $DryRun,
         [Switch] $Major,
         [Switch] $Minor
@@ -328,11 +396,37 @@ function Invoke-Publish {
         "${Prefix}==> DONE" | Write-Output
     }
 }
+function Invoke-Help {
+    [CmdletBinding()]
+    Param()
+    switch (Get-TaskList) {
+        benchmark {
+            Get-Help Invoke-Benchmark -Full
+        }
+        check {
+            Get-Help Invoke-Check -Full
+        }
+        lint {
+            Get-Help Invoke-Lint -Full
+        }
+        test {
+            Get-Help Invoke-Test -Full
+        }
+        build {
+            Get-Help Invoke-Build -Full
+        }
+        publish {
+            Get-Help Invoke-Publish -Full
+        }
+    }
+}
 switch (Get-TaskList) {
+    help {
+        Invoke-Help
+        Break
+    }
     benchmark {
-        '==> Running C# Benchmarks' | Write-Output
-        $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
-        dotnet run --project $ProjectPath --configuration 'Release'
+        Invoke-Benchmark
         Break
     }
     check {
@@ -349,7 +443,6 @@ switch (Get-TaskList) {
     }
     test {
         $Parameters = @{
-            CI = $CI
             Exclude = $Exclude
             Filter = $Filter
             Skip = $Skip
@@ -358,7 +451,7 @@ switch (Get-TaskList) {
         }
         Invoke-Test @Parameters
         if ($GenerateCoverageReport) {
-            $SourceDirs = "$SourceDirectory"
+            $SourceDirs = $SourceDirectory
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
             reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
         }
