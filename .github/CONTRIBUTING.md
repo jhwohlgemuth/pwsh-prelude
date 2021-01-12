@@ -22,19 +22,37 @@ If you would like to generously provide a pull request to correct a verified iss
 Project Architecture
 --------------------
 
-The main module file, [Prelude.psm1](../Prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../src) folder and sets some additional aliases. The files in the [src](../src) directory are named according to the general category of the functions it contains:
-- [`application.ps1`](../src/application.ps1): Collection of functions that can be used to create a PowerShell command line application
-- [`applied.ps1`](../src/applied.ps1): Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
-- [`core.ps1`](../src/core.ps1): Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../src) folder
-- [`data.ps1`](../src/data.ps1): Functions for ingesting and converting data
-- [`events.ps1`](../src/events.ps1): Functions needed for event-driven operations (inspired by `Backbone.Events`)
-- [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` objects
-- [`productivity.ps1`](../src/productivity.ps1): A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
-- [`user-interface.ps1`](../src/user-interface.ps1): Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
-- [`web.ps1`](../src/web.ps1): Functions for working with web technology
-- [`cs/Matrix`](../src/cs/Matrix): C# project directory for `[Matrix]` type accelator
-- [`cs/Geodetic`](../src/cs/Geodetic): C# project directory for `[Coordinate]` and `[Datum]` type accelators
-- [`cs/Graph`](../src/cs/Graph): C# project directory for `[Graph]`, `[Edge]`, and `[Node]` type accelators
+The Prelude module entry point, [Prelude.psm1](../Prelude/Prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../Prelude/src) folder. The files in the [src](../Prelude/src) directory are named according to the general category of the functions it contains:
+- [`Prelude\src\`](./Prelude/src)
+  - [`application.ps1`](../src/application.ps1): Collection of functions that can be used to create a PowerShell command line application
+  - [`applied.ps1`](../src/applied.ps1): Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
+  - [`core.ps1`](../src/core.ps1): Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../Prelude/src) folder
+  - [`data.ps1`](../src/data.ps1): Functions for ingesting and shaping data
+  - [`events.ps1`](../src/events.ps1): Functions needed for event-driven operations (inspired by [`Backbone.Events` API](https://backbonejs.org/#Events))
+  - [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` objects
+  - [`productivity.ps1`](../src/productivity.ps1): A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
+  - [`user-interface.ps1`](../src/user-interface.ps1): Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
+  - [`web.ps1`](../src/web.ps1): Functions for working with web technology
+- [`Prelude\formats\`](../Prelude/formats)
+  - [`Format.ps1xml` files](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_format.ps1xml?view=powershell-7.1)
+- [`Prelude\types\`](../Prelude/types)
+  - [`Types.ps1xml` files](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_types.ps1xml?view=powershell-7.1)
+- [`Prelude\Prelude.psd1`](../Prelude/Prelude.psd1): Prelude module manifest file
+- [`Prelude\Prelude.psd1`](../Prelude/Prelude.psm1): Prelude module entry point
+
+The Prelude project contains C# code that is added to the module as dynamic link libraries (DLLs). The code is organized as a single solution with multiple projects:
+- [`csharp\`]()
+  - [`Matrix\`](../csharp/Matrix)
+    - Project directory for `[Matrix]` type accelator <sup>[[5]](#footnotes)</sup>
+  - [`Geodetic\`](../csharp/Geodetic)
+    - Project directory for `[Coordinate]` and `[Datum]` type accelators <sup>[[5]](#footnotes)</sup>
+  - [`Graph\`](../csharp/Graph)
+    - Project directory for `[Graph]`, `[Edge]`, and `[Node]` type accelators <sup>[[5]](#footnotes)</sup>
+  - [`Performance\`](../csharp/Performance)
+    - Project directory for C# benchmarks
+    > ***NOTE***: Benchmarks are executed using [BenchmarkDotNet](https://benchmarkdotnet.org/)
+  - [`Tests\`](../csharp/Tests)
+    - Project directory for C# tests
 
 
 Project Setup <sup>[[1]](#footnotes)</sup>
@@ -46,22 +64,22 @@ Prelude uses a build script for PowerShell development tasks and `dotnet` for C#
 PowerShell Workflow Tasks
 -------------------------
 **Requirements**
-- Run `./Invoke-Setup.ps1` to install PowerShell development depencencies
+- Run `.\Invoke-Setup.ps1` to install PowerShell development depencencies
 > ***NOTE*** You may need to run `Set-ExecutionPolicy Unrestricted` before executing `Invoke-Setup.ps1`
 
 All PowerShell tasks are contained within [Invoke-Task.ps1](../Invoke-Task.ps1) and can be executed via the following commands:
 
-| Purpose                           | Command                                                         |
-| --------------------------------: | --------------------------------------------------------------- |
-| Lint **ALL** code                 | `./Invoke-Task.ps1 -Lint`                                       |
-| Lint **ONLY POWERSHELL** code     | `./Invoke-Task.ps1 -Lint -Skip dotnet`                          |
-| Lint **ALL** code and run **ALL** tests | `./Invoke-Task.ps1 -Lint -Test`                           |
-| **ALL** tests                     | `./Invoke-Task.ps1 -Test`                                       |
-| **ONLY** PowerShell tests         | `./Invoke-Task.ps1 -Test -Skip dotnet`                          |
-| **ONLY WINDOWS** PowerShell tests | `./Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
-| **ONLY LINUX** PowerShell tests   | `./Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
-| **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `./Invoke-Task.ps1 -Test -WithCoverage`  |
-| ...and open coverage report       | `./Invoke-Task.ps1 -Test -WithCoverage -ShowCoverageReport`     |
+| Purpose                                                  | Command                                                         |
+| -------------------------------------------------------: | --------------------------------------------------------------- |
+| Lint **ALL** code                                        | `.\Invoke-Task.ps1 -Lint`                                       |
+| Lint **ONLY POWERSHELL** code                            | `.\Invoke-Task.ps1 -Lint -Skip dotnet`                          |
+| Lint **ALL** code and run **ALL** tests                  | `.\Invoke-Task.ps1 -Lint -Test`                                 |
+| **ALL** tests                                            | `.\Invoke-Task.ps1 -Test`                                       |
+| **ONLY** PowerShell tests                                | `.\Invoke-Task.ps1 -Test -Skip dotnet`                          |
+| **ONLY WINDOWS** PowerShell tests                        | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
+| **ONLY LINUX** PowerShell tests                          | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
+| **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `.\Invoke-Task.ps1 -Test -WithCoverage`                         |
+| ...and open coverage report                              | `.\Invoke-Task.ps1 -Test -WithCoverage -ShowCoverageReport`     |
 
 > ***NOTE***: PowerShell tests are located in the `/tests` directory
 
@@ -73,19 +91,19 @@ C# Workflow Tasks
 
 **Lint C# code**
 ```PowerShell
-./Invoke-Task.ps1 -Lint -Skip powershell
+.\Invoke-Task.ps1 -Lint -Skip powershell
 ```
 
 **Run C# Tests**
 ```powershell
-./Invoke-Task.ps1 -Test -Skip powershell
+.\Invoke-Task.ps1 -Test -Skip powershell
 ```
 > ***NOTE***: C# tests are located in the `src/cs/Tests` directory
 
 **Run C# Benchmarks**
 > ***NOTE***: C# benchmarks depend on [BenchmarkDotNet](https://benchmarkdotnet.org/)
 ```powershell
-./Invoke-Task.ps1 -Benchmark
+.\Invoke-Task.ps1 -Benchmark
 ```
 
 Visual Studio Code Configuration
@@ -100,11 +118,11 @@ Visual Studio Code Configuration
 Project Standards
 =================
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
-- Running `./Invoke-Task.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
+- Running `.\Invoke-Task.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
 - Tests should have no failures when run locally
-  > **Windows:** `./Invoke-Task.ps1 -Test -Tag 'Local' -Exclude 'LinuxOnly'`
+  > **Windows:** `.\Invoke-Task.ps1 -Test -Tags Local -Platform Windows`
   
-  > **Linux:** `./Invoke-Task.ps1 -Test -Tag 'Local' -Exclude 'WindowsOnly'`
+  > **Linux:** `./Invoke-Task.ps1 -Test -Tags Local -Platform Linux`
 - Tests should have no failures when run remotely
 
   | Platform | Status |
@@ -164,7 +182,7 @@ Project Standards
 
 Footnotes
 ---------
-> **[1]** In an effor to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
+> **[1]** In an effort to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
 
 > **[2]** `-WithCoverage` and `-ShowCoverageReport` require that [ReportGenerator](https://danielpalme.github.io/ReportGenerator/) is installed and `reportgenerator.exe` is available from the command line.
 
@@ -174,3 +192,5 @@ Footnotes
   3. Custom rules defined within [`PSScriptAnalyzerCustomRules.psm1`](../PSScriptAnalyzerCustomRules.psm1)
 
 > **[4]** Should be "auto-fixed" by `.\Invoke-Task.ps1 -Lint`
+
+> **[5]** PowerShell type accelerators are added  [dynamic link libraries](../Prelude/bin) built from associated C# code
