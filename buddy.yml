@@ -20,7 +20,7 @@
     execute_commands:
     - "pwsh -v"
     - "pwsh -File ./Invoke-Setup.ps1"
-    - "pwsh -File ./build.ps1 -Lint"
+    - "pwsh -File ./Invoke-Task.ps1 -Lint"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
     trigger_condition: "ALWAYS"
@@ -33,7 +33,7 @@
     registry: "mcr.microsoft.com"
     execute_commands:
     - "pwsh -File ./Invoke-Setup.ps1"
-    - "pwsh -File ./build.ps1 -Test -Skip 'powershell'"
+    - "pwsh -File ./Invoke-Task.ps1 -Test -Skip 'powershell'"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
     trigger_condition: "ALWAYS"
@@ -46,7 +46,7 @@
     execute_commands:
     - "pwsh -Version"
     - "pwsh -File ./Invoke-Setup.ps1"
-    - "pwsh -File ./build.ps1 -Test -Tags 'Remote' -Exclude 'WindowsOnly' -Skip 'dotnet'"
+    - "pwsh -File ./Invoke-Task.ps1 -Test -Tags 'Remote' -Exclude 'WindowsOnly' -Skip 'dotnet'"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
     trigger_condition: "ALWAYS"

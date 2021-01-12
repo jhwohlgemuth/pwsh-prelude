@@ -49,19 +49,19 @@ PowerShell Workflow Tasks
 - Run `./Invoke-Setup.ps1` to install PowerShell development depencencies
 > ***NOTE*** You may need to run `Set-ExecutionPolicy Unrestricted` before executing `Invoke-Setup.ps1`
 
-All PowerShell tasks are contained within [build.ps1](../build.ps1) and can be executed via the following commands:
+All PowerShell tasks are contained within [Invoke-Task.ps1](../Invoke-Task.ps1) and can be executed via the following commands:
 
-| Purpose                           | Command                                                   |
-| --------------------------------: | --------------------------------------------------------- |
-| Lint **ALL** code                 | `./build.ps1 -Lint`                                       |
-| Lint **ONLY POWERSHELL** code     | `./build.ps1 -Lint -Skip dotnet`                          |
-| Lint **ALL** code and run **ALL** tests | `./build.ps1 -Lint -Test`                         |
-| **ALL** tests                     | `./build.ps1 -Test`                                       |
-| **ONLY** PowerShell tests         | `./build.ps1 -Test -Skip dotnet`                          |
-| **ONLY WINDOWS** PowerShell tests | `./build.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
-| **ONLY LINUX** PowerShell tests   | `./build.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
-| **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `./build.ps1 -Test -WithCoverage`  |
-| ...and open coverage report       | `./build.ps1 -Test -WithCoverage -ShowCoverageReport`     |
+| Purpose                           | Command                                                         |
+| --------------------------------: | --------------------------------------------------------------- |
+| Lint **ALL** code                 | `./Invoke-Task.ps1 -Lint`                                       |
+| Lint **ONLY POWERSHELL** code     | `./Invoke-Task.ps1 -Lint -Skip dotnet`                          |
+| Lint **ALL** code and run **ALL** tests | `./Invoke-Task.ps1 -Lint -Test`                           |
+| **ALL** tests                     | `./Invoke-Task.ps1 -Test`                                       |
+| **ONLY** PowerShell tests         | `./Invoke-Task.ps1 -Test -Skip dotnet`                          |
+| **ONLY WINDOWS** PowerShell tests | `./Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
+| **ONLY LINUX** PowerShell tests   | `./Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
+| **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `./Invoke-Task.ps1 -Test -WithCoverage`  |
+| ...and open coverage report       | `./Invoke-Task.ps1 -Test -WithCoverage -ShowCoverageReport`     |
 
 > ***NOTE***: PowerShell tests are located in the `/tests` directory
 
@@ -73,19 +73,19 @@ C# Workflow Tasks
 
 **Lint C# code**
 ```PowerShell
-./build.ps1 -Lint -Skip powershell
+./Invoke-Task.ps1 -Lint -Skip powershell
 ```
 
 **Run C# Tests**
 ```powershell
-./build.ps1 -Test -Skip powershell
+./Invoke-Task.ps1 -Test -Skip powershell
 ```
 > ***NOTE***: C# tests are located in the `src/cs/Tests` directory
 
 **Run C# Benchmarks**
 > ***NOTE***: C# benchmarks depend on [BenchmarkDotNet](https://benchmarkdotnet.org/)
 ```powershell
-./build.ps1 -Benchmark
+./Invoke-Task.ps1 -Benchmark
 ```
 
 Visual Studio Code Configuration
@@ -100,11 +100,11 @@ Visual Studio Code Configuration
 Project Standards
 =================
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
-- Running `./build.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
+- Running `./Invoke-Task.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
 - Tests should have no failures when run locally
-  > **Windows:** `./build.ps1 -Test -Tag 'Local' -Exclude 'LinuxOnly'`
+  > **Windows:** `./Invoke-Task.ps1 -Test -Tag 'Local' -Exclude 'LinuxOnly'`
   
-  > **Linux:** `./build.ps1 -Test -Tag 'Local' -Exclude 'WindowsOnly'`
+  > **Linux:** `./Invoke-Task.ps1 -Test -Tag 'Local' -Exclude 'WindowsOnly'`
 - Tests should have no failures when run remotely
 
   | Platform | Status |
@@ -113,7 +113,7 @@ Project Standards
   | Linux    | [![Buddy pipeline status](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "Linux")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)    |
 
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
-- Although this project has many rules <sup>[[3]](#footnotes)</sup>, running `./build.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
+- Although this project has many rules <sup>[[3]](#footnotes)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
   - Use two-spaces for indentation <sup>[[4]](#footnotes)</sup>
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
@@ -173,4 +173,4 @@ Footnotes
   2. Rules enabled by [`PSScriptAnalyzerSettings.psd1`](../PSScriptAnalyzerSettings.psd1)
   3. Custom rules defined within [`PSScriptAnalyzerCustomRules.psm1`](../PSScriptAnalyzerCustomRules.psm1)
 
-> **[4]** Should be "auto-fixed" by `.\build.ps1 -Lint`
+> **[4]** Should be "auto-fixed" by `.\Invoke-Task.ps1 -Lint`

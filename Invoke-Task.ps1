@@ -12,6 +12,8 @@ Run static analysis on source code with PSScriptAnalyzer. -Lint can be used with
 Run PowerShell unit tests. -Test can be used with -Lint
 .PARAMETER Benchmark
 Run C# benchmarks using BenchmarkDotNet
+.PARAMETER Check
+Verify development requirements are met, articulates which are not
 .PARAMETER Filter
 Only run tests (Describe or It) that match filter string (-like wildcards allowed)
 .PARAMETER Tags
@@ -19,13 +21,13 @@ Only run tests (Describe or It) with certain tags
 .PARAMETER Exclude
 Exclude running tests (Describe or It) with certain tags
 .EXAMPLE
-.\build.ps1 -Test -Platform linux
+.\Invoke-Task.ps1 -Test -Platform linux
 .EXAMPLE
-.\build.ps1 -Test -Filter '*Readability*'
+.\Invoke-Task.ps1 -Test -Filter '*Readability*'
 .EXAMPLE
-.\build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
+.\Invoke-Task.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
 .EXAMPLE
-.\build.ps1 -Test -WithCoverage -Skip dotnet
+.\Invoke-Task.ps1 -Test -WithCoverage -Skip dotnet
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
@@ -38,6 +40,7 @@ Param(
     [Switch] $CI,
     [Switch] $Build,
     [Switch] $BuildOnly,
+    [Switch] $Check,
     [Switch] $Publish,
     [Switch] $Major,
     [Switch] $Minor,
@@ -63,11 +66,44 @@ switch ($Platform) {
         $Exclude += 'LinuxOnly'
     }
 }
+function Write-Message {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0)]
+        [ValidateSet('done', 'pass', 'fail')]
+        [String] $Text
+    )
+    $Message = switch ($Text) {
+        pass {
+            '
+██████╗  █████╗ ███████╗███████╗
+██╔══██╗██╔══██╗██╔════╝██╔════╝
+██████╔╝███████║███████╗███████╗
+██╔═══╝ ██╔══██║╚════██║╚════██║
+██║     ██║  ██║███████║███████║
+╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝'
+        }
+        fail {
+            '
+  █████▒▄▄▄       ██▓ ██▓
+▓██   ▒▒████▄    ▓██▒▓██▒
+▒████ ░▒██  ▀█▄  ▒██▒▒██░
+░▓█▒  ░░██▄▄▄▄██ ░██░▒██░
+░▒█░    ▓█   ▓██▒░██░░██████▒
+▒ ░    ▒▒   ▓▒█░░▓  ░ ▒░▓  ░
+░       ▒   ▒▒ ░ ▒ ░░ ░ ▒  ░
+░ ░     ░   ▒    ▒ ░  ░ ░
+            ░  ░ ░      ░  ░'
+        }
+    }
+    $Message | Write-Output
+}
 function Get-TaskList {
     [CmdletBinding()]
     Param()
     enum Task {
         benchmark
+        check
         lint
         test
         build
@@ -76,6 +112,9 @@ function Get-TaskList {
     $Tasks = @()
     if ($Benchmark) {
         $Tasks += [Task]'benchmark'
+    }
+    if ($Check) {
+        $Tasks += [Task]'check'
     }
     if ($Lint) {
         $Tasks += [Task]'lint'
@@ -88,9 +127,6 @@ function Get-TaskList {
     }
     if ($Publish) {
         $Tasks += [Task]'publish'
-    }
-    if ($Tasks.Count -eq 0) {
-        $Tasks += [Task]'build'
     }
     $Tasks
 }
@@ -113,15 +149,57 @@ function Invoke-Build {
         $OutputDirectory = "$PSScriptRoot/Prelude/bin"
         'Geodetic', 'Matrix' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/Geodetic.dll" -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -target:library -optimize -nologo
         }
-        'Node', 'Edge', 'Graph' | ForEach-Object {
+        'Node', 'Edge' | ForEach-Object {
+            "==> Building $_ link library" | Write-Output
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -target:library -optimize -nologo
+        }
+        'Graph' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Edge.dll -target:library -optimize -nologo
         }
+        Write-Message done
     } else {
         'Could not find C# compiler (csc.exe)' | Write-Error
     }
+}
+function Invoke-Check {
+    [CmdletBinding()]
+    Param(
+        [String] $Version = '2019',
+        [String] $Offering = 'Community'
+    )
+    $VisualStudioRoot = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering"
+    $Results = @()
+    $Fails = 0
+    if ((Get-Command 'dotnet')) {
+        $Results += '[+] dotnet command is available!'
+    } else {
+        $Results += '[-] Failed to find dotnet command...'
+        $Fails++
+    }
+    if ((Get-Command 'reportgenerator.exe')) {
+        $Results += '[+] reportgenerator command is available!'
+    } else {
+        $Results += '[-] Failed to find reportgenerator command...'
+        $Fails++
+    }
+    if ((Test-Path "$VisualStudioRoot\Common7\Tools\VsDevCmd.bat")) {
+        $Results += '[+] Successfully found VsDevCmd.bat!'
+    } else {
+        $Results += '[-] Failed to find necessary BAT file...'
+        $Fails++
+    }
+    if ((Test-Path "$VisualStudioRoot\MSBuild\Current\Bin\Roslyn\csc.exe")) {
+        $Results += '[+] Successfully found csc.exe!'
+    } else {
+        $Results += '[-] Failed to find C# compiler...'
+        $Fails++
+    }
+    $Results | ForEach-Object { $_ | Write-Output }
+    $Result = if ($Fails -eq 0) { 'pass' } else { 'fail' }
+    Write-Message $Result
 }
 function Invoke-Lint {
 
@@ -131,8 +209,8 @@ function Invoke-Lint {
         [Switch] $DryRun,
         [String[]] $Skip
     )
-    "==> Formatting C# code`n" | Write-Output
     if (-not ($Skip -contains 'dotnet')) {
+        "==> Formatting C# code`n" | Write-Output
         $Format = {
             Param(
                 [String] $Name
@@ -214,7 +292,7 @@ function Invoke-Test {
             $FailedMessage = "==> FAILED - $($Result.FailedCount) PowerShell test(s) failed"
             throw $FailedMessage
         } else {
-            "`nPowerShell SUCCESS`n" | Write-Output
+            Write-Message pass
         }
     }
 }
@@ -257,6 +335,10 @@ switch (Get-TaskList) {
         dotnet run --project $ProjectPath --configuration 'Release'
         Break
     }
+    check {
+        Invoke-Check
+        Break
+    }
     lint {
         $Parameters = @{
             CI = $CI
@@ -282,7 +364,6 @@ switch (Get-TaskList) {
         }
     }
     build {
-        # Default task
         if (-not $BuildOnly) {
             Invoke-Lint -Skip 'powershell'
             Invoke-Test -Skip 'powershell'
