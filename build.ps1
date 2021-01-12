@@ -19,9 +19,9 @@ Only run tests (Describe or It) with certain tags
 .PARAMETER Exclude
 Exclude running tests (Describe or It) with certain tags
 .EXAMPLE
-.\build.ps1 -Test -Filter '*Readability*' -Exclude 'LinuxOnly'
+.\build.ps1 -Test -Platform linux
 .EXAMPLE
-.\build.ps1 -Test -Filter '*Readability*' -Tags 'WindowsOnly'
+.\build.ps1 -Test -Filter '*Readability*'
 .EXAMPLE
 .\build.ps1 -CI -Test -Tags 'Remote' -Exclude 'LinuxOnly' -WithCoverage
 .EXAMPLE
@@ -34,6 +34,7 @@ Param(
     [Switch] $Lint,
     [Switch] $Test,
     [Switch] $WithCoverage,
+    [Switch] $GenerateCoverageReport,
     [Switch] $CI,
     [Switch] $Build,
     [Switch] $BuildOnly,
@@ -62,19 +63,65 @@ switch ($Platform) {
         $Exclude += 'LinuxOnly'
     }
 }
+function Get-TaskList {
+    [CmdletBinding()]
+    Param()
+    enum Task {
+        benchmark
+        lint
+        test
+        build
+        publish
+    }
+    $Tasks = @()
+    if ($Benchmark) {
+        $Tasks += [Task]'benchmark'
+    }
+    if ($Lint) {
+        $Tasks += [Task]'lint'
+    }
+    if ($Test) {
+        $Tasks += [Task]'test'
+    }
+    if ($Build) {
+        $Tasks += [Task]'build'
+    }
+    if ($Publish) {
+        $Tasks += [Task]'publish'
+    }
+    if ($Tasks.Count -eq 0) {
+        $Tasks += [Task]'build'
+    }
+    $Tasks
+}
 function Invoke-Build {
     [CmdletBinding()]
     Param(
         [String] $Version = '2019',
         [String] $Offering = 'Community'
     )
-    if ($Platform -ne 'windows') {
-        '==> Building Prelude link libraries is only supported on Windows' | Write-Warning
+    $ToolsDirectory = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering\Common7\Tools"
+    $CompilerPath = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering\MSBuild\Current\Bin\Roslyn\csc.exe"
+    if ((Test-Path $ToolsDirectory)) {
+        '==> Setting environment variables' | Write-Output
+        & (Join-Path $ToolsDirectory 'VsDevCmd.bat') -no_logo
     } else {
-        $ToolsDirectory = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering\Common7\Tools"
+        'Could not find VsDevCmd.bat which is needed to set environment variables' | Write-Error
     }
-    '==> BUILD TASK' | Write-Output
-    $ToolsDirectory | Write-Output
+    if ((Test-Path $CompilerPath)) {
+        $CsharpDirectory = "$PSScriptRoot/csharp"
+        $OutputDirectory = "$PSScriptRoot/Prelude/bin"
+        'Geodetic', 'Matrix' | ForEach-Object {
+            "==> Building $_ link library" | Write-Output
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/Geodetic.dll" -target:library -optimize -nologo
+        }
+        'Node', 'Edge', 'Graph' | ForEach-Object {
+            "==> Building $_ link library" | Write-Output
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Edge.dll -target:library -optimize -nologo
+        }
+    } else {
+        'Could not find C# compiler (csc.exe)' | Write-Error
+    }
 }
 function Invoke-Lint {
 
@@ -203,26 +250,7 @@ function Invoke-Publish {
         "${Prefix}==> DONE" | Write-Output
     }
 }
-$Tasks = @()
-if ($Benchmark) {
-    $Tasks += 'benchmark'
-}
-if ($Lint) {
-    $Tasks += 'lint'
-}
-if ($Test) {
-    $Tasks += 'test'
-}
-if ($Build) {
-    $Tasks += 'build'
-}
-if ($Publish) {
-    $Tasks += 'publish'
-}
-if ($Tasks.Count -eq 0) {
-    $Tasks += 'build'
-}
-switch ($Tasks) {
+switch (Get-TaskList) {
     benchmark {
         '==> Running C# Benchmarks' | Write-Output
         $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
@@ -247,7 +275,7 @@ switch ($Tasks) {
             WithCoverage = $WithCoverage
         }
         Invoke-Test @Parameters
-        if ($WithCoverage) {
+        if ($GenerateCoverageReport) {
             $SourceDirs = "$SourceDirectory"
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
             reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
@@ -256,7 +284,7 @@ switch ($Tasks) {
     build {
         # Default task
         if (-not $BuildOnly) {
-            Invoke-Lint -Skip 'powershell' -Platform 'windows'
+            Invoke-Lint -Skip 'powershell'
             Invoke-Test -Skip 'powershell'
         }
         Invoke-Build
@@ -269,8 +297,5 @@ switch ($Tasks) {
         }
         Invoke-Publish @Parameters
         Break
-    }
-    Default {
-        # Do nothing
     }
 }
