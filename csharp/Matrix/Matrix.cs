@@ -197,11 +197,9 @@ namespace Prelude {
             } else {
                 var temp = new Matrix(rows - 1, cols);
                 for (var i = 0; i < index; ++i)
-                    for (var j = 0; j < cols; ++j)
-                        temp.Rows[i][j] = original.Rows[i][j];
+                    temp.Rows[i] = original.Rows[i];
                 for (var i = index; i < rows - 1; ++i)
-                    for (var j = 0; j < cols; ++j)
-                        temp.Rows[i][j] = original.Rows[i + 1][j];
+                    temp.Rows[i] = original.Rows[i + 1];
                 return temp;
             }
         }
