@@ -24,14 +24,14 @@ Project Architecture
 
 The Prelude module entry point, [Prelude.psm1](../Prelude/Prelude.psm1), simply imports the functions of every `.ps1` file in the [src](../Prelude/src) folder. The files in the [src](../Prelude/src) directory are named according to the general category of the functions it contains:
 - [`Prelude\src\`](./Prelude/src)
-  - [`application.ps1`](../src/application.ps1): Collection of functions that can be used to create a PowerShell command line application
-  - [`applied.ps1`](../src/applied.ps1): Library of functions for performing applied mathematics such as probability, combinatorics, and statistics 
+  - [`application.ps1`](../src/application.ps1): Functions that can be used to create a PowerShell command line application
+  - [`applied.ps1`](../src/applied.ps1): Functions for performing applied mathematics such as probability, combinatorics, and statistics 
   - [`core.ps1`](../src/core.ps1): Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../Prelude/src) folder
-  - [`data.ps1`](../src/data.ps1): Functions for ingesting and shaping data
+  - [`data.ps1`](../src/data.ps1): Functions for ingesting, analyzing, and shaping various types of data
   - [`events.ps1`](../src/events.ps1): Functions needed for event-driven operations (inspired by [`Backbone.Events` API](https://backbonejs.org/#Events))
   - [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` objects
-  - [`productivity.ps1`](../src/productivity.ps1): A grab bag of sorts that contains functions like `Home`, `Take`, and `Test-Empty`.
-  - [`user-interface.ps1`](../src/user-interface.ps1): Functions and utilties that could be used to make a PowerShell CLI application (see [the kitchen sink](../kitchensink.ps1) for an example)
+  - [`productivity.ps1`](../src/productivity.ps1): A grab bag that contains functions like `Touch`, `Take`, and `Test-Empty`
+  - [`user-interface.ps1`](../src/user-interface.ps1): User interface components such as text inputs and multi-select menus (see [the kitchen sink](../kitchensink.ps1) for an example)
   - [`web.ps1`](../src/web.ps1): Functions for working with web technology
 - [`Prelude\formats\`](../Prelude/formats)
   - [`Format.ps1xml` files](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_format.ps1xml?view=powershell-7.1)
