@@ -7,6 +7,7 @@ Param(
     [Switch] $Test,
     [Switch] $WithCoverage,
     [Switch] $GenerateCoverageReport,
+    [Switch] $Show,
     [Switch] $CI,
     [Switch] $Build,
     [Switch] $BuildOnly,
@@ -454,6 +455,9 @@ switch (Get-TaskList) {
             $SourceDirs = $SourceDirectory
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
             reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
+            if ($Show) {
+                Invoke-Item ./coverage/index.htm
+            }
         }
     }
     build {

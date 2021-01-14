@@ -37,14 +37,14 @@ namespace Prelude {
             Size = new int[] { n, n };
             Rows = Create<double>(n, n);
         }
-        public Matrix(int rows, int cols) {
-            Size = new int[] { rows, cols };
-            Rows = Create<double>(rows, cols);
+        public Matrix(int rowCount, int columnCount) {
+            Size = new int[] { rowCount, columnCount };
+            Rows = Create<double>(rowCount, columnCount);
         }
-        public static T[][] Create<T>(int rows, int cols) {
-            T[][] result = new T[rows][];
-            for (int i = 0; i < rows; ++i)
-                result[i] = new T[cols];
+        public static T[][] Create<T>(int rowCount, int columnCount) {
+            T[][] result = new T[rowCount][];
+            for (int i = 0; i < rowCount; ++i)
+                result[i] = new T[columnCount];
             return result;
         }
         public static Matrix Unit(int n) {
@@ -104,15 +104,15 @@ namespace Prelude {
             };
         }
         public static double Det(Matrix a) {
-            int rows = a.Size[0];
-            switch (rows) {
+            int rowCount = a.Size[0];
+            switch (rowCount) {
                 case 1:
                     return a.Rows[0][0];
                 case 2:
                     return (a.Rows[0][0] * a.Rows[1][1]) - (a.Rows[0][1] * a.Rows[1][0]);
                 default:
                     double sum = 0;
-                    Parallel.For(0, rows, () => 0, CalculateDeterminantParallel(a), x => InterlockAddDoubles(ref sum, x));
+                    Parallel.For(0, rowCount, () => 0, CalculateDeterminantParallel(a), x => InterlockAddDoubles(ref sum, x));
                     return sum;
             }
         }
@@ -131,7 +131,7 @@ namespace Prelude {
         }
         public static Matrix Invert(Matrix a) {
             var adjugate = Adj(a);
-            double det = Det(a);
+            var det = Det(a);
             return Multiply(adjugate, 1 / det);
         }
         public static Matrix Multiply(Matrix a, double k) {
@@ -173,35 +173,88 @@ namespace Prelude {
                 }
             return pairs;
         }
-        public Matrix RemoveColumn(int index) {
-            var original = Clone();
-            int rows = original.Size[0], cols = original.Size[1];
-            if (index < 0 || index >= cols) {
+        public Matrix InsertColumn(int index, double[] column) {
+            var original = this;
+            int rowCount = original.Size[0], columnCount = original.Size[1];
+            if (index < 0 || index > columnCount || column.Length > rowCount) {
                 return original;
             } else {
-                var temp = new Matrix(rows, cols - 1);
-                for (var i = 0; i < rows; ++i)
+                var updatedColumnCount = columnCount + 1;
+                var updated = new Matrix(rowCount, updatedColumnCount);
+                for (var i = 0; i < rowCount; ++i)
                     for (var j = 0; j < index; ++j)
-                        temp.Rows[i][j] = original.Rows[i][j];
-                for (var i = 0; i < rows; ++i)
-                    for (var j = index; j < cols - 1; ++j)
-                        temp.Rows[i][j] = original.Rows[i][j + 1];
-                return temp;
+                        updated.Rows[i][j] = original.Rows[i][j];
+                for (var i = 0; i < column.Length; ++i)
+                    updated.Rows[i][index] = column[i];
+                for (var i = 0; i < rowCount; ++i)
+                    for (var j = index + 1; j < updatedColumnCount; ++j)
+                        updated.Rows[i][j] = original.Rows[i][j - 1];
+                return updated;
+            }
+        }
+        public Matrix InsertRow(int index, double[] row) {
+            var original = this;
+            int rowCount = original.Size[0], columnCount = original.Size[1];
+            if (index < 0 || index > rowCount || row.Length > columnCount) {
+                return original;
+            } else {
+                var updatedRowCount = rowCount + 1;
+                var updated = new Matrix(updatedRowCount, columnCount);
+                for (var i = 0; i < index; ++i)
+                    updated.Rows[i] = original.Rows[i];
+                updated.Rows[index] = row;
+                for (var i = index + 1; i < updatedRowCount; ++i)
+                    updated.Rows[i] = original.Rows[i - 1];
+                return updated;
+            }
+        }
+        public Matrix MultiplyRowByScalar(int index, double k) {
+            var clone = Clone();
+            int columnCount = clone.Size[1];
+            for (var i = 0; i < columnCount; ++i) {
+                var item = clone.Rows[index][i];
+                clone.Rows[index][i] = (k * item);
+            }
+            return clone;
+        }
+        public Matrix RemoveColumn(int index) {
+            var original = this;
+            int rowCount = original.Size[0], columnCount = original.Size[1];
+            if (index < 0 || index >= columnCount) {
+                return original;
+            } else {
+                var updatedColumnCount = columnCount - 1;
+                var updated = new Matrix(rowCount, updatedColumnCount);
+                for (var i = 0; i < rowCount; ++i)
+                    for (var j = 0; j < index; ++j)
+                        updated.Rows[i][j] = original.Rows[i][j];
+                for (var i = 0; i < rowCount; ++i)
+                    for (var j = index; j < updatedColumnCount; ++j)
+                        updated.Rows[i][j] = original.Rows[i][j + 1];
+                return updated;
             }
         }
         public Matrix RemoveRow(int index) {
-            var original = Clone();
-            int rows = original.Size[0], cols = original.Size[1];
-            if (index < 0 || index >= rows) {
+            var original = this;
+            int rowCount = original.Size[0], columnCount = original.Size[1];
+            if (index < 0 || index >= rowCount) {
                 return original;
             } else {
-                var temp = new Matrix(rows - 1, cols);
+                var updatedRowCount = rowCount - 1;
+                var updated = new Matrix(updatedRowCount, columnCount);
                 for (var i = 0; i < index; ++i)
-                    temp.Rows[i] = original.Rows[i];
-                for (var i = index; i < rows - 1; ++i)
-                    temp.Rows[i] = original.Rows[i + 1];
-                return temp;
+                    updated.Rows[i] = original.Rows[i];
+                for (var i = index; i < updatedRowCount; ++i)
+                    updated.Rows[i] = original.Rows[i + 1];
+                return updated;
             }
+        }
+        public Matrix SwapRows(int a, int b) {
+            var clone = Clone();
+            var original = Rows[a];
+            clone.Rows[a] = Rows[b];
+            clone.Rows[b] = original;
+            return clone;
         }
         public override string ToString() {
             var matrix = this;

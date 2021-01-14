@@ -295,7 +295,26 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Remove_Rows() {
+        public void Can_Multiply_Row_by_Scalar() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 2 },
+                { 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var B = A.MultiplyRowByScalar(1, 4);
+            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
+            Assert.Equal(new double[] { 12, 16 }, B.Rows[1]);
+            var C = A.MultiplyRowByScalar(1, 4).MultiplyRowByScalar(0, 5);
+            Assert.Equal(new double[] { 5, 10 }, C.Rows[0]);
+            Assert.Equal(new double[] { 12, 16 }, C.Rows[1]);
+        }
+        [Fact]
+        [Trait("Category", "Instance")]
+        public void Can_Insert_Columns() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -306,22 +325,87 @@ namespace MatrixTests {
                 int i = Index[0], j = Index[1];
                 A.Rows[i][j] = rows[i, j];
             }
-            var edited = A.RemoveRow(0);
-            Assert.Equal(new int[] { 2, 3 }, edited.Size);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[1]);
-            edited = A.RemoveRow(1);
-            Assert.Equal(new int[] { 2, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[1]);
-            edited = A.RemoveRow(2);
-            Assert.Equal(new int[] { 2, 3 }, edited.Size);
+            var edited = A.InsertColumn(0, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 4 }, edited.Size);
+            Assert.Equal(new double[] { 11, 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 22, 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 33, 7, 8, 9 }, edited.Rows[2]);
+            edited = A.InsertColumn(1, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 4 }, edited.Size);
+            Assert.Equal(new double[] { 1, 11, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 22, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 33, 8, 9 }, edited.Rows[2]);
+            edited = A.InsertColumn(3, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 4 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3, 11 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6, 22 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9, 33 }, edited.Rows[2]);
+            edited = A.InsertColumn(4, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
             Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
             Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            edited = A.RemoveRow(2).RemoveColumn(0);
-            Assert.Equal(new int[] { 2, 2 }, edited.Size);
-            Assert.Equal(new double[] { 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            edited = A.InsertColumn(3, new double[] { 11, 22, 33 }).InsertColumn(3, new double[] { 44, 55, 66 });
+            Assert.Equal(new int[] { 3, 5 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3, 44, 11 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6, 55, 22 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9, 66, 33 }, edited.Rows[2]);
+            edited = A.InsertColumn(1, new double[] { 11, 22, 33 }).InsertColumn(4, new double[] { 44, 55, 66 });
+            Assert.Equal(new int[] { 3, 5 }, edited.Size);
+            Assert.Equal(new double[] { 1, 11, 2, 3, 44 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 22, 5, 6, 55 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 33, 8, 9, 66 }, edited.Rows[2]);
+        }
+        [Fact]
+        [Trait("Category", "Instance")]
+        public void Can_Insert_Rows() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 7, 8, 9 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var edited = A.InsertRow(0, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 4, 3 }, edited.Size);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[3]);
+            edited = A.InsertRow(1, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 4, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[3]);
+            edited = A.InsertRow(3, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 4, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[3]);
+            edited = A.InsertRow(4, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            edited = A.InsertRow(1, new double[] { 11, 22, 33 }).InsertRow(1, new double[] { 44, 55, 66 });
+            Assert.Equal(new int[] { 5, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 44, 55, 66 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[3]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[4]);
+            edited = A.InsertRow(1, new double[] { 11, 22, 33 }).InsertRow(4, new double[] { 44, 55, 66 });
+            Assert.Equal(new int[] { 5, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[3]);
+            Assert.Equal(new double[] { 44, 55, 66 }, edited.Rows[4]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -351,10 +435,81 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 1, 2 }, edited.Rows[0]);
             Assert.Equal(new double[] { 4, 5 }, edited.Rows[1]);
             Assert.Equal(new double[] { 7, 8 }, edited.Rows[2]);
+            edited = A.RemoveColumn(3);
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            edited = A.RemoveColumn(-1);
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
             edited = A.RemoveColumn(0).RemoveRow(0);
             Assert.Equal(new int[] { 2, 2 }, edited.Size);
             Assert.Equal(new double[] { 5, 6 }, edited.Rows[0]);
             Assert.Equal(new double[] { 8, 9 }, edited.Rows[1]);
+        }
+        [Fact]
+        [Trait("Category", "Instance")]
+        public void Can_Remove_Rows() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 7, 8, 9 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var edited = A.RemoveRow(0);
+            Assert.Equal(new int[] { 2, 3 }, edited.Size);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[1]);
+            edited = A.RemoveRow(1);
+            Assert.Equal(new int[] { 2, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[1]);
+            edited = A.RemoveRow(2);
+            Assert.Equal(new int[] { 2, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            edited = A.RemoveRow(3);
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            edited = A.RemoveRow(-1);
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            edited = A.RemoveRow(2).RemoveColumn(0);
+            Assert.Equal(new int[] { 2, 2 }, edited.Size);
+            Assert.Equal(new double[] { 2, 3 }, edited.Rows[0]);
+            Assert.Equal(new double[] { 5, 6 }, edited.Rows[1]);
+        }
+        [Fact]
+        [Trait("Category", "Instance")]
+        public void Can_Swap_Rows() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 2 },
+                { 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var B = A.SwapRows(0, 1);
+            Assert.Equal(new double[] { 3, 4 }, B.Rows[0]);
+            Assert.Equal(new double[] { 1, 2 }, B.Rows[1]);
+            B = A.SwapRows(1, 0);
+            Assert.Equal(new double[] { 3, 4 }, B.Rows[0]);
+            Assert.Equal(new double[] { 1, 2 }, B.Rows[1]);
+            Assert.Throws<IndexOutOfRangeException>(() => A.SwapRows(-1, 0));
+            Assert.Throws<IndexOutOfRangeException>(() => A.SwapRows(3, 1));
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -370,6 +525,19 @@ namespace MatrixTests {
             }
             string output = A.ToString();
             Assert.Equal("1,2\r\n3,4", output);
+        }
+        [Fact]
+        [Trait("Category", "Determinant")]
+        public void Can_Calculate_Determinant_for_1x1_Matrices() {
+            var A = new Matrix(1);
+            double[,] rows = new double[1, 1] {
+                { 1 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(1, Matrix.Det(A));
         }
         [Fact]
         [Trait("Category", "Determinant")]
