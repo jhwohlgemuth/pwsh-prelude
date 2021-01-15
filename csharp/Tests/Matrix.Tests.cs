@@ -295,6 +295,28 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
+        public void Can_Perform_Elementary_Row_Operations() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 2 },
+                { 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var B = A.ElementaryRowOperation(0, 1);
+            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
+            Assert.Equal(new double[] { 4, 6 }, B.Rows[1]);
+            B = A.ElementaryRowOperation(0, 1, 5);
+            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
+            Assert.Equal(new double[] { 8, 14 }, B.Rows[1]);
+            B = A.ElementaryRowOperation(0, 1, -3);
+            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
+            Assert.Equal(new double[] { 0, -2 }, B.Rows[1]);
+        }
+        [Fact]
+        [Trait("Category", "Instance")]
         public void Can_Multiply_Row_by_Scalar() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {

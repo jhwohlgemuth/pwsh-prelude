@@ -173,6 +173,15 @@ namespace Prelude {
                 }
             return pairs;
         }
+        public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, double scalar = 1) {
+            int rowCount = Size[0], columnCount = Size[1];
+            var temp = new Matrix(rowCount, columnCount);
+            temp.Rows[rowIndexB] = Rows[rowIndexA];
+            if (scalar != 1) {
+                temp = Multiply(temp, scalar);
+            }
+            return Add(this, temp);
+        }
         public Matrix InsertColumn(int index, double[] column) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
