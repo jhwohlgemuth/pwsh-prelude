@@ -265,6 +265,9 @@ namespace Prelude {
             clone.Rows[b] = original;
             return clone;
         }
+        public Matrix ToReducedRowEchelonForm() {
+            return this;
+        }
         public override string ToString() {
             var matrix = this;
             int rank = matrix.Size[0];
