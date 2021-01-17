@@ -278,6 +278,24 @@ namespace MatrixTests {
             Assert.Equal(15, Matrix.Trace(A));
         }
         [Fact]
+        public void Can_Solve_System_of_Equations_With_Gaussian_Elimination() {
+            var A = new Matrix(3, 4);
+            double[,] rows = new double[,] {
+                { 9, 3, 4, 7 },
+                { 4, 3, 4, 8 },
+                { 1, 1, 1, 3 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var B = Matrix.GaussianElimination(A);
+            Assert.Equal(new int[] { 3, 1 }, B.Size);
+            Assert.Equal(new double[] { -0.2 }, B.Rows[0]);
+            Assert.Equal(new double[] { 4 }, B.Rows[1]);
+            Assert.Equal(new double[] { -0.8 }, B.Rows[2]);
+        }
+        [Fact]
         [Trait("Category", "Instance")]
         public void Can_Create_Clones() {
             var A = new Matrix(2);

@@ -87,6 +87,38 @@ namespace Prelude {
             }
             return Transpose(temp);
         }
+        public static Matrix GaussianElimination(Matrix augmented) {
+            int rowCount = augmented.Size[0], columnCount = augmented.Size[1];
+            Matrix clone = augmented.Clone();
+            for (int i = 0; i < rowCount; ++i) {
+                var pivot = clone.Rows[i][i];
+                int j = i;
+                for (int k = i + 1; k < (columnCount - 1); ++k) {
+                    if (pivot < Abs(clone.Rows[k][i])) {
+                        pivot = clone.Rows[k][i];
+                        j = k;
+                    }
+                }
+                if (j != i) {
+                    clone = clone.SwapRows(i, j);
+                }
+                for (int l = i + 1; l < rowCount; ++l) {
+                    var factor = clone.Rows[l][i] / clone.Rows[i][i];
+                    for (int k = i; k < columnCount; ++k) {
+                        clone.Rows[l][k] = clone.Rows[l][k] - (factor * clone.Rows[i][k]);
+                    }
+                }
+            }
+            var solutions = new Matrix(rowCount, 1);
+            for (int i = rowCount - 1; i >= 0; --i) {
+                double sum = 0;
+                for (int j = i + 1; j <= rowCount - 1; ++j) {
+                    sum += (solutions.Rows[j][0] * clone.Rows[i][j]);
+                }
+                solutions.Rows[i][0] = Round((clone.Rows[i][columnCount - 1] - sum) / clone.Rows[i][i], 2);
+            }
+            return solutions;
+        }
         private static double InterlockAddDoubles(ref double a, double b) {
             double newCurrentValue = a;
             while (true) {
@@ -264,9 +296,6 @@ namespace Prelude {
             clone.Rows[a] = Rows[b];
             clone.Rows[b] = original;
             return clone;
-        }
-        public Matrix ToReducedRowEchelonForm() {
-            return this;
         }
         public override string ToString() {
             var matrix = this;
