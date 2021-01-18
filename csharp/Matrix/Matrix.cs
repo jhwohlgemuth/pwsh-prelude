@@ -89,26 +89,7 @@ namespace Prelude {
         }
         public static Matrix GaussianElimination(Matrix augmented) {
             int rowCount = augmented.Size[0], columnCount = augmented.Size[1];
-            Matrix clone = augmented.Clone();
-            for (int i = 0; i < rowCount; ++i) {
-                var pivot = clone.Rows[i][i];
-                int j = i;
-                for (int k = i + 1; k < (columnCount - 1); ++k) {
-                    if (pivot < Abs(clone.Rows[k][i])) {
-                        pivot = clone.Rows[k][i];
-                        j = k;
-                    }
-                }
-                if (j != i) {
-                    clone = clone.SwapRows(i, j);
-                }
-                for (int l = i + 1; l < rowCount; ++l) {
-                    var factor = clone.Rows[l][i] / clone.Rows[i][i];
-                    for (int k = i; k < columnCount; ++k) {
-                        clone.Rows[l][k] = clone.Rows[l][k] - (factor * clone.Rows[i][k]);
-                    }
-                }
-            }
+            var clone = augmented.ToUpperTriangular();
             var solutions = new Matrix(rowCount, 1);
             for (int i = rowCount - 1; i >= 0; --i) {
                 double sum = 0;
@@ -304,6 +285,28 @@ namespace Prelude {
             for (var i = 0; i < rank; ++i)
                 rows[i] = string.Join(",", matrix.Rows[i]);
             return string.Join("\r\n", rows);
+        }
+        public Matrix ToUpperTriangular() {
+            int rowCount = Size[0];
+            Matrix clone = Clone();
+            for (int i = 0; i < rowCount; ++i) {
+                var pivot = clone.Rows[i][i];
+                int j = i;
+                for (int k = i + 1; k < rowCount; ++k) {
+                    if (pivot < Abs(clone.Rows[k][i])) {
+                        pivot = clone.Rows[k][i];
+                        j = k;
+                    }
+                }
+                if (j != i) {
+                    clone = clone.SwapRows(i, j);
+                }
+                for (int l = i + 1; l < rowCount; ++l) {
+                    var factor = clone.Rows[l][i] / clone.Rows[i][i];
+                    clone = clone.ElementaryRowOperation(i, l, -1 * factor);
+                }
+            }
+            return clone;
         }
     }
 }

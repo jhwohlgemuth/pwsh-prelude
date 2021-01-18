@@ -294,6 +294,21 @@ namespace MatrixTests {
             Assert.Equal(new double[] { -0.2 }, B.Rows[0]);
             Assert.Equal(new double[] { 4 }, B.Rows[1]);
             Assert.Equal(new double[] { -0.8 }, B.Rows[2]);
+            A = new Matrix(3, 4);
+            rows = new double[,] {
+                { 4, 3, 4, 8 },
+                { 1, 1, 1, 3 },
+                { 9, 3, 4, 7 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            B = Matrix.GaussianElimination(A);
+            Assert.Equal(new int[] { 3, 1 }, B.Size);
+            Assert.Equal(new double[] { -0.2 }, B.Rows[0]);
+            Assert.Equal(new double[] { 4 }, B.Rows[1]);
+            Assert.Equal(new double[] { -0.8 }, B.Rows[2]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -565,6 +580,69 @@ namespace MatrixTests {
             }
             string output = A.ToString();
             Assert.Equal("1,2\r\n3,4", output);
+        }
+        [Fact]
+        public void Can_Be_Converted_to_Upper_Triangular() {
+            var A = new Matrix(3, 3);
+            double[,] rows = new double[,] {
+                { 1, 1, 1 },
+                { 4, 3, 4 },
+                { 9, 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var B = A.ToUpperTriangular();
+            Assert.Equal(new int[] { 3, 3 }, B.Size);
+            Assert.Equal(new double[] { 9, 3, 4 }, B.Rows[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223 }, B.Rows[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337 }, B.Rows[2]);
+            A = new Matrix(3, 3);
+            rows = new double[,] {
+                { 9, 3, 4 },
+                { 4, 3, 4 },
+                { 1, 1, 1 },
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            B = A.ToUpperTriangular();
+            Assert.Equal(new int[] { 3, 3 }, B.Size);
+            Assert.Equal(new double[] { 9, 3, 4 }, B.Rows[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223 }, B.Rows[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337 }, B.Rows[2]);
+            A = new Matrix(3, 4);
+            rows = new double[,] {
+                { 9, 3, 4, 7 },
+                { 4, 3, 4, 8 },
+                { 1, 1, 1, 3 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            B = A.ToUpperTriangular();
+            Assert.Equal(new int[] { 3, 4 }, B.Size);
+            Assert.Equal(new double[] { 9, 3, 4, 7 }, B.Rows[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223, 4.888888888888889 }, B.Rows[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337, 0.2666666666666666 }, B.Rows[2]);
+            A = new Matrix(3, 4);
+            rows = new double[,] {
+                { 1, 1, 1, 3 },
+                { 4, 3, 4, 8 },
+                { 9, 3, 4, 7 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            B = A.ToUpperTriangular();
+            Assert.Equal(new int[] { 3, 4 }, B.Size);
+            Assert.Equal(new double[] { 9, 3, 4, 7 }, B.Rows[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223, 4.888888888888889 }, B.Rows[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337, 0.2666666666666666 }, B.Rows[2]);
         }
         [Fact]
         [Trait("Category", "Determinant")]
