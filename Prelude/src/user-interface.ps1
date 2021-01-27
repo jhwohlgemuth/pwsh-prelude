@@ -520,12 +520,12 @@ function Invoke-Menu {
         if ($ReturnIndex -eq $False -and $Null -ne $Position) {
             if ($MultiSelect -or $SingleSelect) {
                 if ($Selection.Length -gt 0) {
-                    return $Items[$Selection]
+                    return $VisibleItems[$Selection]
                 } else {
                     return $Null
                 }
             } else {
-                return $Items[$Position]
+                return $VisibleItems[$Position]
             }
         } else {
             if ($MultiSelect -or $SingleSelect) {
