@@ -150,9 +150,9 @@ Describe 'New-ApplicationTemplate' -Tag 'Local', 'Remote' {
     It 'can interpolate values into template string' {
         New-ApplicationTemplate | Should -Match '#Requires -Modules Prelude'
         New-ApplicationTemplate | Should -Match '\$Init = {'
-        New-ApplicationTemplate | Should -match '{{#green My-App}}'
+        New-ApplicationTemplate | Should -Match '{{#green My-App}}'
         New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
-        New-ApplicationTemplate | Should -not -Match '  \$State = {'
+        New-ApplicationTemplate | Should -Not -Match '  \$State = {'
     }
 }
 Describe 'New-Template' -Tag 'Local', 'Remote' {

@@ -220,6 +220,7 @@ Functions
   - `Save-State`
   - `Take`
   - `Test-Admin`
+  - `Test-Command`
   - `Test-Empty`
   - `Test-Equal`
   - `Test-Installed`

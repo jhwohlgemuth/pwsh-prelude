@@ -345,6 +345,16 @@ Describe 'Rename-FileExtension' -Tag 'Local', 'Remote' {
         Remove-Item (Join-Path $TestDrive 'foo.bar')
     }
 }
+Describe 'Test-Command' -Tag 'Local', 'Remote' {
+    It 'should determine if a command is available in the current shell' -Tag 'WindowsOnly' {
+        Test-Command 'dir' | Should -BeTrue
+        Test-Command 'invalidCommand' | Should -BeFalse
+    }
+    It 'should determine if a command is available in the current shell' -Tag 'LinuxOnly' {
+        Test-Command 'which' | Should -BeTrue
+        Test-Command 'invalidCommand' | Should -BeFalse
+    }
+}
 Describe 'Test-Empty' -Tag 'Local', 'Remote' {
     It 'should return true for directories with no contents' {
         $Foo = Join-Path $TestDrive 'Foo'

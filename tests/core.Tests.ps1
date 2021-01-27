@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 110
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 111
         }
         It 'should import aliases' {
             (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 53

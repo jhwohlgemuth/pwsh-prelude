@@ -870,6 +870,36 @@ function Test-Admin {
         ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) | Write-Output
     }
 }
+function Test-Command {
+    <#
+    .SYNOPSIS
+    Helper function that returns true if the command is available in the current shell, false otherwise
+    .DESCRIPTION
+    This function does the work of Get-Command, but without the necessary error when the passed command is not found.
+    .EXAMPLE
+    Test-Command 'dir'
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0)]
+        [String] $Name
+    )
+    $Result = $False
+    $OriginalPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'stop'
+    try {
+        if (Get-Command $Name) {
+            "==> '$Name' is an available command" | Write-Verbose
+            $Result = $True
+        }
+    } Catch {
+        "==> '$Name' is not available command" | Write-Verbose
+    } Finally {
+        $ErrorActionPreference = $OriginalPreference
+    }
+    $Result
+}
 function Test-Empty {
     <#
     .SYNOPSIS
