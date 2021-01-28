@@ -106,59 +106,49 @@ Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {
         @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
     }
 }
-Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
+Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
     It 'can make a simple request' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
         $Values = $Request[1, 3, 5] | Sort-Object
-        $Values |
-            Where-Object { $_ -is [Hashtable] } |
-            ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
-            $Values | Should -Contain 'Get'
-            $Values | Should -Contain $Uri
-        }
-        It 'can make a simple request with a username and password' {
-            Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
-            $Username = 'user'
-            $Token = 'token'
-            $Uri = 'https://example.com/'
-            $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
-            $Values = $Request[1, 3, 5] | Sort-Object
-            $Values |
-                Where-Object { $_ -is [Hashtable] } |
-                ForEach-Object { $_.Authorization | Should -Be 'Basic dXNlcjp0b2tlbg==' }
-                $Values | Should -Contain 'Get'
-                $Values | Should -Contain $Uri
-            }
-            It 'can make a simple request with query parameters' {
-                Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
-                $Token = 'token'
-                $Uri = 'https://example.com/'
-                $Query = @{ foo = 'bar' }
-                $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
-                $Values = $Request[1, 3, 5] | Sort-Object
-                $Values |
-                    Where-Object { $_ -is [Hashtable] } |
-                    ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
-                    $Values | Should -Contain 'Get'
-                    $Values | Should -Contain "${Uri}?foo=bar"
-                }
-                It 'can make a simple request with URL-encoded query parameters' {
-                    Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
-                    $Token = 'token'
-                    $Uri = 'https://example.com/'
-                    $Query = @{ answer = 42 }
-                    $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
-                    $Values = $Request[1, 3, 5] | Sort-Object
-                    $Values |
-                        Where-Object { $_ -is [Hashtable] } |
-                        ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
-                        $Values | Should -Contain 'Get'
-                        $Values |
-                            Where-Object { $_ -match $Uri } |
-                            Should -Match "$Uri\?answer(=|%3d)42$"
+        $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+        $Values | Should -Contain 'Get'
+        $Values | Should -Contain $Uri
+    }
+    It 'can make a simple request with a username and password' {
+        Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
+        $Username = 'user'
+        $Token = 'token'
+        $Uri = 'https://example.com/'
+        $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
+        $Values = $Request[1, 3, 5] | Sort-Object
+        $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be 'Basic dXNlcjp0b2tlbg==' }
+        $Values | Should -Contain 'Get'
+        $Values | Should -Contain $Uri
+    }
+    It 'can make a simple request with query parameters' {
+        Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
+        $Token = 'token'
+        $Uri = 'https://example.com/'
+        $Query = @{ foo = 'bar' }
+        $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
+        $Values = $Request[1, 3, 5] | Sort-Object
+        $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+        $Values | Should -Contain 'Get'
+        $Values | Should -Contain "${Uri}?foo=bar"
+    }
+    It 'can make a simple request with URL-encoded query parameters' {
+        Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
+        $Token = 'token'
+        $Uri = 'https://example.com/'
+        $Query = @{ answer = 42 }
+        $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
+        $Values = $Request[1, 3, 5] | Sort-Object
+        $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+        $Values | Should -Contain 'Get'
+        $Values | Where-Object { $_ -match $Uri } | Should -Match "$Uri\?answer(=|%3d)42$"
     }
     It 'can make a simple PUT request' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
@@ -167,11 +157,9 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote' {
         $Data = @{ answer = 42 }
         $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data $Data
         $Values = $Request[1, 3, 5, 7] | Sort-Object
-        $Values |
-            Where-Object { $_ -is [Hashtable] } |
-            ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
-            $Values | Should -Contain 'Put'
-            $Values | Should -Contain $Uri
-            $Values | Should -Contain (ConvertTo-Json $Data)
-        }
+        $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+        $Values | Should -Contain 'Put'
+        $Values | Should -Contain $Uri
+        $Values | Should -Contain (ConvertTo-Json $Data)
     }
+}
