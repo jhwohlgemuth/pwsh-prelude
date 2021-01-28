@@ -154,13 +154,17 @@ function Invoke-Build {
             "==> Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -target:library -optimize -nologo
         }
-        'Node', 'Edge' | ForEach-Object {
+        'Node' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -target:library -optimize -nologo
         }
+        'Edge' | ForEach-Object {
+            "==> Building $_ link library" | Write-Output
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -target:library -optimize -nologo
+        }
         'Graph' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Edge.dll -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -target:library -optimize -nologo
         }
         Write-Message done
     } else {

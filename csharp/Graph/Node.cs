@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Prelude {
     public class Node {
         public Guid Id;
-        public string Name;
-        public Node(string name) {
+        public string Label;
+        public List<Node> Neighbors;
+        public Node(string label = "node") {
             Id = Guid.NewGuid();
-            Name = name;
+            Label = label;
         }
     }
 }
