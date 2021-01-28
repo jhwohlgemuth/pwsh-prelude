@@ -30,12 +30,14 @@ Param(
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = Join-Path 'Prelude' 'src'
-switch ($Platform) {
-    'linux' {
-        $Exclude += 'WindowsOnly'
-    }
-    Default {
-        $Exclude += 'LinuxOnly'
+if ([String]::IsNullOrEmpty($Exclude)) {
+    switch ($Platform) {
+        'linux' {
+            $Exclude = 'WindowsOnly'
+        }
+        Default {
+            $Exclude = 'LinuxOnly'
+        }
     }
 }
 function Write-Message {

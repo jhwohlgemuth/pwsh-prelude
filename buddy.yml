@@ -33,7 +33,7 @@
     registry: "mcr.microsoft.com"
     execute_commands:
     - "pwsh -File ./Invoke-Setup.ps1 -Platform linux"
-    - "pwsh -File ./Invoke-Task.ps1 -Test -Skip 'powershell'"
+    - "pwsh -File ./Invoke-Task.ps1 -Test -Skip powershell"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
     trigger_condition: "ALWAYS"
@@ -46,7 +46,7 @@
     execute_commands:
     - "pwsh -Version"
     - "pwsh -File ./Invoke-Setup.ps1 -Platform linux"
-    - "pwsh -File ./Invoke-Task.ps1 -Test -Platform linux -Tags 'Remote' -Skip 'dotnet'"
+    - "pwsh -File ./Invoke-Task.ps1 -Test -Platform linux -Tags Remote -Skip dotnet"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
     trigger_condition: "ALWAYS"
