@@ -43,7 +43,11 @@ $FavoriteColor = 'red', 'white', 'blue' | Invoke-Menu -Indent $Indent
 
 'Favorite number between 1 and 100?' | Write-Label @LabelParameters
 $Space
-$FavoriteNumber = 1..100 | Invoke-Menu -Limit 10 -Indent 6
+$FavoriteNumber = 1..100 | Invoke-Menu -Limit 10 -Indent $Indent
+
+'Favorite index between 0 and 9?' | Write-Label @LabelParameters
+$Space
+$FavoriteIndex = 1..10 | Invoke-Menu -Limit 3 -Indent $Indent -ReturnIndex
 
 $Space
 
@@ -57,6 +61,7 @@ $FavoriteNumberWord | Write-Label @ResultLabelParameters
 (Join-StringsWithGrammar $Choice) | Write-Label @ResultLabelParameters
 $FavoriteColor | Write-Label @ResultLabelParameters
 $FavoriteNumber | Write-Label @ResultLabelParameters
+$FavoriteIndex | Write-Label @ResultLabelParameters
 
 $Space
 

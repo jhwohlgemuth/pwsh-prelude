@@ -531,7 +531,7 @@ function Invoke-Menu {
             if ($MultiSelect -or $SingleSelect) {
                 return $Selection
             } else {
-                return $Position
+                return $Position + ($PageNumber * $Limit)
             }
         }
     }
