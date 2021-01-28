@@ -19,7 +19,7 @@
     docker_image_tag: "latest"
     execute_commands:
     - "pwsh -v"
-    - "pwsh -File ./Invoke-Setup.ps1"
+    - "pwsh -File ./Invoke-Setup.ps1 -Platform linux"
     - "pwsh -File ./Invoke-Task.ps1 -Lint"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
@@ -32,7 +32,7 @@
     docker_image_tag: "5.0"
     registry: "mcr.microsoft.com"
     execute_commands:
-    - "pwsh -File ./Invoke-Setup.ps1"
+    - "pwsh -File ./Invoke-Setup.ps1 -Platform linux"
     - "pwsh -File ./Invoke-Task.ps1 -Test -Skip 'powershell'"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"
@@ -45,7 +45,7 @@
     docker_image_tag: "latest"
     execute_commands:
     - "pwsh -Version"
-    - "pwsh -File ./Invoke-Setup.ps1"
+    - "pwsh -File ./Invoke-Setup.ps1 -Platform linux"
     - "pwsh -File ./Invoke-Task.ps1 -Test -Tags 'Remote' -Exclude 'WindowsOnly' -Skip 'dotnet'"
     volume_mappings:
     - "/:/buddy/pwsh-prelude"

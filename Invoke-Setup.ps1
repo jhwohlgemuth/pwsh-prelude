@@ -1,24 +1,10 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding()]
-Param()
-function Test-Command {
-    Param(
-        [Parameter(Mandatory = $True, Position = 0)]
-        [String] $Command
-    )
-    $Result = $False
-    $OriginalPreference = $ErrorActionPreference
-    $ErrorActionPreference = 'stop'
-    try {
-        if (Get-Command $Command) {
-            $Result = $True
-        }
-    } Finally {
-        $ErrorActionPreference = $OriginalPreference
-    }
-    $Result
-}
-if (Test-Command 'dotnet') {
+Param(
+    [ValidateSet('windows', 'linux')]
+    [String] $Platform = 'windows'
+)
+if ($Platform -eq 'windows') {
     dotnet tool install -g dotnet-format
 }
 Install-Module -Force -Scope CurrentUser -Name PSScriptAnalyzer
