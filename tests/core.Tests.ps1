@@ -408,11 +408,7 @@ Describe 'Invoke-PropertyTransform' -Tag 'Local', 'Remote' {
             ($Value * 100) + 1
         }
         $Result = $Data | Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer
-        $Expected = if (-not $IsLinux) {
-            9001
-        } else {
-            1 #this is not the right answer - just a temporary bandage to make test pass
-        }
+        $Expected = 9001
         $Result.level | Should -Be $Expected
     }
     It 'can transform custom objects property names and values' {
