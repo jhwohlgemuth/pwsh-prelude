@@ -18,5 +18,17 @@ namespace EdgeTests {
             Assert.True((new Edge(a, b, 1)).IsWeighted);
             Assert.True((new Edge(a, b, -1)).IsWeighted);
         }
+        [Fact]
+        public void Edges_can_be_compared() {
+            Node a = new Node();
+            Node b = new Node();
+            Node c = new Node();
+            Edge x = new Edge(a, b);
+            Edge y = new Edge(b, c);
+            Assert.Equal(x, x);
+            Assert.NotEqual(x, y);
+            Assert.Equal(x, new Edge(a, b));
+            Assert.NotEqual(x, new Edge(a, b, 1));
+        }
     }
 }

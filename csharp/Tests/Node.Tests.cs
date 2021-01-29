@@ -17,5 +17,14 @@ namespace NodeTests {
             var n = new Node();
             Assert.Equal(36, n.Id.ToString().Length);
         }
+        [Fact]
+        public void Nodes_can_be_compared() {
+            Node a = new Node();
+            Node b = new Node();
+            Assert.Equal(a, a);
+            Assert.NotEqual(a, b);
+            Assert.NotEqual(b, a);
+            Assert.Equal(b, b);
+        }
     }
 }
