@@ -4,7 +4,13 @@ using System.Collections.Generic;
 namespace Prelude {
     public class Node : IComparable<Node> {
         public Guid Id;
+        public int Index;
         public string Label;
+        public int Degree {
+            get {
+                return Neighbors.Count;
+            }
+        }
         public List<Node> Neighbors;
         public Node(string label = "node") {
             Id = Guid.NewGuid();
