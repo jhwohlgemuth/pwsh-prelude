@@ -18,6 +18,9 @@ namespace Prelude {
             Destination = destination;
             Weight = weight;
         }
+        public bool Contains(Node node) {
+            return Source == node || Destination == node;
+        }
         public int CompareTo(Edge other) {
             if (other != null) {
                 var sameSource = Source == other.Source;

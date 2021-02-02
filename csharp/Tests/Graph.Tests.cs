@@ -11,17 +11,26 @@ namespace GraphTests {
             var a = new Node();
             var b = new Node();
             var c = new Node();
-            var x = new Edge(a, b);
-            var y = new Edge(b, c);
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
             var nodes = new List<Node> { a, b, c };
-            var edges = new List<Edge> { x, y };
+            var edges = new List<Edge> { ab, bc };
             graph = new Graph(nodes, edges);
             Assert.Equal(36, graph.Id.ToString().Length);
             Assert.Equal(3, graph.Nodes.Count);
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
-        public void Graph_can_add_node() {
+        public void Graph_can_get_nodes() {
+            var graph = new Graph();
+            var a = new Node("a");
+            graph.Add(a);
+            Assert.Equal(a, graph.GetNode(a));
+            Assert.Equal(a, graph.GetNode(a.Id));
+            Assert.Equal(a, graph.GetNode("a"));
+        }
+        [Fact]
+        public void Graph_can_add_nodes_one_at_a_time() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
@@ -61,7 +70,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Equal(1, graph.Nodes[1].Index);
         }
-        [Fact(Skip = "Not Implemented")]
+        [Fact]
         public void Graph_can_add_list_of_nodes() {
             var graph = new Graph();
             var a = new Node();
@@ -75,21 +84,18 @@ namespace GraphTests {
             Assert.Equal(1, graph.Nodes[1].Index);
         }
         [Fact]
-        public void Graph_can_add_edge() {
+        public void Graph_can_add_edges_one_at_a_time() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
-            var c = new Node();
-            var x = new Edge(a, b);
-            var y = new Edge(b, c);
-            var z = new Edge(a, c);
-            graph.Add(a, b, c);
-            graph.Add(x, y, z);
-            Assert.Equal(3, graph.Nodes.Count);
-            Assert.Equal(3, graph.Edges.Count);
-            graph.Clear();
+            var ab = new Edge(a, b);
             Assert.Empty(graph.Nodes);
             Assert.Empty(graph.Edges);
+            graph.Add(ab);
+            Assert.Empty(graph.Edges);
+            graph.Add(a, b).Add(ab);
+            Assert.Equal(2, graph.Nodes.Count);
+            Assert.Single(graph.Edges);
         }
         [Fact]
         public void Graph_will_only_add_unique_edges() {
@@ -99,15 +105,62 @@ namespace GraphTests {
             var b = new Node("b");
             var c = new Node("c");
             var d = new Node("d");
-            var w = new Edge(a, b);
-            var x = new Edge(b, c);
-            var y = new Edge(a, c);
-            var z = new Edge(c, d);
-            graph.Add(a, b);
-            graph.Add(w, x, y, z);
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            var cd = new Edge(c, d);
+            graph.Add(a, b).Add(ab, bc, ac, cd);
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Single(graph.Edges);
             Assert.Equal(valid, graph.Edges[0].Source.Label);
+        }
+        [Fact]
+        public void Graph_can_add_array_of_edges() {
+            var graph = new Graph();
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            var nodes = new Node[] { a, b, c };
+            var edges = new Edge[] { ab, bc, ac };
+            graph.Add(nodes).Add(edges);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(3, graph.Edges.Count);
+        }
+        [Fact]
+        public void Graph_can_add_list_of_edges() {
+            var graph = new Graph();
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            var nodes = new List<Node> { a, b, c };
+            var edges = new List<Edge> { ab, bc, ac };
+            graph.Add(nodes).Add(edges);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(3, graph.Edges.Count);
+        }
+        [Fact]
+        public void Graph_can_add_nodes_and_edges_from_graphs() {
+            var graph = new Graph();
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            graph.Add(a, b, c).Add(ab, bc, ac);
+            var fromGraph = Graph.From(graph);
+            Assert.Equal(3, fromGraph.Nodes.Count);
+            Assert.Equal(3, fromGraph.Edges.Count);
+            var addGraph = new Graph();
+            addGraph.Add(graph);
+            Assert.Equal(3, fromGraph.Nodes.Count);
+            Assert.Equal(3, fromGraph.Edges.Count);
         }
         [Fact]
         public void Graph_can_clear_nodes_and_edges() {
@@ -115,13 +168,53 @@ namespace GraphTests {
             var a = new Node();
             var b = new Node();
             var c = new Node();
-            var x = new Edge(a, b);
-            var y = new Edge(b, c);
-            var z = new Edge(a, c);
-            graph.Add(a, b, c);
-            Assert.Equal(2, graph.Nodes.Count);
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            graph.Add(a, b, c).Add(ab, bc, ac);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(3, graph.Edges.Count);
             graph.Clear();
             Assert.Empty(graph.Nodes);
+            Assert.Empty(graph.Edges);
+        }
+        [Fact]
+        public void Graph_can_remove_nodes_one_at_a_time() {
+            var graph = new Graph();
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            graph.Add(a, b, c).Add(ab, bc, ac);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(3, graph.Edges.Count);
+            Assert.True(graph.Contains(a));
+            graph.Remove(a);
+            Assert.False(graph.Contains(a));
+            Assert.Equal(2, graph.Nodes.Count);
+            Assert.Single(graph.Edges);
+        }
+        [Fact]
+        public void Graph_can_remove_edges_one_at_a_time() {
+            var graph = new Graph();
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            graph.Add(a, b, c).Add(ab, bc, ac);
+            Assert.Equal(3, graph.Edges.Count);
+            Assert.Equal(2, graph.GetNode(a).Degree);
+            Assert.Equal(2, graph.GetNode(b).Degree);
+            Assert.Equal(2, graph.GetNode(c).Degree);
+            graph.Remove(bc);
+            Assert.Equal(2, graph.Edges.Count);
+            Assert.Equal(2, graph.GetNode(a).Degree);
+            Assert.Equal(1, graph.GetNode(b).Degree);
+            Assert.Equal(1, graph.GetNode(c).Degree);
         }
     }
 }

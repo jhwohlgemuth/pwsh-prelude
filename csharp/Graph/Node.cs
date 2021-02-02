@@ -11,10 +11,11 @@ namespace Prelude {
                 return Neighbors.Count;
             }
         }
-        public List<Node> Neighbors = new List<Node> { };
+        public List<Node> Neighbors;
         public Node(string label = "node") {
             Id = Guid.NewGuid();
             Label = label;
+            Neighbors = new List<Node> { };
         }
         public int CompareTo(Node other) {
             if (other != null) {
