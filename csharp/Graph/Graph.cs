@@ -35,17 +35,25 @@ namespace Prelude {
             Add(graph.Edges);
             return this;
         }
+        private bool Add(Node node) {
+            Nodes.Add(node);
+            return Has(node);
+        }
+        private bool Add(Edge edge) {
+            var source = edge.Source;
+            var destination = edge.Destination;
+            if (Has(source) && Has(destination)) {
+                Edges.Add(edge);
+                source.Neighbors.Add(destination);
+                destination.Neighbors.Add(source);
+            }
+            return Has(edge);
+        }
         public Graph Add(params Node[] nodes) {
             bool Changed = false;
-            foreach (var node in nodes) {
-                if (!HasNode(node)) {
-                    Nodes.Add(node);
-                    Changed = true;
-                } else {
-                    // replace node?
-                    throw new NotImplementedException();
-                }
-            }
+            foreach (var node in nodes)
+                if (!Has(node))
+                    Changed = Add(node);
             if (Changed) {
                 UpdateNodeIndexValues();
                 UpdateAdjacencyMatrix();
@@ -55,21 +63,13 @@ namespace Prelude {
         public Graph Add(List<Node> nodes) {
             throw new NotImplementedException();
         }
-        public Graph Add(Edge edge) {
-            if (!HasEdge(edge)) {
-                Edges.Add(edge);
-                var Source = edge.Source;
-                var Destination = edge.Destination;
-                Source.Neighbors.Add(Destination);
-                Destination.Neighbors.Add(Source);
-            }
-            return this;
-        }
         public Graph Add(params Edge[] edges) {
-            foreach (var edge in edges) {
-                Add(edge);
-            }
-            UpdateAdjacencyMatrix();
+            bool Changed = false;
+            foreach (var edge in edges)
+                if (!Has(edge))
+                    Changed = Add(edge);
+            if (Changed)
+                UpdateAdjacencyMatrix();
             return this;
         }
         public Graph Add(List<Edge> edges) {
@@ -80,11 +80,11 @@ namespace Prelude {
             Edges.Clear();
             return this;
         }
-        public bool HasNode(Node a) {
-            return false;
+        public bool Has(Node node) {
+            return Nodes.Contains(node);
         }
-        public bool HasEdge(Edge a) {
-            return false;
+        public bool Has(Edge edge) {
+            return Edges.Contains(edge);
         }
     }
 }

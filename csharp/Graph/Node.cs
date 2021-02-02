@@ -11,7 +11,7 @@ namespace Prelude {
                 return Neighbors.Count;
             }
         }
-        public List<Node> Neighbors;
+        public List<Node> Neighbors = new List<Node> { };
         public Node(string label = "node") {
             Id = Guid.NewGuid();
             Label = label;

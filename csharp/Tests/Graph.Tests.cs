@@ -34,6 +34,18 @@ namespace GraphTests {
             Assert.Equal(1, graph.Nodes[1].Index);
         }
         [Fact]
+        public void Graph_will_only_add_unique_nodes() {
+            var label = "unique";
+            var graph = new Graph();
+            var a = new Node(label);
+            Assert.Empty(graph.Nodes);
+            graph.Add(a);
+            Assert.Single(graph.Nodes);
+            graph.Add(a);
+            Assert.Single(graph.Nodes);
+            Assert.Equal(label, graph.Nodes[0].Label);
+        }
+        [Fact]
         public void Graph_can_add_array_of_nodes() {
             var graph = new Graph();
             var a = new Node();
@@ -71,13 +83,42 @@ namespace GraphTests {
             var x = new Edge(a, b);
             var y = new Edge(b, c);
             var z = new Edge(a, c);
+            graph.Add(a, b, c);
+            graph.Add(x, y, z);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(3, graph.Edges.Count);
+            graph.Clear();
+            Assert.Empty(graph.Nodes);
+            Assert.Empty(graph.Edges);
         }
         [Fact]
-        public void Graph_can_clear_nodes() {
+        public void Graph_will_only_add_unique_edges() {
+            var valid = "a";
+            var graph = new Graph();
+            var a = new Node(valid);
+            var b = new Node("b");
+            var c = new Node("c");
+            var d = new Node("d");
+            var w = new Edge(a, b);
+            var x = new Edge(b, c);
+            var y = new Edge(a, c);
+            var z = new Edge(c, d);
+            graph.Add(a, b);
+            graph.Add(w, x, y, z);
+            Assert.Equal(2, graph.Nodes.Count);
+            Assert.Single(graph.Edges);
+            Assert.Equal(valid, graph.Edges[0].Source.Label);
+        }
+        [Fact]
+        public void Graph_can_clear_nodes_and_edges() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
-            graph.Add(a, b);
+            var c = new Node();
+            var x = new Edge(a, b);
+            var y = new Edge(b, c);
+            var z = new Edge(a, c);
+            graph.Add(a, b, c);
             Assert.Equal(2, graph.Nodes.Count);
             graph.Clear();
             Assert.Empty(graph.Nodes);
