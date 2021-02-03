@@ -1,4 +1,4 @@
-Powershell Prelude <sup>[[1]](#footnotes)</sup>
+Powershell Prelude <sup>[[1]](#1)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
 [![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/pwsh-prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude)
@@ -7,12 +7,12 @@ Powershell Prelude <sup>[[1]](#footnotes)</sup>
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
-PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#footnotes)</sup> the typical use cases.
+PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#5)</sup> the typical use cases.
 
-This module provides functional programming patterns for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#footnotes)</sup>, and take control of your productivity.
+This module provides functional programming patterns for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#6)</sup>, and take control of your productivity.
 > For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
-Naturally, it has ***ZERO external dependencies***<sup>[[2]](#footnotes)</sup> and (mostly) works on Linux<sup>[[3]](#footnotes)</sup> ;)
+Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
 
 
 > "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
@@ -57,7 +57,7 @@ $Sum = 1..100 | reduce -Add
 ```Powershell
 { whoami } | irc -ComputerNames PCNAME
 ```
-- Make your computer talk <sup>[[3]](#footnotes)</sup>
+- Make your computer talk <sup>[[3]](#3)</sup>
 ```Powershell
 say 'Hello World'
 ```
@@ -171,9 +171,9 @@ Functions
   - `Get-SyllableCount`
   - `Get-Variance`
   - `Import-Excel`
-  - `Import-Html` <sup>[[3]](#footnotes)</sup>
+  - `Import-Html` <sup>[[3]](#3)</sup>
   - `Import-Raw`
-  - `Install-SshServer` <sup>[[3]](#footnotes)</sup>
+  - `Install-SshServer` <sup>[[3]](#3)</sup>
   - `Invoke-Chunk`
   - `Invoke-DropWhile`
   - `Invoke-Flatten`
@@ -181,7 +181,7 @@ Functions
   - `Invoke-Input`
   - `Invoke-InsertString`
   - `Invoke-ListenTo`
-  - `Invoke-ListenForWord` <sup>[[3]](#footnotes)</sup>
+  - `Invoke-ListenForWord` <sup>[[3]](#3)</sup>
   - `Invoke-Menu`
   - `Invoke-Method`
   - `Invoke-Normalize`
@@ -195,7 +195,7 @@ Functions
   - `Invoke-Reduce`
   - `Invoke-RemoteCommand`
   - `Invoke-RunApplication`
-  - `Invoke-Speak` <sup>[[3]](#footnotes)</sup>
+  - `Invoke-Speak` <sup>[[3]](#3)</sup>
   - `Invoke-TakeWhile`
   - `Invoke-Tap`
   - `Invoke-Unzip`
@@ -206,14 +206,14 @@ Functions
   - `Measure-Performance`
   - `Measure-Readability`
   - `New-ApplicationTemplate`
-  - `New-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
+  - `New-DailyShutdownJob` <sup>[[3]](#3)</sup>
   - `New-File`
   - `New-ProxyCommand`
   - `New-SshKey`
   - `New-Template`
   - `Open-Session`
   - `Remove-Character`
-  - `Remove-DailyShutdownJob` <sup>[[3]](#footnotes)</sup>
+  - `Remove-DailyShutdownJob` <sup>[[3]](#3)</sup>
   - `Remove-DirectoryForce`
   - `Remove-Indent`
   - `Rename-FileExtension`
@@ -225,9 +225,9 @@ Functions
   - `Test-Equal`
   - `Test-Installed`
   - `Update-HostsFile`
-  - `Use-Grammar` <sup>[[3]](#footnotes)</sup>
-  - `Use-Speech` <sup>[[3]](#footnotes)</sup>
-  - `Use-Web` <sup>[[3]](#footnotes)</sup>
+  - `Use-Grammar` <sup>[[3]](#3)</sup>
+  - `Use-Speech` <sup>[[3]](#3)</sup>
+  - `Use-Web` <sup>[[3]](#3)</sup>
   - `Write-BarChart`
   - `Write-Color`
   - `Write-Label`
@@ -264,7 +264,7 @@ Type Accelerators
   ```
   > **Note:** Full class name is `Prelude.Geodetic.Datum`
 - `[Matrix]`
-  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#footnotes)</sup>
+  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#4)</sup>
   ```PowerShell
   $A = [Matrix]::New(3)
   $A.Rows = 1..9
@@ -331,7 +331,11 @@ Have an idea? Want to help implement a fix? Check out the [contributing guide](.
 
 Credits
 -------
-- [Microsoft]() - *[Powershell](https://github.com/powershell/powershell) (d'uh), [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal), and [VS Code](https://code.visualstudio.com/) (the editor I use)*
+- [Microsoft](https://www.microsoft.com)
+  - [Powershell](https://github.com/powershell/powershell) (d'uh)
+  - [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal)
+  - [VS Code](https://code.visualstudio.com/) - *the editor I use for writing PowerShell*
+  - [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - *the editor I use for writing C#*
 - [Pester](https://pester.dev/) - *testing*
 - [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) - *static analysis (linting)*
 - [BenchmarkDotNet](https://benchmarkdotnet.org/) - *C# benchmarks*
@@ -343,13 +347,20 @@ Credits
 - [MartinSGill/Profile](https://github.com/MartinSGill/Profile) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 
-Footnotes
----------
-> **[1]** This module is ***NOT*** an "official" Microsoft Powershell prelude module
+-----------
+**Footnotes**
+-------------
+[1]
+---
+> This module is ***NOT*** an "official" Microsoft Powershell prelude module
 
-> **[2]** This code was inspired and enabled by [several people and projects](#Credits)
+[2]
+---
+> This code was inspired and enabled by [several people and projects](#Credits)
 
-> **[3]** The following functions are not supported on Linux:
+[3]
+---
+> The following functions are not supported on Linux:
 - `Invoke-ListenForWord`
 - `Invoke-Speak`
 - `Install-SshServer`
@@ -359,8 +370,15 @@ Footnotes
 - `Use-Grammar`
 - `Use-Speech`
 - `Use-Web`
-> **[4]** Results may vary. The 100% guarantee is not 100% certain in 100% of cases.
 
-> **[5]** Sometimes ***way*** beyond :)
+[4]
+---
+> Results may vary. The 100% guarantee is not 100% certain in 100% of cases.
 
-> **[6]** Compiled code, closed source software, arcane code snippets copy/pasted from the internet nether-realm, etc...
+[5]
+---
+> Sometimes ***way*** beyond :)
+
+[6]
+---
+> Compiled code, closed source software, arcane code snippets copy/pasted from the internet nether-realm, etc...
