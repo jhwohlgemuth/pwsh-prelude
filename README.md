@@ -347,9 +347,11 @@ Credits
 - [MartinSGill/Profile](https://github.com/MartinSGill/Profile) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 
------------
+-------------
+
 **Footnotes**
 -------------
+
 [1]
 ---
 > This module is ***NOT*** an "official" Microsoft Powershell prelude module

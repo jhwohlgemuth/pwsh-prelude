@@ -43,11 +43,11 @@ The Prelude module entry point, [Prelude.psm1](../Prelude/Prelude.psm1), simply 
 The Prelude project contains C# code that is added to the module as dynamic link libraries (DLLs). The code is organized as a single solution with multiple projects:
 - [`csharp\`]()
   - [`Matrix\`](../csharp/Matrix)
-    - Project directory for `[Matrix]` type accelator <sup>[[5]](#footnotes)</sup>
+    - Project directory for `[Matrix]` type accelator <sup>[[5]](#5)</sup>
   - [`Geodetic\`](../csharp/Geodetic)
-    - Project directory for `[Coordinate]` and `[Datum]` type accelators <sup>[[5]](#footnotes)</sup>
+    - Project directory for `[Coordinate]` and `[Datum]` type accelators <sup>[[5]](#5)</sup>
   - [`Graph\`](../csharp/Graph)
-    - Project directory for `[Graph]`, `[Edge]`, and `[Node]` type accelators <sup>[[5]](#footnotes)</sup>
+    - Project directory for `[Graph]`, `[Edge]`, and `[Node]` type accelators <sup>[[5]](#5)</sup>
   - [`Performance\`](../csharp/Performance)
     - Project directory for C# benchmarks
     > ***NOTE***: Benchmarks are executed using [BenchmarkDotNet](https://benchmarkdotnet.org/)
@@ -55,7 +55,7 @@ The Prelude project contains C# code that is added to the module as dynamic link
     - Project directory for C# tests
 
 
-Project Setup <sup>[[1]](#footnotes)</sup>
+Project Setup <sup>[[1]](#1)</sup>
 =============
 > Friends don't let friends use Powershell without [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab). Please follow [these instructions](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal) to customize your terminal and achieve new levels of epic productivity — *"I can't believe it's not Linux!"* ™
 
@@ -78,7 +78,7 @@ All PowerShell tasks are contained within [Invoke-Task.ps1](../Invoke-Task.ps1) 
 | **ONLY** PowerShell tests                                | `.\Invoke-Task.ps1 -Test -Skip dotnet`                          |
 | **ONLY WINDOWS** PowerShell tests                        | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
 | **ONLY LINUX** PowerShell tests                          | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
-| **ALL** tests with coverage <sup>[[3]](#footnotes)</sup> | `.\Invoke-Task.ps1 -Test -WithCoverage`                         |
+| **ALL** tests with coverage <sup>[[3]](#3)</sup> | `.\Invoke-Task.ps1 -Test -WithCoverage`                         |
 | ...and open coverage report                              | `.\Invoke-Task.ps1 -Test -WithCoverage -ShowCoverageReport`     |
 
 > ***NOTE***: PowerShell tests are located in the `/tests` directory
@@ -131,34 +131,34 @@ Project Standards
   | Linux    | [![Buddy pipeline status](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "Linux")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)    |
 
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
-- Although this project has many rules <sup>[[3]](#footnotes)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
-  - Use two-spaces for indentation <sup>[[4]](#footnotes)</sup>
+- Although this project has many rules <sup>[[3]](#3)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
+  - Use two-spaces for indentation <sup>[[4]](#4)</sup>
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
   - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...).
-  - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...) <sup>[[4]](#footnotes)</sup>
+  - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...) <sup>[[4]](#4)</sup>
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
-  - Do not use aliases <sup>[[4]](#footnotes)</sup>
-  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...) <sup>[[4]](#footnotes)</sup>
-  - Single space after higher-order functions like `ForEach-Object` and `Where-Object` <sup>[[4]](#footnotes)</sup>
-  - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#footnotes)</sup>
+  - Do not use aliases <sup>[[4]](#4)</sup>
+  - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...) <sup>[[4]](#4)</sup>
+  - Single space after higher-order functions like `ForEach-Object` and `Where-Object` <sup>[[4]](#4)</sup>
+  - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#4)</sup>
     ```Powershell
     # Example
     Get-ChildItem -File | ForEach-Object { $_.FullName }
     ```
-  - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#footnotes)</sup>
+  - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#4)</sup>
     ```Powershell
     # Example
     @{ foo = "bar" }
     ```
-  - Semi-colons should be followed by a single space <sup>[[4]](#footnotes)</sup>
+  - Semi-colons should be followed by a single space <sup>[[4]](#4)</sup>
     ```Powershell
     # Examples
     @{ a = "a"; b = "b"; c = "c" }
     [PSCustomObject]@{ a = "a"; b = "b"; c = "c" }
     ```
-  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[4]](#footnotes)</sup>
-  - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[4]](#footnotes)</sup>
+  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[4]](#4)</sup>
+  - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[4]](#4)</sup>
     ```Powershell
     if ($Condition) {
       # code code code
@@ -180,17 +180,30 @@ Project Standards
     ```
   - When in doubt, write code that is consistent with preponderance of existing codebase. Let's call this the "***priority of pre-existing preponderance rule***".
 
-Footnotes
----------
-> **[1]** In an effort to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
+-------------
 
-> **[2]** `-WithCoverage` and `-ShowCoverageReport` require that [ReportGenerator](https://danielpalme.github.io/ReportGenerator/) is installed and `reportgenerator.exe` is available from the command line.
+**Footnotes**
+-------------
 
-> **[3]** The rules for this project are configured in three places:
+[1]
+---
+> In an effort to maximize cross-platform support, tests are run on Windows and Linux. However, Windows 10 is the only *officially* supported OS for development on this project. There should be a good reason for tests not passing on all platforms (**ex:** Using windows speech recognition libraries)
+
+[2]
+---
+> `-WithCoverage` and `-ShowCoverageReport` require that [ReportGenerator](https://danielpalme.github.io/ReportGenerator/) is installed and `reportgenerator.exe` is available from the command line.
+
+[3]
+---
+> The rules for this project are configured in three places:
   1. [Default PSScriptAnalyzer rules](https://github.com/PowerShell/PSScriptAnalyzer/tree/development/Rules)
   2. Rules enabled by [`PSScriptAnalyzerSettings.psd1`](../PSScriptAnalyzerSettings.psd1)
   3. Custom rules defined within [`PSScriptAnalyzerCustomRules.psm1`](../PSScriptAnalyzerCustomRules.psm1)
 
-> **[4]** Should be "auto-fixed" by `.\Invoke-Task.ps1 -Lint`
+[4]
+---
+> Should be "auto-fixed" by `.\Invoke-Task.ps1 -Lint`
 
-> **[5]** PowerShell type accelerators are added  [dynamic link libraries](../Prelude/bin) built from associated C# code
+[5]
+---
+> PowerShell type accelerators are added  [dynamic link libraries](../Prelude/bin) built from associated C# code
