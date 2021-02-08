@@ -21,6 +21,7 @@ namespace Prelude {
             Nodes = nodes;
             Edges = edges;
             UpdateNodeIndexValues();
+            UpdateAdjacencyMatrix();
         }
         public Graph Add(Graph graph) {
             Add(graph.Nodes);
@@ -117,9 +118,10 @@ namespace Prelude {
             return this;
         }
         private void UpdateAdjacencyMatrix() {
-            AdjacencyMatrix = new Matrix(Nodes.Count);
+            var A = new Matrix(Nodes.Count);
             foreach (var edge in Edges)
-                AdjacencyMatrix.Rows[edge.Source.Index][edge.Destination.Index] = edge.Weight;
+                A.Rows[edge.Source.Index][edge.Destination.Index] = edge.Weight;
+            AdjacencyMatrix = A;
         }
         private void UpdateNodeIndexValues() {
             for (var i = 0; i < Nodes.Count; ++i)
