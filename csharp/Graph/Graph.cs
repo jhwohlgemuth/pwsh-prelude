@@ -126,7 +126,7 @@ namespace Prelude {
                 var destination = edge.Destination.Index;
                 var weight = edge.Weight;
                 A.Rows[source][destination] = weight;
-                if (edge.IsDirected)
+                if (!edge.IsDirected)
                     A.Rows[destination][source] = weight;
             }
             _AdjacencyMatrix = A;
