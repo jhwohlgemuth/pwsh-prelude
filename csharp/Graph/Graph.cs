@@ -116,13 +116,14 @@ namespace Prelude {
             UpdateAdjacencyMatrix();
             return this;
         }
+        private void UpdateAdjacencyMatrix() {
+            AdjacencyMatrix = new Matrix(Nodes.Count);
+            foreach (var edge in Edges)
+                AdjacencyMatrix.Rows[edge.Source.Index][edge.Destination.Index] = edge.Weight;
+        }
         private void UpdateNodeIndexValues() {
             for (var i = 0; i < Nodes.Count; ++i)
                 Nodes[i].Index = i;
-        }
-        private void UpdateAdjacencyMatrix() {
-            var A = new Matrix(Nodes.Count);
-            AdjacencyMatrix = A;
         }
     }
 }
