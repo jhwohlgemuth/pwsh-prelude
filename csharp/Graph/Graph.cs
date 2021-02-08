@@ -6,9 +6,11 @@ namespace Prelude {
         public Guid Id;
         public List<Node> Nodes = new List<Node> { };
         public List<Edge> Edges = new List<Edge> { };
+        private Matrix _AdjacencyMatrix;
         public Matrix AdjacencyMatrix {
-            get;
-            set;
+            get {
+                return _AdjacencyMatrix;
+            }
         }
         public static Graph From(Graph other) {
             return new Graph(other.Nodes, other.Edges);
@@ -119,9 +121,15 @@ namespace Prelude {
         }
         private void UpdateAdjacencyMatrix() {
             var A = new Matrix(Nodes.Count);
-            foreach (var edge in Edges)
-                A.Rows[edge.Source.Index][edge.Destination.Index] = edge.Weight;
-            AdjacencyMatrix = A;
+            foreach (var edge in Edges) {
+                var source = edge.Source.Index;
+                var destination = edge.Destination.Index;
+                var weight = edge.Weight;
+                A.Rows[source][destination] = weight;
+                if (edge.IsDirected)
+                    A.Rows[destination][source] = weight;
+            }
+            _AdjacencyMatrix = A;
         }
         private void UpdateNodeIndexValues() {
             for (var i = 0; i < Nodes.Count; ++i)

@@ -34,6 +34,36 @@ namespace GraphTests {
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
+        public void Can_maintain_matrix_representation_with_undirected_edges() {
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var nodes = new List<Node> { a, b, c };
+            var edges = new List<Edge> { ab, bc };
+            var graph = new Graph(nodes, edges);
+            var adjacencyMatrix = graph.AdjacencyMatrix;
+            Assert.Equal(new List<double> { 0, 1, 0 }, adjacencyMatrix.Rows[0]);
+            Assert.Equal(new List<double> { 0, 0, 1 }, adjacencyMatrix.Rows[1]);
+            Assert.Equal(new List<double> { 0, 0, 0 }, adjacencyMatrix.Rows[2]);
+        }
+        [Fact]
+        public void Can_maintain_matrix_representation_with_directed_edges() {
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new DirectedEdge(a, b);
+            var bc = new DirectedEdge(b, c, 5);
+            var nodes = new List<Node> { a, b, c };
+            var edges = new List<Edge> { ab, bc };
+            var graph = new Graph(nodes, edges);
+            var adjacencyMatrix = graph.AdjacencyMatrix;
+            Assert.Equal(new List<double> { 0, 1, 0 }, adjacencyMatrix.Rows[0]);
+            Assert.Equal(new List<double> { 1, 0, 5 }, adjacencyMatrix.Rows[1]);
+            Assert.Equal(new List<double> { 0, 5, 0 }, adjacencyMatrix.Rows[2]);
+        }
+        [Fact]
         public void Graph_can_get_nodes() {
             var graph = new Graph();
             var a = new Node("a");

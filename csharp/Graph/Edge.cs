@@ -7,12 +7,12 @@ namespace Prelude {
         public Node Source;
         public Node Destination;
         public double Weight = 1;
-        public bool IsWeighted {
+        public virtual bool IsDirected {
             get {
-                return Abs(Weight) > 0;
+                return false;
             }
         }
-        public Edge(Node source, Node destination, double weight = 0) {
+        public Edge(Node source, Node destination, double weight = 1) {
             Id = Guid.NewGuid();
             Source = source;
             Destination = destination;
