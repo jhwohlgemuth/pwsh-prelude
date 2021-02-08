@@ -33,6 +33,13 @@ namespace Prelude {
                 }
             }
         }
+        public IEnumerable<double> Values {
+            get {
+                foreach (var row in Rows)
+                    foreach (var value in row)
+                        yield return value;
+            }
+        }
         public Matrix(int n) {
             Size = new int[] { n, n };
             Rows = Create<double>(n, n);

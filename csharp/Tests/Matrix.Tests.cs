@@ -2,6 +2,7 @@ using Xunit;
 using FsCheck;
 using FsCheck.Xunit;
 using System;
+using System.Collections.Generic;
 using Prelude;
 
 namespace MatrixTests {
@@ -57,6 +58,28 @@ namespace MatrixTests {
             A.Rows[1] = new double[] { d.Get, e.Get, f.Get };
             A.Rows[2] = new double[] { a.Get, b.Get, c.Get };
             return (Matrix.Det(A) == 0).Label("A has two identical rows ==> Det(A) == 0");
+        }
+        [Property]
+        public void Can_enumerate_matrix_values(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+            var A = new Matrix(2);
+            double[,] rows = new double[2, 2] {
+                { a.Get, b.Get },
+                { c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(new List<double> { a.Get, b.Get, c.Get, d.Get }, A.Values);
+            A = new Matrix(1, 4);
+            rows = new double[1, 4] {
+                { a.Get, b.Get, c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(new List<double> { a.Get, b.Get, c.Get, d.Get }, A.Values);
         }
         [Theory]
         [InlineData(1)]
