@@ -21,6 +21,19 @@ namespace GraphTests {
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
+        public void Can_be_passed_nodes_and_edges_at_creation() {
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var nodes = new List<Node> { a, b, c };
+            var edges = new List<Edge> { ab, bc };
+            var graph = new Graph(nodes, edges);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(2, graph.Edges.Count);
+        }
+        [Fact]
         public void Graph_can_get_nodes() {
             var graph = new Graph();
             var a = new Node("a");
