@@ -20,8 +20,8 @@ namespace Prelude {
         }
         public Graph(List<Node> nodes, List<Edge> edges) {
             Id = Guid.NewGuid();
-            Nodes = nodes;
-            Edges = edges;
+            Add(nodes);
+            Add(edges);
             UpdateNodeIndexValues();
             UpdateAdjacencyMatrix();
         }

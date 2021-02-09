@@ -206,6 +206,37 @@ namespace GraphTests {
             Assert.Equal(3, fromGraph.Edges.Count);
         }
         [Fact]
+        public void Can_update_node_neighbors_when_edges_are_added() {
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var graph = new Graph();
+            graph.Add(a, b, c).Add(ab, bc);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(2, graph.Edges.Count);
+            Assert.Single(graph.GetNode(a).Neighbors);
+            Assert.Equal(2, graph.GetNode(b).Neighbors.Count);
+            Assert.Single(graph.GetNode(c).Neighbors);
+        }
+        [Fact]
+        public void Can_update_node_neighbors_at_creation() {
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var nodes = new List<Node> { a, b, c };
+            var edges = new List<Edge> { ab, bc };
+            var graph = new Graph(nodes, edges);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(2, graph.Edges.Count);
+            Assert.Single(graph.GetNode(a).Neighbors);
+            Assert.Equal(2, graph.GetNode(b).Neighbors.Count);
+            Assert.Single(graph.GetNode(c).Neighbors);
+        }
+        [Fact]
         public void Graph_can_clear_nodes_and_edges() {
             var graph = new Graph();
             var a = new Node();
