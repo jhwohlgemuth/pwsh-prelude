@@ -18,12 +18,16 @@ namespace Prelude {
         public Graph() {
             Id = Guid.NewGuid();
         }
+        public Graph(List<Edge> edges) {
+            Id = Guid.NewGuid();
+            foreach (var edge in edges)
+                Add(edge.Source, edge.Destination);
+            Add(edges);
+        }
         public Graph(List<Node> nodes, List<Edge> edges) {
             Id = Guid.NewGuid();
             Add(nodes);
             Add(edges);
-            UpdateNodeIndexValues();
-            UpdateAdjacencyMatrix();
         }
         public Graph Add(Graph graph) {
             Add(graph.Nodes);

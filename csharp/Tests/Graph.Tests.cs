@@ -5,6 +5,24 @@ using Prelude;
 namespace GraphTests {
     public class UnitTests {
         [Fact]
+        public void Graph_can_be_created_from_edges() {
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var edges = new List<Edge> { ab, bc };
+            var graph = new Graph(edges);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(2, graph.Edges.Count);
+            Assert.Equal("a", graph.GetNode(a).Label);
+            Assert.Equal("b", graph.GetNode(b).Label);
+            Assert.Equal("c", graph.GetNode(c).Label);
+            Assert.Single(graph.GetNode(a).Neighbors);
+            Assert.Equal(2, graph.GetNode(b).Neighbors.Count);
+            Assert.Single(graph.GetNode(c).Neighbors);
+        }
+        [Fact]
         public void Graph_will_be_assigned_Id_automatically() {
             var graph = new Graph();
             Assert.Equal(36, graph.Id.ToString().Length);
@@ -21,7 +39,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
-        public void Can_be_passed_nodes_and_edges_at_creation() {
+        public void Graph_can_be_passed_nodes_and_edges_at_creation() {
             var a = new Node();
             var b = new Node();
             var c = new Node();
@@ -34,7 +52,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
-        public void Can_maintain_matrix_representation_with_undirected_edges() {
+        public void Graph_can_maintain_matrix_representation_with_undirected_edges() {
             var a = new Node();
             var b = new Node();
             var c = new Node();
@@ -49,7 +67,7 @@ namespace GraphTests {
             Assert.Equal(new List<double> { 0, 1, 0 }, adjacencyMatrix.Rows[2]);
         }
         [Fact]
-        public void Can_maintain_matrix_representation_with_directed_edges() {
+        public void Graph_can_maintain_matrix_representation_with_directed_edges() {
             var a = new Node();
             var b = new Node();
             var c = new Node();
@@ -90,12 +108,15 @@ namespace GraphTests {
             var label = "unique";
             var graph = new Graph();
             var a = new Node(label);
+            var b = new Node();
             Assert.Empty(graph.Nodes);
             graph.Add(a);
             Assert.Single(graph.Nodes);
             graph.Add(a);
             Assert.Single(graph.Nodes);
-            Assert.Equal(label, graph.Nodes[0].Label);
+            Assert.Equal(label, graph.GetNode(a).Label);
+            graph.Add(b);
+            Assert.Equal(2, graph.Nodes.Count);
         }
         [Fact]
         public void Graph_can_add_array_of_nodes() {
