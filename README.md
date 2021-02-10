@@ -15,7 +15,7 @@ This module provides functional programming patterns for scripting within a [ubi
 Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
 
 
-> "It is almost like he just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all his favorite functions and aliases into a grab-bag module..."  
+> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all their favorite functions and aliases into a grab-bag module..."  
 *- Anonymous*
 
 Quick Start
@@ -23,13 +23,15 @@ Quick Start
 
 1. Install module
 ```Powershell
-Install-Module -Name Prelude
+Install-Module -Name Prelude -Scope CurrentUser
 ```
 
 2. Import module
 ```Powershell
 Import-Module -Name Prelude
 ```
+
+> ***TIP***: For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
 
 Things You Can Do With Prelude
 ------------------------------
@@ -288,18 +290,63 @@ Type Accelerators
 
   ```
   > **Note:** Full class name is `Prelude.Matrix`
-- `[Graph]`
-  > ***UNDER CONSTRUCTION***
+- `[Node]`
+  > Simple node data structure for use with Graph data structure
   ```PowerShell
-  # Example code will go here
+  $A = [Node]'a'
+  $B = [Node]'b'
+  $C = [Node]'c'
   ```
-  > **Note:** Full class name is `Prelude.Graph`
+  > **Note:** Full class name is `Prelude.Node`
 - `[Edge]`
-  > ***UNDER CONSTRUCTION***
+  > Simple edge data structure for use with Graph data structure. Edges are composed of two nodes and an optional weight (default weight is `1`).
+  
+  > Un-weighted graphs can be constructed by using default weight of 1 for all associated edges).
   ```PowerShell
-  # Example code will go here
+  $AB = [Edge]::New($A, $B)
+  $BC = [Edge]::New($B, $C)
+  
+  # OR you can use PowerShell helper functions
+
+  $AB = New-Edge -From $A -To $B
+  $BC = New-Edge -From $B -To $C
   ```
   > **Note:** Full class name is `Prelude.Edge`
+- `[DirectedEdge]`
+  > Exactly like `[Edge]`, but directed.
+  ```PowerShell
+  $AB = [DirectedEdge]::New($A, $B)
+  $BC = [DirectedEdge]::New($B, $C)
+  
+  # OR you can use PowerShell helper functions
+
+  $AB = New-Edge -From $A -To $B -Directed
+  $BC = New-Edge -From $B -To $C -Directed
+  ```
+  > **Note:** Full class name is `Prelude.DirectedEdge`
+- `[Graph]`
+  > Data structure to model objects (nodes) and relations (edges). Named `[Graph]` instead of `[Network]` to avoid confusion with computer networks, a common use case for PowerShell. 
+  ```PowerShell
+  $Nodes = @($A, $B, $C)
+  $Edges = @($AB, $BC)
+  $G = [Graph]::New($Nodes, $Edges)
+
+  # OR create graph using just edges
+  # (necessary nodes are "auto" added)
+
+  $G = [Graph]::New($Edges)
+
+  # Add nodes
+  $D = [Node]'d'
+  $G.Add($D)
+
+  # View adjacency matrix
+  $G.AdjacencyMatrix
+
+  # algorithms and other cool stuff are UNDER CONSTRUCTION
+
+  ```
+  > **Note:** Full class name is `Prelude.Graph`
 
 Type Extensions
 ---------------
@@ -344,6 +391,8 @@ Credits
 - [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*
 - [mattifestation/PowerShellArsenal](https://github.com/mattifestation/PowerShellArsenal) - *inspiration*
 - [PowerShellMafia/PowerSploit](https://github.com/PowerShellMafia/PowerSploit) - *inspiration*
+- [NetworkX](https://networkx.org/) - *inspiration*
+- [C# Algorithms](https://github.com/aalhour/C-Sharp-Algorithms) - *inspiration* & *reference implementation*
 - [MartinSGill/Profile](https://github.com/MartinSGill/Profile) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 

@@ -1,6 +1,7 @@
 Getting Started
 ===============
 - Read this guide (including the [Code of Conduct](CODE_OF_CONDUCT.md))
+- Check out our [Trello page](https://trello.com/b/LRyMB5zk/powershell-prelude) to see what features and fixes are planned.
 - Fork this repository and clone your fork locally
 - [Setup your environment](#project-setup) to use development tasks (test, lint, etc...)
 - Adhere to the [project standards](#project-standards)
@@ -47,7 +48,7 @@ The Prelude project contains C# code that is added to the module as dynamic link
   - [`Geodetic\`](../csharp/Geodetic)
     - Project directory for `[Coordinate]` and `[Datum]` type accelators <sup>[[5]](#5)</sup>
   - [`Graph\`](../csharp/Graph)
-    - Project directory for `[Graph]`, `[Edge]`, and `[Node]` type accelators <sup>[[5]](#5)</sup>
+    - Project directory for `[Graph]`, `[Edge]`, `[DirectedEdge]`, and `[Node]` type accelators <sup>[[5]](#5)</sup>
   - [`Performance\`](../csharp/Performance)
     - Project directory for C# benchmarks
     > ***NOTE***: Benchmarks are executed using [BenchmarkDotNet](https://benchmarkdotnet.org/)
@@ -76,10 +77,10 @@ All PowerShell tasks are contained within [Invoke-Task.ps1](../Invoke-Task.ps1) 
 | Lint **ALL** code and run **ALL** tests                  | `.\Invoke-Task.ps1 -Lint -Test`                                 |
 | **ALL** tests                                            | `.\Invoke-Task.ps1 -Test`                                       |
 | **ONLY** PowerShell tests                                | `.\Invoke-Task.ps1 -Test -Skip dotnet`                          |
-| **ONLY WINDOWS** PowerShell tests                        | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'LinuxOnly'`   |
-| **ONLY LINUX** PowerShell tests                          | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Exclude 'WindowsOnly'` |
-| **ALL** tests with coverage <sup>[[3]](#3)</sup> | `.\Invoke-Task.ps1 -Test -WithCoverage`                         |
-| ...and open coverage report                              | `.\Invoke-Task.ps1 -Test -WithCoverage -ShowCoverageReport`     |
+| **ONLY WINDOWS** PowerShell tests                        | `.\Invoke-Task.ps1 -Test -Skip 'dotnet'`                        |
+| **ONLY LINUX** PowerShell tests                          | `.\Invoke-Task.ps1 -Test -Skip 'dotnet' -Platform Linux`        |
+| **ALL** tests with coverage <sup>[[3]](#3)</sup>         | `.\Invoke-Task.ps1 -Test -WithCoverage -GenerateCoverageReport` |
+| ...and open coverage report                              | `.\Invoke-Task.ps1 -Test -WithCoverage -GenerateCoverageReport -Show`     |
 
 > ***NOTE***: PowerShell tests are located in the `/tests` directory
 
@@ -120,7 +121,7 @@ Project Standards
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
 - Running `.\Invoke-Task.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
 - Tests should have no failures when run locally
-  > **Windows:** `.\Invoke-Task.ps1 -Test -Tags Local -Platform Windows`
+  > **Windows:** `.\Invoke-Task.ps1 -Test -Tags Local`
   
   > **Linux:** `./Invoke-Task.ps1 -Test -Tags Local -Platform Linux`
 - Tests should have no failures when run remotely
