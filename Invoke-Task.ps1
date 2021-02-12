@@ -471,7 +471,12 @@ switch (Get-TaskList) {
             Invoke-Lint -Skip 'powershell'
             Invoke-Test -Skip 'powershell'
         }
-        Invoke-Build
+        if ($LASTEXITCODE -eq 0) {
+            Invoke-Build
+        } else {
+            Write-Message -Text fail
+            break
+        }
     }
     publish {
         $Parameters = @{
