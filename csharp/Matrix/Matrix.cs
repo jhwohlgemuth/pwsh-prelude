@@ -202,6 +202,9 @@ namespace Prelude {
             }
             return Add(this, temp);
         }
+        public double FrobeniusNorm() {
+            return Sqrt(Values.Select(x => Pow(Abs(x), 2)).Sum());
+        }
         public Matrix InsertColumn(int index, double[] column) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -236,6 +239,12 @@ namespace Prelude {
                     updated.Rows[i] = original.Rows[i - 1];
                 return updated;
             }
+        }
+        public double L1Norm() {
+            var largest = 0;
+            foreach (var column in Transpose(this).Rows)
+                largest = Max(largest, column.Select(x => Abs((int)x)).Sum());
+            return largest;
         }
         public Matrix MultiplyRowByScalar(int index, double k) {
             var clone = Clone();

@@ -372,6 +372,34 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 0, -2 }, B.Rows[1]);
         }
         [Fact]
+        public void Can_calculate_L1_Norm() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { -3, 5, 7 },
+                { 2, 6, 4 },
+                { 0, 2, 8 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(19, A.L1Norm());
+        }
+        [Fact]
+        public void Can_calculate_Frobenius_Norm() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 2, -2, 1 },
+                { -1, 3, -1 },
+                { 2, -4, 1 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(6.4, A.FrobeniusNorm(), 2);
+        }
+        [Fact]
         [Trait("Category", "Instance")]
         public void Can_Multiply_Row_by_Scalar() {
             var A = new Matrix(2);
