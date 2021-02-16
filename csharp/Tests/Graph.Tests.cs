@@ -1,4 +1,6 @@
 using Xunit;
+using FsCheck;
+using FsCheck.Xunit;
 using System.Collections.Generic;
 using Prelude;
 

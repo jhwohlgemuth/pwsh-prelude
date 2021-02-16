@@ -33,7 +33,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Multiplying_Row_By_K_Multiplies_Det_By_K(PositiveInt k, PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+        public Property Multiplying_Row_By_K_Multiplies_Det_By_K(NonZeroInt k, NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
             var B = new Matrix(2);
             A.Rows[0] = new double[] { a.Get, b.Get };
@@ -44,7 +44,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Determinants_Are_Invariant_Under_Matrix_Transposition(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+        public Property Determinants_Are_Invariant_Under_Matrix_Transposition(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
             A.Rows[0] = new double[] { a.Get, b.Get };
             A.Rows[1] = new double[] { c.Get, d.Get };
@@ -52,7 +52,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Two_Identical_Rows_Makes_Determinant_Zero(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d, PositiveInt e, PositiveInt f) {
+        public Property Two_Identical_Rows_Makes_Determinant_Zero(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d, NonZeroInt e, NonZeroInt f) {
             var A = new Matrix(3);
             A.Rows[0] = new double[] { a.Get, b.Get, c.Get };
             A.Rows[1] = new double[] { d.Get, e.Get, f.Get };
@@ -60,7 +60,7 @@ namespace MatrixTests {
             return (Matrix.Det(A) == 0).Label("A has two identical rows ==> Det(A) == 0");
         }
         [Property]
-        public void Can_enumerate_matrix_values(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+        public void Can_enumerate_matrix_values(NormalFloat a, NormalFloat b, NormalFloat c, NormalFloat d) {
             var A = new Matrix(2);
             double[,] rows = new double[2, 2] {
                 { a.Get, b.Get },
@@ -80,6 +80,20 @@ namespace MatrixTests {
                 A.Rows[i][j] = rows[i, j];
             }
             Assert.Equal(new List<double> { a.Get, b.Get, c.Get, d.Get }, A.Values);
+        }
+        [Property]
+        public Property Frobenius_norm_positivity(NormalFloat a, NormalFloat b, NormalFloat c, NormalFloat d) {
+            var A = new Matrix(2);
+            double[,] rows = new double[2, 2] {
+                { a.Get, b.Get },
+                { c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var norm = A.FrobeniusNorm();
+            return (norm > 0 || (a.Get == 0 && b.Get == 0 && c.Get == 0 && d.Get == 0)).Label("Frobenius norm positivity property");
         }
         [Theory]
         [InlineData(1)]
@@ -398,6 +412,45 @@ namespace MatrixTests {
                 A.Rows[i][j] = rows[i, j];
             }
             Assert.Equal(6.4, A.FrobeniusNorm(), 2);
+            rows = new double[,] {
+                { -4, -3, -2 },
+                { -1, 0, 1 },
+                { 2, 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(7.75, A.FrobeniusNorm(), 2);
+        }
+        [Fact]
+        public void Can_normalize_matrix_values() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 1 },
+                { 1, 0 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var normalized = A.Normalize();
+            Assert.Equal(new List<double> { 0.5773502691896258, 0.5773502691896258 }, normalized.Rows[0]);
+            Assert.Equal(new List<double> { 0.5773502691896258, 0 }, normalized.Rows[1]);
+        }
+        [Fact(Skip = "Not yet implemented")]
+        public void Can_calculate_eigenvalues() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 1 },
+                { 1, 0 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var eigenvalues = A.EigenValues();
+            Assert.Equal(new List<double> { 1, 1 }, eigenvalues.Rows[0]);
         }
         [Fact]
         [Trait("Category", "Instance")]

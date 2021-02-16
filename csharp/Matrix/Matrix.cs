@@ -193,6 +193,16 @@ namespace Prelude {
                 }
             return pairs;
         }
+        public Matrix EigenValues(int maxIterations = 100) {
+            var A = this;
+            var x = new Matrix(Size[0], 1);
+            for (var index = 0; index < Size[0]; ++index)
+                x.Rows[index][0] = 0.33;
+            for (var count = 0; count < maxIterations; ++count) {
+                x = Dot(A, x).Normalize();
+            }
+            return x;
+        }
         public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, double scalar = 1) {
             int rowCount = Size[0], columnCount = Size[1];
             var temp = new Matrix(rowCount, columnCount);
@@ -254,6 +264,9 @@ namespace Prelude {
                 clone.Rows[index][i] = (k * item);
             }
             return clone;
+        }
+        public Matrix Normalize() {
+            return Multiply(this, 1 / FrobeniusNorm());
         }
         public Matrix RemoveColumn(int index) {
             var original = this;
