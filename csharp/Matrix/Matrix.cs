@@ -193,11 +193,12 @@ namespace Prelude {
                 }
             return pairs;
         }
-        public Matrix EigenValues(int maxIterations = 100) {
+        public Matrix EigenVector(int maxIterations = 100) {
             var A = this;
-            var x = new Matrix(Size[0], 1);
-            for (var index = 0; index < Size[0]; ++index)
-                x.Rows[index][0] = 0.33;
+            int rowCount = Size[0];
+            var x = new Matrix(rowCount, 1);
+            for (var index = 0; index < rowCount; ++index)
+                x.Rows[index][0] = 1;
             for (var count = 0; count < maxIterations; ++count) {
                 x = Dot(A, x).Normalize();
             }

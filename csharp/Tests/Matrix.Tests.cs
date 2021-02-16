@@ -438,8 +438,8 @@ namespace MatrixTests {
             Assert.Equal(new List<double> { 0.5773502691896258, 0.5773502691896258 }, normalized.Rows[0]);
             Assert.Equal(new List<double> { 0.5773502691896258, 0 }, normalized.Rows[1]);
         }
-        [Fact(Skip = "Not yet implemented")]
-        public void Can_calculate_eigenvalues() {
+        [Fact]
+        public void Can_calculate_dominant_eigenvector() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {
                 { 1, 1 },
@@ -449,8 +449,9 @@ namespace MatrixTests {
                 int i = Index[0], j = Index[1];
                 A.Rows[i][j] = rows[i, j];
             }
-            var eigenvalues = A.EigenValues();
-            Assert.Equal(new List<double> { 1, 1 }, eigenvalues.Rows[0]);
+            var eigenvector = A.EigenVector();
+            Assert.Equal(0.8507, eigenvector.Rows[0][0], 4);
+            Assert.Equal(0.5257, eigenvector.Rows[1][0], 4);
         }
         [Fact]
         [Trait("Category", "Instance")]
