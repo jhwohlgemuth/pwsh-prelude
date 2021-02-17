@@ -92,6 +92,12 @@ namespace Prelude {
                 }
             return sum;
         }
+        public static Matrix operator +(Matrix left) {
+            return left.Clone();
+        }
+        public static Matrix operator +(Matrix left, Matrix right) {
+            return Add(left, right);
+        }
         public static Matrix Adj(Matrix a) {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {

@@ -24,7 +24,7 @@ namespace MatrixTests {
                 .And(matrix.Size[1] == cols && (matrix.Rows[0].Length == cols)).Label("MxN matrix has N columns");
         }
         [Property]
-        public Property Identity_Matrix_is_Square(PositiveInt n) {
+        public Property Identity_matrix_is_square(PositiveInt n) {
             var size = n.Get;
             var matrix = new Matrix(size);
             var rows = matrix.Size[0];
@@ -33,7 +33,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Multiplying_Row_By_K_Multiplies_Det_By_K(NonZeroInt k, NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
+        public Property Multiplying_row_by_K_multiplies_det_by_K(NonZeroInt k, NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
             var B = new Matrix(2);
             A.Rows[0] = new double[] { a.Get, b.Get };
@@ -44,7 +44,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Determinants_Are_Invariant_Under_Matrix_Transposition(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
+        public Property Determinant_transposition_invariance(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
             A.Rows[0] = new double[] { a.Get, b.Get };
             A.Rows[1] = new double[] { c.Get, d.Get };
@@ -52,7 +52,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Two_Identical_Rows_Makes_Determinant_Zero(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d, NonZeroInt e, NonZeroInt f) {
+        public Property Two_identical_rows_makes_determinant_zero(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d, NonZeroInt e, NonZeroInt f) {
             var A = new Matrix(3);
             A.Rows[0] = new double[] { a.Get, b.Get, c.Get };
             A.Rows[1] = new double[] { d.Get, e.Get, f.Get };
@@ -99,7 +99,7 @@ namespace MatrixTests {
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
-        public void Can_Create_Unit_Matrix(int N) {
+        public void Can_create_square_unit_matrices(int N) {
             var unit = Matrix.Unit(N);
             Assert.Equal(new int[] { N, N }, unit.Size);
             var expected = new double[N];
@@ -109,12 +109,12 @@ namespace MatrixTests {
             }
         }
         [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        public void Can_Create_Integer_Unit_Matrix(int N) {
-            var unit = Matrix.Unit(N);
-            Assert.Equal(new int[] { N, N }, unit.Size);
+        [InlineData(1, 2)]
+        [InlineData(2, 1)]
+        [InlineData(3, 7)]
+        public void Can_create_rectangular_unit_matrices(int M, int N) {
+            var unit = Matrix.Unit(M, N);
+            Assert.Equal(new int[] { M, N }, unit.Size);
             var expected = new double[N];
             Array.Fill(expected, 1);
             foreach (double[] Row in unit.Rows) {
@@ -122,7 +122,7 @@ namespace MatrixTests {
             }
         }
         [Fact]
-        public void Can_Create_Identity_Matrix() {
+        public void Can_create_identity_matrices() {
             var identity2 = Matrix.Identity(2);
             Assert.Equal(new double[] { 1, 0 }, identity2.Rows[0]);
             Assert.Equal(new double[] { 0, 1 }, identity2.Rows[1]);
@@ -133,7 +133,7 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 0, 0, 0, 1 }, identity4.Rows[3]);
         }
         [Fact]
-        public void Can_Transpose_NxN_Matrices() {
+        public void Can_transpose_NxN_matrices() {
             var A = new Matrix(3);
             double[,] rows = new double[3, 3] {
                 { 1, 2, 3 },
@@ -154,7 +154,7 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 7, 8, 9 }, B.Rows[2]);
         }
         [Fact]
-        public void Can_Transpose_MxN_Matrices() {
+        public void Can_transpose_MxN_matrices() {
             var A = new Matrix(2, 3);
             double[,] rows = new double[2, 3] {
                 { 1, 2, 3 },
@@ -176,7 +176,7 @@ namespace MatrixTests {
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
-        public void Can_Add_Matrices(int N) {
+        public void Can_add_matrices(int N) {
             var sum = new Matrix(N);
             var unit = Matrix.Unit(N);
             for (int i = 0; i < N; ++i) {
@@ -187,8 +187,23 @@ namespace MatrixTests {
             foreach (var Row in sum.Rows)
                 Assert.Equal(expected, Row);
         }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public void Can_add_matrices_with_operators(int N) {
+            var sum = new Matrix(N);
+            var unit = Matrix.Unit(N);
+            for (int i = 0; i < N; ++i) {
+                sum += unit;
+            }
+            var expected = new double[N];
+            Array.Fill(expected, N);
+            foreach (var Row in sum.Rows)
+                Assert.Equal(expected, Row);
+        }
         [Fact]
-        public void Can_Calculate_Dot_Product_of_Two_NxN_Matrices() {
+        public void Can_calculate_dot_product_of_two_NxN_matrices() {
             var A = Matrix.Identity(2);
             A.Rows[1][1] = 0;
             var B = Matrix.Identity(2);
@@ -221,7 +236,7 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 6, 8 }, product.Rows[1]);
         }
         [Fact]
-        public void Can_Calculate_Dot_Product_of_Two_MxN_Matrices() {
+        public void Can_calculate_dot_product_of_two_MxN_matrices() {
             var A = new Matrix(1, 2);
             var B = new Matrix(2, 3);
             double[,] rowsA = new double[,] {
@@ -244,7 +259,7 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 6, 1, -3 }, product.Rows[0]);
         }
         [Fact]
-        public void Can_Verify_the_Dot_Product_of_a_Matrix_and_its_Inverse() {
+        public void Can_verify_the_dot_product_of_a_matrix_and_inverse_is_identity() {
             var A = new Matrix(2);
             var B = new Matrix(2);
             double[,] rowsA = new double[,] {
@@ -270,7 +285,7 @@ namespace MatrixTests {
         [Theory]
         [InlineData(1)]
         [InlineData(7)]
-        public void Can_Multiply_Matrix_by_Scalar_Constant(int k) {
+        public void Can_multiply_matrix_by_scalar_constant(int k) {
             var sum = new Matrix(2);
             var identity = Matrix.Identity(2);
             for (int i = 0; i < k; ++i) {
@@ -283,7 +298,7 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 0, k }, product.Rows[1]);
         }
         [Fact]
-        public void Can_Calculate_the_Inverse_of_a_Matrix() {
+        public void Can_calculate_matrix_inverse() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -301,7 +316,7 @@ namespace MatrixTests {
             Assert.Equal(Matrix.Identity(3).Rows, Matrix.Dot(A, inverse).Rows);
         }
         [Fact]
-        public void Can_Calculate_Matrix_Trace() {
+        public void Can_calculate_matrix_trace() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -315,7 +330,7 @@ namespace MatrixTests {
             Assert.Equal(15, Matrix.Trace(A));
         }
         [Fact]
-        public void Can_Solve_System_of_Equations_With_Gaussian_Elimination() {
+        public void Can_solve_system_of_equations_with_gaussian_elimination() {
             var A = new Matrix(3, 4);
             double[,] rows = new double[,] {
                 { 9, 3, 4, 7 },
@@ -349,7 +364,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Create_Clones() {
+        public void Can_create_clones() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {
                 { 1, 2 },
@@ -365,7 +380,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Perform_Elementary_Row_Operations() {
+        public void Can_perform_elementary_row_operations() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {
                 { 1, 2 },
