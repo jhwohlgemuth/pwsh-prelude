@@ -449,9 +449,23 @@ namespace MatrixTests {
                 int i = Index[0], j = Index[1];
                 A.Rows[i][j] = rows[i, j];
             }
-            var eigenvector = A.EigenVector();
+            var eigenvector = A.Eigenvector();
             Assert.Equal(0.8507, eigenvector.Rows[0][0], 4);
             Assert.Equal(0.5257, eigenvector.Rows[1][0], 4);
+        }
+        [Fact]
+        public void Can_calculate_dominant_eigenvalue() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 1 },
+                { 1, 0 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var eigenvalue = A.Eigenvalue();
+            Assert.Equal(1.618, eigenvalue, 3);
         }
         [Fact]
         [Trait("Category", "Instance")]

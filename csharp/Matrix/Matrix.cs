@@ -55,10 +55,16 @@ namespace Prelude {
             return result;
         }
         public static Matrix Unit(int n) {
-            var temp = new Matrix(n);
+            return Fill(new Matrix(n), 1);
+        }
+        public static Matrix Unit(int rowCount, int columnCount) {
+            return Fill(new Matrix(rowCount, columnCount), 1);
+        }
+        public static Matrix Fill(Matrix a, double value) {
+            var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
                 int i = index[0], j = index[1];
-                temp.Rows[i][j] = 1;
+                temp.Rows[i][j] = value;
             }
             return temp;
         }
@@ -193,15 +199,17 @@ namespace Prelude {
                 }
             return pairs;
         }
-        public Matrix EigenVector(int maxIterations = 100) {
+        public double Eigenvalue() {
             var A = this;
-            int rowCount = Size[0];
-            var x = new Matrix(rowCount, 1);
-            for (var index = 0; index < rowCount; ++index)
-                x.Rows[index][0] = 1;
-            for (var count = 0; count < maxIterations; ++count) {
+            var v = Eigenvector();
+            return Dot(Dot(Transpose(v), A), v).Values.First() / (Dot(Transpose(v), v).Values.First());
+        }
+        public Matrix Eigenvector(int maxIterations = 100) {
+            var A = this;
+            int m = Size[0];
+            var x = Unit(m, 1);
+            for (var count = 0; count < maxIterations; ++count)
                 x = Dot(A, x).Normalize();
-            }
             return x;
         }
         public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, double scalar = 1) {
