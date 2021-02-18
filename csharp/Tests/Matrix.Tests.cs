@@ -117,6 +117,11 @@ namespace MatrixTests {
                 .And((A == B && B == A) || (A != B)).Label("Symmetric property (not always same)")
                 .And((A == B && B == C && A == C) || (A != B || B != C)).Label("Transitive property");
         }
+        [Property]
+        public void Can_identity_dot_product_invariance(NonZeroInt k) {
+            var I = Matrix.Identity(3);
+            Assert.Equal(I, Matrix.Pow(I, k.Get));
+        }
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -351,6 +356,24 @@ namespace MatrixTests {
             var product = Matrix.Dot(A, B);
             Assert.Equal(new int[] { 2, 2 }, product.Size);
             Assert.Equal(Matrix.Identity(2).Rows, product.Rows);
+        }
+        [Fact]
+        public void Can_calcuate_dot_exponential() {
+            var A = Matrix.Unit(2);
+            var result = Matrix.Pow(A, 1);
+            Assert.Equal(new double[] { 1, 1 }, result.Rows[0]);
+            Assert.Equal(new double[] { 1, 1 }, result.Rows[1]);
+            result = Matrix.Pow(A, 2);
+            Assert.Equal(new double[] { 2, 2 }, result.Rows[0]);
+            Assert.Equal(new double[] { 2, 2 }, result.Rows[1]);
+            result = Matrix.Pow(A, 3);
+            Assert.Equal(new double[] { 4, 4 }, result.Rows[0]);
+            Assert.Equal(new double[] { 4, 4 }, result.Rows[1]);
+            result = Matrix.Pow(A, 4);
+            Assert.Equal(new double[] { 8, 8 }, result.Rows[0]);
+            Assert.Equal(new double[] { 8, 8 }, result.Rows[1]);
+            var B = Matrix.Unit(2, 4);
+            Assert.Throws<ArgumentException>(() => Matrix.Pow(B, 2));
         }
         [Theory]
         [InlineData(1)]

@@ -77,13 +77,6 @@ namespace Prelude {
                 return !Equals(left, right);
             return !(left.Equals(right));
         }
-        public int CompareTo(Matrix other) {
-            if (other != null) {
-                return (this == other ? 0 : 1);
-            } else {
-                throw new ArgumentException("Parameter is not a Matrix");
-            }
-        }
         public Matrix(int n) {
             Size = new int[] { n, n };
             Rows = Create<double>(n, n);
@@ -91,40 +84,6 @@ namespace Prelude {
         public Matrix(int rowCount, int columnCount) {
             Size = new int[] { rowCount, columnCount };
             Rows = Create<double>(rowCount, columnCount);
-        }
-        public static T[][] Create<T>(int rowCount, int columnCount) {
-            T[][] result = new T[rowCount][];
-            for (int i = 0; i < rowCount; ++i)
-                result[i] = new T[columnCount];
-            return result;
-        }
-        public static Matrix Unit(int n) {
-            return Fill(new Matrix(n), 1);
-        }
-        public static Matrix Unit(int rowCount, int columnCount) {
-            return Fill(new Matrix(rowCount, columnCount), 1);
-        }
-        public static Matrix Fill(Matrix a, double value) {
-            var temp = a.Clone();
-            foreach (var index in temp.Indexes()) {
-                int i = index[0], j = index[1];
-                temp.Rows[i][j] = value;
-            }
-            return temp;
-        }
-        public static Matrix Identity(int n) {
-            var temp = new Matrix(n);
-            for (int i = 0; i < n; ++i)
-                temp.Rows[i][i] = 1;
-            return temp;
-        }
-        public static Matrix Transpose(Matrix a) {
-            var temp = new Matrix(a.Size[1], a.Size[0]);
-            foreach (var index in a.Indexes()) {
-                int i = index[0], j = index[1];
-                temp.Rows[j][i] = a.Rows[i][j];
-            }
-            return temp;
         }
         public static Matrix Add(params Matrix[] addends) {
             var size = addends[0].Size;
@@ -156,34 +115,18 @@ namespace Prelude {
             }
             return Transpose(temp);
         }
-        public static Matrix GaussianElimination(Matrix augmented) {
-            int rowCount = augmented.Size[0], columnCount = augmented.Size[1];
-            var clone = augmented.ToUpperTriangular();
-            var solutions = new Matrix(rowCount, 1);
-            for (int i = rowCount - 1; i >= 0; --i) {
-                double sum = 0;
-                for (int j = i + 1; j <= rowCount - 1; ++j) {
-                    sum += (solutions.Rows[j][0] * clone.Rows[i][j]);
-                }
-                solutions.Rows[i][0] = Round((clone.Rows[i][columnCount - 1] - sum) / clone.Rows[i][i], 2);
-            }
-            return solutions;
-        }
-        private static double InterlockAddDoubles(ref double a, double b) {
-            double newCurrentValue = a;
-            while (true) {
-                double currentValue = newCurrentValue;
-                double newValue = currentValue + b;
-                newCurrentValue = Interlocked.CompareExchange(ref a, newValue, currentValue);
-                if (newCurrentValue == currentValue)
-                    return newValue;
+        public int CompareTo(Matrix other) {
+            if (other != null) {
+                return (this == other ? 0 : 1);
+            } else {
+                throw new ArgumentException("Parameter is not a Matrix");
             }
         }
-        private static Func<int, ParallelLoopState, double, double> CalculateDeterminantParallel(Matrix a) {
-            return (i, loop, result) => {
-                result += a.Rows[0][i] * a.Cofactor(0, i);
-                return result;
-            };
+        public static T[][] Create<T>(int rowCount, int columnCount) {
+            T[][] result = new T[rowCount][];
+            for (int i = 0; i < rowCount; ++i)
+                result[i] = new T[columnCount];
+            return result;
         }
         public static double Det(Matrix a) {
             int rowCount = a.Size[0];
@@ -214,6 +157,33 @@ namespace Prelude {
         public static Matrix operator *(Matrix left, Matrix right) {
             return Dot(left, right);
         }
+        public static Matrix Fill(Matrix a, double value) {
+            var temp = a.Clone();
+            foreach (var index in temp.Indexes()) {
+                int i = index[0], j = index[1];
+                temp.Rows[i][j] = value;
+            }
+            return temp;
+        }
+        public static Matrix GaussianElimination(Matrix augmented) {
+            int rowCount = augmented.Size[0], columnCount = augmented.Size[1];
+            var clone = augmented.ToUpperTriangular();
+            var solutions = new Matrix(rowCount, 1);
+            for (int i = rowCount - 1; i >= 0; --i) {
+                double sum = 0;
+                for (int j = i + 1; j <= rowCount - 1; ++j) {
+                    sum += (solutions.Rows[j][0] * clone.Rows[i][j]);
+                }
+                solutions.Rows[i][0] = Round((clone.Rows[i][columnCount - 1] - sum) / clone.Rows[i][i], 2);
+            }
+            return solutions;
+        }
+        public static Matrix Identity(int n) {
+            var temp = new Matrix(n);
+            for (int i = 0; i < n; ++i)
+                temp.Rows[i][i] = 1;
+            return temp;
+        }
         public static Matrix Invert(Matrix a) {
             var adjugate = Adj(a);
             var det = Det(a);
@@ -239,6 +209,16 @@ namespace Prelude {
         public static Matrix operator /(double k, Matrix a) {
             return Multiply(a, (1 / k));
         }
+        public static Matrix Pow(Matrix a, double exponent) {
+            if (a.Size[0] == a.Size[1]) {
+                var temp = a.Clone();
+                for (var index = 0; index < exponent - 1; ++index)
+                    temp *= a;
+                return temp;
+            } else {
+                throw new ArgumentException("Matrix exponentiation only supports square matrices");
+            }
+        }
         public static double Trace(Matrix a) {
             double trace = 0;
             foreach (var index in a.Indexes()) {
@@ -248,6 +228,36 @@ namespace Prelude {
                 }
             }
             return trace;
+        }
+        public static Matrix Transpose(Matrix a) {
+            var temp = new Matrix(a.Size[1], a.Size[0]);
+            foreach (var index in a.Indexes()) {
+                int i = index[0], j = index[1];
+                temp.Rows[j][i] = a.Rows[i][j];
+            }
+            return temp;
+        }
+        public static Matrix Unit(int n) {
+            return Fill(new Matrix(n), 1);
+        }
+        public static Matrix Unit(int rowCount, int columnCount) {
+            return Fill(new Matrix(rowCount, columnCount), 1);
+        }
+        private static double InterlockAddDoubles(ref double a, double b) {
+            double newCurrentValue = a;
+            while (true) {
+                double currentValue = newCurrentValue;
+                double newValue = currentValue + b;
+                newCurrentValue = Interlocked.CompareExchange(ref a, newValue, currentValue);
+                if (newCurrentValue == currentValue)
+                    return newValue;
+            }
+        }
+        private static Func<int, ParallelLoopState, double, double> CalculateDeterminantParallel(Matrix a) {
+            return (i, loop, result) => {
+                result += a.Rows[0][i] * a.Cofactor(0, i);
+                return result;
+            };
         }
         public Matrix Clone() {
             var original = this;
@@ -259,7 +269,7 @@ namespace Prelude {
             }
             return clone;
         }
-        public double Cofactor(int i = 0, int j = 0) => Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
+        public double Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
         public List<int[]> Indexes(int offset = 0) {
             int rows = Size[0], cols = Size[1];
             var pairs = new List<int[]>();
@@ -293,7 +303,7 @@ namespace Prelude {
             return Add(this, temp);
         }
         public double FrobeniusNorm() {
-            return Sqrt(Values.Select(x => Pow(Abs(x), 2)).Sum());
+            return Sqrt(Values.Select(x => Math.Pow(Abs(x), 2)).Sum());
         }
         public Matrix InsertColumn(int index, double[] column) {
             var original = this;
