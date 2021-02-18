@@ -92,11 +92,17 @@ namespace Prelude {
                 }
             return sum;
         }
-        public static Matrix operator +(Matrix left) {
-            return left.Clone();
+        public static Matrix operator +(Matrix a) {
+            return a.Clone();
         }
         public static Matrix operator +(Matrix left, Matrix right) {
             return Add(left, right);
+        }
+        public static Matrix operator -(Matrix a) {
+            return Multiply(a, -1);
+        }
+        public static Matrix operator -(Matrix minuend, Matrix subtrahend) {
+            return Add(minuend, Multiply(subtrahend, -1));
         }
         public static Matrix Adj(Matrix a) {
             var temp = a.Clone();
@@ -161,6 +167,9 @@ namespace Prelude {
             }
             return product;
         }
+        public static Matrix operator *(Matrix left, Matrix right) {
+            return Dot(left, right);
+        }
         public static Matrix Invert(Matrix a) {
             var adjugate = Adj(a);
             var det = Det(a);
@@ -173,6 +182,18 @@ namespace Prelude {
                 clone.Rows[i][j] *= k;
             }
             return clone;
+        }
+        public static Matrix operator *(double k, Matrix a) {
+            return Multiply(a, k);
+        }
+        public static Matrix operator *(Matrix a, double k) {
+            return Multiply(a, k);
+        }
+        public static Matrix operator /(Matrix a, double k) {
+            return Multiply(a, (1 / k));
+        }
+        public static Matrix operator /(double k, Matrix a) {
+            return Multiply(a, (1 / k));
         }
         public static double Trace(Matrix a) {
             double trace = 0;

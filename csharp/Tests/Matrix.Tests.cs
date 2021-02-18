@@ -8,7 +8,7 @@ using Prelude;
 namespace MatrixTests {
     public class UnitTests {
         [Property]
-        public Property NxN_Matrix_Has_N_Rows_and_N_Columns(PositiveInt n) {
+        public Property NxN_matrix_has_N_rows_and_N_columns(PositiveInt n) {
             var size = n.Get;
             var matrix = new Matrix(size);
             return (matrix.Size[0] == matrix.Size[1]).Label("NxN matrix has square shape")
@@ -16,7 +16,7 @@ namespace MatrixTests {
                 .And(matrix.Size[0] == matrix.Rows.Length).Label("NxN is characterized by N rows and N columns");
         }
         [Property]
-        public Property MxN_Matrix_Has_M_Rows_and_N_Columns(PositiveInt m, PositiveInt n) {
+        public Property MxN_matrix_has_M_rows_and_N_columns(PositiveInt m, PositiveInt n) {
             var rows = m.Get;
             var cols = n.Get;
             var matrix = new Matrix(rows, cols);
@@ -33,7 +33,7 @@ namespace MatrixTests {
         }
         [Property]
         [Trait("Category", "Determinant")]
-        public Property Multiplying_row_by_K_multiplies_det_by_K(NonZeroInt k, NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
+        public Property Multiplying_row_by_K_multiplies_determinant_by_K(NonZeroInt k, NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
             var B = new Matrix(2);
             A.Rows[0] = new double[] { a.Get, b.Get };
@@ -202,6 +202,21 @@ namespace MatrixTests {
             foreach (var Row in sum.Rows)
                 Assert.Equal(expected, Row);
         }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(10)]
+        [InlineData(16)]
+        public void Can_subtract_matrices_with_operators(int N) {
+            var difference = Matrix.Fill(new Matrix(N), 10);
+            var unit = Matrix.Unit(N);
+            for (int i = 0; i < N; ++i) {
+                difference -= unit;
+            }
+            var expected = new double[N];
+            Array.Fill(expected, 10 - N);
+            foreach (var Row in difference.Rows)
+                Assert.Equal(expected, Row);
+        }
         [Fact]
         public void Can_calculate_dot_product_of_two_NxN_matrices() {
             var A = Matrix.Identity(2);
@@ -232,6 +247,39 @@ namespace MatrixTests {
             Assert.Equal(new double[] { 1, 5 }, product.Rows[0]);
             Assert.Equal(new double[] { 3, 11 }, product.Rows[1]);
             product = Matrix.Dot(B, A);
+            Assert.Equal(new double[] { 4, 6 }, product.Rows[0]);
+            Assert.Equal(new double[] { 6, 8 }, product.Rows[1]);
+        }
+        [Fact]
+        public void Can_calculate_dot_product_of_two_NxN_matrices_with_operators() {
+            var A = Matrix.Identity(2);
+            A.Rows[1][1] = 0;
+            var B = Matrix.Identity(2);
+            B.Rows[0][0] = 0;
+            var product = A * B;
+            Assert.Equal(new int[] { 2, 2 }, product.Size);
+            Assert.Equal(new double[] { 0, 0 }, product.Rows[0]);
+            Assert.Equal(new double[] { 0, 0 }, product.Rows[1]);
+            double[,] rows = new double[,] {
+                { 1, 2 },
+                { 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            rows = new double[,] {
+                { 1, 1 },
+                { 0, 2 }
+            };
+            foreach (var Index in B.Indexes()) {
+                int i = Index[0], j = Index[1];
+                B.Rows[i][j] = rows[i, j];
+            }
+            product = A * B;
+            Assert.Equal(new double[] { 1, 5 }, product.Rows[0]);
+            Assert.Equal(new double[] { 3, 11 }, product.Rows[1]);
+            product = B * A;
             Assert.Equal(new double[] { 4, 6 }, product.Rows[0]);
             Assert.Equal(new double[] { 6, 8 }, product.Rows[1]);
         }
@@ -296,6 +344,34 @@ namespace MatrixTests {
             Assert.Equal(sum.Rows, product.Rows);
             Assert.Equal(new double[] { k, 0 }, product.Rows[0]);
             Assert.Equal(new double[] { 0, k }, product.Rows[1]);
+        }
+        [Theory]
+        [InlineData(3)]
+        [InlineData(8)]
+        public void Can_multiply_matrix_by_scalar_constant_with_operators(int k) {
+            var sum = new Matrix(2);
+            var identity = Matrix.Identity(2);
+            for (int i = 0; i < k; ++i) {
+                sum = Matrix.Add(sum, identity);
+            }
+            var A = Matrix.Identity(2);
+            var product = A * k;
+            Assert.Equal(sum.Rows, product.Rows);
+            Assert.Equal(new double[] { k, 0 }, product.Rows[0]);
+            Assert.Equal(new double[] { 0, k }, product.Rows[1]);
+            product = k * A;
+            Assert.Equal(sum.Rows, product.Rows);
+            Assert.Equal(new double[] { k, 0 }, product.Rows[0]);
+            Assert.Equal(new double[] { 0, k }, product.Rows[1]);
+        }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(5)]
+        public void Can_divide_matrix_by_scalar_constant_with_operators(int k) {
+            var A = Matrix.Fill(Matrix.Unit(2), 10);
+            var quotient = A / k;
+            Assert.Equal(new double[] { 10 / k, 10 / k }, quotient.Rows[0]);
+            Assert.Equal(new double[] { 10 / k, 10 / k }, quotient.Rows[1]);
         }
         [Fact]
         public void Can_calculate_matrix_inverse() {
@@ -484,7 +560,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Multiply_Row_by_Scalar() {
+        public void Can_multiply_row_by_scalar() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {
                 { 1, 2 },
@@ -503,7 +579,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Insert_Columns() {
+        public void Can_insert_columns() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -547,7 +623,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Insert_Rows() {
+        public void Can_insert_rows() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -598,7 +674,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Remove_Columns() {
+        public void Can_remove_columns() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -641,7 +717,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Remove_Rows() {
+        public void Can_remove_rows() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -681,7 +757,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Swap_Rows() {
+        public void Can_swap_rows() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {
                 { 1, 2 },
@@ -702,7 +778,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Instance")]
-        public void Can_Be_Converted_to_String() {
+        public void Can_be_converted_to_string() {
             var A = new Matrix(2);
             double[,] rows = new double[,] {
                 { 1, 2 },
@@ -716,7 +792,7 @@ namespace MatrixTests {
             Assert.Equal("1,2\r\n3,4", output);
         }
         [Fact]
-        public void Can_Be_Converted_to_Upper_Triangular() {
+        public void Can_be_converted_to_upper_triangular() {
             var A = new Matrix(3, 3);
             double[,] rows = new double[,] {
                 { 1, 1, 1 },
@@ -780,7 +856,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Determinant")]
-        public void Can_Calculate_Determinant_for_1x1_Matrices() {
+        public void Can_calculate_determinant_for_1x1_matrices() {
             var A = new Matrix(1);
             double[,] rows = new double[1, 1] {
                 { 1 }
@@ -793,7 +869,7 @@ namespace MatrixTests {
         }
         [Fact]
         [Trait("Category", "Determinant")]
-        public void Can_Calculate_Determinant_for_2x2_Matrices() {
+        public void Can_calculate_determinant_for_2x2_matrices() {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(2)));
             var A = new Matrix(2);
             double[,] rows = new double[2, 2] {
@@ -809,7 +885,7 @@ namespace MatrixTests {
         [Theory]
         [InlineData(3)]
         [Trait("Category", "Determinant")]
-        public void Can_Calculate_Determinant_for_3x3_Matrices(int N) {
+        public void Can_calculate_determinant_for_3x3_matrices(int N) {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(N)));
             Assert.Equal(1, Matrix.Det(Matrix.Identity(N)));
             var A = new Matrix(N);
@@ -838,7 +914,7 @@ namespace MatrixTests {
         [Theory]
         [InlineData(4)]
         [Trait("Category", "Determinant")]
-        public void Can_Calculate_Determinant_for_4x4_Matrices(int N) {
+        public void Can_calculate_determinant_for_4x4_matrices(int N) {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(N)));
             Assert.Equal(1, Matrix.Det(Matrix.Identity(N)));
             var A = new Matrix(N);
@@ -870,7 +946,7 @@ namespace MatrixTests {
         [InlineData(6)]
         [Trait("Category", "Determinant")]
         [Trait("Category", "LongDuration")]
-        public void Can_Calculate_Determinant_for_Matrices_Larger_than_4x4(int N) {
+        public void Can_calculate_determinant_for_matrices_larger_than_4x4(int N) {
             Assert.Equal(0, Matrix.Det(Matrix.Unit(10)));
             Assert.Equal(1, Matrix.Det(Matrix.Identity(10)));
             var A = new Matrix(N);
