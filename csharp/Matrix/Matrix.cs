@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using static System.Math;
 
 namespace Prelude {
-    public class Matrix : IEquatable<Matrix> {
+    public class Matrix : IEquatable<Matrix>, IComparable<Matrix> {
         public int[] Size {
             get;
             private set;
@@ -64,6 +64,9 @@ namespace Prelude {
             else
                 return Equals(a);
         }
+        public override int GetHashCode() {
+            return Values.GetHashCode();
+        }
         public static bool operator ==(Matrix left, Matrix right) {
             if (((object)left) == null || ((object)right == null))
                 return Equals(left, right);
@@ -73,6 +76,13 @@ namespace Prelude {
             if (((object)left) == null || ((object)right == null))
                 return !Equals(left, right);
             return !(left.Equals(right));
+        }
+        public int CompareTo(Matrix other) {
+            if (other != null) {
+                return (this == other ? 0 : 1);
+            } else {
+                throw new ArgumentException("Parameter is not a Matrix");
+            }
         }
         public Matrix(int n) {
             Size = new int[] { n, n };
