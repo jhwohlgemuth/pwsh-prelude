@@ -95,6 +95,28 @@ namespace MatrixTests {
             var norm = A.FrobeniusNorm();
             return (norm > 0 || (a.Get == 0 && b.Get == 0 && c.Get == 0 && d.Get == 0)).Label("Frobenius norm positivity property");
         }
+        [Property]
+        public Property Matrix_equivalence_relation(NormalFloat a, NormalFloat b, NormalFloat c, NormalFloat d) {
+            var A = new Matrix(2);
+            var B = new Matrix(2);
+            var C = new Matrix(2);
+            double[,] rows = new double[2, 2] {
+                { a.Get, b.Get },
+                { c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+                B.Rows[i][j] = rows[j, i];
+                C = A;
+            }
+#pragma warning disable CS1718 // Comparison made to same variable
+            return (A == A).Label("Reflexive property")
+#pragma warning restore CS1718 // Comparison made to same variable
+                .And((A == C && C == A)).Label("Symmetric property (always same)")
+                .And((A == B && B == A) || (A != B)).Label("Symmetric property (not always same)")
+                .And((A == B && B == C && A == C) || (A != B || B != C)).Label("Transitive property");
+        }
         [Theory]
         [InlineData(1)]
         [InlineData(2)]

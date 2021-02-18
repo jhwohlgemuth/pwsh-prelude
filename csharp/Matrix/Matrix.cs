@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using static System.Math;
 
 namespace Prelude {
-    public class Matrix {
+    public class Matrix : IEquatable<Matrix> {
         public int[] Size {
             get;
             private set;
@@ -39,6 +39,40 @@ namespace Prelude {
                     foreach (var value in row)
                         yield return value;
             }
+        }
+        public bool Equals(Matrix other) {
+            if (other == null)
+                return false;
+            if (other.Size[0] == Size[0] && other.Size[1] == Size[1]) {
+                foreach (var pair in other.Indexes()) {
+                    int i = pair[0], j = pair[1];
+                    if (other.Rows[i][j] != Rows[i][j])
+                        return false;
+
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+        public override bool Equals(object obj) {
+            if (obj == null)
+                return false;
+            Matrix a = obj as Matrix;
+            if (a == null)
+                return false;
+            else
+                return Equals(a);
+        }
+        public static bool operator ==(Matrix left, Matrix right) {
+            if (((object)left) == null || ((object)right == null))
+                return Equals(left, right);
+            return left.Equals(right);
+        }
+        public static bool operator !=(Matrix left, Matrix right) {
+            if (((object)left) == null || ((object)right == null))
+                return !Equals(left, right);
+            return !(left.Equals(right));
         }
         public Matrix(int n) {
             Size = new int[] { n, n };
