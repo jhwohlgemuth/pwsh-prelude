@@ -122,6 +122,25 @@ namespace MatrixTests {
             var I = Matrix.Identity(3);
             Assert.Equal(I, Matrix.Pow(I, k.Get));
         }
+        [Fact]
+        public void Can_get_elements_via_direct_interface() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 1, 2, 3 },
+                { 4, 5, 6 },
+                { 7, 8, 9 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(3, A[0][2]);
+            Assert.Equal(5, A[1][1]);
+            Assert.Equal(9, A[2][2]);
+            Assert.Equal(3, A[0, 2]);
+            Assert.Equal(5, A[1, 1]);
+            Assert.Equal(9, A[2, 2]);
+        }
         [Theory]
         [InlineData(1)]
         [InlineData(2)]

@@ -17,20 +17,36 @@ namespace Prelude {
                 return _Rows;
             }
             set {
-                int rows = Size[0], cols = Size[1];
-                if (value.Length > rows) {
-                    var limit = Min(value.Length, rows * cols);
+                int rowCount = Size[0], columnCount = Size[1];
+                if (value.Length > rowCount) {
+                    var limit = Min(value.Length, rowCount * columnCount);
                     for (var i = 0; i < limit; ++i) {
-                        int row = (int)Floor((double)(i / cols));
-                        int col = i % cols;
+                        int row = (int)Floor((double)(i / columnCount));
+                        int col = i % columnCount;
                         _Rows[row][col] = value[i][0];
                     }
                 } else {
-                    double[][] temp = Create<double>(rows, cols);
-                    for (var row = 0; row < rows; ++row)
-                        temp[row] = value[row].Take(cols).ToArray();
+                    double[][] temp = Create<double>(rowCount, columnCount);
+                    for (var row = 0; row < rowCount; ++row)
+                        temp[row] = value[row].Take(columnCount).ToArray();
                     _Rows = temp;
                 }
+            }
+        }
+        public double[] this[int rowCount] {
+            get {
+                return Rows[rowCount];
+            }
+            set {
+                Rows[rowCount] = value;
+            }
+        }
+        public double this[int rowCount, int columnCount] {
+            get {
+                return Rows[rowCount][columnCount];
+            }
+            set {
+                Rows[rowCount][columnCount] = value;
             }
         }
         public IEnumerable<double> Values {
