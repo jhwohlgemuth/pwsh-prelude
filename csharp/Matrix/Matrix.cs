@@ -80,9 +80,7 @@ namespace Prelude {
             else
                 return Equals(a);
         }
-        public override int GetHashCode() {
-            return Values.GetHashCode();
-        }
+        public override int GetHashCode() => Values.GetHashCode();
         public static bool operator ==(Matrix left, Matrix right) {
             if (((object)left) == null || ((object)right == null))
                 return Equals(left, right);
@@ -111,18 +109,10 @@ namespace Prelude {
                 }
             return sum;
         }
-        public static Matrix operator +(Matrix a) {
-            return a.Clone();
-        }
-        public static Matrix operator +(Matrix left, Matrix right) {
-            return Add(left, right);
-        }
-        public static Matrix operator -(Matrix a) {
-            return Multiply(a, -1);
-        }
-        public static Matrix operator -(Matrix minuend, Matrix subtrahend) {
-            return Add(minuend, Multiply(subtrahend, -1));
-        }
+        public static Matrix operator +(Matrix a) => a.Clone();
+        public static Matrix operator +(Matrix left, Matrix right) => Add(left, right);
+        public static Matrix operator -(Matrix a) => Multiply(a, -1);
+        public static Matrix operator -(Matrix minuend, Matrix subtrahend) => Add(minuend, Multiply(subtrahend, -1));
         public static Matrix Adj(Matrix a) {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
@@ -170,9 +160,7 @@ namespace Prelude {
             }
             return product;
         }
-        public static Matrix operator *(Matrix left, Matrix right) {
-            return Dot(left, right);
-        }
+        public static Matrix operator *(Matrix left, Matrix right) => Dot(left, right);
         public static Matrix Fill(Matrix a, double value) {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
@@ -213,18 +201,10 @@ namespace Prelude {
             }
             return clone;
         }
-        public static Matrix operator *(double k, Matrix a) {
-            return Multiply(a, k);
-        }
-        public static Matrix operator *(Matrix a, double k) {
-            return Multiply(a, k);
-        }
-        public static Matrix operator /(Matrix a, double k) {
-            return Multiply(a, (1 / k));
-        }
-        public static Matrix operator /(double k, Matrix a) {
-            return Multiply(a, (1 / k));
-        }
+        public static Matrix operator *(double k, Matrix a) => Multiply(a, k);
+        public static Matrix operator *(Matrix a, double k) => Multiply(a, k);
+        public static Matrix operator /(Matrix a, double k) => Multiply(a, (1 / k));
+        public static Matrix operator /(double k, Matrix a) => Multiply(a, (1 / k));
         public static Matrix Pow(Matrix a, double exponent) {
             if (a.Size[0] == a.Size[1]) {
                 var temp = a.Clone();
@@ -253,12 +233,8 @@ namespace Prelude {
             }
             return temp;
         }
-        public static Matrix Unit(int n) {
-            return Fill(new Matrix(n), 1);
-        }
-        public static Matrix Unit(int rowCount, int columnCount) {
-            return Fill(new Matrix(rowCount, columnCount), 1);
-        }
+        public static Matrix Unit(int n) => Fill(new Matrix(n), 1);
+        public static Matrix Unit(int rowCount, int columnCount) => Fill(new Matrix(rowCount, columnCount), 1);
         private static double InterlockAddDoubles(ref double a, double b) {
             double newCurrentValue = a;
             while (true) {
@@ -318,9 +294,7 @@ namespace Prelude {
             }
             return Add(this, temp);
         }
-        public double FrobeniusNorm() {
-            return Sqrt(Values.Select(x => Math.Pow(Abs(x), 2)).Sum());
-        }
+        public double FrobeniusNorm() => Sqrt(Values.Select(x => Math.Pow(Abs(x), 2)).Sum());
         public Matrix InsertColumn(int index, double[] column) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -371,9 +345,7 @@ namespace Prelude {
             }
             return clone;
         }
-        public Matrix Normalize() {
-            return Multiply(this, 1 / FrobeniusNorm());
-        }
+        public Matrix Normalize() => Multiply(this, 1 / FrobeniusNorm());
         public Matrix RemoveColumn(int index) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];

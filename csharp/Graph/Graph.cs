@@ -87,21 +87,11 @@ namespace Prelude {
             Edges.Clear();
             return this;
         }
-        public bool Contains(Node node) {
-            return Nodes.Contains(node);
-        }
-        public bool Contains(Edge edge) {
-            return Edges.Contains(edge);
-        }
-        public Node GetNode(Node node) {
-            return Nodes.Find(x => x == node);
-        }
-        public Node GetNode(Guid id) {
-            return Nodes.Find(x => x.Id == id);
-        }
-        public Node GetNode(string label) {
-            return Nodes.Find(x => x.Label == label);
-        }
+        public bool Contains(Node node) => Nodes.Contains(node);
+        public bool Contains(Edge edge) => Edges.Contains(edge);
+        public Node GetNode(Node node) => Nodes.Find(x => x == node);
+        public Node GetNode(Guid id) => Nodes.Find(x => x.Id == id);
+        public Node GetNode(string label) => Nodes.Find(x => x.Label == label);
         public Graph Remove(Node node) {
             Edges.FindAll(edge => edge.Contains(node)).ForEach(edge => Remove(edge));
             Nodes.Remove(node);
