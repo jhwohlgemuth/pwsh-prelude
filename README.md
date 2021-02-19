@@ -393,6 +393,7 @@ Credits
 - [PowerShellMafia/PowerSploit](https://github.com/PowerShellMafia/PowerSploit) - *inspiration*
 - [NetworkX](https://networkx.org/) - *inspiration*
 - [C# Algorithms](https://github.com/aalhour/C-Sharp-Algorithms) - *inspiration* & *reference implementation*
+- [Math.NET Numerics](https://numerics.mathdotnet.com/) - *inspiration*
 - [MartinSGill/Profile](https://github.com/MartinSGill/Profile) - *inspiration*
 - [Lodash](https://lodash.com/docs/) and [ramdajs](https://ramdajs.com/docs/) - *inspiration*
 
