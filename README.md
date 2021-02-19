@@ -223,9 +223,12 @@ Functions
   - `Take`
   - `Test-Admin`
   - `Test-Command`
+  - `Test-DiagonalMatrix`
   - `Test-Empty`
   - `Test-Equal`
   - `Test-Installed`
+  - `Test-SquareMatrix`
+  - `Test-SymmetricMatrix`
   - `Update-HostsFile`
   - `Use-Grammar` <sup>[[3]](#3)</sup>
   - `Use-Speech` <sup>[[3]](#3)</sup>
@@ -282,7 +285,13 @@ Type Accelerators
   $A.Multiply(2) | equal $A.Add($A) # true!
 
   # But wait, there is more!
-  # You can use the method of least squares to fit a line to some data...
+  # Use operators for even cleaner code
+  $B = 2 * $A
+  $Product = $A * $B
+  $Sum = $A + $B
+  $IsEqual = $A -eq $B # $IsEqual is False
+
+  # Use the method of least squares to fit a line to some data
   $X = 1,-2,1,-1,1,0,1,1,1,2 | matrix 5,2
   $Y = 0,0,1,1,3 | matrix 5,1
   $B = $X.Transpose().Dot($X).Inverse().Dot($X.Transpose().Dot($Y))
@@ -308,8 +317,8 @@ Type Accelerators
   
   # OR you can use PowerShell helper functions
 
-  $AB = New-Edge -From $A -To $B
-  $BC = New-Edge -From $B -To $C
+  $AB = New-Edge $A $B
+  $BC = New-Edge $B $C
   ```
   > **Note:** Full class name is `Prelude.Edge`
 - `[DirectedEdge]`
@@ -327,8 +336,8 @@ Type Accelerators
 - `[Graph]`
   > Data structure to model objects (nodes) and relations (edges). Named `[Graph]` instead of `[Network]` to avoid confusion with computer networks, a common use case for PowerShell. 
   ```PowerShell
-  $Nodes = @($A, $B, $C)
-  $Edges = @($AB, $BC)
+  $Nodes = $A, $B, $C
+  $Edges = $AB, $BC
   $G = [Graph]::New($Nodes, $Edges)
 
   # OR create graph using just edges
