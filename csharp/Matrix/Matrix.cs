@@ -261,6 +261,14 @@ namespace Prelude {
             }
             return clone;
         }
+        public Matrix CoerceZero(double limit = 1E-15) {
+            foreach (var pair in Indexes()) {
+                int i = pair[0], j = pair[1];
+                if (this[i, j] < limit)
+                    this[i, j] = 0;
+            }
+            return this;
+        }
         public double Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
         public List<int[]> Indexes(int offset = 0) {
             int rows = Size[0], cols = Size[1];

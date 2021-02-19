@@ -515,8 +515,20 @@ namespace MatrixTests {
                 A.Rows[i][j] = rows[i, j];
             }
             var B = A.Clone();
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 3, 4 }, B.Rows[1]);
+            Assert.Equal(new double[] { 1, 2 }, B[0]);
+            Assert.Equal(new double[] { 3, 4 }, B[1]);
+        }
+        [Fact]
+        public void Can_coerce_arbitrarily_small_values_to_zero() {
+            var A = Matrix.Fill(new Matrix(1, 2), 1E-14);
+            var B = Matrix.Fill(new Matrix(1, 2), 1E-15);
+            var C = Matrix.Fill(new Matrix(1, 2), 1E-16);
+            var D = Matrix.Fill(new Matrix(1, 2), 1E-16);
+            Assert.Equal(new double[] { 1E-14, 1E-14 }, A.CoerceZero()[0]);
+            Assert.Equal(new double[] { 1E-15, 1E-15 }, B.CoerceZero()[0]);
+            Assert.Equal(new double[] { 0, 0 }, C.CoerceZero()[0]);
+            Assert.Equal(new double[] { 0, 0 }, A.CoerceZero(1E-13)[0]);
+            Assert.Equal(new double[] { 1E-16, 1E-16 }, D.CoerceZero(1E-16)[0]);
         }
         [Fact]
         [Trait("Category", "Instance")]
