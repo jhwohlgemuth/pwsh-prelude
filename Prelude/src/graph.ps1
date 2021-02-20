@@ -9,6 +9,7 @@ function Export-GraphData {
     .EXAMPLE
     Export-GraphData 'path/to/file.xml'
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
     [OutputType([String])]
     Param(
@@ -27,6 +28,7 @@ function Import-GraphData {
     .EXAMPLE
     $G = Import-GraphData 'path/to/file.xml'
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
@@ -54,6 +56,7 @@ function New-Edge {
     .EXAMPLE
     $AB = New-Edge 'a' 'b'
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
     [Alias('edge')]
     [OutputType([Prelude.Edge])]
@@ -80,13 +83,32 @@ function New-Graph {
     .EXAMPLE
     $G = $Edges | New-Graph
     #>
-    [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
+    [CmdletBinding(DefaultParameterSetName = 'customa')]
     [OutputType([Prelude.Graph])]
     Param(
         [Parameter(Position = 0)]
+        [Alias('V')]
         [Prelude.Node[]] $Nodes,
         [Parameter(Position = 1, ValueFromPipeline = $True)]
-        [Prelude.Edge[]] $Edges
+        [Alias('E')]
+        [Prelude.Edge[]] $Edges,
+        [Parameter(ParameterSetName = 'complete')]
+        [Switch] $Complete,
+        [Parameter(ParameterSetName = 'smallworld')]
+        [Alias('SWN')]
+        [Switch] $SmallWorld,
+        [Parameter(ParameterSetName = 'tetrahedral')]
+        [Switch] $Tetrahedral,
+        [Parameter(ParameterSetName = 'bipartite')]
+        [Switch] $Bipartite,
+        [Parameter(ParameterSetName = 'complete', Mandatory = $True)]
+        [Parameter(ParameterSetName = 'smallworld', Mandatory = $True)]
+        [Alias('N')]
+        [Int] $NodeCount,
+        [Parameter(ParameterSetName = 'smallworld', Mandatory = $True)]
+        [Alias('K')]
+        [Double] $MeanDegree
     )
     # UNDER CONSTRUCTION
 }
