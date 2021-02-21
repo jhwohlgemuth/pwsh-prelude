@@ -129,7 +129,6 @@ function Deny-Value {
     # returns 'a','a','a'
     #>
     [CmdletBinding()]
-    [Alias('not')]
     Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True, Position = 1)]
         [Array] $InputObject,

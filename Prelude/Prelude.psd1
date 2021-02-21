@@ -45,7 +45,6 @@
         'method'
         'min'
         'money'
-        'not'
         'on'
         'op'
         'partition'
