@@ -1,5 +1,4 @@
 ﻿using System;
-using static System.Math;
 
 namespace Prelude {
     public class Edge : IComparable<Edge> {
@@ -12,15 +11,31 @@ namespace Prelude {
                 return false;
             }
         }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <param name="weight"></param>
         public Edge(Node source, Node destination, double weight = 1) {
             Id = Guid.NewGuid();
             Source = source;
             Destination = destination;
             Weight = weight;
         }
+        /// <summary>
+        /// Check if an edge contains a node (source or destination)
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         public bool Contains(Node node) {
             return Source == node || Destination == node;
         }
+        /// <summary>
+        /// Allows edges to be ordered within lists
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>zero (equal) or 1 (not equal)</returns>
         public int CompareTo(Edge other) {
             if (other != null) {
                 var sameSource = Source == other.Source;

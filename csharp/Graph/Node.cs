@@ -12,11 +12,20 @@ namespace Prelude {
             }
         }
         public List<Node> Neighbors;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="label"></param>
         public Node(string label = "node") {
             Id = Guid.NewGuid();
             Label = label;
             Neighbors = new List<Node> { };
         }
+        /// <summary>
+        /// Allows nodes to be ordered within lists
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>zero (equal) or 1 (not equal)</returns>
         public int CompareTo(Node other) {
             if (other != null) {
                 return Id.CompareTo(other.Id);

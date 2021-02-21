@@ -12,23 +12,47 @@ namespace Prelude {
                 return _AdjacencyMatrix;
             }
         }
+        /// <summary>
+        /// Create new graph from input graph object
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>Graph</returns>
         public static Graph From(Graph other) {
             return new Graph(other.Nodes, other.Edges);
         }
+        /// <summary>
+        /// Create empty graph object
+        /// </summary>
         public Graph() {
             Id = Guid.NewGuid();
         }
+        /// <summary>
+        /// Create graph object with nodes and edges
+        /// </summary>
+        /// <param name="edges"></param>
+        /// <remarks>Nodes will be added from edges</remarks>
         public Graph(List<Edge> edges) {
             Id = Guid.NewGuid();
             foreach (var edge in edges)
                 Add(edge.Source, edge.Destination);
             Add(edges);
         }
+        /// <summary>
+        /// Create graph object with nodes and edges
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="edges"></param>
         public Graph(List<Node> nodes, List<Edge> edges) {
             Id = Guid.NewGuid();
             Add(nodes);
             Add(edges);
         }
+        /// <summary>
+        /// Add nodes and edges from an another graph object
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Add(Graph graph) {
             Add(graph.Nodes);
             Add(graph.Edges);
@@ -48,18 +72,76 @@ namespace Prelude {
             }
             return Contains(edge);
         }
+        /// <summary>
+        /// Add node(s) to the graph
+        /// </summary>
+        /// <example>
+        ///     var graph = new Graph();
+        ///     var a = new Node();
+        ///     var b = new Node();
+        ///     var c = new Node();
+        ///     $graph.Add(a, b, c);
+        /// </example>
+        /// <param name="nodes"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Add(params Node[] nodes) {
             AddNodes(nodes);
             return this;
         }
+        /// <summary>
+        /// Add node(s) to the graph, passed as a list
+        /// </summary>
+        /// <example>
+        ///     var graph = new Graph();
+        ///     var a = new Node();
+        ///     var b = new Node();
+        ///     var c = new Node();
+        ///     var nodes = new List<Node> { a, b, c };
+        ///     $graph.Add(nodes);
+        /// </example>
+        /// <param name="nodes"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Add(List<Node> nodes) {
             AddNodes(nodes);
             return this;
         }
+        /// <summary>
+        /// Add edge(s) to the graph
+        /// </summary>
+        /// <example>
+        ///     var graph = new Graph();
+        ///     var a = new Node();
+        ///     var b = new Node();
+        ///     var c = new Node();
+        ///     var ab = new Edge(a, b);
+        ///     var bc = new Edge(b, c);
+        ///     $graph.Add(ab, bc);
+        /// </example>
+        /// <param name="edges"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Add(params Edge[] edges) {
             AddEdges(edges);
             return this;
         }
+        /// <summary>
+        /// Add edge(s) to the graph, passed as a list
+        /// </summary>
+        /// <example>
+        ///     var graph = new Graph();
+        ///     var a = new Node();
+        ///     var b = new Node();
+        ///     var c = new Node();
+        ///     var ab = new Edge(a, b);
+        ///     var bc = new Edge(b, c);
+        ///     var nodes = new List<Edge> { ab, bc };
+        ///     $graph.Add(edges);
+        /// </example>
+        /// <param name="edges"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Add(List<Edge> edges) {
             AddEdges(edges);
             return this;
@@ -82,16 +164,52 @@ namespace Prelude {
                 UpdateAdjacencyMatrix();
             }
         }
+        /// <summary>
+        /// Clear node and edge lists
+        /// </summary>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Clear() {
             Nodes.Clear();
             Edges.Clear();
             return this;
         }
+        /// <summary>
+        /// Check if the graph contains the passed node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>true or false</returns>
         public bool Contains(Node node) => Nodes.Contains(node);
+        /// <summary>
+        /// Check if the graph contains the passed edge
+        /// </summary>
+        /// <param name="edge"></param>
+        /// <returns></returns>
         public bool Contains(Edge edge) => Edges.Contains(edge);
+        /// <summary>
+        /// Get reference to node using node object
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>Node</returns>
         public Node GetNode(Node node) => Nodes.Find(x => x == node);
+        /// <summary>
+        /// Get reference to node using node ID property
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public Node GetNode(Guid id) => Nodes.Find(x => x.Id == id);
+        /// <summary>
+        /// Get reference to node using node label
+        /// </summary>
+        /// <param name="label"></param>
+        /// <returns></returns>
         public Node GetNode(string label) => Nodes.Find(x => x.Label == label);
+        /// <summary>
+        /// Remove node from graph
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Remove(Node node) {
             Edges.FindAll(edge => edge.Contains(node)).ForEach(edge => Remove(edge));
             Nodes.Remove(node);
@@ -99,6 +217,12 @@ namespace Prelude {
             UpdateAdjacencyMatrix();
             return this;
         }
+        /// <summary>
+        /// Remove edge from graph
+        /// </summary>
+        /// <param name="edge"></param>
+        /// <returns>Graph</returns>
+        /// <remarks>This method supports a fluent interface</remarks>
         public Graph Remove(Edge edge) {
             Node source = edge.Source;
             Node destination = edge.Destination;
