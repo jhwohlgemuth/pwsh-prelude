@@ -315,9 +315,9 @@ function Invoke-Test {
         [Switch] $WithCoverage
     )
     Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
+    $BuildSystem = if ($Env:PreludeBuildSystem -eq 'Unknown') { 'Local Computer' } else { $Env:PreludeBuildSystem }
     if (-not ($Skip -contains 'dotnet')) {
         $ProjectPath = "$PSScriptRoot/csharp/Tests/Tests.csproj"
-        $BuildSystem = if ($Env:PreludeBuildSystem -eq 'Unknown') { 'Local Computer' } else { $Env:PreludeBuildSystem }
         "==> Executing C# tests on $BuildSystem" | Write-Output
         if ($WithCoverage) {
             dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover

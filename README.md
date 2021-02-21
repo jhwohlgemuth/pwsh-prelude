@@ -147,6 +147,7 @@ Functions
   - `ConvertTo-Radian`
   - `Deny-Empty`
   - `Deny-Null`
+  - `Deny-Value`
   - `Enable-Remoting`
   - `Find-Duplicate`
   - `Find-FirstIndex`

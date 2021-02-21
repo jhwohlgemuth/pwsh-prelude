@@ -6,10 +6,10 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 115
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 116
         }
         It 'should import aliases' {
-            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 54
+            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 55
         }
     }
 }
@@ -73,6 +73,18 @@ Describe 'Deny-Null' -Tag 'Local', 'Remote' {
         $Null, 2, $Null | Deny-Null | Should -Be 2
         1, $Null, 2, $Null, 4 | Deny-Null | Should -Be 1, 2, 4
         Deny-Null 1, 2, $Null, 4 | Should -Be 1, 2, 4
+    }
+}
+Describe 'Deny-Value' -Tag 'Local', 'Remote' {
+    It 'can filter our String values from pipeline chains' {
+        'a', 'b', 'a' | Deny-Value 'a' | Should -Be 'b'
+        'a', 'b', 'a' | Deny-Value -Value 'b' | Should -Be 'a', 'a'
+        'a', 'EMPTY', 'EMPTY', 'b', 'EMPTY', 'c', 'EMPTY' | Deny-Value 'EMPTY' | Should -Be 'a', 'b', 'c'
+    }
+    It 'can filter our Number values from pipeline chains' {
+        1, 2, 1 | Deny-Value 1 | Should -Be 2
+        1, 2, 1 | Deny-Value -Value 2 | Should -Be 1, 1
+        Deny-Value 2 1, 2, 1 | Should -Be 1, 1
     }
 }
 Describe 'Find-FirstIndex' -Tag 'Local', 'Remote' {

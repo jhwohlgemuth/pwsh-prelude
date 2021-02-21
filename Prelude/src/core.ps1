@@ -120,6 +120,34 @@ function Deny-Null {
         }
     }
 }
+function Deny-Value {
+    <#
+    .SYNOPSIS
+    Remove string values equal to -Value parameter
+    .EXAMPLE
+    'a','b','a','a' | Deny-Value -Value 'b'
+    # returns 'a','a','a'
+    #>
+    [CmdletBinding()]
+    [Alias('not')]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True, Position = 1)]
+        [Array] $InputObject,
+        [Parameter(Mandatory = $True, Position = 0)]
+        $Value
+    )
+    Begin {
+        $IsNotValue = { $_ -ne $Value }
+        if ($InputObject.Count -gt 0) {
+            $InputObject | Where-Object $IsNotValue
+        }
+    }
+    End {
+        if ($Input.Count -gt 0) {
+            $Input | Where-Object $IsNotValue
+        }
+    }
+}
 function Find-FirstIndex {
     <#
     .SYNOPSIS
