@@ -279,7 +279,7 @@ Describe -Skip 'Invoke-Normalize' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Measure-Readability' {
-    It 'can measure the readability of given text using various methods on Windows' -Tag 'Local', 'Remote', 'WindowsOnly' {
+    It -Skip 'can measure the readability of given text using various methods on Windows' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Verbose = $False
         'The Australian platypus is seemingly a hybrid of a mammal and reptilian creature' | Measure-Readability -Verbose:$Verbose | Should -Be 12.2
         $Text = (Get-Content -Path (Join-Path $PSScriptRoot '\fixtures\emma.txt')) -join ' '
