@@ -71,6 +71,13 @@ namespace Prelude {
                 return false;
             }
         }
+        /// <summary>
+        /// Determines if two matrices are equal
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <seealso cref="operator=="/>
+        /// <seealso cref="operator!="/>
+        /// <seealso cref="GetHashCode"/>
         public override bool Equals(object obj) {
             if (obj == null)
                 return false;
@@ -91,14 +98,28 @@ namespace Prelude {
                 return !Equals(left, right);
             return !(left.Equals(right));
         }
+        /// <summary>
+        /// Constructor for creating empty (all values are 0) square (# of rows = # of columns) matrices
+        /// </summary>
+        /// <param name="n">Number of rows/columns</param>
         public Matrix(int n) {
             Size = new int[] { n, n };
             Rows = Create<double>(n, n);
         }
+        /// <summary>
+        /// Constructor for creating matrices of arbitrary size
+        /// </summary>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
         public Matrix(int rowCount, int columnCount) {
             Size = new int[] { rowCount, columnCount };
             Rows = Create<double>(rowCount, columnCount);
         }
+        /// <summary>
+        /// Add matrices, element by element
+        /// </summary>
+        /// <param name="addends">Matrices to add</param>
+        /// <returns>Matrix</returns>
         public static Matrix Add(params Matrix[] addends) {
             var size = addends[0].Size;
             var sum = new Matrix(size[0], size[1]);
@@ -113,6 +134,15 @@ namespace Prelude {
         public static Matrix operator +(Matrix left, Matrix right) => Add(left, right);
         public static Matrix operator -(Matrix a) => Multiply(a, -1);
         public static Matrix operator -(Matrix minuend, Matrix subtrahend) => Add(minuend, Multiply(subtrahend, -1));
+        /// <summary>
+        /// Calculate classical adjoint matrix (also known as adjugate) of a given matrix
+        /// </summary>
+        /// <param name="a">Square matrix</param>
+        /// <returns>Matrix</returns>
+        /// <remarks>
+        /// In linear algebra, the classical adjoint is the transpose of the cofactor matrix
+        /// </remarks>
+        /// <see cref="Cofactor"/>
         public static Matrix Adj(Matrix a) {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
@@ -128,12 +158,29 @@ namespace Prelude {
                 throw new ArgumentException("Parameter is not a Matrix");
             }
         }
+        /// <summary>
+        /// Create rows that are used to store matrix elements
+        /// </summary>
+        /// <typeparam name="T">Type of matrix elements</typeparam>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
+        /// <returns>Two dimensional array of type, T</returns>
         public static T[][] Create<T>(int rowCount, int columnCount) {
             T[][] result = new T[rowCount][];
             for (int i = 0; i < rowCount; ++i)
                 result[i] = new T[columnCount];
             return result;
         }
+        /// <summary>
+        /// Calculate determinant of a given matrix
+        /// </summary>
+        /// <param name="a">Input matrix</param>
+        /// <returns>Scalar value</returns>
+        /// <remarks>
+        /// This method uses a recursive algorithm that leverages the relationship between determinants and cofactor matrices to calculate determinants of matrices with more rows/columns than 2.
+        /// </remarks>
+        /// <see cref="CalculateDeterminantParallel(Matrix)"/>
+        /// <see cref="InterlockAddDoubles(ref double, double)"/>
         public static double Det(Matrix a) {
             int rowCount = a.Size[0];
             switch (rowCount) {
@@ -147,6 +194,13 @@ namespace Prelude {
                     return sum;
             }
         }
+        /// <summary>
+        /// Calculate dot product of two matrices
+        /// </summary>
+        /// <param name="a">"Left" factor matrix</param>
+        /// <param name="b">"Right" factor matrix</param>
+        /// <returns>Matrix with same number of rows as left matrix and same number of columns as right matrix</returns>
+        /// <seealso cref="operator*"/>
         public static Matrix Dot(Matrix a, Matrix b) {
             int m = a.Size[0], p = a.Size[1], n = b.Size[1];
             var product = new Matrix(m, n);
@@ -161,6 +215,12 @@ namespace Prelude {
             return product;
         }
         public static Matrix operator *(Matrix left, Matrix right) => Dot(left, right);
+        /// <summary>
+        /// Change all values of matrix to static value
+        /// </summary>
+        /// <param name="a">Matrix to fill</param>
+        /// <param name="value">Static value to fill matrix with</param>
+        /// <returns>Matrix</returns>
         public static Matrix Fill(Matrix a, double value) {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
@@ -169,6 +229,11 @@ namespace Prelude {
             }
             return temp;
         }
+        /// <summary>
+        /// Perform Gaussian Elimination on input augmented matrix
+        /// </summary>
+        /// <param name="augmented">For the equation, Ax = y, where A is a square (NxN) matrix and x is a column (Nx1) matrix, the augmented matrix is A "augmented" by adding x as the (N+1)th column</param>
+        /// <returns>Column matrix of solutions</returns>
         public static Matrix GaussianElimination(Matrix augmented) {
             int rowCount = augmented.Size[0], columnCount = augmented.Size[1];
             var clone = augmented.ToUpperTriangular();
@@ -182,17 +247,35 @@ namespace Prelude {
             }
             return solutions;
         }
+        /// <summary>
+        /// Create identity matrix (diagonal elements equal 1, all other elements are zero)
+        /// </summary>
+        /// <param name="n">Number of rows/columns</param>
+        /// <returns>nxn Matrix</returns>
         public static Matrix Identity(int n) {
             var temp = new Matrix(n);
             for (int i = 0; i < n; ++i)
                 temp.Rows[i][i] = 1;
             return temp;
         }
+        /// <summary>
+        /// Calculate inverse of a given matrix
+        /// </summary>
+        /// <param name="a">Input matrix</param>
+        /// <returns>Matrix</returns>
         public static Matrix Invert(Matrix a) {
             var adjugate = Adj(a);
             var det = Det(a);
             return Multiply(adjugate, 1 / det);
         }
+        /// <summary>
+        /// Multiply a matrix by a scalar value
+        /// </summary>
+        /// <param name="a">Matrix factor</param>
+        /// <param name="k">Scalar factor</param>
+        /// <returns>Matrix</returns>
+        /// <seealso cref="operator*"/>
+        /// <seealso cref="operator/"/>
         public static Matrix Multiply(Matrix a, double k) {
             var clone = a.Clone();
             foreach (var index in clone.Indexes()) {
@@ -205,6 +288,13 @@ namespace Prelude {
         public static Matrix operator *(Matrix a, double k) => Multiply(a, k);
         public static Matrix operator /(Matrix a, double k) => Multiply(a, (1 / k));
         public static Matrix operator /(double k, Matrix a) => Multiply(a, (1 / k));
+        /// <summary>
+        /// Similar to Math.Pow, but for matrices
+        /// </summary>
+        /// <param name="a">Matrix to exponentiate</param>
+        /// <param name="exponent">Exponent</param>
+        /// <returns>Matrix</returns>
+        /// <see cref="Dot(Matrix, Matrix)"/>
         public static Matrix Pow(Matrix a, double exponent) {
             if (a.Size[0] == a.Size[1]) {
                 var temp = a.Clone();
@@ -215,6 +305,11 @@ namespace Prelude {
                 throw new ArgumentException("Matrix exponentiation only supports square matrices");
             }
         }
+        /// <summary>
+        /// Calculate the sum of diagonal elements (trace) for a given matrix
+        /// </summary>
+        /// <param name="a">Input matrix</param>
+        /// <returns>Scalar value</returns>
         public static double Trace(Matrix a) {
             double trace = 0;
             foreach (var index in a.Indexes()) {
@@ -225,6 +320,11 @@ namespace Prelude {
             }
             return trace;
         }
+        /// <summary>
+        /// Calculate transpose of a given matrix
+        /// </summary>
+        /// <param name="a">Input matrix</param>
+        /// <returns>Matrix</returns>
         public static Matrix Transpose(Matrix a) {
             var temp = new Matrix(a.Size[1], a.Size[0]);
             foreach (var index in a.Indexes()) {
@@ -233,7 +333,18 @@ namespace Prelude {
             }
             return temp;
         }
+        /// <summary>
+        /// Create matrix with all elements equal to 1, referred to as a "unit" matrix
+        /// </summary>
+        /// <param name="n">Number of rows/columns</param>
+        /// <returns>Matrix</returns>
         public static Matrix Unit(int n) => Fill(new Matrix(n), 1);
+        /// <summary>
+        /// Create matrix with all elements equal to 1
+        /// </summary>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
+        /// <returns>Matrix</returns>
         public static Matrix Unit(int rowCount, int columnCount) => Fill(new Matrix(rowCount, columnCount), 1);
         private static double InterlockAddDoubles(ref double a, double b) {
             double newCurrentValue = a;
@@ -251,6 +362,10 @@ namespace Prelude {
                 return result;
             };
         }
+        /// <summary>
+        /// Create clone copy of calling matrix
+        /// </summary>
+        /// <returns>Matrix</returns>
         public Matrix Clone() {
             var original = this;
             int rows = original.Size[0], cols = original.Size[1];
@@ -261,6 +376,14 @@ namespace Prelude {
             }
             return clone;
         }
+        /// <summary>
+        /// Set all values less than passed limit to zero
+        /// </summary>
+        /// <param name="limit"></param>
+        /// <returns>Matrix</returns>
+        /// <remarks>
+        /// Warning: This method mutates the calling matrix
+        /// </remarks>
         public Matrix CoerceZero(double limit = 1E-15) {
             foreach (var pair in Indexes()) {
                 int i = pair[0], j = pair[1];
@@ -269,7 +392,22 @@ namespace Prelude {
             }
             return this;
         }
+        /// <summary>
+        /// Calculate cofactor matrix
+        /// </summary>
+        /// <param name="i">Element row index</param>
+        /// <param name="j">Element column index</param>
+        /// <returns>Matrix</returns>
+        /// <see cref="Det(Matrix)"/>
         public double Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
+        /// <summary>
+        /// Return list of index pairs
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns>List of index pairs. Example: For a 2x2 matrix, the return will be (0, 0), (0, 1), (1, 0), (1, 1)</returns>
+        /// <remarks>
+        /// This method is useful for performing actions on elements dependent on the element's associated row and/or column
+        /// </remarks>
         public List<int[]> Indexes(int offset = 0) {
             int rows = Size[0], cols = Size[1];
             var pairs = new List<int[]>();
@@ -280,11 +418,23 @@ namespace Prelude {
                 }
             return pairs;
         }
+        /// <summary>
+        /// Calculate eigenvalue of dominant eigenvector using the Rayleigh Quotient
+        /// </summary>
+        /// <returns>Scalar value</returns>
         public double Eigenvalue() {
             var A = this;
             var v = Eigenvector();
             return Dot(Dot(Transpose(v), A), v).Values.First() / (Dot(Transpose(v), v).Values.First());
         }
+        /// <summary>
+        /// Calculate dominant eigenvector for calling matrix
+        /// </summary>
+        /// <param name="maxIterations">Maximum iterations to perform regardless of tolerance</param>
+        /// <returns>Column matrix with same number of rows as calling matrix</returns>
+        /// <remarks>
+        /// Calling matrix must be a square matrix
+        /// </remarks>
         public Matrix Eigenvector(int maxIterations = 100) {
             var A = this;
             int m = Size[0];
@@ -302,7 +452,20 @@ namespace Prelude {
             }
             return Add(this, temp);
         }
+        /// <summary>
+        /// Calculate Frobenius Norm of calling matrix
+        /// </summary>
+        /// <returns>Scalar value</returns>
+        /// <remarks>
+        /// The Frobenius norm is sometimes referred to as the Schur norm
+        /// </remarks>
         public double FrobeniusNorm() => Sqrt(Values.Select(x => Math.Pow(Abs(x), 2)).Sum());
+        /// <summary>
+        /// Return clone of calling matrix with column inserted at passed zero-index column index
+        /// </summary>
+        /// <param name="index">Index where column should be inserted</param>
+        /// <param name="column">Column values</param>
+        /// <returns>Matrix</returns>
         public Matrix InsertColumn(int index, double[] column) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -322,6 +485,12 @@ namespace Prelude {
                 return updated;
             }
         }
+        /// <summary>
+        /// Return clone of calling matrix with row inserted at passed zero-index row index
+        /// </summary>
+        /// <param name="index">Index where row should be inserted</param>
+        /// <param name="row">Row values</param>
+        /// <returns>Matrix</returns>
         public Matrix InsertRow(int index, double[] row) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -338,12 +507,25 @@ namespace Prelude {
                 return updated;
             }
         }
+        /// <summary>
+        /// Calculate L1 Norm of calling matrix
+        /// </summary>
+        /// <returns>Scalar value</returns>
+        /// <remarks>
+        /// The L1 Norm is also known as the maximum absolute column sum
+        /// </remarks>
         public double L1Norm() {
             var largest = 0;
             foreach (var column in Transpose(this).Rows)
                 largest = Max(largest, column.Select(x => Abs((int)x)).Sum());
             return largest;
         }
+        /// <summary>
+        /// Multiple a certain row by a given scalar value
+        /// </summary>
+        /// <param name="index">Row index</param>
+        /// <param name="k">Scalar value</param>
+        /// <returns>Matrix</returns>
         public Matrix MultiplyRowByScalar(int index, double k) {
             var clone = Clone();
             int columnCount = clone.Size[1];
@@ -353,7 +535,17 @@ namespace Prelude {
             }
             return clone;
         }
+        /// <summary>
+        /// Return clone of calling matrix that has been normalized using the Frobenius norm
+        /// </summary>
+        /// <returns>Matrix</returns>
+        /// <see cref="FrobeniusNorm"/>
         public Matrix Normalize() => Multiply(this, 1 / FrobeniusNorm());
+        /// <summary>
+        /// Return clone of calling matrix with column removed at passed zero-index column index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>Matrix</returns>
         public Matrix RemoveColumn(int index) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -371,6 +563,11 @@ namespace Prelude {
                 return updated;
             }
         }
+        /// <summary>
+        /// Return clone of calling matrix with row removed at passed zero-index row index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>Matrix</returns>
         public Matrix RemoveRow(int index) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -386,6 +583,15 @@ namespace Prelude {
                 return updated;
             }
         }
+        /// <summary>
+        /// Return clone of calling matrix with two rows swapped
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns>Matrix</returns>
+        /// <remarks>
+        /// Row swapping is one of the three so called elementary row operations
+        /// </remarks>
         public Matrix SwapRows(int a, int b) {
             var clone = Clone();
             var original = Rows[a];
@@ -393,6 +599,10 @@ namespace Prelude {
             clone.Rows[b] = original;
             return clone;
         }
+        /// <summary>
+        /// Output matrix to string
+        /// </summary>
+        /// <returns>String representation of matrix values</returns>
         public override string ToString() {
             var matrix = this;
             int rank = matrix.Size[0];
@@ -401,6 +611,11 @@ namespace Prelude {
                 rows[i] = string.Join(",", matrix.Rows[i]);
             return string.Join("\r\n", rows);
         }
+        /// <summary>
+        /// Return clone of calling matrix converted to upper triangular form
+        /// </summary>
+        /// <returns>Matrix</returns>
+        /// 
         public Matrix ToUpperTriangular() {
             int rowCount = Size[0];
             Matrix clone = Clone();
