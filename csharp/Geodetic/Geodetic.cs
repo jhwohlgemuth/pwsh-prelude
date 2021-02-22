@@ -45,6 +45,11 @@ namespace Prelude.Geodetic {
         public double Height;
         private static double ToDegree(double value) => value * (180 / PI);
         private static double ToRadian(double value) => value * (PI / 180);
+        /// <summary>
+        /// Convert coordinate to sexagesimal format
+        /// </summary>
+        /// <param name="value">Input in decimal format</param>
+        /// <returns>double[] { degree, minute, second }</returns>
         public static double[] ToSexagesimal(double value) {
             double fractionalPart = Abs(value - Truncate(value));
             double degree = Truncate(value);
@@ -52,16 +57,32 @@ namespace Prelude.Geodetic {
             double second = Round(((fractionalPart * 60) - minute) * 60, 2);
             return new double[] { degree, minute, second };
         }
+        /// <summary>
+        /// Constructor to create coordinate at 0,0,0
+        /// </summary>
         public Coordinate() {
             Latitude = 0.0;
             Longitude = 0.0;
             Height = 0.0;
         }
+        /// <summary>
+        /// Constructor to create coordinate at passed latitude, longitude, and height
+        /// </summary>
+        /// <param name="latitude">Geodetic latitude in degrees</param>
+        /// <param name="longitude">Geodetic longitude in degrees</param>
+        /// <param name="height">Height in meters</param>
         public Coordinate(double latitude, double longitude, double height = 0.0) {
             Latitude = latitude;
             Longitude = longitude;
             Height = height;
         }
+        /// <summary>
+        /// Create coordinate from cartesion input, (x, y, z)
+        /// </summary>
+        /// <param name="x">X value of coordinate</param>
+        /// <param name="y">Y value of coordinate</param>
+        /// <param name="z">Z value of coordinate</param>
+        /// <returns>Coordinate</returns>
         public static Coordinate FromCartesian(double x, double y, double z) {
             double[] geodetic = ToGeodetic(x, y, z);
             double latitude = geodetic[0];
@@ -69,6 +90,13 @@ namespace Prelude.Geodetic {
             double height = geodetic[2];
             return new Coordinate(latitude, longitude, height);
         }
+        /// <summary>
+        /// Convert coordinate to geodetic format, (latitude, longitude, height)
+        /// </summary>
+        /// <param name="x">X value of coordinate</param>
+        /// <param name="y">Y value of coordinate</param>
+        /// <param name="z">Z value of coordinate</param>
+        /// <returns>double[] { latitude, longitude, height } (in degrees)</returns>
         public static double[] ToGeodetic(double x, double y, double z) {
             double a = Datum.SemiMajorAxis;
             double b = Datum.SemiMinorAxis;
@@ -85,6 +113,13 @@ namespace Prelude.Geodetic {
             double height = Sqrt(Pow(z - (b * Sin(beta)), 2) + Pow(Q - (a * Cos(beta)), 2));
             return new double[] { ToDegree(latitude), ToDegree(longitude), height };
         }
+        /// <summary>
+        /// Convert coordinate to cartesion format, (x, y, z)
+        /// </summary>
+        /// <param name="latitude">Geodetic latitude in degrees</param>
+        /// <param name="longitude">Geodetic longitude in degrees</param>
+        /// <param name="height">Height in meters</param>
+        /// <returns></returns>
         public static double[] ToCartesian(double latitude, double longitude, double height = 0) {
             double a = Datum.SemiMajorAxis;
             double e2 = Datum.EccentricitySquared;
@@ -97,6 +132,15 @@ namespace Prelude.Geodetic {
             double z = Sin(lat) * ((v * (1 - e2)) + h);
             return new double[] { x, y, z };
         }
+        /// <summary>
+        /// Convert coordinate to string output
+        /// </summary>
+        /// <example>
+        ///     var x = new Coordinate();
+        ///     Console.WriteLine(x);
+        ///     // 0°0'0"N 0°0'0"E
+        /// </example>
+        /// <returns>String representation of coordinate data</returns>
         public override string ToString() {
             double latitude = Abs(Latitude);
             double longitude = Abs(Longitude);

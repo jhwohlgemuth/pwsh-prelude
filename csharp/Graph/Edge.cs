@@ -14,9 +14,9 @@ namespace Prelude {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="destination"></param>
-        /// <param name="weight"></param>
+        /// <param name="source">For directed edge, the direction is from this node</param>
+        /// <param name="destination">For directed edge, the direction is to this node</param>
+        /// <param name="weight">Node weight</param>
         public Edge(Node source, Node destination, double weight = 1) {
             Id = Guid.NewGuid();
             Source = source;
@@ -26,7 +26,7 @@ namespace Prelude {
         /// <summary>
         /// Check if an edge contains a node (source or destination)
         /// </summary>
-        /// <param name="node"></param>
+        /// <param name="node">Node to check for</param>
         /// <returns></returns>
         public bool Contains(Node node) {
             return Source == node || Destination == node;
@@ -34,7 +34,7 @@ namespace Prelude {
         /// <summary>
         /// Allows edges to be ordered within lists
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">Edge to compare with</param>
         /// <returns>zero (equal) or 1 (not equal)</returns>
         public int CompareTo(Edge other) {
             if (other != null) {

@@ -15,7 +15,7 @@ namespace Prelude {
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="label"></param>
+        /// <param name="label">String label to assign to node</param>
         public Node(string label = "node") {
             Id = Guid.NewGuid();
             Label = label;
@@ -24,7 +24,7 @@ namespace Prelude {
         /// <summary>
         /// Allows nodes to be ordered within lists
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">Node to compare with</param>
         /// <returns>zero (equal) or 1 (not equal)</returns>
         public int CompareTo(Node other) {
             if (other != null) {
