@@ -19,18 +19,6 @@ Describe 'ConvertTo-Radian' -Tag 'Local', 'Remote' {
         0, 360, 720 | ConvertTo-Radian | Should -Be 0, 0, 0
     }
 }
-Describe 'Get-EarthRadius' -Tag 'Local', 'Remote' {
-    It 'can return earth radius for a given latitude' {
-        $SemiMajorAxis = [Datum]::SemiMajorAxis
-        $SemiMinorAxis = [Datum]::SemiMinorAxis
-        -90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
-        Get-EarthRadius | Should -Be $SemiMajorAxis
-        0 | Get-EarthRadius | Should -Be $SemiMajorAxis -Because 'the radius is equal to semi-major axis at the equator'
-        [Math]::Round((23.437055555555556 | Get-EarthRadius), 4) | Should -Be 6374777.8209 -Because 'it is the Northern Tropic latitude'
-        [Math]::Round((45 | Get-EarthRadius), 4) | Should -Be 6367489.5439
-        90 | Get-EarthRadius | Should -Be $SemiMinorAxis -Because 'the radius is equal to semi-minor axis at the poles'
-    }
-}
 Describe 'Get-Extremum' -Tag 'Local', 'Remote' {
     It 'can return maximum value from array of numbers' {
         $Max = 5
@@ -77,22 +65,6 @@ Describe 'Get-Factorial' -Tag 'Local', 'Remote' {
         $Result = 200 | Get-Factorial
         $Result | Should -Be $Value
         $Result.GetType().Name | Should -Be 'BigInteger'
-    }
-}
-Describe 'Get-Haversine/ArcHaversine' -Tag 'Local', 'Remote' {
-    It 'should return a value in the range [0..1]' {
-        42, 50, 77 | Get-Haversine | ForEach-Object { [Math]::Round($_, 5) } | Should -Be 0.12843, 0.17861, 0.38752
-        0.12843, 0.17861, 0.38752 | Get-ArcHaversine | ForEach-Object { [Math]::Round($_) } | Should -Be 42, 50, 77
-        42, 50, 77 | Get-Haversine | Get-ArcHaversine | Should -Be 42, 50, 77
-    }
-}
-Describe 'Get-HaversineDistance' -Tag 'Local', 'Remote' {
-    It 'can calculate the distance between two points on the earth' {
-        Get-HaversineDistance -From @{} -To @{} | Should -Be 0
-        $Omaha = @{ Latitude = 41.25; Longitude = -96 }
-        $SanDiego = @{ Latitude = 32.7157; Longitude = -117.1611 }
-        [Math]::Round((Get-HaversineDistance -From $Omaha -To $SanDiego), 4) | Should -Be 2097705.7401
-        [Math]::Round(($Omaha | Get-HaversineDistance -To $SanDiego), 4) | Should -Be 2097705.7401
     }
 }
 Describe 'Get-LogisticSigmoid' -Tag 'Local', 'Remote' {

@@ -128,6 +128,7 @@ function Deny-Value {
     'a','b','a','a' | Deny-Value -Value 'b'
     # returns 'a','a','a'
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Value')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True, Position = 1)]

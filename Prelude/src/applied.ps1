@@ -30,22 +30,6 @@ function ConvertTo-Radian {
         ($Degrees % 360) * ([Math]::Pi / 180)
     }
 }
-function Get-ArcHaversine {
-    <#
-    .SYNOPSIS
-    Return archaversine (ahav) of a value, in degrees. This is the inverse function of Get-Haversine.
-    Note: Available as static method of Prelude class - [Prelude]::Ahav
-    #>
-    [CmdletBinding()]
-    [OutputType([Double])]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [Double] $Value
-    )
-    Process {
-        ConvertTo-Degree ([Math]::Acos(1 - (2 * $Value)))
-    }
-}
 function Get-Covariance {
     <#
     .SYNOPSIS
@@ -82,31 +66,6 @@ function Get-Covariance {
         } else {
             Get-Mean $Values
         }
-    }
-}
-function Get-EarthRadius {
-    <#
-    .SYNOPSIS
-    Get earth's radius at a given geodetic latitude
-    .PARAMETER Latitude
-    Latitude value in decimal degree format
-    #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('VariablePascalCase', '')]
-    [CmdletBinding()]
-    [OutputType([Double])]
-    Param(
-        [Parameter(Position = 0, ValueFromPipeline = $True)]
-        [ValidateRange(-90, 90)]
-        [Double] $Latitude
-    )
-    Process {
-        $a = [Datum]::SemiMajorAxis
-        $b = [Datum]::SemiMinorAxis
-        $Beta = ConvertTo-Radian $Latitude
-        [Math]::Sqrt(
-            ([Math]::Pow(([Math]::Pow($a, 2) * [Math]::Cos($Beta)), 2) + [Math]::Pow(([Math]::Pow($b, 2) * [Math]::Sin($Beta)), 2)) /
-            ([Math]::Pow(($a * [Math]::Cos($Beta)), 2) + [Math]::Pow(($b * [Math]::Sin($Beta)), 2))
-        )
     }
 }
 function Get-Extremum {
@@ -178,42 +137,6 @@ function Get-Factorial {
             }
         }
     }
-}
-function Get-Haversine {
-    <#
-    .SYNOPSIS
-    Return haversine of an angle
-    .DESCRIPTION
-    The Haversine is most frequently used within the Haversine formula when calculating great-circle distance between two points on a sphere.
-
-    Note: Available as static method of Prelude class - [Prelude]::Hav
-    #>
-    [CmdletBinding()]
-    [OutputType([Double])]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [Double] $Degrees
-    )
-    Process {
-        0.5 * (1 - [Math]::Cos((ConvertTo-Radian $Degrees)))
-    }
-}
-function Get-HaversineDistance {
-    <#
-    .SYNOPSIS
-    Calculate the distance (in meters) between two geodetic coordinates on the earth using the "Haversine formula"
-    #>
-    [CmdletBinding()]
-    [OutputType([Double])]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [Coordinate] $From,
-        [Parameter(Mandatory = $True, Position = 1)]
-        [Coordinate] $To
-    )
-    $Radius = ((Get-EarthRadius $From.Latitude) + (Get-EarthRadius $To.Latitude)) / 2
-    $Radicand = (Get-Haversine ($To.Latitude - $From.Latitude)) + (([Math]::Cos((ConvertTo-Radian $From.Latitude))) * ([Math]::Cos((ConvertTo-Radian $To.Latitude))) * (Get-Haversine ($To.Longitude - $From.Longitude)))
-    (2 * $Radius * [Math]::Asin([Math]::Sqrt($Radicand)))
 }
 function Get-LogisticSigmoid {
     <#

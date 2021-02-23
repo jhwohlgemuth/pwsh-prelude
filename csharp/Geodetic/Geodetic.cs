@@ -12,7 +12,7 @@ namespace Prelude.Geodetic {
         public const double Radius = 6371001; // mean radius (in meters)
         public const double RadiusAuthalic = 6371007.1810; // radius constant surface area (in meters)
     }
-    public class Coordinate {
+    public class Coordinate : IEquatable<Coordinate>, IComparable<Coordinate> {
         private double _Latitude;
         private double _Longitude;
         private string[] _Hemisphere = new string[] { "N", "E" };
@@ -43,6 +43,7 @@ namespace Prelude.Geodetic {
             }
         }
         public double Height;
+        private static double Haversine(double value) => 0.5 * (1 - Cos(ToRadian(value)));
         private static double ToDegree(double value) => value * (180 / PI);
         private static double ToRadian(double value) => value * (PI / 180);
         /// <summary>
@@ -76,6 +77,38 @@ namespace Prelude.Geodetic {
             Longitude = longitude;
             Height = height;
         }
+        public bool Equals(Coordinate other) {
+            if (other == null)
+                return false;
+            return other.Latitude == Latitude && other.Longitude == Longitude && other.Height == Height;
+        }
+        /// <summary>
+        /// Determines if two coordinates are equal
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <seealso cref="operator=="/>
+        /// <seealso cref="operator!="/>
+        /// <seealso cref="GetHashCode"/>
+        public override bool Equals(object obj) {
+            if (obj == null)
+                return false;
+            Coordinate a = obj as Coordinate;
+            if (a == null)
+                return false;
+            else
+                return Equals(a);
+        }
+        public override int GetHashCode() => ToString().GetHashCode();
+        public static bool operator ==(Coordinate left, Coordinate right) {
+            if (((object)left) == null || ((object)right == null))
+                return Equals(left, right);
+            return left.Equals(right);
+        }
+        public static bool operator !=(Coordinate left, Coordinate right) {
+            if (((object)left) == null || ((object)right == null))
+                return !Equals(left, right);
+            return !(left.Equals(right));
+        }
         /// <summary>
         /// Create coordinate from cartesion input, (x, y, z)
         /// </summary>
@@ -90,6 +123,30 @@ namespace Prelude.Geodetic {
             double height = geodetic[2];
             return new Coordinate(latitude, longitude, height);
         }
+        /// <summary>
+        /// Get Earth radius at a given latitude, in degrees
+        /// </summary>
+        /// <param name="latitude">Geodetic latitude, in degrees</param>
+        /// <returns>Earth radius, in meters</returns>
+        public static double GetEarthRadius(double latitude = 0) {
+            var a = Datum.SemiMajorAxis;
+            var b = Datum.SemiMinorAxis;
+            var B = ToRadian(latitude);
+            return Sqrt((Pow((Pow(a, 2) * Cos(B)), 2) + Pow((Pow(b, 2) * Sin(B)), 2)) / (Pow((a * Cos(B)), 2) + Pow((b * Sin(B)), 2)));
+        }
+        /// <summary>
+        /// Calculate Haversine distance between two coordinate points
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns>Distance, in meters, between coordinates</returns>
+        /// <seealso cref="operator-"/>
+        public static double HaversineDistance(Coordinate from, Coordinate to) {
+            var radius = (GetEarthRadius(from.Latitude) + GetEarthRadius(to.Latitude)) / 2;
+            var radicand = Haversine(to.Latitude - from.Latitude) + Cos(ToRadian(from.Latitude)) * Cos(ToRadian(to.Latitude)) * Haversine(to.Longitude - from.Longitude);
+            return 2 * radius * Asin(Sqrt(radicand));
+        }
+        public static double operator -(Coordinate a, Coordinate b) => HaversineDistance(a, b);
         /// <summary>
         /// Convert coordinate to geodetic format, (latitude, longitude, height)
         /// </summary>
@@ -149,6 +206,13 @@ namespace Prelude.Geodetic {
             string[] lat = Array.ConvertAll(ToSexagesimal(latitude), Convert.ToString);
             string[] lon = Array.ConvertAll(ToSexagesimal(longitude), Convert.ToString);
             return $"{lat[0]}°{lat[1]}'{lat[2]}\"{NS} {lon[0]}°{lon[1]}'{lon[2]}\"{WE}";
+        }
+        public int CompareTo(Coordinate other) {
+            if (other != null) {
+                return (this == other ? 0 : 1);
+            } else {
+                throw new ArgumentException("Parameter is not a Coordinate");
+            }
         }
     }
 }
