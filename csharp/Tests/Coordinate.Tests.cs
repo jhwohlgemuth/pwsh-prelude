@@ -21,6 +21,11 @@ namespace CoordinateTests {
             Assert.Equal(x, cartesian[0], 5);
             Assert.Equal(y, cartesian[1], 5);
             Assert.Equal(z, cartesian[2], 5);
+            var coordinate = new Coordinate(lat, lon, height);
+            cartesian = coordinate.ToCartesian();
+            Assert.Equal(x, cartesian[0], 5);
+            Assert.Equal(y, cartesian[1], 5);
+            Assert.Equal(z, cartesian[2], 5);
         }
         [Theory]
         [InlineData(-501980.22547, 4776022.81393, 4183337.2134, 41.25, 96, 0)]
@@ -60,6 +65,12 @@ namespace CoordinateTests {
             Assert.Equal(6374777.820875008, Coordinate.GetEarthRadius(23.437055555555556));
             Assert.Equal(Datum.SemiMajorAxis, Coordinate.GetEarthRadius());
             Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(-90));
+            var coordinate = new Coordinate(90, 0);
+            Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(coordinate));
+            coordinate = new Coordinate(0, 0);
+            Assert.Equal(Datum.SemiMajorAxis, Coordinate.GetEarthRadius(coordinate));
+            coordinate = new Coordinate(-90, 0);
+            Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(coordinate));
         }
         [Fact]
         public void Can_calculate_Haversine_distance() {

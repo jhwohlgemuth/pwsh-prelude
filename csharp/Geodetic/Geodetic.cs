@@ -135,6 +135,15 @@ namespace Prelude.Geodetic {
             return Sqrt((Pow((Pow(a, 2) * Cos(B)), 2) + Pow((Pow(b, 2) * Sin(B)), 2)) / (Pow((a * Cos(B)), 2) + Pow((b * Sin(B)), 2)));
         }
         /// <summary>
+        /// GetEarthRadius that accepts Coordinate as input
+        /// </summary>
+        /// <param name="a">Input coordinate</param>
+        /// <returns>Earth radius, in meters</returns>
+        /// <see cref="GetEarthRadius(double)"/>
+        public static double GetEarthRadius(Coordinate a) {
+            return GetEarthRadius(a.Latitude);
+        }
+        /// <summary>
         /// Calculate Haversine distance between two coordinate points
         /// </summary>
         /// <param name="from"></param>
@@ -176,7 +185,7 @@ namespace Prelude.Geodetic {
         /// <param name="latitude">Geodetic latitude in degrees</param>
         /// <param name="longitude">Geodetic longitude in degrees</param>
         /// <param name="height">Height in meters</param>
-        /// <returns></returns>
+        /// <returns>double[] { x, y, z }</returns>
         public static double[] ToCartesian(double latitude, double longitude, double height = 0) {
             double a = Datum.SemiMajorAxis;
             double e2 = Datum.EccentricitySquared;
@@ -188,6 +197,14 @@ namespace Prelude.Geodetic {
             double y = Cos(lat) * Sin(lon) * (v + h);
             double z = Sin(lat) * ((v * (1 - e2)) + h);
             return new double[] { x, y, z };
+        }
+        /// <summary>
+        /// Instance method version of ToCartesian
+        /// </summary>
+        /// <returns>double[] { x, y, z }</returns>
+        /// <see cref="ToCartesian(double, double, double)"/>
+        public double[] ToCartesian() {
+            return ToCartesian(Latitude, Longitude, Height);
         }
         /// <summary>
         /// Convert coordinate to string output

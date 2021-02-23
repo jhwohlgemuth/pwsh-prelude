@@ -152,15 +152,11 @@ Functions
   - `Find-Duplicate`
   - `Find-FirstIndex`
   - `Format-MoneyValue`
-  - `Get-ArcHaversine`
   - `Get-Covariance`
-  - `Get-EarthRadius`
   - `Get-Extremum`
   - `Get-Factorial`
   - `Get-File`
   - `Get-GithubOAuthToken`
-  - `Get-Haversine`
-  - `Get-HaversineDistance`
   - `Get-HostsContent`
   - `Get-LogisticSigmoid`
   - `Get-Maximum`
@@ -255,11 +251,17 @@ Type Accelerators
 - `[Coordinate]`
   > Class for working with geodetic and cartesian earth coordinate values.
   ```PowerShell
-  [Coordinate]::New(41.25, -96).ToString()
+  $Omaha = [Coordinate]@{ latitude = 41.25; longitude = -96 }
+  $Omaha.ToString()
   # 41°15'0"N 96°0'0"W
 
-  [Coordinate]::ToCartesian(41.25, -96)
-  # -501980.225469305,-4776022.81392779,4183337.21339675
+  $Omaha.ToCartesian()
+  # -501980.225469305, -4776022.81392779, 4183337.21339675
+
+  # Calculate distance between two points on the earth
+  $SanDiego = [Coordinate]@{ latitude = 32.7157 ; longitude = -117.1611 }
+  $Distance = $Omaha - $SanDiego
+  # Distance = 2097705.740066118 (meters)
   ```
   > **Note:** Full class name is `Prelude.Geodetic.Coordinate`
 - `[Datum]`
@@ -282,15 +284,12 @@ Type Accelerators
   $A.Det() -eq 0 # true, looks like this matrix isn't going to have an inverse!
 
   # ...and more math
-  $A = [Matrix]::Identity(3) # quickly make an identity matrix
-  $A.Multiply(2) | equal $A.Add($A) # true!
-
-  # But wait, there is more!
-  # Use operators for even cleaner code
   $B = 2 * $A
   $Product = $A * $B
   $Sum = $A + $B
   $IsEqual = $A -eq $B # $IsEqual is False
+  $I = [Matrix]::Identity(3) # quickly make an identity matrix
+  $IsEqual = (2 * $I) -eq ($I + $I) # now $IsEqual is True!
 
   # Use the method of least squares to fit a line to some data
   $X = 1,-2,1,-1,1,0,1,1,1,2 | matrix 5,2
