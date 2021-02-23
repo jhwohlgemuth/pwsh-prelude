@@ -1322,13 +1322,6 @@ function Test-Equal {
                             Invoke-Reduce -Callback $Every -InitialValue $True
                         $HasSameKeys -and $HasSameValues
                     }
-                    'Matrix*' {
-                        if ($Right.GetType().Name -match '^Matrix') {
-                            (Test-Equal $Left.Size $Right.Size) -and (Test-Equal $Left.Rows $Right.Rows)
-                        } else {
-                            $False
-                        }
-                    }
                     Default { $Left -eq $Right }
                 }
             }
