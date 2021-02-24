@@ -224,6 +224,7 @@ Functions
   - `Test-Empty`
   - `Test-Equal`
   - `Test-Installed`
+  - `Test-Matrix`
   - `Test-SquareMatrix`
   - `Test-SymmetricMatrix`
   - `Update-HostsFile`

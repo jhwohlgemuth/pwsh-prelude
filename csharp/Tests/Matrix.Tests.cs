@@ -25,11 +25,8 @@ namespace MatrixTests {
         }
         [Property]
         public Property Identity_matrix_is_square(PositiveInt n) {
-            var size = n.Get;
-            var matrix = new Matrix(size);
-            var rows = matrix.Size[0];
-            var cols = matrix.Size[1];
-            return (rows == size && rows == cols).Label("Identity matrix has same number of rows and columns");
+            var matrix = new Matrix(n.Get);
+            return (matrix.IsSymmetric()).Label("Identity matrix has same number of rows and columns");
         }
         [Property]
         [Trait("Category", "Determinant")]
@@ -140,6 +137,104 @@ namespace MatrixTests {
             Assert.Equal(3, A[0, 2]);
             Assert.Equal(5, A[1, 1]);
             Assert.Equal(9, A[2, 2]);
+        }
+        [Fact]
+        public void Can_check_if_matrix_is_diagonal() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 1, 0, 0 },
+                { 0, 5, 0 },
+                { 0, 0, 9 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
+            }
+            var B = new Matrix(3);
+            rows = new double[,] {
+                { 1, 0, 3 },
+                { 0, 5, 0 },
+                { 7, 0, 0 }
+            };
+            foreach (var Index in B.Indexes()) {
+                int i = Index[0], j = Index[1];
+                B[i][j] = rows[i, j];
+            }
+            var C = new Matrix(2, 4);
+            rows = new double[,] {
+                { 1, 0, 0, 0 },
+                { 0, 5, 0, 0 }
+            };
+            foreach (var Index in C.Indexes()) {
+                int i = Index[0], j = Index[1];
+                C[i][j] = rows[i, j];
+            }
+            var U = Matrix.Unit(3);
+            var I = Matrix.Identity(3);
+            Assert.True(A.IsDiagonal());
+            Assert.False(B.IsDiagonal());
+            Assert.True(C.IsDiagonal());
+            Assert.False(U.IsDiagonal());
+            Assert.True(I.IsDiagonal());
+        }
+        [Fact]
+        public void Can_check_if_matrix_is_square() {
+            var A = Matrix.Unit(2);
+            var B = Matrix.Unit(1, 3);
+            var C = Matrix.Unit(4, 2);
+            Assert.True(A.IsSquare());
+            Assert.False(B.IsSquare());
+            Assert.False(C.IsSquare());
+        }
+        [Fact]
+        public void Can_check_if_matrix_is_symmetric() {
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 1, 0, 0 },
+                { 0, 5, 0 },
+                { 0, 0, 9 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
+            }
+            var B = new Matrix(3);
+            rows = new double[,] {
+                { 1, 0, 3 },
+                { 0, 5, 0 },
+                { 7, 0, 0 }
+            };
+            foreach (var Index in B.Indexes()) {
+                int i = Index[0], j = Index[1];
+                B[i][j] = rows[i, j];
+            }
+            var C = new Matrix(2, 3);
+            rows = new double[,] {
+                { 1, 0, 0 },
+                { 0, 5, 0 }
+            };
+            foreach (var Index in C.Indexes()) {
+                int i = Index[0], j = Index[1];
+                C[i][j] = rows[i, j];
+            }
+            var D = new Matrix(3);
+            rows = new double[,] {
+                { 1, 2, 3 },
+                { 2, 5, 0 },
+                { 3, 0, 9 }
+            };
+            foreach (var Index in D.Indexes()) {
+                int i = Index[0], j = Index[1];
+                D[i][j] = rows[i, j];
+            }
+            var U = Matrix.Unit(3);
+            var I = Matrix.Identity(3);
+            Assert.True(A.IsSymmetric());
+            Assert.False(B.IsSymmetric());
+            Assert.False(C.IsSymmetric());
+            Assert.True(D.IsSymmetric());
+            Assert.True(U.IsSymmetric());
+            Assert.True(I.IsSymmetric());
         }
         [Theory]
         [InlineData(1)]

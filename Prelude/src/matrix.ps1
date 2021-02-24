@@ -96,6 +96,23 @@
         $Matrix
     }
 }
+function Test-Matrix {
+    <#
+    .SYNOPSIS
+    Test is a matrix value is one or more of the following
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [Matrix] $Value,
+        [Switch] $Diagonal,
+        [Switch] $Square,
+        [Switch] $Symmetric
+    )
+    $Result = $True
+    $Result
+}
 function Test-DiagonalMatrix {
     <#
     .SYNOPSIS

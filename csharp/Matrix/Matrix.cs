@@ -508,6 +508,38 @@ namespace Prelude {
             }
         }
         /// <summary>
+        /// Return true if calling matrix is diagonal - for a matrix, A, if i != 0 then A[i, j] == 0
+        /// </summary>
+        /// <returns>Boolean</returns>
+        /// <remarks>
+        /// Most often, the term, "diagonal", is applied to square matrices but can be applied to rectangular matrics (M != N)
+        /// </remarks>
+        public bool IsDiagonal() {
+            foreach (var pair in Indexes()) {
+                int i = pair[0], j = pair[1];
+                if (i != j && this[i][j] != 0)
+                    return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Return true if calling matrix is square - for a MxN matrix, M == N
+        /// </summary>
+        /// <returns>Boolean</returns>
+        public bool IsSquare() {
+            return Size[0] == Size[1];
+        }
+        /// <summary>
+        /// Return true if calling matrix is symmetric - for a matrix, A, A[i, j] == A[j, i]
+        /// </summary>
+        /// <returns>Boolean</returns>
+        /// <remarks>
+        /// A matrix is said to be "symmetric" when it is equal to its own transpose
+        /// </remarks>
+        public bool IsSymmetric() {
+            return IsSquare() && this == Transpose(this);
+        }
+        /// <summary>
         /// Calculate L1 Norm of calling matrix
         /// </summary>
         /// <returns>Scalar value</returns>
