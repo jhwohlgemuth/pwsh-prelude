@@ -99,7 +99,18 @@
 function Test-Matrix {
     <#
     .SYNOPSIS
-    Test is a matrix value is one or more of the following
+    Test if a matrix is one or more of the following:
+      - Diagonal
+      - Square
+      - Symmetric
+    .EXAMPLE
+    $A = 1..4 | New-Matrix 2,2
+    $A | Test-Matrix -Square
+    # Returns True
+    .EXAMPLE
+    $A = 1..4 | New-Matrix 2,2
+    $A | Test-Matrix -Square -Diagonal
+    # Returns False
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
@@ -110,81 +121,18 @@ function Test-Matrix {
         [Switch] $Square,
         [Switch] $Symmetric
     )
-    $Result = $True
-    $Result
-}
-function Test-DiagonalMatrix {
-    <#
-    .SYNOPSIS
-    Return true if passed value is a "diagonal" matrix
-    .DESCRIPTION
-    A diagonal matrix is a matrix in which the entries outside the main diagonal are all zero.
-    Example:
-        1 0
-        0 1
-
-    The primary purpose of this function is to be used as a Matrix object type extension.
-    #>
-    [CmdletBinding()]
-    [OutputType([Bool])]
-    Param(
-        [Parameter(Position = 0, ValueFromPipeline = $True)]
-        [Matrix] $Value
-    )
-    Process {
-        (Test-SquareMatrix $Value) -and ($Value.Indexes() | ForEach-Object {
-                $Row, $Col = $_
-                ($Row -eq $Col) -or ($Value.Rows[$Row][$Col] -eq 0)
-            } | Invoke-Reduce -Every)
+    if ($Value.GetType().Name -eq 'Matrix') {
+        $Result = $True
+        if ($Diagonal) {
+            $Result = $Result -and $Value.IsDiagonal()
+        }
+        if ($Square) {
+            $Result = $Result -and $Value.IsSquare()
+        }
+        if ($Symmetric) {
+            $Result = $Result -and $Value.IsSymmetric()
+        }
+        return $Result
     }
-}
-function Test-SquareMatrix {
-    <#
-    .SYNOPSIS
-    Return true if passed value is a "square" matrix
-    .DESCRIPTION
-    A square matrix is a matrix that has the same number of rows as columns.
-    Example:
-        1 1
-        1 1
-
-    The primary purpose of this function is to be used as a Matrix object type extension.
-    #>
-    [CmdletBinding()]
-    [OutputType([Bool])]
-    Param(
-        [Parameter(Position = 0, ValueFromPipeline = $True)]
-        [Matrix] $Value
-    )
-    Process {
-        $Rows, $Columns = $Value.Size
-        $Rows -eq $Columns
-    }
-}
-function Test-SymmetricMatrix {
-    <#
-    .SYNOPSIS
-    Return true if passed value is a "symmetric" matrix
-    .DESCRIPTION
-    A symmetric matrix is a matrix for which every element of the matrix (a_ij -eq a_ji) is true
-    Example:
-        1 2 3
-        2 1 4
-        3 4 1
-
-    The primary purpose of this function is to be used as a Matrix object type extension.
-    #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Result')]
-    [CmdletBinding()]
-    [OutputType([Bool])]
-    Param(
-        [Parameter(Position = 0, ValueFromPipeline = $True)]
-        [Matrix] $Value
-    )
-    Process {
-        (Test-SquareMatrix $Value) -and (0..($Value.Size[0] - 1) | ForEach-Object {
-                $Row = $_
-                0..$Row | ForEach-Object { $Value.Rows[$Row][$_] -eq $Value.Rows[$_][$Row] }
-            } | Invoke-Reduce -Every)
-    }
+    $False
 }
