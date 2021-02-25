@@ -425,7 +425,7 @@ namespace Prelude {
         public double Eigenvalue() {
             var A = this;
             var v = Eigenvector();
-            return Dot(Dot(Transpose(v), A), v).Values.First() / (Dot(Transpose(v), v).Values.First());
+            return (Transpose(v) * A * v).Values.First() / (Transpose(v) * v).Values.First();
         }
         /// <summary>
         /// Calculate dominant eigenvector for calling matrix
@@ -435,13 +435,20 @@ namespace Prelude {
         /// <remarks>
         /// Calling matrix must be a square matrix
         /// </remarks>
-        public Matrix Eigenvector(int maxIterations = 100) {
+        public Matrix Eigenvector(int maxIterations = 100, double tolerance = 1E-5) {
             var A = this;
             int m = Size[0];
             var x = Unit(m, 1);
-            for (var count = 0; count < maxIterations; ++count)
-                x = Dot(A, x).Normalize();
-            return x;
+            for (var count = 0; count < maxIterations; ++count) {
+                var prev = x;
+                x = (A * x).Normalize();
+                double error = 0;
+                for (var i = 0; i < m; ++i)
+                    error += Abs(x[i][0] - prev[i][0]);
+                if (error < tolerance)
+                    return x;
+            }
+            throw new Exception("Eigenvector algorithm failed to converge");
         }
         public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, double scalar = 1) {
             int rowCount = Size[0], columnCount = Size[1];
