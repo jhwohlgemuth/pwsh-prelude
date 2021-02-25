@@ -33,4 +33,15 @@ Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {
         $A.Rows[1] | Should -Be 0, 2, 0
         $A.Rows[2] | Should -Be 0, 0, 3
     }
+    It 'can test matrix properties' {
+        $A = 1..3 | New-Matrix 3, 3 -Diagonal
+        $A | Test-Matrix -Diagonal | Should -BeTrue
+        $A | Test-Matrix -Diagonal -Square -Symmetric | Should -BeTrue
+        $A = 1..4 | New-Matrix 2, 2
+        $A | Test-Matrix -Square | Should -BeTrue
+        $A | Test-Matrix -Square -Symmetric | Should -BeFalse
+        $A | Test-Matrix -Symmetric | Should -BeFalse
+        42 | Test-Matrix | Should -BeFalse
+        42 | Test-Matrix -Square | Should -BeFalse
+    }
 }

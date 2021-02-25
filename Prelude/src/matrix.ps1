@@ -116,7 +116,7 @@ function Test-Matrix {
     [OutputType([Bool])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
-        [Matrix] $Value,
+        $Value,
         [Switch] $Diagonal,
         [Switch] $Square,
         [Switch] $Symmetric
