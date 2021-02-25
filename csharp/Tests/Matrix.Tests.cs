@@ -115,12 +115,65 @@ namespace MatrixTests {
                 .And((A == B && B == C && A == C) || (A != B || B != C)).Label("Transitive property");
         }
         [Property]
+        public void Can_be_compared_in_various_contexts(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+            var A = new Matrix(2);
+            var B = new Matrix(2);
+            var C = new Matrix(1, 2);
+            double[,] rows = new double[2, 2] {
+                { a.Get, b.Get },
+                { c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            rows = new double[2, 2] {
+                { a.Get + 1, b.Get + 1 },
+                { c.Get + 1, d.Get + 1 }
+            };
+            foreach (var Index in B.Indexes()) {
+                int i = Index[0], j = Index[1];
+                B.Rows[i][j] = rows[i, j];
+            }
+            rows = new double[1, 2] {
+                { a.Get + 2, b.Get + 2 }
+            };
+            foreach (var Index in C.Indexes()) {
+                int i = Index[0], j = Index[1];
+                C.Rows[i][j] = rows[i, j];
+            }
+            Assert.True(A.Equals(A));
+            Assert.False(A.Equals(B));
+            Assert.False(A.Equals(C));
+            Assert.False(A.Equals(null));
+            Assert.True(Equals(A, A));
+            Assert.False(Equals(A, B));
+            Assert.False(Equals(A, C));
+            Assert.False(Equals(null, A));
+            Assert.False(Equals(A, null));
+            Assert.True(Equals(null, null));
+#pragma warning disable CS1718 // Comparison made to same variable
+            Assert.True(A == A);
+            Assert.False(A != A);
+#pragma warning restore CS1718 // Comparison made to same variable
+            Assert.False(A == B);
+            Assert.True(A != B);
+            Assert.True(A != C);
+            Assert.True(A != null);
+            Assert.True(null != A);
+            var values = new List<Matrix> { A, B, C };
+            values.Sort();
+            Assert.Contains(A, values);
+            values = new List<Matrix> { A, B, null };
+            Assert.Throws<InvalidOperationException>(() => values.Sort());
+        }
+        [Property]
         public void Can_identity_dot_product_invariance(NonZeroInt k) {
             var I = Matrix.Identity(3);
             Assert.Equal(I, Matrix.Pow(I, k.Get));
         }
         [Fact]
-        public void Can_get_elements_via_direct_interface() {
+        public void Can_get_and_set_elements_via_direct_interface() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 1, 2, 3 },
@@ -137,6 +190,10 @@ namespace MatrixTests {
             Assert.Equal(3, A[0, 2]);
             Assert.Equal(5, A[1, 1]);
             Assert.Equal(9, A[2, 2]);
+            A[2] = new double[] { 0, 0, 0 };
+            Assert.Equal(0, A[2, 0]);
+            Assert.Equal(0, A[2, 1]);
+            Assert.Equal(0, A[2, 2]);
         }
         [Fact]
         public void Can_check_if_matrix_is_diagonal() {

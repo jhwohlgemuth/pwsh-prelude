@@ -79,13 +79,8 @@ namespace Prelude {
         /// <seealso cref="operator!="/>
         /// <seealso cref="GetHashCode"/>
         public override bool Equals(object obj) {
-            if (obj == null)
-                return false;
             Matrix a = obj as Matrix;
-            if (a == null)
-                return false;
-            else
-                return Equals(a);
+            return Equals(a);
         }
         public override int GetHashCode() => Values.GetHashCode();
         public static bool operator ==(Matrix left, Matrix right) {
@@ -130,9 +125,7 @@ namespace Prelude {
                 }
             return sum;
         }
-        public static Matrix operator +(Matrix a) => a.Clone();
         public static Matrix operator +(Matrix left, Matrix right) => Add(left, right);
-        public static Matrix operator -(Matrix a) => Multiply(a, -1);
         public static Matrix operator -(Matrix minuend, Matrix subtrahend) => Add(minuend, Multiply(subtrahend, -1));
         /// <summary>
         /// Calculate classical adjoint matrix (also known as adjugate) of a given matrix
@@ -287,7 +280,6 @@ namespace Prelude {
         public static Matrix operator *(double k, Matrix a) => Multiply(a, k);
         public static Matrix operator *(Matrix a, double k) => Multiply(a, k);
         public static Matrix operator /(Matrix a, double k) => Multiply(a, (1 / k));
-        public static Matrix operator /(double k, Matrix a) => Multiply(a, (1 / k));
         /// <summary>
         /// Similar to Math.Pow, but for matrices
         /// </summary>

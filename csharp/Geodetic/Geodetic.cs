@@ -77,11 +77,6 @@ namespace Prelude.Geodetic {
             Longitude = longitude;
             Height = height;
         }
-        public bool Equals(Coordinate other) {
-            if (other == null)
-                return false;
-            return other.Latitude == Latitude && other.Longitude == Longitude && other.Height == Height;
-        }
         /// <summary>
         /// Determines if two coordinates are equal
         /// </summary>
@@ -89,14 +84,14 @@ namespace Prelude.Geodetic {
         /// <seealso cref="operator=="/>
         /// <seealso cref="operator!="/>
         /// <seealso cref="GetHashCode"/>
+        public bool Equals(Coordinate other) {
+            if (other == null)
+                return false;
+            return other.Latitude == Latitude && other.Longitude == Longitude && other.Height == Height;
+        }
         public override bool Equals(object obj) {
-            if (obj == null)
-                return false;
             Coordinate a = obj as Coordinate;
-            if (a == null)
-                return false;
-            else
-                return Equals(a);
+            return Equals(a);
         }
         public override int GetHashCode() => ToString().GetHashCode();
         public static bool operator ==(Coordinate left, Coordinate right) {

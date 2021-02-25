@@ -1,4 +1,6 @@
 using Xunit;
+using System;
+using System.Collections.Generic;
 using Prelude.Geodetic;
 
 namespace CoordinateTests {
@@ -32,11 +34,22 @@ namespace CoordinateTests {
         [InlineData(-502058.81413, 4776770.53508, 4183996.55921, 41.25, 96, 1000)]
         [InlineData(-502766.11207, 4783500.02543, 4189930.67155, 41.25, 96, 10000)]
         [InlineData(-509839.09144, 4850794.92896, 4249271.79491, 41.25, 96, 100000)]
-        public void Can_convert_cartesian_to_geodetic(double x, double y, double z, double lat, double lon, double height) {
+        public void Can_convert_Cartesian_to_geodetic(double x, double y, double z, double lat, double lon, double height) {
             var geodetic = Coordinate.ToGeodetic(x, y, z);
             Assert.Equal(lat, geodetic[0], 2);
             Assert.Equal(lon, geodetic[1], 2);
             Assert.Equal(height, geodetic[2], 2);
+        }
+        [Theory]
+        [InlineData(-501980.22547, 4776022.81393, 4183337.2134, 41.25, 96, 0)]
+        [InlineData(-502058.81413, 4776770.53508, 4183996.55921, 41.25, 96, 1000)]
+        [InlineData(-502766.11207, 4783500.02543, 4189930.67155, 41.25, 96, 10000)]
+        [InlineData(-509839.09144, 4850794.92896, 4249271.79491, 41.25, 96, 100000)]
+        public void Can_be_created_from_Cartesian_values(double x, double y, double z, double lat, double lon, double height) {
+            var a = Coordinate.FromCartesian(x, y, z);
+            Assert.Equal(lat, a.Latitude, 2);
+            Assert.Equal(lon, a.Longitude, 2);
+            Assert.Equal(height, a.Height, 2);
         }
         [Theory]
         [InlineData(32.7157, 32, 42, 56.52)]
@@ -57,6 +70,33 @@ namespace CoordinateTests {
         public void Can_override_ToString(double lat, double lon, double height, string expected) {
             var latlon = new Coordinate(lat, lon, height);
             Assert.Equal(expected, latlon.ToString());
+        }
+        [Fact]
+        public void Can_be_compared_in_various_contexts() {
+            var a = new Coordinate(41.25, -96);
+            var b = new Coordinate(89, 123);
+            Assert.True(a.Equals(a));
+            Assert.False(a.Equals(b));
+            Assert.False(a.Equals(null));
+            Assert.True(Equals(a, a));
+            Assert.False(Equals(a, b));
+            Assert.False(Equals(null, a));
+            Assert.False(Equals(a, null));
+            Assert.True(Equals(null, null));
+#pragma warning disable CS1718 // Comparison made to same variable
+            Assert.True(a == a);
+            Assert.False(a != a);
+#pragma warning restore CS1718 // Comparison made to same variable
+            Assert.False(a == b);
+            Assert.True(a != b);
+            Assert.True(a != null);
+            Assert.True(null != a);
+            var values = new List<Coordinate> { a, b };
+            values.Sort();
+            Assert.Contains(a, values);
+            values = new List<Coordinate> { a, b, null };
+            Assert.Throws<InvalidOperationException>(() => values.Sort());
+            Assert.Equal(a.GetHashCode(), a.GetHashCode());
         }
         [Fact]
         public void Can_caluculate_earth_radius_at_given_latitude() {
