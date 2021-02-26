@@ -162,7 +162,7 @@ function Invoke-Build {
             "==> Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -target:library -optimize -nologo
         }
-        'Graph' | ForEach-Object {
+        'DirectedEdge', 'Graph' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -target:library -optimize -nologo
         }

@@ -56,19 +56,22 @@ function New-Edge {
     .EXAMPLE
     $AB = New-Edge 'a' 'b'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
     [Alias('edge')]
     [OutputType([Prelude.Edge])]
     Param(
-        [Parameter(Mandatory = $True, Position = 0)]
-        [Prelude.Node] $From,
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [Node] $From,
         [Parameter(Mandatory = $True, Position = 1)]
-        [Prelude.Node] $To,
+        [Node] $To,
         [Int] $Weight = 1,
         [Switch] $Directed
     )
-    # UNDER CONSTRUCTION
+    if ($Directed) {
+        New-Object 'Prelude.DirectedEdge' @($From, $To, $Weight)
+    } else {
+        New-Object 'Prelude.Edge' @($From, $To, $Weight)
+    }
 }
 function New-Graph {
     <#
