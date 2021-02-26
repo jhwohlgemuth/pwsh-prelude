@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Math;
+using static System.Linq.Enumerable;
 
 namespace Prelude {
     public class Matrix : IEquatable<Matrix>, IComparable<Matrix> {
@@ -434,9 +435,7 @@ namespace Prelude {
             for (var count = 0; count < maxIterations; ++count) {
                 var prev = x;
                 x = (A * x).Normalize();
-                double error = 0;
-                for (var i = 0; i < m; ++i)
-                    error += Abs(x[i][0] - prev[i][0]);
+                double error = Range(0, m).Select(i => Abs(x[i][0] - prev[i][0])).Sum();
                 if (error < tolerance)
                     return x;
             }
