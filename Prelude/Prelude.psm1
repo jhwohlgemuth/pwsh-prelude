@@ -37,6 +37,11 @@ if (-not ('Prelude.Edge' -as [Type])) {
     $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
     $Accelerators::Add('Edge', 'Prelude.Edge')
 }
+if (-not ('Prelude.DirectedEdge' -as [Type])) {
+    Add-Type -Path (Join-Path $PSScriptRoot 'bin/DirectedEdge.dll')
+    $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
+    $Accelerators::Add('DirectedEdge', 'Prelude.DirectedEdge')
+}
 if (-not ('Prelude.Graph' -as [Type])) {
     Add-Type -Path (Join-Path $PSScriptRoot 'bin/Graph.dll')
     $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
