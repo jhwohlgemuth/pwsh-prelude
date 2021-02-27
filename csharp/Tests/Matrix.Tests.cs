@@ -93,6 +93,35 @@ namespace MatrixTests {
             return (norm > 0 || (a.Get == 0 && b.Get == 0 && c.Get == 0 && d.Get == 0)).Label("Frobenius norm positivity property");
         }
         [Property]
+        public Property Spectral_norm_positivity(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+            var A = new Matrix(2);
+            double[,] rows = new double[2, 2] {
+                { a.Get, b.Get },
+                { c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var norm = A.SpectralNorm();
+            return (norm > 0 || (a.Get == 0 && b.Get == 0 && c.Get == 0 && d.Get == 0)).Label("Frobenius norm positivity property");
+        }
+        [Property]
+        public Property Spectral_norm_less_than_or_equal_to_Frobenius_norm(PositiveInt a, PositiveInt b, PositiveInt c, PositiveInt d) {
+            var A = new Matrix(2);
+            double[,] rows = new double[2, 2] {
+                { a.Get, b.Get },
+                { c.Get, d.Get }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            var spectral = A.SpectralNorm();
+            var frobenius = A.FrobeniusNorm();
+            return (spectral <= frobenius).Label("Spectral norm is equal to or less than the Frobenius norm");
+        }
+        [Property]
         public Property Matrix_equivalence_relation(NormalFloat a, NormalFloat b, NormalFloat c, NormalFloat d) {
             var A = new Matrix(2);
             var B = new Matrix(2);
@@ -735,7 +764,7 @@ namespace MatrixTests {
             Assert.Equal(19, A.L1Norm());
         }
         [Fact]
-        public void Can_calculate_Frobenius_Norm() {
+        public void Can_calculate_Frobenius_norm() {
             var A = new Matrix(3);
             double[,] rows = new double[,] {
                 { 2, -2, 1 },
@@ -757,6 +786,19 @@ namespace MatrixTests {
                 A.Rows[i][j] = rows[i, j];
             }
             Assert.Equal(7.75, A.FrobeniusNorm(), 2);
+        }
+        [Fact]
+        public void Can_calculate_Spectral_Norm() {
+            var A = new Matrix(2);
+            double[,] rows = new double[,] {
+                { 1, 1 },
+                { 2, 1 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A.Rows[i][j] = rows[i, j];
+            }
+            Assert.Equal(2.6180, A.SpectralNorm(), 4);
         }
         [Fact]
         public void Can_normalize_matrix_values() {

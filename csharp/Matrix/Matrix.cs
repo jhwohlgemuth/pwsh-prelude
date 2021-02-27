@@ -621,6 +621,16 @@ namespace Prelude {
             }
         }
         /// <summary>
+        /// Calculate spectral norm of calling matrix
+        /// </summary>
+        /// <returns>Double</returns>
+        /// <remarks>
+        /// Spectral norm is also known as the matrix "2-norm". Calling matrix must be square.
+        /// </remarks>
+        public double SpectralNorm() {
+            return Sqrt((Transpose(this) * this).Eigenvalue());
+        }
+        /// <summary>
         /// Return clone of calling matrix with two rows swapped
         /// </summary>
         /// <param name="a"></param>
