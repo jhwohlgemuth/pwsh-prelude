@@ -122,7 +122,7 @@ namespace Prelude {
             foreach (Matrix matrix in addends)
                 foreach (var index in matrix.Indexes()) {
                     int i = index[0], j = index[1];
-                    sum.Rows[i][j] += matrix.Rows[i][j];
+                    sum[i][j] += matrix[i][j];
                 }
             return sum;
         }
@@ -141,7 +141,7 @@ namespace Prelude {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
                 int i = index[0], j = index[1];
-                temp.Rows[i][j] = a.Cofactor(i, j);
+                temp[i][j] = a.Cofactor(i, j);
             }
             return Transpose(temp);
         }
@@ -179,9 +179,9 @@ namespace Prelude {
             int rowCount = a.Size[0];
             switch (rowCount) {
                 case 1:
-                    return a.Rows[0][0];
+                    return a[0][0];
                 case 2:
-                    return (a.Rows[0][0] * a.Rows[1][1]) - (a.Rows[0][1] * a.Rows[1][0]);
+                    return (a[0][0] * a[1][1]) - (a[0][1] * a[1][0]);
                 default:
                     double sum = 0;
                     Parallel.For(0, rowCount, () => 0, CalculateDeterminantParallel(a), x => InterlockAddDoubles(ref sum, x));
@@ -202,9 +202,9 @@ namespace Prelude {
                 int i = index[0], j = index[1];
                 double sum = 0;
                 for (int k = 0; k < p; ++k) {
-                    sum += a.Rows[i][k] * b.Rows[k][j];
+                    sum += a[i][k] * b[k][j];
                 }
-                product.Rows[i][j] = sum;
+                product[i][j] = sum;
             }
             return product;
         }
@@ -219,7 +219,7 @@ namespace Prelude {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
                 int i = index[0], j = index[1];
-                temp.Rows[i][j] = value;
+                temp[i][j] = value;
             }
             return temp;
         }
@@ -235,9 +235,9 @@ namespace Prelude {
             for (int i = rowCount - 1; i >= 0; --i) {
                 double sum = 0;
                 for (int j = i + 1; j <= rowCount - 1; ++j) {
-                    sum += (solutions.Rows[j][0] * clone.Rows[i][j]);
+                    sum += (solutions[j][0] * clone[i][j]);
                 }
-                solutions.Rows[i][0] = Round((clone.Rows[i][columnCount - 1] - sum) / clone.Rows[i][i], 2);
+                solutions[i][0] = Round((clone[i][columnCount - 1] - sum) / clone[i][i], 2);
             }
             return solutions;
         }
@@ -249,7 +249,7 @@ namespace Prelude {
         public static Matrix Identity(int n) {
             var temp = new Matrix(n);
             for (int i = 0; i < n; ++i)
-                temp.Rows[i][i] = 1;
+                temp[i][i] = 1;
             return temp;
         }
         /// <summary>
@@ -257,11 +257,7 @@ namespace Prelude {
         /// </summary>
         /// <param name="a">Input matrix</param>
         /// <returns>Matrix</returns>
-        public static Matrix Invert(Matrix a) {
-            var adjugate = Adj(a);
-            var det = Det(a);
-            return Multiply(adjugate, 1 / det);
-        }
+        public static Matrix Invert(Matrix a) => Adj(a) / Det(a);
         /// <summary>
         /// Multiply a matrix by a scalar value
         /// </summary>
@@ -274,7 +270,7 @@ namespace Prelude {
             var clone = a.Clone();
             foreach (var index in clone.Indexes()) {
                 int i = index[0], j = index[1];
-                clone.Rows[i][j] *= k;
+                clone[i][j] *= k;
             }
             return clone;
         }
@@ -303,16 +299,7 @@ namespace Prelude {
         /// </summary>
         /// <param name="a">Input matrix</param>
         /// <returns>Scalar value</returns>
-        public static double Trace(Matrix a) {
-            double trace = 0;
-            foreach (var index in a.Indexes()) {
-                int i = index[0], j = index[1];
-                if (i == j) {
-                    trace += a.Rows[i][j];
-                }
-            }
-            return trace;
-        }
+        public static double Trace(Matrix a) => Range(0, Min(a.Size[0], a.Size[1])).Select(i => a[i][i]).Sum();
         /// <summary>
         /// Calculate transpose of a given matrix
         /// </summary>
@@ -322,7 +309,7 @@ namespace Prelude {
             var temp = new Matrix(a.Size[1], a.Size[0]);
             foreach (var index in a.Indexes()) {
                 int i = index[0], j = index[1];
-                temp.Rows[j][i] = a.Rows[i][j];
+                temp[j][i] = a[i][j];
             }
             return temp;
         }
@@ -351,7 +338,7 @@ namespace Prelude {
         }
         private static Func<int, ParallelLoopState, double, double> CalculateDeterminantParallel(Matrix a) {
             return (i, loop, result) => {
-                result += a.Rows[0][i] * a.Cofactor(0, i);
+                result += a[0][i] * a.Cofactor(0, i);
                 return result;
             };
         }
@@ -365,7 +352,7 @@ namespace Prelude {
             var clone = new Matrix(rows, cols);
             foreach (var index in clone.Indexes()) {
                 int i = index[0], j = index[1];
-                clone.Rows[i][j] = original.Rows[i][j];
+                clone[i][j] = original[i][j];
             }
             return clone;
         }
@@ -444,11 +431,11 @@ namespace Prelude {
         public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, double scalar = 1) {
             int rowCount = Size[0], columnCount = Size[1];
             var temp = new Matrix(rowCount, columnCount);
-            temp.Rows[rowIndexB] = Rows[rowIndexA];
+            temp[rowIndexB] = Rows[rowIndexA];
             if (scalar != 1) {
-                temp = Multiply(temp, scalar);
+                temp *= scalar;
             }
-            return Add(this, temp);
+            return this + temp;
         }
         /// <summary>
         /// Calculate Frobenius Norm of calling matrix
@@ -474,12 +461,12 @@ namespace Prelude {
                 var updated = new Matrix(rowCount, updatedColumnCount);
                 for (var i = 0; i < rowCount; ++i)
                     for (var j = 0; j < index; ++j)
-                        updated.Rows[i][j] = original.Rows[i][j];
+                        updated[i][j] = original[i][j];
                 for (var i = 0; i < column.Length; ++i)
-                    updated.Rows[i][index] = column[i];
+                    updated[i][index] = column[i];
                 for (var i = 0; i < rowCount; ++i)
                     for (var j = index + 1; j < updatedColumnCount; ++j)
-                        updated.Rows[i][j] = original.Rows[i][j - 1];
+                        updated[i][j] = original[i][j - 1];
                 return updated;
             }
         }
@@ -498,10 +485,10 @@ namespace Prelude {
                 var updatedRowCount = rowCount + 1;
                 var updated = new Matrix(updatedRowCount, columnCount);
                 for (var i = 0; i < index; ++i)
-                    updated.Rows[i] = original.Rows[i];
-                updated.Rows[index] = row;
+                    updated[i] = original[i];
+                updated[index] = row;
                 for (var i = index + 1; i < updatedRowCount; ++i)
-                    updated.Rows[i] = original.Rows[i - 1];
+                    updated[i] = original[i - 1];
                 return updated;
             }
         }
@@ -524,16 +511,12 @@ namespace Prelude {
         /// Return true if calling matrix is orthogonal - for a matrix, A, Transpose(A) * A = I
         /// </summary>
         /// <returns>Boolean</returns>
-        public bool IsOrthogonal() {
-            return Transpose(this) * this == Identity(Size[0]);
-        }
+        public bool IsOrthogonal() => Transpose(this) * this == Identity(Size[0]);
         /// <summary>
         /// Return true if calling matrix is square - for a MxN matrix, M == N
         /// </summary>
         /// <returns>Boolean</returns>
-        public bool IsSquare() {
-            return Size[0] == Size[1];
-        }
+        public bool IsSquare() => Size[0] == Size[1];
         /// <summary>
         /// Return true if calling matrix is symmetric - for a matrix, A, A[i, j] == A[j, i]
         /// </summary>
@@ -541,9 +524,7 @@ namespace Prelude {
         /// <remarks>
         /// A matrix is said to be "symmetric" when it is equal to its own transpose
         /// </remarks>
-        public bool IsSymmetric() {
-            return IsSquare() && this == Transpose(this);
-        }
+        public bool IsSymmetric() => IsSquare() && this == Transpose(this);
         /// <summary>
         /// Calculate L1 Norm of calling matrix
         /// </summary>
@@ -567,8 +548,8 @@ namespace Prelude {
             var clone = Clone();
             int columnCount = clone.Size[1];
             for (var i = 0; i < columnCount; ++i) {
-                var item = clone.Rows[index][i];
-                clone.Rows[index][i] = (k * item);
+                var item = clone[index][i];
+                clone[index][i] = (k * item);
             }
             return clone;
         }
@@ -577,7 +558,7 @@ namespace Prelude {
         /// </summary>
         /// <returns>Matrix</returns>
         /// <see cref="FrobeniusNorm"/>
-        public Matrix Normalize() => Multiply(this, 1 / FrobeniusNorm());
+        public Matrix Normalize() => this / FrobeniusNorm();
         /// <summary>
         /// Return clone of calling matrix with column removed at passed zero-index column index
         /// </summary>
@@ -593,10 +574,10 @@ namespace Prelude {
                 var updated = new Matrix(rowCount, updatedColumnCount);
                 for (var i = 0; i < rowCount; ++i)
                     for (var j = 0; j < index; ++j)
-                        updated.Rows[i][j] = original.Rows[i][j];
+                        updated[i][j] = original[i][j];
                 for (var i = 0; i < rowCount; ++i)
                     for (var j = index; j < updatedColumnCount; ++j)
-                        updated.Rows[i][j] = original.Rows[i][j + 1];
+                        updated[i][j] = original[i][j + 1];
                 return updated;
             }
         }
@@ -614,9 +595,9 @@ namespace Prelude {
                 var updatedRowCount = rowCount - 1;
                 var updated = new Matrix(updatedRowCount, columnCount);
                 for (var i = 0; i < index; ++i)
-                    updated.Rows[i] = original.Rows[i];
+                    updated[i] = original[i];
                 for (var i = index; i < updatedRowCount; ++i)
-                    updated.Rows[i] = original.Rows[i + 1];
+                    updated[i] = original[i + 1];
                 return updated;
             }
         }
@@ -627,9 +608,7 @@ namespace Prelude {
         /// <remarks>
         /// Spectral norm is also known as the matrix "2-norm". Calling matrix must be square.
         /// </remarks>
-        public double SpectralNorm() {
-            return Sqrt((Transpose(this) * this).Eigenvalue());
-        }
+        public double SpectralNorm() => Sqrt((Transpose(this) * this).Eigenvalue());
         /// <summary>
         /// Return clone of calling matrix with two rows swapped
         /// </summary>
@@ -642,8 +621,8 @@ namespace Prelude {
         public Matrix SwapRows(int a, int b) {
             var clone = Clone();
             var original = Rows[a];
-            clone.Rows[a] = Rows[b];
-            clone.Rows[b] = original;
+            clone[a] = Rows[b];
+            clone[b] = original;
             return clone;
         }
         /// <summary>
@@ -655,7 +634,7 @@ namespace Prelude {
             int rank = matrix.Size[0];
             var rows = new string[rank];
             for (var i = 0; i < rank; ++i)
-                rows[i] = string.Join(",", matrix.Rows[i]);
+                rows[i] = string.Join(",", matrix[i]);
             return string.Join("\r\n", rows);
         }
         /// <summary>
@@ -667,11 +646,11 @@ namespace Prelude {
             int rowCount = Size[0];
             Matrix clone = Clone();
             for (int i = 0; i < rowCount; ++i) {
-                var pivot = clone.Rows[i][i];
+                var pivot = clone[i][i];
                 int j = i;
                 for (int k = i + 1; k < rowCount; ++k) {
-                    if (pivot < Abs(clone.Rows[k][i])) {
-                        pivot = clone.Rows[k][i];
+                    if (pivot < Abs(clone[k][i])) {
+                        pivot = clone[k][i];
                         j = k;
                     }
                 }
@@ -679,7 +658,7 @@ namespace Prelude {
                     clone = clone.SwapRows(i, j);
                 }
                 for (int l = i + 1; l < rowCount; ++l) {
-                    var factor = clone.Rows[l][i] / clone.Rows[i][i];
+                    var factor = clone[l][i] / clone[i][i];
                     clone = clone.ElementaryRowOperation(i, l, -1 * factor);
                 }
             }
