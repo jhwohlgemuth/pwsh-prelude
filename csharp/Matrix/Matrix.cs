@@ -415,9 +415,9 @@ namespace Prelude {
         /// Calculate eigenvalue of dominant eigenvector using the Rayleigh Quotient
         /// </summary>
         /// <returns>Scalar value</returns>
-        public double Eigenvalue() {
+        public double Eigenvalue(int maxIterations = 100, double tolerance = 1E-5) {
             var A = this;
-            var v = Eigenvector();
+            var v = Eigenvector(maxIterations, tolerance);
             return (Transpose(v) * A * v).Values.First() / (Transpose(v) * v).Values.First();
         }
         /// <summary>
@@ -519,6 +519,13 @@ namespace Prelude {
                     return false;
             }
             return true;
+        }
+        /// <summary>
+        /// Return true if calling matrix is orthogonal - for a matrix, A, Transpose(A) * A = I
+        /// </summary>
+        /// <returns>Boolean</returns>
+        public bool IsOrthogonal() {
+            return Transpose(this) * this == Identity(Size[0]);
         }
         /// <summary>
         /// Return true if calling matrix is square - for a MxN matrix, M == N

@@ -235,6 +235,22 @@ namespace MatrixTests {
             Assert.True(I.IsDiagonal());
         }
         [Fact]
+        public void Can_check_if_matrix_is_orthogonal() {
+            var I = Matrix.Identity(3);
+            Assert.True(I.IsOrthogonal());
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 0, 0, 1 },
+                { 1, 0, 0 },
+                { 0, 1, 0 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
+            }
+            Assert.True(A.IsOrthogonal());
+        }
+        [Fact]
         public void Can_check_if_matrix_is_square() {
             var A = Matrix.Unit(2);
             var B = Matrix.Unit(1, 3);
