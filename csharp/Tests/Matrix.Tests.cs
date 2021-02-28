@@ -33,27 +33,27 @@ namespace MatrixTests {
         public Property Multiplying_row_by_K_multiplies_determinant_by_K(NonZeroInt k, NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
             var B = new Matrix(2);
-            A.Rows[0] = new double[] { a.Get, b.Get };
-            A.Rows[1] = new double[] { c.Get, d.Get };
-            B.Rows[0] = new double[] { (k.Get * a.Get), (k.Get * b.Get) };
-            B.Rows[1] = new double[] { c.Get, d.Get };
+            A[0] = new double[] { a.Get, b.Get };
+            A[1] = new double[] { c.Get, d.Get };
+            B[0] = new double[] { (k.Get * a.Get), (k.Get * b.Get) };
+            B[1] = new double[] { c.Get, d.Get };
             return (Matrix.Det(B) == (k.Get * Matrix.Det(A))).Label("Multiply row in A by k ==> k * Det(A)");
         }
         [Property]
         [Trait("Category", "Determinant")]
         public Property Determinant_transposition_invariance(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d) {
             var A = new Matrix(2);
-            A.Rows[0] = new double[] { a.Get, b.Get };
-            A.Rows[1] = new double[] { c.Get, d.Get };
+            A[0] = new double[] { a.Get, b.Get };
+            A[1] = new double[] { c.Get, d.Get };
             return (Matrix.Det(A) == Matrix.Det(Matrix.Transpose(A))).Label("Determinant is invariant under matrix transpose");
         }
         [Property]
         [Trait("Category", "Determinant")]
         public Property Two_identical_rows_makes_determinant_zero(NonZeroInt a, NonZeroInt b, NonZeroInt c, NonZeroInt d, NonZeroInt e, NonZeroInt f) {
             var A = new Matrix(3);
-            A.Rows[0] = new double[] { a.Get, b.Get, c.Get };
-            A.Rows[1] = new double[] { d.Get, e.Get, f.Get };
-            A.Rows[2] = new double[] { a.Get, b.Get, c.Get };
+            A[0] = new double[] { a.Get, b.Get, c.Get };
+            A[1] = new double[] { d.Get, e.Get, f.Get };
+            A[2] = new double[] { a.Get, b.Get, c.Get };
             return (Matrix.Det(A) == 0).Label("A has two identical rows ==> Det(A) == 0");
         }
         [Property]
@@ -65,7 +65,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(new List<double> { a.Get, b.Get, c.Get, d.Get }, A.Values);
             A = new Matrix(1, 4);
@@ -74,7 +74,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(new List<double> { a.Get, b.Get, c.Get, d.Get }, A.Values);
         }
@@ -87,7 +87,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var norm = A.FrobeniusNorm();
             return (norm > 0 || (a.Get == 0 && b.Get == 0 && c.Get == 0 && d.Get == 0)).Label("Frobenius norm positivity property");
@@ -101,7 +101,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var norm = A.SpectralNorm();
             return (norm > 0 || (a.Get == 0 && b.Get == 0 && c.Get == 0 && d.Get == 0)).Label("Frobenius norm positivity property");
@@ -115,7 +115,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var spectral = A.SpectralNorm();
             var frobenius = A.FrobeniusNorm();
@@ -132,8 +132,8 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
-                B.Rows[i][j] = rows[j, i];
+                A[i][j] = rows[i, j];
+                B[i][j] = rows[j, i];
                 C = A;
             }
 #pragma warning disable CS1718 // Comparison made to same variable
@@ -154,7 +154,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             rows = new double[2, 2] {
                 { a.Get + 1, b.Get + 1 },
@@ -162,14 +162,14 @@ namespace MatrixTests {
             };
             foreach (var Index in B.Indexes()) {
                 int i = Index[0], j = Index[1];
-                B.Rows[i][j] = rows[i, j];
+                B[i][j] = rows[i, j];
             }
             rows = new double[1, 2] {
                 { a.Get + 2, b.Get + 2 }
             };
             foreach (var Index in C.Indexes()) {
                 int i = Index[0], j = Index[1];
-                C.Rows[i][j] = rows[i, j];
+                C[i][j] = rows[i, j];
             }
             Assert.True(A.Equals(A));
             Assert.False(A.Equals(B));
@@ -211,7 +211,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(3, A[0][2]);
             Assert.Equal(5, A[1][1]);
@@ -367,13 +367,13 @@ namespace MatrixTests {
         [Fact]
         public void Can_create_identity_matrices() {
             var identity2 = Matrix.Identity(2);
-            Assert.Equal(new double[] { 1, 0 }, identity2.Rows[0]);
-            Assert.Equal(new double[] { 0, 1 }, identity2.Rows[1]);
+            Assert.Equal(new double[] { 1, 0 }, identity2[0]);
+            Assert.Equal(new double[] { 0, 1 }, identity2[1]);
             var identity4 = Matrix.Identity(4);
-            Assert.Equal(new double[] { 1, 0, 0, 0 }, identity4.Rows[0]);
-            Assert.Equal(new double[] { 0, 1, 0, 0 }, identity4.Rows[1]);
-            Assert.Equal(new double[] { 0, 0, 1, 0 }, identity4.Rows[2]);
-            Assert.Equal(new double[] { 0, 0, 0, 1 }, identity4.Rows[3]);
+            Assert.Equal(new double[] { 1, 0, 0, 0 }, identity4[0]);
+            Assert.Equal(new double[] { 0, 1, 0, 0 }, identity4[1]);
+            Assert.Equal(new double[] { 0, 0, 1, 0 }, identity4[2]);
+            Assert.Equal(new double[] { 0, 0, 0, 1 }, identity4[3]);
         }
         [Fact]
         public void Can_transpose_NxN_matrices() {
@@ -385,16 +385,16 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var T = Matrix.Transpose(A);
-            Assert.Equal(new double[] { 1, 4, 7 }, T.Rows[0]);
-            Assert.Equal(new double[] { 2, 5, 8 }, T.Rows[1]);
-            Assert.Equal(new double[] { 3, 6, 9 }, T.Rows[2]);
+            Assert.Equal(new double[] { 1, 4, 7 }, T[0]);
+            Assert.Equal(new double[] { 2, 5, 8 }, T[1]);
+            Assert.Equal(new double[] { 3, 6, 9 }, T[2]);
             var B = Matrix.Transpose(T);
-            Assert.Equal(new double[] { 1, 2, 3 }, B.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, B.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, B.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, B[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, B[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, B[2]);
         }
         [Fact]
         public void Can_transpose_MxN_matrices() {
@@ -405,15 +405,15 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var T = Matrix.Transpose(A);
-            Assert.Equal(new double[] { 1, 4 }, T.Rows[0]);
-            Assert.Equal(new double[] { 2, 5 }, T.Rows[1]);
-            Assert.Equal(new double[] { 3, 6 }, T.Rows[2]);
+            Assert.Equal(new double[] { 1, 4 }, T[0]);
+            Assert.Equal(new double[] { 2, 5 }, T[1]);
+            Assert.Equal(new double[] { 3, 6 }, T[2]);
             var B = Matrix.Transpose(T);
-            Assert.Equal(new double[] { 1, 2, 3 }, B.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, B.Rows[1]);
+            Assert.Equal(new double[] { 1, 2, 3 }, B[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, B[1]);
         }
         [Theory]
         [InlineData(2)]
@@ -491,20 +491,20 @@ namespace MatrixTests {
         [Fact]
         public void Can_calculate_dot_product_of_two_NxN_matrices() {
             var A = Matrix.Identity(2);
-            A.Rows[1][1] = 0;
+            A[1][1] = 0;
             var B = Matrix.Identity(2);
-            B.Rows[0][0] = 0;
+            B[0][0] = 0;
             var product = Matrix.Dot(A, B);
             Assert.Equal(new int[] { 2, 2 }, product.Size);
-            Assert.Equal(new double[] { 0, 0 }, product.Rows[0]);
-            Assert.Equal(new double[] { 0, 0 }, product.Rows[1]);
+            Assert.Equal(new double[] { 0, 0 }, product[0]);
+            Assert.Equal(new double[] { 0, 0 }, product[1]);
             double[,] rows = new double[,] {
                 { 1, 2 },
                 { 3, 4 }
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             rows = new double[,] {
                 { 1, 1 },
@@ -512,32 +512,32 @@ namespace MatrixTests {
             };
             foreach (var Index in B.Indexes()) {
                 int i = Index[0], j = Index[1];
-                B.Rows[i][j] = rows[i, j];
+                B[i][j] = rows[i, j];
             }
             product = Matrix.Dot(A, B);
-            Assert.Equal(new double[] { 1, 5 }, product.Rows[0]);
-            Assert.Equal(new double[] { 3, 11 }, product.Rows[1]);
+            Assert.Equal(new double[] { 1, 5 }, product[0]);
+            Assert.Equal(new double[] { 3, 11 }, product[1]);
             product = Matrix.Dot(B, A);
-            Assert.Equal(new double[] { 4, 6 }, product.Rows[0]);
-            Assert.Equal(new double[] { 6, 8 }, product.Rows[1]);
+            Assert.Equal(new double[] { 4, 6 }, product[0]);
+            Assert.Equal(new double[] { 6, 8 }, product[1]);
         }
         [Fact]
         public void Can_calculate_dot_product_of_two_NxN_matrices_with_operators() {
             var A = Matrix.Identity(2);
-            A.Rows[1][1] = 0;
+            A[1][1] = 0;
             var B = Matrix.Identity(2);
-            B.Rows[0][0] = 0;
+            B[0][0] = 0;
             var product = A * B;
             Assert.Equal(new int[] { 2, 2 }, product.Size);
-            Assert.Equal(new double[] { 0, 0 }, product.Rows[0]);
-            Assert.Equal(new double[] { 0, 0 }, product.Rows[1]);
+            Assert.Equal(new double[] { 0, 0 }, product[0]);
+            Assert.Equal(new double[] { 0, 0 }, product[1]);
             double[,] rows = new double[,] {
                 { 1, 2 },
                 { 3, 4 }
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             rows = new double[,] {
                 { 1, 1 },
@@ -545,14 +545,14 @@ namespace MatrixTests {
             };
             foreach (var Index in B.Indexes()) {
                 int i = Index[0], j = Index[1];
-                B.Rows[i][j] = rows[i, j];
+                B[i][j] = rows[i, j];
             }
             product = A * B;
-            Assert.Equal(new double[] { 1, 5 }, product.Rows[0]);
-            Assert.Equal(new double[] { 3, 11 }, product.Rows[1]);
+            Assert.Equal(new double[] { 1, 5 }, product[0]);
+            Assert.Equal(new double[] { 3, 11 }, product[1]);
             product = B * A;
-            Assert.Equal(new double[] { 4, 6 }, product.Rows[0]);
-            Assert.Equal(new double[] { 6, 8 }, product.Rows[1]);
+            Assert.Equal(new double[] { 4, 6 }, product[0]);
+            Assert.Equal(new double[] { 6, 8 }, product[1]);
         }
         [Fact]
         public void Can_calculate_dot_product_of_two_MxN_matrices() {
@@ -563,7 +563,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rowsA[i, j];
+                A[i][j] = rowsA[i, j];
             }
             double[,] rowsB = new double[,] {
                 { 1, -2, 0 },
@@ -571,11 +571,11 @@ namespace MatrixTests {
             };
             foreach (var Index in B.Indexes()) {
                 int i = Index[0], j = Index[1];
-                B.Rows[i][j] = rowsB[i, j];
+                B[i][j] = rowsB[i, j];
             }
             var product = Matrix.Dot(A, B);
             Assert.Equal(new int[] { 1, 3 }, product.Size);
-            Assert.Equal(new double[] { 6, 1, -3 }, product.Rows[0]);
+            Assert.Equal(new double[] { 6, 1, -3 }, product[0]);
         }
         [Fact]
         public void Can_verify_the_dot_product_of_a_matrix_and_inverse_is_identity() {
@@ -587,7 +587,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rowsA[i, j];
+                A[i][j] = rowsA[i, j];
             }
             double[,] rowsB = new double[,] {
                 { 3, -5 },
@@ -595,7 +595,7 @@ namespace MatrixTests {
             };
             foreach (var Index in B.Indexes()) {
                 int i = Index[0], j = Index[1];
-                B.Rows[i][j] = rowsB[i, j];
+                B[i][j] = rowsB[i, j];
             }
             var product = Matrix.Dot(A, B);
             Assert.Equal(new int[] { 2, 2 }, product.Size);
@@ -605,17 +605,17 @@ namespace MatrixTests {
         public void Can_calcuate_dot_exponential() {
             var A = Matrix.Unit(2);
             var result = Matrix.Pow(A, 1);
-            Assert.Equal(new double[] { 1, 1 }, result.Rows[0]);
-            Assert.Equal(new double[] { 1, 1 }, result.Rows[1]);
+            Assert.Equal(new double[] { 1, 1 }, result[0]);
+            Assert.Equal(new double[] { 1, 1 }, result[1]);
             result = Matrix.Pow(A, 2);
-            Assert.Equal(new double[] { 2, 2 }, result.Rows[0]);
-            Assert.Equal(new double[] { 2, 2 }, result.Rows[1]);
+            Assert.Equal(new double[] { 2, 2 }, result[0]);
+            Assert.Equal(new double[] { 2, 2 }, result[1]);
             result = Matrix.Pow(A, 3);
-            Assert.Equal(new double[] { 4, 4 }, result.Rows[0]);
-            Assert.Equal(new double[] { 4, 4 }, result.Rows[1]);
+            Assert.Equal(new double[] { 4, 4 }, result[0]);
+            Assert.Equal(new double[] { 4, 4 }, result[1]);
             result = Matrix.Pow(A, 4);
-            Assert.Equal(new double[] { 8, 8 }, result.Rows[0]);
-            Assert.Equal(new double[] { 8, 8 }, result.Rows[1]);
+            Assert.Equal(new double[] { 8, 8 }, result[0]);
+            Assert.Equal(new double[] { 8, 8 }, result[1]);
             var B = Matrix.Unit(2, 4);
             Assert.Throws<ArgumentException>(() => Matrix.Pow(B, 2));
         }
@@ -626,13 +626,13 @@ namespace MatrixTests {
             var sum = new Matrix(2);
             var identity = Matrix.Identity(2);
             for (int i = 0; i < k; ++i) {
-                sum = Matrix.Add(sum, identity);
+                sum += identity;
             }
             var A = Matrix.Identity(2);
             var product = Matrix.Multiply(A, k);
             Assert.Equal(sum.Rows, product.Rows);
-            Assert.Equal(new double[] { k, 0 }, product.Rows[0]);
-            Assert.Equal(new double[] { 0, k }, product.Rows[1]);
+            Assert.Equal(new double[] { k, 0 }, product[0]);
+            Assert.Equal(new double[] { 0, k }, product[1]);
         }
         [Theory]
         [InlineData(3)]
@@ -641,17 +641,17 @@ namespace MatrixTests {
             var sum = new Matrix(2);
             var identity = Matrix.Identity(2);
             for (int i = 0; i < k; ++i) {
-                sum = Matrix.Add(sum, identity);
+                sum += identity;
             }
             var A = Matrix.Identity(2);
             var product = A * k;
             Assert.Equal(sum.Rows, product.Rows);
-            Assert.Equal(new double[] { k, 0 }, product.Rows[0]);
-            Assert.Equal(new double[] { 0, k }, product.Rows[1]);
+            Assert.Equal(new double[] { k, 0 }, product[0]);
+            Assert.Equal(new double[] { 0, k }, product[1]);
             product = k * A;
             Assert.Equal(sum.Rows, product.Rows);
-            Assert.Equal(new double[] { k, 0 }, product.Rows[0]);
-            Assert.Equal(new double[] { 0, k }, product.Rows[1]);
+            Assert.Equal(new double[] { k, 0 }, product[0]);
+            Assert.Equal(new double[] { 0, k }, product[1]);
         }
         [Theory]
         [InlineData(2)]
@@ -659,8 +659,8 @@ namespace MatrixTests {
         public void Can_divide_matrix_by_scalar_constant_with_operators(int k) {
             var A = Matrix.Fill(Matrix.Unit(2), 10);
             var quotient = A / k;
-            Assert.Equal(new double[] { 10 / k, 10 / k }, quotient.Rows[0]);
-            Assert.Equal(new double[] { 10 / k, 10 / k }, quotient.Rows[1]);
+            Assert.Equal(new double[] { 10 / k, 10 / k }, quotient[0]);
+            Assert.Equal(new double[] { 10 / k, 10 / k }, quotient[1]);
         }
         [Fact]
         public void Can_calculate_matrix_inverse() {
@@ -672,12 +672,12 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var inverse = Matrix.Invert(A);
-            Assert.Equal(new double[] { 0.5, 0.5, -0.5 }, inverse.Rows[0]);
-            Assert.Equal(new double[] { -5, 2, 1 }, inverse.Rows[1]);
-            Assert.Equal(new double[] { 3.5, -1.5, -0.5 }, inverse.Rows[2]);
+            Assert.Equal(new double[] { 0.5, 0.5, -0.5 }, inverse[0]);
+            Assert.Equal(new double[] { -5, 2, 1 }, inverse[1]);
+            Assert.Equal(new double[] { 3.5, -1.5, -0.5 }, inverse[2]);
             Assert.Equal(Matrix.Identity(3).Rows, Matrix.Dot(A, inverse).Rows);
         }
         [Fact]
@@ -690,12 +690,12 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(15, Matrix.Trace(A));
         }
         [Fact]
-        public void Can_solve_system_of_equations_with_gaussian_elimination() {
+        public void Can_solve_system_of_equations() {
             var A = new Matrix(3, 4);
             double[,] rows = new double[,] {
                 { 9, 3, 4, 7 },
@@ -704,13 +704,56 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
+            }
+            var solutions = Matrix.Solve(A);
+            Assert.Equal(new int[] { 3, 1 }, solutions.Size);
+            Assert.Equal(new double[] { -0.2 }, solutions[0]);
+            Assert.Equal(new double[] { 4 }, solutions[1]);
+            Assert.Equal(new double[] { -0.8 }, solutions[2]);
+            A = new Matrix(3);
+            rows = new double[,] {
+                { 4, 3, 4 },
+                { 1, 1, 1 },
+                { 9, 3, 4 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
+            }
+            var b = new Matrix(3, 1);
+            rows = new double[,] {
+                { 8 },
+                { 3 },
+                { 7 }
+            };
+            foreach (var Index in b.Indexes()) {
+                int i = Index[0], j = Index[1];
+                b[i][j] = rows[i, j];
+            }
+            solutions = Matrix.Solve(A, b);
+            Assert.Equal(new int[] { 3, 1 }, solutions.Size);
+            Assert.Equal(new double[] { -0.2 }, solutions[0]);
+            Assert.Equal(new double[] { 4 }, solutions[1]);
+            Assert.Equal(new double[] { -0.8 }, solutions[2]);
+        }
+        [Fact]
+        public void Can_solve_system_of_equations_directly_with_gaussian_elimination() {
+            var A = new Matrix(3, 4);
+            double[,] rows = new double[,] {
+                { 9, 3, 4, 7 },
+                { 4, 3, 4, 8 },
+                { 1, 1, 1, 3 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
             }
             var B = Matrix.GaussianElimination(A);
             Assert.Equal(new int[] { 3, 1 }, B.Size);
-            Assert.Equal(new double[] { -0.2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 4 }, B.Rows[1]);
-            Assert.Equal(new double[] { -0.8 }, B.Rows[2]);
+            Assert.Equal(new double[] { -0.2 }, B[0]);
+            Assert.Equal(new double[] { 4 }, B[1]);
+            Assert.Equal(new double[] { -0.8 }, B[2]);
             A = new Matrix(3, 4);
             rows = new double[,] {
                 { 4, 3, 4, 8 },
@@ -719,13 +762,13 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             B = Matrix.GaussianElimination(A);
             Assert.Equal(new int[] { 3, 1 }, B.Size);
-            Assert.Equal(new double[] { -0.2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 4 }, B.Rows[1]);
-            Assert.Equal(new double[] { -0.8 }, B.Rows[2]);
+            Assert.Equal(new double[] { -0.2 }, B[0]);
+            Assert.Equal(new double[] { 4 }, B[1]);
+            Assert.Equal(new double[] { -0.8 }, B[2]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -737,7 +780,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var B = A.Clone();
             Assert.Equal(new double[] { 1, 2 }, B[0]);
@@ -768,14 +811,14 @@ namespace MatrixTests {
                 A.Rows[i][j] = rows[i, j];
             }
             var B = A.ElementaryRowOperation(0, 1);
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 4, 6 }, B.Rows[1]);
+            Assert.Equal(new double[] { 1, 2 }, B[0]);
+            Assert.Equal(new double[] { 4, 6 }, B[1]);
             B = A.ElementaryRowOperation(0, 1, 5);
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 8, 14 }, B.Rows[1]);
+            Assert.Equal(new double[] { 1, 2 }, B[0]);
+            Assert.Equal(new double[] { 8, 14 }, B[1]);
             B = A.ElementaryRowOperation(0, 1, -3);
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 0, -2 }, B.Rows[1]);
+            Assert.Equal(new double[] { 1, 2 }, B[0]);
+            Assert.Equal(new double[] { 0, -2 }, B[1]);
         }
         [Fact]
         public void Can_calculate_L1_Norm() {
@@ -787,7 +830,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(19, A.L1Norm());
         }
@@ -801,7 +844,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(6.4, A.FrobeniusNorm(), 2);
             rows = new double[,] {
@@ -811,7 +854,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(7.75, A.FrobeniusNorm(), 2);
         }
@@ -824,7 +867,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(2.6180, A.SpectralNorm(), 4);
         }
@@ -837,11 +880,11 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var normalized = A.Normalize();
-            Assert.Equal(new List<double> { 0.5773502691896258, 0.5773502691896258 }, normalized.Rows[0]);
-            Assert.Equal(new List<double> { 0.5773502691896258, 0 }, normalized.Rows[1]);
+            Assert.Equal(new List<double> { 0.5773502691896258, 0.5773502691896258 }, normalized[0]);
+            Assert.Equal(new List<double> { 0.5773502691896258, 0 }, normalized[1]);
         }
         [Fact]
         public void Can_calculate_dominant_eigenvector() {
@@ -852,11 +895,11 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var eigenvector = A.Eigenvector();
-            Assert.Equal(0.8507, eigenvector.Rows[0][0], 4);
-            Assert.Equal(0.5257, eigenvector.Rows[1][0], 4);
+            Assert.Equal(0.8507, eigenvector[0][0], 4);
+            Assert.Equal(0.5257, eigenvector[1][0], 4);
         }
         [Fact]
         public void Can_calculate_dominant_eigenvalue() {
@@ -867,7 +910,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var eigenvalue = A.Eigenvalue();
             Assert.Equal(1.618, eigenvalue, 3);
@@ -882,14 +925,14 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var B = A.MultiplyRowByScalar(1, 4);
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[0]);
-            Assert.Equal(new double[] { 12, 16 }, B.Rows[1]);
+            Assert.Equal(new double[] { 1, 2 }, B[0]);
+            Assert.Equal(new double[] { 12, 16 }, B[1]);
             var C = A.MultiplyRowByScalar(1, 4).MultiplyRowByScalar(0, 5);
-            Assert.Equal(new double[] { 5, 10 }, C.Rows[0]);
-            Assert.Equal(new double[] { 12, 16 }, C.Rows[1]);
+            Assert.Equal(new double[] { 5, 10 }, C[0]);
+            Assert.Equal(new double[] { 12, 16 }, C[1]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -902,38 +945,38 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var edited = A.InsertColumn(0, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 3, 4 }, edited.Size);
-            Assert.Equal(new double[] { 11, 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 22, 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 33, 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 11, 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 22, 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 33, 7, 8, 9 }, edited[2]);
             edited = A.InsertColumn(1, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 3, 4 }, edited.Size);
-            Assert.Equal(new double[] { 1, 11, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 22, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 33, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 11, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 22, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 33, 8, 9 }, edited[2]);
             edited = A.InsertColumn(3, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 3, 4 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3, 11 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6, 22 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9, 33 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3, 11 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6, 22 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9, 33 }, edited[2]);
             edited = A.InsertColumn(4, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
             edited = A.InsertColumn(3, new double[] { 11, 22, 33 }).InsertColumn(3, new double[] { 44, 55, 66 });
             Assert.Equal(new int[] { 3, 5 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3, 44, 11 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6, 55, 22 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9, 66, 33 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3, 44, 11 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6, 55, 22 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9, 66, 33 }, edited[2]);
             edited = A.InsertColumn(1, new double[] { 11, 22, 33 }).InsertColumn(4, new double[] { 44, 55, 66 });
             Assert.Equal(new int[] { 3, 5 }, edited.Size);
-            Assert.Equal(new double[] { 1, 11, 2, 3, 44 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 22, 5, 6, 55 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 33, 8, 9, 66 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 11, 2, 3, 44 }, edited[0]);
+            Assert.Equal(new double[] { 4, 22, 5, 6, 55 }, edited[1]);
+            Assert.Equal(new double[] { 7, 33, 8, 9, 66 }, edited[2]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -950,41 +993,41 @@ namespace MatrixTests {
             }
             var edited = A.InsertRow(0, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 4, 3 }, edited.Size);
-            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[2]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[3]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited[0]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[2]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[3]);
             edited = A.InsertRow(1, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 4, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[2]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[3]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[2]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[3]);
             edited = A.InsertRow(3, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 4, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
-            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[3]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited[3]);
             edited = A.InsertRow(4, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
             edited = A.InsertRow(1, new double[] { 11, 22, 33 }).InsertRow(1, new double[] { 44, 55, 66 });
             Assert.Equal(new int[] { 5, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 44, 55, 66 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[2]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[3]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[4]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 44, 55, 66 }, edited[1]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited[2]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[3]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[4]);
             edited = A.InsertRow(1, new double[] { 11, 22, 33 }).InsertRow(4, new double[] { 44, 55, 66 });
             Assert.Equal(new int[] { 5, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 11, 22, 33 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[2]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[3]);
-            Assert.Equal(new double[] { 44, 55, 66 }, edited.Rows[4]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 11, 22, 33 }, edited[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[2]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[3]);
+            Assert.Equal(new double[] { 44, 55, 66 }, edited[4]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -997,37 +1040,37 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var edited = A.RemoveColumn(0);
             Assert.Equal(new int[] { 3, 2 }, edited.Size);
-            Assert.Equal(new double[] { 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 8, 9 }, edited[2]);
             edited = A.RemoveColumn(1);
             Assert.Equal(new int[] { 3, 2 }, edited.Size);
-            Assert.Equal(new double[] { 1, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 9 }, edited[2]);
             edited = A.RemoveColumn(2);
             Assert.Equal(new int[] { 3, 2 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8 }, edited[2]);
             edited = A.RemoveColumn(3);
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
             edited = A.RemoveColumn(-1);
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
             edited = A.RemoveColumn(0).RemoveRow(0);
             Assert.Equal(new int[] { 2, 2 }, edited.Size);
-            Assert.Equal(new double[] { 5, 6 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 8, 9 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 5, 6 }, edited[0]);
+            Assert.Equal(new double[] { 8, 9 }, edited[1]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -1040,34 +1083,34 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var edited = A.RemoveRow(0);
             Assert.Equal(new int[] { 2, 3 }, edited.Size);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[0]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[1]);
             edited = A.RemoveRow(1);
             Assert.Equal(new int[] { 2, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[1]);
             edited = A.RemoveRow(2);
             Assert.Equal(new int[] { 2, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
             edited = A.RemoveRow(3);
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
             edited = A.RemoveRow(-1);
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
-            Assert.Equal(new double[] { 1, 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 4, 5, 6 }, edited.Rows[1]);
-            Assert.Equal(new double[] { 7, 8, 9 }, edited.Rows[2]);
+            Assert.Equal(new double[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new double[] { 7, 8, 9 }, edited[2]);
             edited = A.RemoveRow(2).RemoveColumn(0);
             Assert.Equal(new int[] { 2, 2 }, edited.Size);
-            Assert.Equal(new double[] { 2, 3 }, edited.Rows[0]);
-            Assert.Equal(new double[] { 5, 6 }, edited.Rows[1]);
+            Assert.Equal(new double[] { 2, 3 }, edited[0]);
+            Assert.Equal(new double[] { 5, 6 }, edited[1]);
         }
         [Fact]
         [Trait("Category", "Instance")]
@@ -1079,14 +1122,14 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var B = A.SwapRows(0, 1);
-            Assert.Equal(new double[] { 3, 4 }, B.Rows[0]);
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[1]);
+            Assert.Equal(new double[] { 3, 4 }, B[0]);
+            Assert.Equal(new double[] { 1, 2 }, B[1]);
             B = A.SwapRows(1, 0);
-            Assert.Equal(new double[] { 3, 4 }, B.Rows[0]);
-            Assert.Equal(new double[] { 1, 2 }, B.Rows[1]);
+            Assert.Equal(new double[] { 3, 4 }, B[0]);
+            Assert.Equal(new double[] { 1, 2 }, B[1]);
             Assert.Throws<IndexOutOfRangeException>(() => A.SwapRows(-1, 0));
             Assert.Throws<IndexOutOfRangeException>(() => A.SwapRows(3, 1));
         }
@@ -1100,7 +1143,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             string output = A.ToString();
             Assert.Equal("1,2\r\n3,4", output);
@@ -1115,13 +1158,13 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             var B = A.ToUpperTriangular();
             Assert.Equal(new int[] { 3, 3 }, B.Size);
-            Assert.Equal(new double[] { 9, 3, 4 }, B.Rows[0]);
-            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223 }, B.Rows[1]);
-            Assert.Equal(new double[] { 0, 0, -0.33333333333333337 }, B.Rows[2]);
+            Assert.Equal(new double[] { 9, 3, 4 }, B[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223 }, B[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337 }, B[2]);
             A = new Matrix(3, 3);
             rows = new double[,] {
                 { 9, 3, 4 },
@@ -1130,13 +1173,13 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             B = A.ToUpperTriangular();
             Assert.Equal(new int[] { 3, 3 }, B.Size);
-            Assert.Equal(new double[] { 9, 3, 4 }, B.Rows[0]);
-            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223 }, B.Rows[1]);
-            Assert.Equal(new double[] { 0, 0, -0.33333333333333337 }, B.Rows[2]);
+            Assert.Equal(new double[] { 9, 3, 4 }, B[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223 }, B[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337 }, B[2]);
             A = new Matrix(3, 4);
             rows = new double[,] {
                 { 9, 3, 4, 7 },
@@ -1145,13 +1188,13 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             B = A.ToUpperTriangular();
             Assert.Equal(new int[] { 3, 4 }, B.Size);
-            Assert.Equal(new double[] { 9, 3, 4, 7 }, B.Rows[0]);
-            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223, 4.888888888888889 }, B.Rows[1]);
-            Assert.Equal(new double[] { 0, 0, -0.33333333333333337, 0.2666666666666666 }, B.Rows[2]);
+            Assert.Equal(new double[] { 9, 3, 4, 7 }, B[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223, 4.888888888888889 }, B[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337, 0.2666666666666666 }, B[2]);
             A = new Matrix(3, 4);
             rows = new double[,] {
                 { 1, 1, 1, 3 },
@@ -1160,13 +1203,13 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             B = A.ToUpperTriangular();
             Assert.Equal(new int[] { 3, 4 }, B.Size);
-            Assert.Equal(new double[] { 9, 3, 4, 7 }, B.Rows[0]);
-            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223, 4.888888888888889 }, B.Rows[1]);
-            Assert.Equal(new double[] { 0, 0, -0.33333333333333337, 0.2666666666666666 }, B.Rows[2]);
+            Assert.Equal(new double[] { 9, 3, 4, 7 }, B[0]);
+            Assert.Equal(new double[] { 0, 1.6666666666666667, 2.2222222222222223, 4.888888888888889 }, B[1]);
+            Assert.Equal(new double[] { 0, 0, -0.33333333333333337, 0.2666666666666666 }, B[2]);
         }
         [Fact]
         [Trait("Category", "Determinant")]
@@ -1177,7 +1220,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(1, Matrix.Det(A));
         }
@@ -1192,7 +1235,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(-2, Matrix.Det(A));
         }
@@ -1210,7 +1253,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(-46, Matrix.Det(A));
             A = new Matrix(N);
@@ -1221,7 +1264,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(79, Matrix.Det(A));
         }
@@ -1240,7 +1283,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(-54, Matrix.Det(A));
             A = new Matrix(N);
@@ -1252,7 +1295,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(38, Matrix.Det(A));
         }
@@ -1274,7 +1317,7 @@ namespace MatrixTests {
             };
             foreach (var Index in A.Indexes()) {
                 int i = Index[0], j = Index[1];
-                A.Rows[i][j] = rows[i, j];
+                A[i][j] = rows[i, j];
             }
             Assert.Equal(12228, Matrix.Det(A));
         }

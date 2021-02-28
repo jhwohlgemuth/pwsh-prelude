@@ -295,6 +295,19 @@ namespace Prelude {
             }
         }
         /// <summary>
+        /// Solve a system of linear equations characterized as Ax = b using Gaussian Elimination
+        /// </summary>
+        /// <param name="augmented">Matrix A with the column matrix, b, appended to the right</param>
+        /// <returns>Column matrix of solutions</returns>
+        public static Matrix Solve(Matrix augmented) => GaussianElimination(augmented);
+        /// <summary>
+        /// Solve a system of linear equations characterized as Ax = b using Gaussian Elimination
+        /// </summary>
+        /// <param name="A">MxN matrix</param>
+        /// <param name="b">N-component column matrix</param>
+        /// <returns>Column matrix of solutions</returns>
+        public static Matrix Solve(Matrix A, Matrix b) => GaussianElimination(A.Augment(b));
+        /// <summary>
         /// Calculate the sum of diagonal elements (trace) for a given matrix
         /// </summary>
         /// <param name="a">Input matrix</param>
