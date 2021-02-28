@@ -342,6 +342,20 @@ namespace Prelude {
                 return result;
             };
         }
+        public Matrix Augment(Matrix x) {
+            var m = Size[0];
+            var n = Size[1] + x.Size[1];
+            var temp = new Matrix(m, n);
+            foreach (var pair in Indexes()) {
+                int i = pair[0], j = pair[1];
+                temp[i][j] = this[i][j];
+            }
+            foreach (var pair in x.Indexes()) {
+                int i = pair[0], j = pair[1];
+                temp[i][j + Size[1]] = x[i][j];
+            }
+            return temp;
+        }
         /// <summary>
         /// Create clone copy of calling matrix
         /// </summary>

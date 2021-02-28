@@ -461,6 +461,34 @@ namespace MatrixTests {
                 Assert.Equal(expected, Row);
         }
         [Fact]
+        public void Can_augment_matrices() {
+
+            var A = new Matrix(3);
+            double[,] rows = new double[,] {
+                { 3, -2, -5 },
+                { -5, 2, 8 },
+                { -2, 4, 7 },
+                { 2, -3, -5 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
+            }
+            var x = new Matrix(3, 1);
+            rows = new double[,] {
+                { 3 },
+                { -5 },
+                { -2 },
+                { 2 }
+            };
+            foreach (var Index in x.Indexes()) {
+                int i = Index[0], j = Index[1];
+                x[i][j] = rows[i, j];
+            }
+            var augment = A.Augment(x);
+            Assert.Equal(new double[] { 3, -2, -5, 3 }, augment[0]);
+        }
+        [Fact]
         public void Can_calculate_dot_product_of_two_NxN_matrices() {
             var A = Matrix.Identity(2);
             A.Rows[1][1] = 0;
