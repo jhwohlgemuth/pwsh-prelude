@@ -11,13 +11,30 @@ function Export-GraphData {
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
-    [OutputType([String])]
     Param(
-        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [Prelude.Graph] $Graph,
+        [ValidateScript( { Test-Path $_ })]
         [String] $Path,
+        [String] $Name,
+        [ValidateSet('CSV', 'JSON', 'XML')]
+        [String] $Format = 'CSV',
         [Switch] $Force
     )
-    # UNDER CONSTRUCTION
+    switch ($Format) {
+        'JSON' {
+            # UNDER CONSTRUCTION
+            break
+        }
+        'XML' {
+            # UNDER CONSTRUCTION
+            break
+        }
+        Default {
+            # UNDER CONSTRUCTION
+            break
+        }
+    }
 }
 function Import-GraphData {
     <#
@@ -35,7 +52,25 @@ function Import-GraphData {
         [ValidateScript( { Test-Path $_ })]
         [String] $Path
     )
-    # UNDER CONSTRUCTION
+    $Extension = [System.IO.Path]::GetExtension($Path).Substring(1).ToUpper()
+    switch ($Extension) {
+        'JSON' {
+            # UNDER CONSTRUCTION
+            break
+        }
+        'TXT' {
+            # UNDER CONSTRUCTION
+            break
+        }
+        'XML' {
+            # UNDER CONSTRUCTION
+            break
+        }
+        Default {
+            # UNDER CONSTRUCTION
+            break
+        }
+    }
 }
 function New-Edge {
     <#
