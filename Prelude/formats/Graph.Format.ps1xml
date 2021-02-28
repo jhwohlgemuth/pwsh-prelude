@@ -2,7 +2,7 @@
 <Configuration>
     <Controls>
         <Control>
-            <Name>Matrix-Header</Name>
+            <Name>Graph-Header</Name>
             <CustomControl>
                 <CustomEntries>
                     <CustomEntry>
@@ -10,7 +10,7 @@
                             <ExpressionBinding>
                                 <ScriptBlock>
                                     '' | Write-Color
-                                    "{{#cyan $($_.Size[0])}} x {{#cyan $($_.Size[1])}} Matrix" | Write-Title -Template -DarkGray -Indent 2
+                                    "Graph with {{#cyan $($_.Nodes.Count) Nodes}} and {{#cyan $($_.Edges.Count) Edges}}" | Write-Title -Template -DarkGray -Indent 2
                                 </ScriptBlock>
                             </ExpressionBinding>
                         </CustomItem>
@@ -19,15 +19,16 @@
             </CustomControl>
         </Control>
         <Control>
-            <Name>Matrix-Elements</Name>
+            <Name>AdjacencyMatrix-Elements</Name>
             <CustomControl>
                 <CustomEntries>
                     <CustomEntry>
                         <CustomItem>
                             <ExpressionBinding>
                                 <ScriptBlock>
-                                    $Values = $_.Rows
-                                    $MaximumLength = $_.Indexes() | ForEach-Object {
+                                    $AdjacencyMatrix = $_.AdjacencyMatrix
+                                    $Values = $AdjacencyMatrix.Rows
+                                    $MaximumLength = $AdjacencyMatrix.Indexes() | ForEach-Object {
                                         $Row, $Col = $_
                                         $Values[$Row][$Col].ToString().Length
                                     } | Get-Maximum
@@ -49,9 +50,9 @@
     </Controls>
     <ViewDefinitions>
         <View>
-            <Name>Matrix</Name>
+            <Name>Graph</Name>
             <ViewSelectedBy>
-                <TypeName>Prelude.Matrix</TypeName>
+                <TypeName>Prelude.Graph</TypeName>
             </ViewSelectedBy>
             <CustomControl>
                 <CustomEntries>
@@ -60,14 +61,14 @@
                             <Frame>
                                 <CustomItem>
                                     <ExpressionBinding>
-                                        <CustomControlName>Matrix-Header</CustomControlName>
+                                        <CustomControlName>Graph-Header</CustomControlName>
                                     </ExpressionBinding>
                                 </CustomItem>
                             </Frame>
                             <Frame>
                                 <CustomItem>
                                     <ExpressionBinding>
-                                        <CustomControlName>Matrix-Elements</CustomControlName>
+                                        <CustomControlName>AdjacencyMatrix-Elements</CustomControlName>
                                     </ExpressionBinding>
                                 </CustomItem>
                             </Frame>
