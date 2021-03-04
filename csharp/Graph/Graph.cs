@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static System.Linq.Enumerable;
 
 namespace Prelude {
     public class Graph {
@@ -19,6 +20,29 @@ namespace Prelude {
         /// <returns>Graph</returns>
         public static Graph From(Graph other) {
             return new Graph(other.Nodes, other.Edges);
+        }
+        public static Graph Bipartite(int M, int N) {
+            throw new NotImplementedException();
+        }
+        public static Graph Complete(int N) {
+            if (N < 2)
+                throw new ArgumentException("Complete graph requires at least two nodes");
+            var nodes = Range(0, N).Select(i => new Node($"node-{i}")).ToList();
+            var edges = new List<Edge> { };
+            foreach (var a in nodes)
+                foreach (var b in nodes)
+                    if (a != b)
+                        edges.Add(new Edge(a, b));
+            return new Graph(edges);
+        }
+        public static Graph Ring(int N) {
+            throw new NotImplementedException();
+        }
+        public static Graph SmallWorld(int N, double k) {
+            throw new NotImplementedException();
+        }
+        public static Graph Tetrahedral(int N) {
+            throw new NotImplementedException();
         }
         /// <summary>
         /// Create empty graph object
@@ -59,7 +83,8 @@ namespace Prelude {
             return this;
         }
         private bool Add(Node node) {
-            Nodes.Add(node);
+            if (!Contains(node))
+                Nodes.Add(node);
             return Contains(node);
         }
         private bool Add(Edge edge) {

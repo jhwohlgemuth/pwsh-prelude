@@ -1,11 +1,27 @@
 using Xunit;
+using FsCheck;
+using System;
 using System.Collections.Generic;
 using Prelude;
 
 namespace GraphTests {
     public class UnitTests {
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(6)]
+        [InlineData(13)]
+        public void Can_create_complete_graph(int N) {
+            var graph = Graph.Complete(N);
+            Assert.Equal(N, graph.Nodes.Count);
+            Assert.Equal(N * (N - 1), graph.Edges.Count);
+        }
         [Fact]
-        public void Graph_can_be_created_from_edges() {
+        public void Complete_graph_requires_at_least_two_nodes() {
+            Assert.Throws<ArgumentException>(() => Graph.Complete(1));
+        }
+        [Fact]
+        public void Can_be_created_from_edges() {
             var a = new Node("a");
             var b = new Node("b");
             var c = new Node("c");
@@ -23,7 +39,7 @@ namespace GraphTests {
             Assert.Single(graph.GetNode(c).Neighbors);
         }
         [Fact]
-        public void Graph_will_be_assigned_Id_automatically() {
+        public void Will_be_assigned_Id_automatically() {
             var graph = new Graph();
             Assert.Equal(36, graph.Id.ToString().Length);
             var a = new Node();
@@ -39,7 +55,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
-        public void Graph_can_be_passed_nodes_and_edges_at_creation() {
+        public void Can_be_passed_nodes_and_edges_at_creation() {
             var a = new Node();
             var b = new Node();
             var c = new Node();
@@ -52,7 +68,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Edges.Count);
         }
         [Fact]
-        public void Graph_can_maintain_matrix_representation_with_undirected_edges() {
+        public void Can_maintain_matrix_representation_with_undirected_edges() {
             var a = new Node();
             var b = new Node();
             var c = new Node();
@@ -67,7 +83,7 @@ namespace GraphTests {
             Assert.Equal(new List<double> { 0, 1, 0 }, adjacencyMatrix.Rows[2]);
         }
         [Fact]
-        public void Graph_can_maintain_matrix_representation_with_directed_edges() {
+        public void Can_maintain_matrix_representation_with_directed_edges() {
             var a = new Node();
             var b = new Node();
             var c = new Node();
@@ -82,7 +98,7 @@ namespace GraphTests {
             Assert.Equal(new List<double> { 0, 0, 0 }, adjacencyMatrix.Rows[2]);
         }
         [Fact]
-        public void Graph_can_get_nodes() {
+        public void Can_get_nodes() {
             var graph = new Graph();
             var a = new Node("a");
             graph.Add(a);
@@ -91,7 +107,7 @@ namespace GraphTests {
             Assert.Equal(a, graph.GetNode("a"));
         }
         [Fact]
-        public void Graph_can_add_nodes_one_at_a_time() {
+        public void Can_add_nodes_one_at_a_time() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
@@ -104,7 +120,7 @@ namespace GraphTests {
             Assert.Equal(1, graph.Nodes[1].Index);
         }
         [Fact]
-        public void Graph_will_only_add_unique_nodes() {
+        public void Will_only_add_unique_nodes() {
             var label = "unique";
             var graph = new Graph();
             var a = new Node(label);
@@ -119,7 +135,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Nodes.Count);
         }
         [Fact]
-        public void Graph_can_add_array_of_nodes() {
+        public void Can_add_array_of_nodes() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
@@ -135,7 +151,7 @@ namespace GraphTests {
             Assert.Equal(1, graph.Nodes[1].Index);
         }
         [Fact]
-        public void Graph_can_add_list_of_nodes() {
+        public void Can_add_list_of_nodes() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
@@ -148,7 +164,7 @@ namespace GraphTests {
             Assert.Equal(1, graph.Nodes[1].Index);
         }
         [Fact]
-        public void Graph_can_add_edges_one_at_a_time() {
+        public void Can_add_edges_one_at_a_time() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
@@ -162,7 +178,7 @@ namespace GraphTests {
             Assert.Single(graph.Edges);
         }
         [Fact]
-        public void Graph_will_only_add_unique_edges() {
+        public void Will_only_add_unique_edges() {
             var valid = "a";
             var graph = new Graph();
             var a = new Node(valid);
@@ -179,7 +195,7 @@ namespace GraphTests {
             Assert.Equal(valid, graph.Edges[0].Source.Label);
         }
         [Fact]
-        public void Graph_can_add_array_of_edges() {
+        public void Can_add_array_of_edges() {
             var graph = new Graph();
             var a = new Node("a");
             var b = new Node("b");
@@ -194,7 +210,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Edges.Count);
         }
         [Fact]
-        public void Graph_can_add_list_of_edges() {
+        public void Can_add_list_of_edges() {
             var graph = new Graph();
             var a = new Node("a");
             var b = new Node("b");
@@ -209,7 +225,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Edges.Count);
         }
         [Fact]
-        public void Graph_can_add_nodes_and_edges_from_graphs() {
+        public void Can_add_nodes_and_edges_from_graphs() {
             var graph = new Graph();
             var a = new Node("a");
             var b = new Node("b");
@@ -258,7 +274,7 @@ namespace GraphTests {
             Assert.Single(graph.GetNode(c).Neighbors);
         }
         [Fact]
-        public void Graph_can_clear_nodes_and_edges() {
+        public void Can_clear_nodes_and_edges() {
             var graph = new Graph();
             var a = new Node();
             var b = new Node();
@@ -274,7 +290,7 @@ namespace GraphTests {
             Assert.Empty(graph.Edges);
         }
         [Fact]
-        public void Graph_can_remove_nodes_one_at_a_time() {
+        public void Can_remove_nodes_one_at_a_time() {
             var graph = new Graph();
             var a = new Node("a");
             var b = new Node("b");
@@ -292,7 +308,7 @@ namespace GraphTests {
             Assert.Single(graph.Edges);
         }
         [Fact]
-        public void Graph_can_remove_edges_one_at_a_time() {
+        public void Can_remove_edges_one_at_a_time() {
             var graph = new Graph();
             var a = new Node("a");
             var b = new Node("b");
