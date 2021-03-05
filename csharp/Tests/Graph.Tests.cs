@@ -1,5 +1,4 @@
 using Xunit;
-using FsCheck;
 using System;
 using System.Collections.Generic;
 using Prelude;
@@ -9,16 +8,36 @@ namespace GraphTests {
         [Theory]
         [InlineData(2)]
         [InlineData(3)]
+        [InlineData(4)]
         [InlineData(6)]
         [InlineData(13)]
         public void Can_create_complete_graph(int N) {
             var graph = Graph.Complete(N);
             Assert.Equal(N, graph.Nodes.Count);
-            Assert.Equal(N * (N - 1), graph.Edges.Count);
+            Assert.Equal(N * (N - 1) / 2, graph.Edges.Count);
+            foreach (var node in graph.Nodes)
+                Assert.Equal(N - 1, node.Neighbors.Count);
         }
         [Fact]
         public void Complete_graph_requires_at_least_two_nodes() {
             Assert.Throws<ArgumentException>(() => Graph.Complete(1));
+        }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(6)]
+        [InlineData(13)]
+        public void Can_create_ring_graph(int N) {
+            var graph = Graph.Ring(N);
+            Assert.Equal(N, graph.Nodes.Count);
+            Assert.Equal(N, graph.Edges.Count);
+            foreach (var node in graph.Nodes)
+                Assert.Equal(2, node.Neighbors.Count);
+        }
+        [Fact]
+        public void Ring_graph_requires_at_least_two_nodes() {
+            Assert.Throws<ArgumentException>(() => Graph.Ring(1));
         }
         [Fact]
         public void Can_be_created_from_edges() {

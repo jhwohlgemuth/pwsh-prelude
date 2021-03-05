@@ -29,19 +29,25 @@ namespace Prelude {
                 throw new ArgumentException("Complete graph requires at least two nodes");
             var nodes = Range(0, N).Select(i => new Node($"node-{i}")).ToList();
             var edges = new List<Edge> { };
+            var graph = new Graph(nodes, edges);
             foreach (var a in nodes)
-                foreach (var b in nodes)
-                    if (a != b)
-                        edges.Add(new Edge(a, b));
-            return new Graph(edges);
+                foreach (var b in nodes) {
+                    var ab = new Edge(a, b);
+                    if (a != b && !graph.Edges.Exists(x => x.Contains(a) && x.Contains(b)))
+                        graph.Add(ab);
+                }
+            return graph;
         }
         public static Graph Ring(int N) {
-            throw new NotImplementedException();
+            if (N < 2)
+                throw new ArgumentException("Ring graph requires at least two nodes");
+            var nodes = Range(0, N).Select(x => new Node($"node-{x}")).ToList();
+            var edges = new List<Edge> { };
+            for (var i = 0; i < N; ++i)
+                edges.Add(new Edge(nodes[i], nodes[(i + 1) % N]));
+            return new Graph(nodes, edges);
         }
         public static Graph SmallWorld(int N, double k) {
-            throw new NotImplementedException();
-        }
-        public static Graph Tetrahedral(int N) {
             throw new NotImplementedException();
         }
         /// <summary>

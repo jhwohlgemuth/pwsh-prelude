@@ -24,6 +24,11 @@ namespace Prelude {
             Weight = weight;
         }
         /// <summary>
+        /// Return clone of calling edge
+        /// </summary>
+        /// <returns>Edge</returns>
+        public Edge Clone() => new Edge(Source, Destination, Weight);
+        /// <summary>
         /// Check if an edge contains a node (source or destination)
         /// </summary>
         /// <param name="node">Node to check for</param>
@@ -49,5 +54,10 @@ namespace Prelude {
                 throw new ArgumentException("Parameter is not an Edge");
             }
         }
+        /// <summary>
+        /// Return new edge with source and destination nodes swapped
+        /// </summary>
+        /// <returns>Edge</returns>
+        public Edge Reverse() => new Edge(Destination, Source, Weight);
     }
 }
