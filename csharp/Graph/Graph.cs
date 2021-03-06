@@ -126,6 +126,7 @@ namespace Prelude {
                 Edges.Add(edge);
                 source.Neighbors.Add(destination);
                 destination.Neighbors.Add(source);
+                UpdateAdjacencyMatrix();
             }
             return Contains(edge);
         }

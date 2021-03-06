@@ -32,6 +32,22 @@ namespace GraphTests {
         public void Complete_graph_requires_at_least_two_nodes() {
             Assert.Throws<ArgumentException>(() => Graph.Complete(1));
         }
+        [Fact]
+        public void Graph_creators_update_adjacency_matrix() {
+            var bipartite = Graph.Bipartite(1, 2);
+            Assert.Equal(new double[] { 0, 1, 1 }, bipartite.AdjacencyMatrix[0]);
+            Assert.Equal(new double[] { 1, 0, 0 }, bipartite.AdjacencyMatrix[1]);
+            Assert.Equal(new double[] { 1, 0, 0 }, bipartite.AdjacencyMatrix[2]);
+            var complete = Graph.Complete(3);
+            Assert.Equal(new double[] { 0, 1, 1 }, complete.AdjacencyMatrix[0]);
+            Assert.Equal(new double[] { 1, 0, 1 }, complete.AdjacencyMatrix[1]);
+            Assert.Equal(new double[] { 1, 1, 0 }, complete.AdjacencyMatrix[2]);
+            var ring = Graph.Ring(4);
+            Assert.Equal(new double[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[0]);
+            Assert.Equal(new double[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[1]);
+            Assert.Equal(new double[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[2]);
+            Assert.Equal(new double[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[3]);
+        }
         [Theory]
         [InlineData(2)]
         [InlineData(3)]
