@@ -28,8 +28,8 @@ namespace Prelude {
         /// <param name="N">Number of nodes on "right"</param>
         /// <returns>Graph</returns>
         public static Graph Bipartite(int M, int N) {
-            var left = Range(0, M).Select(i => new Node($"node-{i}")).ToList();
-            var right = Range(0, N).Select(i => new Node($"node-{i}")).ToList();
+            var left = Range(0, M).Select(i => new Node($"left-{i}")).ToList();
+            var right = Range(0, N).Select(i => new Node($"right-{i}")).ToList();
             var graph = new Graph();
             graph.Add(left).Add(right);
             foreach (var a in left)
