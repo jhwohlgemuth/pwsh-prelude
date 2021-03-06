@@ -21,9 +21,30 @@ namespace Prelude {
         public static Graph From(Graph other) {
             return new Graph(other.Nodes, other.Edges);
         }
+        /// <summary>
+        /// Create a k-Partite graph with k = 2 where every node on the "left" is connected to every node on the "right", via an edge
+        /// </summary>
+        /// <param name="M">Number of nodes on "left"</param>
+        /// <param name="N">Number of nodes on "right"</param>
+        /// <returns>Graph</returns>
         public static Graph Bipartite(int M, int N) {
-            throw new NotImplementedException();
+            var left = Range(0, M).Select(i => new Node($"node-{i}")).ToList();
+            var right = Range(0, N).Select(i => new Node($"node-{i}")).ToList();
+            var graph = new Graph();
+            graph.Add(left).Add(right);
+            foreach (var a in left)
+                foreach (var b in right)
+                    graph.Add(new Edge(a, b));
+            return graph;
         }
+        /// <summary>
+        /// Create a graph with N nodes where each node is connected to every other node via an edge
+        /// </summary>
+        /// <param name="N">Number of nodes</param>
+        /// <returns>Graph</returns>
+        /// <remarks>
+        /// A complete graph with N nodes will have N * (N - 1) / 2 edges
+        /// </remarks>
         public static Graph Complete(int N) {
             if (N < 2)
                 throw new ArgumentException("Complete graph requires at least two nodes");
@@ -38,6 +59,11 @@ namespace Prelude {
                 }
             return graph;
         }
+        /// <summary>
+        /// Create a ring graph where for a graph with N nodes, every node has degree 2 and there are N edges
+        /// </summary>
+        /// <param name="N">Number of nodes</param>
+        /// <returns>Graph</returns>
         public static Graph Ring(int N) {
             if (N < 2)
                 throw new ArgumentException("Ring graph requires at least two nodes");

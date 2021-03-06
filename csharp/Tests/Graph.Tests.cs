@@ -6,6 +6,16 @@ using Prelude;
 namespace GraphTests {
     public class UnitTests {
         [Theory]
+        [InlineData(2, 3)]
+        [InlineData(4, 6)]
+        [InlineData(7, 5)]
+        [InlineData(1, 1)]
+        public void Can_create_Bipartite_graph(int M, int N) {
+            var graph = Graph.Bipartite(M, N);
+            Assert.Equal(M + N, graph.Nodes.Count);
+            Assert.Equal(M * N, graph.Edges.Count);
+        }
+        [Theory]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
