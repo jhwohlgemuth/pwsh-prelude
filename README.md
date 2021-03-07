@@ -128,7 +128,7 @@ Get-Location | Find-Duplicate
 
 Functions
 ---------
-> Use `Get-Help <Function-Name>` to see usage details. **Example**: `Get-Help Find-Duplicates -examples`
+> List all functions with `Get-Command -Module Prelude -CommandType Function`. Use `Get-Help <Function-Name>` to see usage details.
 
 <details>
   <summary>list of functions</summary>
