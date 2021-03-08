@@ -319,7 +319,7 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
         $Result.b | Should -Be 2
     }
 }
-Describe 'Invoke-Once' -Tag 'Local', 'Remote' {
+Describe -Skip 'Invoke-Once' -Tag 'Local', 'Remote' {
     It 'will return a function that will only be executed once' {
         function Test-Callback {}
         $Function:test = Invoke-Once { Test-Callback }

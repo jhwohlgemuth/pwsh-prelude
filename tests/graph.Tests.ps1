@@ -21,7 +21,7 @@ Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
         $AB.Source.Label | Should -Be 'A'
         $AB.Destination.Label | Should -Be 'B'
     }
-    It -Skip 'can create directed edges' {
+    It 'can create directed edges' {
         $A = [Node]'A'
         $B = [Node]'B'
         $C = [Node]'C'
@@ -31,6 +31,29 @@ Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
         $AB.Contains($B) | Should -BeTrue
         $AB.Contains($C) | Should -BeFalse
         $AB.Weight | Should -Be $Weight
+    }
+    It 'can create complete graphs' {
+        $G = New-Graph -Complete -NodeCount 3
+        $G.Nodes | Should -HaveCount 3
+        $G.Edges | Should -HaveCount 3
+        $G = New-Graph -Complete -N 3
+        $G.Nodes | Should -HaveCount 3
+        $G.Edges | Should -HaveCount 3
+    }
+    It 'can create bipartite graphs' {
+        $G = New-Graph -Bipartite -Left 1 -Right 3
+        $G.Nodes | Should -HaveCount 4
+        $G.Edges | Should -HaveCount 3
+    }
+    It 'can create custom graphs' {
+        $A = [Node]'A'
+        $B = [Node]'B'
+        $C = [Node]'C"'
+        $AB = New-Edge $A $B
+        $BC = New-Edge $B $C
+        $G = New-Graph -Nodes $A, $B, $C -Edges $AB, $BC
+        $G.Nodes | Should -HaveCount 3
+        $G.Edges | Should -HaveCount 2
     }
 }
 

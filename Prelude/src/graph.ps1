@@ -121,25 +121,27 @@ function New-Graph {
     .EXAMPLE
     $G = $Edges | New-Graph
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
-    [CmdletBinding(DefaultParameterSetName = 'customa')]
-    [OutputType([Prelude.Graph])]
+    [CmdletBinding(DefaultParameterSetName = 'custom')]
+    [OutputType([Graph])]
     Param(
         [Parameter(Position = 0)]
         [Alias('V')]
-        [Prelude.Node[]] $Nodes,
+        [Node[]] $Nodes,
         [Parameter(Position = 1, ValueFromPipeline = $True)]
         [Alias('E')]
-        [Prelude.Edge[]] $Edges,
+        [Edge[]] $Edges,
+        [Switch] $Custom,
         [Parameter(ParameterSetName = 'complete')]
         [Switch] $Complete,
         [Parameter(ParameterSetName = 'smallworld')]
         [Alias('SWN')]
         [Switch] $SmallWorld,
-        [Parameter(ParameterSetName = 'tetrahedral')]
-        [Switch] $Tetrahedral,
         [Parameter(ParameterSetName = 'bipartite')]
         [Switch] $Bipartite,
+        [Parameter(ParameterSetName = 'bipartite')]
+        [Int] $Left,
+        [Parameter(ParameterSetName = 'bipartite')]
+        [Int] $Right,
         [Parameter(ParameterSetName = 'complete', Mandatory = $True)]
         [Parameter(ParameterSetName = 'smallworld', Mandatory = $True)]
         [Alias('N')]
@@ -148,5 +150,24 @@ function New-Graph {
         [Alias('K')]
         [Double] $MeanDegree
     )
-    # UNDER CONSTRUCTION
+    switch ((Find-FirstTrueVariable 'Custom', 'Complete', 'SmallWorld', 'Bipartite')) {
+        'Complete' {
+            '==> Creating complete graph' | Write-Verbose
+            [Graph]::Complete($NodeCount)
+            break
+        }
+        'SmallWorld' {
+            '==> Creating small world graph' | Write-Verbose
+            break
+        }
+        'Bipartite' {
+            '==> Creating Bipartite graph' | Write-Verbose
+            [Graph]::Bipartite($Left, $Right)
+            break
+        }
+        Default {
+            "==> Creating custom graph with $($Nodes.Count) nodes and $($Edges.Count) edges" | Write-Verbose
+            [Graph]::New($Nodes, $Edges)
+        }
+    }
 }
