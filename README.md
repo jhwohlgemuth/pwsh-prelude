@@ -153,6 +153,7 @@ Functions
   - `Find-FirstIndex`
   - `Format-MoneyValue`
   - `Get-Covariance`
+  - `Get-DefaultBrowser`
   - `Get-Extremum`
   - `Get-Factorial`
   - `Get-File`
