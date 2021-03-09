@@ -354,6 +354,9 @@ function Out-Browser {
     Function to be executed whenever the Document within the browser is loaded. $Form and $Browser variables are available within function scope.
     .PARAMETER OnClose
     Function to be executed immediately before form is disposed. $Form and $Browser variables are available within function scope.
+    .PARAMETER Default
+    Use operating system default browser (i.e. Firefox, Chrome, etc...) instead of WebBrowser control.
+    Note: OnShown, OnComplete, and OnClose will not be run when the Default parameter is used.
     .EXAMPLE
     '<h1>Hello World</h1>' | Out-Browser
     .EXAMPLE
@@ -376,7 +379,8 @@ function Out-Browser {
         [BrowserOptions] $BrowserOptions = @{},
         [ScriptBlock] $OnShown = {},
         [ScriptBlock] $OnComplete = {},
-        [ScriptBlock] $OnClose = {}
+        [ScriptBlock] $OnClose = {},
+        [Switch] $Default
     )
     Begin {
         Use-Web -Browser
@@ -400,23 +404,35 @@ function Out-Browser {
         "==> Browser is $(if($Browser.IsOffline) { 'OFFLINE' } else { 'ONLINE' })" | Write-Verbose
         $IsFile = if (Test-Path $Content -IsValid) { Test-Path $Content } else { $False }
         $IsUri = ([Uri]$Content).IsAbsoluteUri
-        if ($IsFile) {
-            "==> Opening ${Content}..." | Write-Verbose
-            $Browser.Navigate("file:///$((Get-Item $Content).Fullname)")
-        } elseif ($IsUri) {
-            "==> Navigating to ${Content}..." | Write-Verbose
-            $Browser.Navigate([Uri]$Content)
+        if ($Default) {
+            $FilePath = if ($IsFile -or $IsUri) {
+                $Content
+            } else {
+                $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+                $Path = Join-Path $TempRoot 'content.html'
+                $Content | Set-Content -Path $Path
+                $Path
+            }
+            Start-Process -FilePath $FilePath -PassThru
         } else {
-            '==> Opening HTML in browser...' | Write-Verbose
-            $Browser.DocumentText = "$Content"
-        }
-        if ($Form.ShowDialog() -ne 'OK') {
-            $Document = $Browser.Document
-            '==> Browser closing...' | Write-Verbose
-            & $OnClose -Form $Form -Browser $Browser
-            $Form.Dispose()
-            '==> Form disposed' | Write-Verbose
-            return $Document
+            if ($IsFile) {
+                "==> Opening ${Content}..." | Write-Verbose
+                $Browser.Navigate("file:///$((Get-Item $Content).Fullname)")
+            } elseif ($IsUri) {
+                "==> Navigating to ${Content}..." | Write-Verbose
+                $Browser.Navigate([Uri]$Content)
+            } else {
+                '==> Opening HTML in WebBrowser control...' | Write-Verbose
+                $Browser.DocumentText = "$Content"
+            }
+            if ($Form.ShowDialog() -ne 'OK') {
+                $Document = $Browser.Document
+                '==> Browser closing...' | Write-Verbose
+                & $OnClose -Form $Form -Browser $Browser
+                $Form.Dispose()
+                '==> Form disposed' | Write-Verbose
+                return $Document
+            }
         }
     }
 }
