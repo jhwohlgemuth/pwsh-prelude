@@ -297,7 +297,7 @@ Type Accelerators
   $X = 1,-2,1,-1,1,0,1,1,1,2 | matrix 5,2
   $Y = 0,0,1,1,3 | matrix 5,1
   $B = $X.Transpose().Dot($X).Inverse().Dot($X.Transpose().Dot($Y))
-  # ==> The result is a 2x1 matrix with the necessary values (1 and 0.7, in this case)
+  # ==> The result is a 2x1 matrix with the desired values (1 and 0.7, in this case)
 
   ```
   > **Note:** Full class name is `Prelude.Matrix`
