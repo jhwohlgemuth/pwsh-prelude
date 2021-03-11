@@ -46,6 +46,10 @@
 
     .PARAMETER Size
     Size = @(number of rows, number of columns)
+    .PARAMETER Diagonal
+    Add values to matrix along diagonal
+    .PARAMETER Unit
+    Create unit matrix with size, -Size
     .EXAMPLE
     $Matrix = 1..9 | matrix 3,3
     #>
@@ -57,10 +61,12 @@
         [Array] $Values,
         [Parameter(Position = 0)]
         [Array] $Size = @(2, 2),
-        [Switch] $Diagonal
+        [Switch] $Diagonal,
+        [Switch] $Unit
     )
     Begin {
-        $Matrix = New-Object 'Matrix' @($Size[0], $Size[1])
+        $M, $N = $Size
+        $Matrix = if ($Unit) { [Matrix]::Unit($M, $N) } else { New-Object 'Matrix' @($M, $N) }
         if ($Values.Count -gt 0) {
             $Values = $Values | Invoke-Flatten
             if ($Diagonal) {
@@ -68,11 +74,11 @@
                 foreach ($Pair in $Matrix.Indexes()) {
                     $Row, $Column = $Pair
                     if ($Row -eq $Column) {
-                        $Matrix.Rows[$Row][$Column] = $Values[$Index]
+                        $Matrix[$Row][$Column] = $Values[$Index]
                         $Index++
                     }
                 }
-            } else {
+            } elseif (!$Unit) {
                 $Matrix.Rows = $Values
             }
         }
@@ -85,11 +91,11 @@
                 foreach ($Pair in $Matrix.Indexes()) {
                     $Row, $Column = $Pair
                     if ($Row -eq $Column) {
-                        $Matrix.Rows[$Row][$Column] = $Values[$Index]
+                        $Matrix[$Row][$Column] = $Values[$Index]
                         $Index++
                     }
                 }
-            } else {
+            } elseif (!$Unit) {
                 $Matrix.Rows = $Values
             }
         }
