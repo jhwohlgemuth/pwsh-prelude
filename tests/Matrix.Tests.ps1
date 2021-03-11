@@ -33,6 +33,13 @@ Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {
         $A[1] | Should -Be 0, 2, 0
         $A[2] | Should -Be 0, 0, 3
     }
+    It 'can create identity matrices' {
+        $A = New-Matrix 3, 3 -Identity
+        $A.Size | Should -Be 3, 3
+        $A[0] | Should -Be 1, 0, 0
+        $A[1] | Should -Be 0, 1, 0
+        $A[2] | Should -Be 0, 0, 1
+    }
     It 'can create unit matrices' {
         $A = New-Matrix 3, 3 -Unit
         $A.Size | Should -Be 3, 3

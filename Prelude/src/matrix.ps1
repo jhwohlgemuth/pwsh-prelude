@@ -62,41 +62,62 @@
         [Parameter(Position = 0)]
         [Array] $Size = @(2, 2),
         [Switch] $Diagonal,
-        [Switch] $Unit
+        [Switch] $Identity,
+        [Switch] $Unit,
+        [Switch] $Custom
     )
     Begin {
-        $M, $N = $Size
-        $Matrix = if ($Unit) { [Matrix]::Unit($M, $N) } else { New-Object 'Matrix' @($M, $N) }
-        if ($Values.Count -gt 0) {
-            $Values = $Values | Invoke-Flatten
-            if ($Diagonal) {
-                $Index = 0
-                foreach ($Pair in $Matrix.Indexes()) {
-                    $Row, $Column = $Pair
-                    if ($Row -eq $Column) {
-                        $Matrix[$Row][$Column] = $Values[$Index]
-                        $Index++
+        function Update-Matrix {
+            Param(
+                [Matrix] $Matrix,
+                [String] $MatrixType,
+                [Array] $Values
+            )
+            switch ($MatrixType) {
+                'Diagonal' {
+                    $Values = $Values | Invoke-Flatten
+                    $Index = 0
+                    foreach ($Pair in $Matrix.Indexes()) {
+                        $Row, $Column = $Pair
+                        if ($Row -eq $Column) {
+                            $Matrix[$Row][$Column] = $Values[$Index]
+                            $Index++
+                        }
                     }
+                    break
                 }
-            } elseif (!$Unit) {
-                $Matrix.Rows = $Values
+                'Custom' {
+                    $Matrix.Rows = $Values | Invoke-Flatten
+                }
+                Default {
+                    # Do nothing
+                }
             }
+        }
+        $M, $N = $Size
+        $Matrix = New-Object 'Matrix' @($M, $N)
+        $MatrixType = Find-FirstTrueVariable 'Custom', 'Diagonal', 'Identity', 'Unit'
+        if ($Values.Count -gt 0) {
+            Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
         }
     }
     End {
-        if ($Input.Count -gt 0) {
-            $Values = $Input | Invoke-Flatten
-            if ($Diagonal) {
-                $Index = 0
-                foreach ($Pair in $Matrix.Indexes()) {
-                    $Row, $Column = $Pair
-                    if ($Row -eq $Column) {
-                        $Matrix[$Row][$Column] = $Values[$Index]
-                        $Index++
-                    }
+        $Values = $Input
+        if ($Values.Count -gt 0) {
+            Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
+        } else {
+            switch ($MatrixType) {
+                'Unit' {
+                    $Matrix = [Matrix]::Unit($M, $N)
+                    break
                 }
-            } elseif (!$Unit) {
-                $Matrix.Rows = $Values
+                'Identity' {
+                    $Matrix = [Matrix]::Identity($M)
+                    break
+                }
+                Default {
+                    # Do nothing
+                }
             }
         }
         $Matrix

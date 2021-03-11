@@ -99,7 +99,7 @@ $Data = $Raw | transform $Lookup $Reducer | ? { $_.Capacity -gt 0 }
 We can now fit the data with a simple linear model using matrices:
 
 ```PowerShell
-$X0 = [Matrix]::Unit($Data.Count, 1)
+$X0 = matrix $Data.Count,1 -Unit
 $X1 = $Data.Date
 $X = $X0.Augment($X1)
 $Y = $Data.Capacity | matrix $Data.Count, 1

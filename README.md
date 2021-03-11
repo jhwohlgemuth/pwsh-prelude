@@ -290,7 +290,7 @@ Type Accelerators
   $Product = $A * $B
   $Sum = $A + $B
   $IsEqual = $A -eq $B # $IsEqual is False
-  $I = [Matrix]::Identity(3) # quickly make an identity matrix
+  $I = matrix 3,3 -Identity
   $IsEqual = (2 * $I) -eq ($I + $I) # now $IsEqual is True!
 
   # Use the method of least squares to fit a line to some data
