@@ -2,7 +2,7 @@ Examples
 ========
 
 1. [Use GitHub API to retrieve notifications](#example1)
-1. [Calculate when your laptop will die](#example2)
+1. [Fit data with linear model using matrices](#example2)
 1. [Perform Markov transition matrix calculations](#example3)
 1. [Solve system of linear equations](#example4)
 1. [Calculate eccentricity of earth using classical method](#example5)
@@ -52,108 +52,9 @@ $Uri = "https://api.github.com/notifications"
 
 Example #2
 ----------
-> Calculate when your laptop will die
+> Fit data with linear model using matrices
 
-First, generate a battery report:
-
-```PowerShell
-powercfg /batteryreport
-```
-
-The previous command should have created the file, `battery-report.html` in your current directory.
-
-Next, import the HTML file and pull out the necessary data:
-
-```PowerShell
-$Html = [String](Get-Content .\battery-report.html) | ConvertFrom-Html
-$Raw = $Html.all.tags('table')[5].all.tags('td') |
-    prop innerText |
-    chunk -s 3 |
-    op join ';' |
-    ConvertFrom-Csv -Delimiter ';' |
-    Select-Object 'PERIOD', 'FULL CHARGE CAPACITY '
-```
-
-This data is good, but it needs to be cleanup up a bit. We simply create `$Lookup` to map the field names and `$Reducer` to format the values in each column. Then we transform (see `help transform -examples`) the data and filter out empty rows:
-
-```PowerShell
-$Lookup = @{
-    date = 'PERIOD'
-    capacity = 'FULL CHARGE CAPACITY '
-}
-$Reducer = {
-    Param($Name, $Value)
-    switch ($Name) {
-        'PERIOD' {
-            # Format date values
-            $Date = [DateTime]($Value -split ' - ')[0]
-            $Date.ToFileTime()
-        }
-        'FULL CHARGE CAPACITY ' {
-            # Format capacity values as integers
-            $Value | takeWhile { $Args[0] -ne ' ' } | method ToInteger
-        }
-    }
-}
-$Data = $Raw | transform $Lookup $Reducer | ? { $_.capacity -gt 0 }
-```
-
-We can now fit a line to the data using the matrices:
-
-```PowerShell
-$RowCount = $Data.Count
-$X0 = [Matrix]::Unit($RowCount, 1)
-$X1 = $Data.capacity | matrix $RowCount, 2
-$X = $X0.Augment($X1)
-$Y = $Data.date
-
-# fit linear model with matrices
-$B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
-```
-
-Finally, we can figure out when the line crosses zero to determine when our laptop will die:
-
-```PowerShell
-# since Y = (B1 * X) + B0 and B1 < 0, when y = 0 we know X = B0 / B1
-$TimeOfDeath = [DateTime]::FromFileTime($B[0, 0] / $B[0, 1])
-```
-
-**Full Script**
-```PowerShell
-$Html = [String](Get-Content .\battery-report.html) | ConvertFrom-Html
-$Raw = $Html.all.tags('table')[5].all.tags('td') |
-    prop innerText |
-    chunk -s 3 |
-    op join ';' |
-    ConvertFrom-Csv -Delimiter ';' |
-    Select-Object 'PERIOD', 'FULL CHARGE CAPACITY '
-$Lookup = @{
-    date = 'PERIOD'
-    capacity = 'FULL CHARGE CAPACITY '
-}
-$Reducer = {
-    Param($Name, $Value)
-    switch ($Name) {
-        'PERIOD' {
-            # Format date values
-            $Date = [DateTime]($Value -split ' - ')[0]
-            $Date.ToFileTime()
-        }
-        'FULL CHARGE CAPACITY ' {
-            # Format capacity values as integers
-            $Value | takeWhile { $Args[0] -ne ' ' } | method ToInteger
-        }
-    }
-}
-$Data = $Raw | transform $Lookup $Reducer | ? { $_.capacity -gt 0 }
-$RowCount = $Data.Count
-$X0 = [Matrix]::Unit($RowCount, 1)
-$X1 = $Data.capacity | matrix $RowCount, 2
-$X = $X0.Augment($X1)
-$Y = $Data.date
-$B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
-$TimeOfDeath = [DateTime]::FromFileTime($B[0, 0] / $B[0, 1])
-```
+👷‍♂️ ***UNDER CONSTRUCTION***
 
 ------
 
@@ -183,6 +84,6 @@ Example #5
 
 Example #6
 ----------
-> Analyze the game play tactics of the [Pandemic board game]https://www.amazon.com/Z-Man-Games-ZM7101-Pandemic/dp/B00A2HD40E
+> Analyze the game play tactics of the [Pandemic board game](https://www.amazon.com/Z-Man-Games-ZM7101-Pandemic/dp/B00A2HD40E)
 
 👷‍♂️ ***UNDER CONSTRUCTION***
