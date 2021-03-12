@@ -340,7 +340,7 @@ Type Accelerators
   ```PowerShell
   $Nodes = $A, $B, $C
   $Edges = $AB, $BC
-  $G = [Graph]::New($Nodes, $Edges)
+  $G = New-Graph $Nodes $Edges
 
   # OR create graph using just edges
   # (necessary nodes are "auto" added)

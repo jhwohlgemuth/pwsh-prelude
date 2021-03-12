@@ -33,7 +33,7 @@ Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
         $AB.Weight | Should -Be $Weight
     }
     It 'can create complete graphs' {
-        $G = New-Graph -Complete -NodeCount 3
+        $G = New-Graph -Complete -NodeCount 3 -Verbose
         $G.Nodes | Should -HaveCount 3
         $G.Edges | Should -HaveCount 3
         $G = New-Graph -Complete -N 3
@@ -51,7 +51,14 @@ Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
         $C = [Node]'C"'
         $AB = New-Edge $A $B
         $BC = New-Edge $B $C
-        $G = New-Graph -Nodes $A, $B, $C -Edges $AB, $BC
+        $Edges = $AB, $BC
+        $G = New-Graph -Nodes $A, $B, $C -Edges $Edges
+        $G.Nodes | Should -HaveCount 3
+        $G.Edges | Should -HaveCount 2
+        $G = New-Graph -Edges $Edges
+        $G.Nodes | Should -HaveCount 3
+        $G.Edges | Should -HaveCount 2
+        $G = $Edges | New-Graph
         $G.Nodes | Should -HaveCount 3
         $G.Edges | Should -HaveCount 2
     }

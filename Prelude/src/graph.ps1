@@ -120,21 +120,20 @@ function New-Graph {
     $G = New-Graph $Nodes $Edges
     .EXAMPLE
     $G = $Edges | New-Graph
+    .EXAMPLE
+    $K4 = New-Graph -Complete -N 4
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Bipartite', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Complete', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Custom', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'MeanDegree', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'SmallWorld', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding(DefaultParameterSetName = 'custom')]
     [OutputType([Graph])]
     Param(
-        [Parameter(Position = 0)]
+        [Parameter(ParameterSetName = 'custom', Position = 0)]
         [Alias('V')]
         [Node[]] $Nodes,
-        [Parameter(Position = 1, ValueFromPipeline = $True)]
+        [Parameter(ParameterSetName = 'custom', Position = 1, ValueFromPipeline = $True)]
         [Alias('E')]
         [Edge[]] $Edges,
+        [Parameter(ParameterSetName = 'custom')]
         [Switch] $Custom,
         [Parameter(ParameterSetName = 'complete')]
         [Switch] $Complete,
@@ -155,24 +154,45 @@ function New-Graph {
         [Alias('K')]
         [Double] $MeanDegree
     )
-    switch ((Find-FirstTrueVariable 'Custom', 'Complete', 'SmallWorld', 'Bipartite')) {
-        'Complete' {
-            '==> Creating complete graph' | Write-Verbose
-            [Graph]::Complete($NodeCount)
-            break
+    Begin {
+        $GraphType = Find-FirstTrueVariable 'Custom', 'Complete', 'SmallWorld', 'Bipartite'
+        function Invoke-NewGraph {
+            Param(
+                [Edge[]] $Edges
+            )
+            switch ($GraphType) {
+                'Complete' {
+                    "==> Creating complete graph with ${NodeCount} nodes" | Write-Verbose
+                    [Graph]::Complete($NodeCount)
+                    break
+                }
+                'SmallWorld' {
+                    '==> Creating small world graph' | Write-Verbose
+                    break
+                }
+                'Bipartite' {
+                    '==> Creating Bipartite graph' | Write-Verbose
+                    [Graph]::Bipartite($Left, $Right)
+                    break
+                }
+                Default {
+                    if ($Nodes.Count -gt 0) {
+                        "==> Creating custom graph with $($Nodes.Count) nodes and $($Edges.Count) edges" | Write-Verbose
+                        [Graph]::New($Nodes, $Edges)
+                    } elseif ($Edges.Count -gt 0) {
+                        "==> Creating custom graph from $($Edges.Count) edges" | Write-Verbose
+                        [Graph]::New($Edges)
+                    }
+                }
+            }
         }
-        'SmallWorld' {
-            '==> Creating small world graph' | Write-Verbose
-            break
+        if ($Edges.Count -gt 0 -or $GraphType -ne 'Custom') {
+            Invoke-NewGraph -Edges $Edges
         }
-        'Bipartite' {
-            '==> Creating Bipartite graph' | Write-Verbose
-            [Graph]::Bipartite($Left, $Right)
-            break
-        }
-        Default {
-            "==> Creating custom graph with $($Nodes.Count) nodes and $($Edges.Count) edges" | Write-Verbose
-            [Graph]::New($Nodes, $Edges)
+    }
+    End {
+        if ($Input.Count -gt 0 -and $GraphType -eq 'Custom') {
+            Invoke-NewGraph -Edges $Input
         }
     }
 }
