@@ -1,12 +1,12 @@
 Examples
 ========
 
-1. [Use GitHub API to retrieve notifications](#example1)
-1. [Estimate when your laptop will die](#example2)
-1. [Perform Markov transition matrix calculations](#example3)
-1. [Solve a system of linear equations](#example4)
-1. [Calculate eccentricity of earth using classical method](#example5)
-1. [Analyze Pandemic game play using graph theory](#example6)
+1. [Use GitHub API to retrieve notifications](#example-1)
+1. [Estimate when your laptop will die](#example-2)
+1. [Perform Markov transition matrix calculations](#example-3)
+1. [Solve a system of linear equations](#example-4)
+1. [Calculate eccentricity of earth using classical method](#example-5)
+1. [Analyze Pandemic game play using graph theory](#example-6)
 
 Example #1
 ----------
