@@ -87,6 +87,26 @@ Describe 'ConvertTo-Iso8601' -Tag 'Local', 'Remote' {
         '2020-07-04' | ConvertTo-Iso8601 | Should -Be $Expected
     }
 }
+Describe 'ConvertTo-JavaScript' -Tag 'Local', 'Remote' {
+    It 'can convert coordinate types' {
+        $A = [Coordinate]@{ Latitude = 42.42; Longitude = 43 }
+        $Expected = "{latitude: 42.42, longitude: 43, height: 0, hemisphere: 'NE'}"
+        $A | ConvertTo-JavaScript | Should -Be $Expected
+    }
+    It 'can convert node types' {
+        $A = [Node]::New('9f0a2929-9991-4c3a-943f-de235d9fcd37', 'A')
+        $B = [Node]::New('bd0da46a-511d-4c90-8a1d-3546b1693a52', 'B')
+        $Expected = "{id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}", "{id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}"
+        $A, $B | ConvertTo-JavaScript | Should -Be $Expected
+    }
+    It -Skip 'can convert edge types' {
+        $A = [Node]::New('9f0a2929-9991-4c3a-943f-de235d9fcd37', 'A')
+        $B = [Node]::New('bd0da46a-511d-4c90-8a1d-3546b1693a52', 'B')
+        $AB = New-Edge $A $B
+        $Expected = "''"
+        $AB | ConvertTo-JavaScript | Should -Be $Expected
+    }
+}
 Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {
     It 'can handle empty objects' {
         @{} | ConvertTo-QueryString | Should -Be ''

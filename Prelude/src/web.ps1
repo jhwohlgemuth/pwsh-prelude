@@ -118,6 +118,68 @@ function ConvertTo-Iso8601 {
         $Value | Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
     }
 }
+function ConvertTo-JavaScript {
+    <#
+    .SYNOPSIS
+    Convert PowerShell values to JavaScript strings. It is similar to ConvertTo-Json, but with broader support for Prelude types.
+    .EXAMPLE
+    @{ foo = 'bar' } | ConvertTo-JavaScript
+    # returns "{foo: 'bar'}"
+    .NOTES
+    The ConvertTo-JavaScript cmdlet is not intended to be used as a data serializer as data is removed during conversion.
+    #>
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        $Value
+    )
+    Process {
+        $Type = $Value.GetType().Name
+        switch ($Type) {
+            'Coordinate' {
+                $Function:render = "{latitude: {{ Latitude }}, longitude: {{ Longitude }}, height: {{ Height }}, hemisphere: '{{ Hemisphere }}'}" | New-Template
+                @{
+                    Latitude = $Value.Latitude
+                    Longitude = $Value.Longitude
+                    Height = $Value.Height
+                    Hemisphere = $Value.Hemisphere -join ''
+                } | render
+                break
+            }
+            'Matrix' {
+                break
+            }
+            'Node' {
+                $Function:render = "{id: '{{ Id }}', label: '{{ Label }}'}" | New-Template
+                @{
+                    id = $Value.Id
+                    label = $Value.Label
+                } | render
+                break
+            }
+            'Edge' {
+                $Function:render = '{source: {{ a }}, target: {{ b }}}' | New-Template
+                $Source = ConvertTo-JavaScript -Value $Value.Source
+                $Target = ConvertTo-JavaScript -Value $Value.Destination
+                @{
+                    a = $Source.ToString()
+                    b = $Target
+                } | render
+                break
+            }
+            'DirectedEdge' {
+                break
+            }
+            'Graph' {
+                break
+            }
+            Default {
+                $Value | ConvertTo-Json -Compress
+            }
+        }
+    }
+}
 function ConvertTo-QueryString {
     <#
     .SYNOPSIS

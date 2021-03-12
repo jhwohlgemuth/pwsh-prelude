@@ -141,6 +141,7 @@ Functions
   - `ConvertTo-Degree`
   - `ConvertTo-PowershellSyntax`
   - `ConvertTo-Iso8601`
+  - `ConvertTo-JavaScript`
   - `ConvertTo-Pair`
   - `ConvertTo-PlainText`
   - `ConvertTo-QueryString`
