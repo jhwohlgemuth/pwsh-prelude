@@ -357,6 +357,9 @@ function Out-Browser {
     .PARAMETER Default
     Use operating system default browser (i.e. Firefox, Chrome, etc...) instead of WebBrowser control.
     Note: OnShown, OnComplete, and OnClose will not be run when the Default parameter is used.
+    .PARAMETER PassThru
+    - Return WebBrowser document object when not using -Default parameter
+    - Return process when using -Default parameter
     .EXAMPLE
     '<h1>Hello World</h1>' | Out-Browser
     .EXAMPLE
@@ -380,7 +383,8 @@ function Out-Browser {
         [ScriptBlock] $OnShown = {},
         [ScriptBlock] $OnComplete = {},
         [ScriptBlock] $OnClose = {},
-        [Switch] $Default
+        [Switch] $Default,
+        [Switch] $PassThru
     )
     Begin {
         Use-Web -Browser
@@ -413,7 +417,10 @@ function Out-Browser {
                 $Content | Set-Content -Path $Path
                 $Path
             }
-            Start-Process -FilePath $FilePath -PassThru
+            $Process = Start-Process -FilePath $FilePath -PassThru
+            if ($PassThru) {
+                return $Process
+            }
         } else {
             if ($IsFile) {
                 "==> Opening ${Content}..." | Write-Verbose
@@ -431,7 +438,9 @@ function Out-Browser {
                 & $OnClose -Form $Form -Browser $Browser
                 $Form.Dispose()
                 '==> Form disposed' | Write-Verbose
-                return $Document
+                if ($PassThru) {
+                    return $Document
+                }
             }
         }
     }
