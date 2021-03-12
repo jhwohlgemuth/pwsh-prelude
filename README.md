@@ -397,6 +397,7 @@ Credits
 - [Pester](https://pester.dev/) - *testing*
 - [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) - *static analysis (linting)*
 - [BenchmarkDotNet](https://benchmarkdotnet.org/) - *C# benchmarks*
+- [CODECOGS](https://www.codecogs.com/latex/eqneditor.php) - *LaTeX in examples/README.md*
 - [janikvonrotz/awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) - *inspiration*
 - [chrisseroka/ps-menu](https://github.com/chrisseroka/ps-menu) - *inspiration*
 - [PrateekKumarSingh/Graphical](https://github.com/PrateekKumarSingh/graphical) - *inspiration*
