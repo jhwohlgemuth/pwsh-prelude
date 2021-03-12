@@ -2,9 +2,9 @@ Examples
 ========
 
 1. [Use GitHub API to retrieve notifications](#example1)
-1. [Calculate when your laptop will die](#example2)
+1. [Estimate when your laptop will die](#example2)
 1. [Perform Markov transition matrix calculations](#example3)
-1. [Solve system of linear equations](#example4)
+1. [Solve a system of linear equations](#example4)
 1. [Calculate eccentricity of earth using classical method](#example5)
 1. [Analyze Pandemic game play using graph theory](#example6)
 
@@ -130,9 +130,31 @@ Example #3
 
 Example #4
 ----------
-> Solve a system of linear equations
+> Solve system of equations using [Gaussian elimination](https://en.wikipedia.org/wiki/Gaussian_elimination)
 
-👷‍♂️ ***UNDER CONSTRUCTION***
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\text{Solve&space;the&space;system}&space;\begin{cases}&space;&&space;2\textit{x}_1&space;&plus;&space;\textit{x}_2&space;&plus;&space;5\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;5&space;\\&space;&&space;\textit{x}_1&space;&plus;&space;\textit{x}_2&space;-&space;3\textit{x}_3&space;-&space;4\textit{x}_4&space;=&space;-1&space;\\&space;&&space;3\textit{x}_1&space;&plus;&space;6\textit{x}_2&space;-&space;2\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;8&space;\\&space;&&space;2\textit{x}_1&space;&plus;&space;2\textit{x}_2&space;&plus;&space;2\textit{x}_3&space;-&space;3\textit{x}_4&space;=&space;2&space;\end{cases}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\text{Solve&space;the&space;system}&space;\begin{cases}&space;&&space;2\textit{x}_1&space;&plus;&space;\textit{x}_2&space;&plus;&space;5\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;5&space;\\&space;&&space;\textit{x}_1&space;&plus;&space;\textit{x}_2&space;-&space;3\textit{x}_3&space;-&space;4\textit{x}_4&space;=&space;-1&space;\\&space;&&space;3\textit{x}_1&space;&plus;&space;6\textit{x}_2&space;-&space;2\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;8&space;\\&space;&&space;2\textit{x}_1&space;&plus;&space;2\textit{x}_2&space;&plus;&space;2\textit{x}_3&space;-&space;3\textit{x}_4&space;=&space;2&space;\end{cases}" title="\text{Solve the system} \begin{cases} & 2\textit{x}_1 + \textit{x}_2 + 5\textit{x}_3 + \textit{x}_4 = 5 \\ & \textit{x}_1 + \textit{x}_2 - 3\textit{x}_3 - 4\textit{x}_4 = -1 \\ & 3\textit{x}_1 + 6\textit{x}_2 - 2\textit{x}_3 + \textit{x}_4 = 8 \\ & 2\textit{x}_1 + 2\textit{x}_2 + 2\textit{x}_3 - 3\textit{x}_4 = 2 \end{cases}" /></a>
+
+Our plan is to solve the equation,
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\mathbf{A}\textit{x}=&space;\mathbf{b}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\mathbf{A}\textit{x}=&space;\mathbf{b}" title="\mathbf{A}\textit{x}= \mathbf{b}" /></a>
+
+where
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\mathbf{A}&space;=&space;\begin{bmatrix}&space;2&space;&&space;1&space;&&space;5&space;&&space;1\\&space;1&space;&&space;1&space;&&space;-3&space;&&space;-4\\&space;3&space;&&space;6&space;&&space;-2&space;&&space;1\\&space;2&space;&&space;2&space;&&space;2&space;&&space;-3&space;\end{bmatrix}&space;\text{,&space;}&space;\mathbf{b}&space;=&space;\begin{bmatrix}&space;5\\&space;-4\\&space;1\\&space;-3&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\mathbf{A}&space;=&space;\begin{bmatrix}&space;2&space;&&space;1&space;&&space;5&space;&&space;1\\&space;1&space;&&space;1&space;&&space;-3&space;&&space;-4\\&space;3&space;&&space;6&space;&&space;-2&space;&&space;1\\&space;2&space;&&space;2&space;&&space;2&space;&&space;-3&space;\end{bmatrix}&space;\text{,&space;}&space;\mathbf{b}&space;=&space;\begin{bmatrix}&space;5\\&space;-4\\&space;1\\&space;-3&space;\end{bmatrix}" title="\mathbf{A} = \begin{bmatrix} 2 & 1 & 5 & 1\\ 1 & 1 & -3 & -4\\ 3 & 6 & -2 & 1\\ 2 & 2 & 2 & -3 \end{bmatrix} \text{, } \mathbf{b} = \begin{bmatrix} 5\\ -4\\ 1\\ -3 \end{bmatrix}" /></a>
+
+and then solve the equation by using Gaussian elimination on the associated [augmented matrix](https://en.wikipedia.org/wiki/Augmented_matrix).
+
+This can be translated to code very easily as
+
+```PowerShell
+$A = 2, 1, 5, 1, 1, 1, -3, -4, 3, 6, -2, 1, 2, 2, 2, -3 | matrix 4,4
+$B = 5, -1, 8, 2 | matrix 4,1
+$X = [Matrix]::Solve($A, $B)
+```
+
+which yields the result,
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\mathbf{\textit{x}}&space;=&space;\begin{bmatrix}&space;\textit{x}_1\\&space;\textit{x}_2\\&space;\textit{x}_3\\&space;\textit{x}_4&space;\end{bmatrix}&space;=&space;\begin{bmatrix}&space;2\\&space;0.2\\&space;0\\&space;0.8&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\mathbf{\textit{x}}&space;=&space;\begin{bmatrix}&space;\textit{x}_1\\&space;\textit{x}_2\\&space;\textit{x}_3\\&space;\textit{x}_4&space;\end{bmatrix}&space;=&space;\begin{bmatrix}&space;2\\&space;0.2\\&space;0\\&space;0.8&space;\end{bmatrix}" title="\mathbf{\textit{x}} = \begin{bmatrix} \textit{x}_1\\ \textit{x}_2\\ \textit{x}_3\\ \textit{x}_4 \end{bmatrix} = \begin{bmatrix} 2\\ 0.2\\ 0\\ 0.8 \end{bmatrix}" /></a>
 
 ------
 
