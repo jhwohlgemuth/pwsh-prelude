@@ -134,11 +134,17 @@ function ConvertTo-JavaScript {
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         $Value
     )
+    Begin {
+        $CoordinateTemplateString = "{latitude: {{ Latitude }}, longitude: {{ Longitude }}, height: {{ Height }}, hemisphere: '{{ Hemisphere }}'}"
+        $NodeTemplateString = "{id: '{{ Id }}', label: '{{ Label }}'}"
+        $EdgeTemplateString = '{source: {{ Source }}, target: {{ Target }}}'
+    }
     Process {
         $Type = $Value.GetType().Name
-        switch ($Type) {
+        $Type | Write-Color -Cyan
+        $Result = switch ($Type) {
             'Coordinate' {
-                $Function:render = "{latitude: {{ Latitude }}, longitude: {{ Longitude }}, height: {{ Height }}, hemisphere: '{{ Hemisphere }}'}" | New-Template
+                $Function:render = $CoordinateTemplateString | New-Template
                 @{
                     Latitude = $Value.Latitude
                     Longitude = $Value.Longitude
@@ -151,7 +157,7 @@ function ConvertTo-JavaScript {
                 break
             }
             'Node' {
-                $Function:render = "{id: '{{ Id }}', label: '{{ Label }}'}" | New-Template
+                $Function:render = $NodeTemplateString | New-Template
                 @{
                     id = $Value.Id
                     label = $Value.Label
@@ -159,12 +165,19 @@ function ConvertTo-JavaScript {
                 break
             }
             'Edge' {
-                $Function:render = '{source: {{ a }}, target: {{ b }}}' | New-Template
-                $Source = ConvertTo-JavaScript -Value $Value.Source
-                $Target = ConvertTo-JavaScript -Value $Value.Destination
+                $Function:render = $NodeTemplateString | New-Template
+                $Source = @{
+                    id = $Value.Source.Id
+                    label = $Value.Source.Label
+                } | render
+                $Target = @{
+                    id = $Value.Destination.Id
+                    label = $Value.Destination.Label
+                } | render
+                $Function:render = $EdgeTemplateString | New-Template
                 @{
-                    a = $Source.ToString()
-                    b = $Target
+                    Source = $Source
+                    Target = $Target
                 } | render
                 break
             }
@@ -178,6 +191,8 @@ function ConvertTo-JavaScript {
                 $Value | ConvertTo-Json -Compress
             }
         }
+        $Result | Write-Color -Cyan
+        $Result
     }
 }
 function ConvertTo-QueryString {
