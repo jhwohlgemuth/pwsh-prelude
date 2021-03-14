@@ -167,7 +167,7 @@ function New-ApplicationTemplate {
     {
       Invoke-Speak 'Goodbye'
       `$Id = `$Event.MessageData.State.Id
-      `"`nApplication ID: `$Id`$`n`" | Write-Color -Magenta
+      `"``nApplication ID: `$Id`$``n`" | Write-Color -Magenta
     } | Invoke-ListenTo 'application:exit' | Out-Null"
     } else {
         ''
@@ -176,7 +176,7 @@ function New-ApplicationTemplate {
     #Requires -Modules Prelude
     [CmdletBinding()]
     Param(
-        [String] `$Id,
+        [String] `$Id = 'app',
         [Switch] `$Clear
     )
     $Empty
@@ -193,7 +193,7 @@ function New-ApplicationTemplate {
         Start-Sleep 2
     }
     $Empty
-    {{ Dollar }}Loop = {
+    `$Loop = {
         Clear-Host
         `$State = `$Args[0]
         `$Count = `$State.Data
