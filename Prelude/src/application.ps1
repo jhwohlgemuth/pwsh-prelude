@@ -93,7 +93,7 @@ function Invoke-RunApplication {
         [Parameter(Mandatory = $True, Position = 1)]
         [ScriptBlock] $Loop,
         [Parameter(Position = 2)]
-        [ApplicationState] $State,
+        [ApplicationState] $State = @{},
         [String] $Id,
         [ScriptBlock] $ShouldContinue,
         [ScriptBlock] $BeforeNext,
