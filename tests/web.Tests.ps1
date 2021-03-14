@@ -89,22 +89,57 @@ Describe 'ConvertTo-Iso8601' -Tag 'Local', 'Remote' {
 }
 Describe 'ConvertTo-JavaScript' -Tag 'Local', 'Remote' {
     It 'can convert coordinate types' {
-        $A = [Coordinate]@{ Latitude = 42.42; Longitude = 43 }
         $Expected = "{latitude: 42.42, longitude: 43, height: 0, hemisphere: 'NE'}"
+        $A = [Coordinate]@{ Latitude = 42.42; Longitude = 43 }
+        ConvertTo-JavaScript $A | Should -Be $Expected
         $A | ConvertTo-JavaScript | Should -Be $Expected
+    }
+    It 'can convert matrix types' {
+        $A = 1..4 | New-Matrix
+        $A | ConvertTo-JavaScript | Should -Be '[[1, 2], [3, 4]]'
+        $A = 1..9 | New-Matrix 3, 3
+        $A | ConvertTo-JavaScript | Should -Be '[[1, 2, 3], [4, 5, 6], [7, 8, 9]]'
+        $A = 1..8 | New-Matrix 2, 4
+        $A | ConvertTo-JavaScript | Should -Be '[[1, 2, 3, 4], [5, 6, 7, 8]]'
     }
     It 'can convert node types' {
         $A = [Node]::New('9f0a2929-9991-4c3a-943f-de235d9fcd37', 'A')
         $B = [Node]::New('bd0da46a-511d-4c90-8a1d-3546b1693a52', 'B')
-        $Expected = "{id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}", "{id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}"
-        $A, $B | ConvertTo-JavaScript | Should -Be $Expected
+        $A | ConvertTo-JavaScript | Should -Be "{id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}"
+        $B | ConvertTo-JavaScript | Should -Be "{id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}"
+        $A, $B | ConvertTo-JavaScript | Should -Be "[{id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}]"
+        $Nodes = $A, $B
+        $Nodes | ConvertTo-JavaScript | Should -Be "[{id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}]"
     }
     It 'can convert edge types' {
+        $Expected = "{source: {id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, target: {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}}"
         $A = [Node]::New('9f0a2929-9991-4c3a-943f-de235d9fcd37', 'A')
         $B = [Node]::New('bd0da46a-511d-4c90-8a1d-3546b1693a52', 'B')
         $AB = New-Edge $A $B
-        $Expected = "{source: {id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, target: {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}}"
         $AB | ConvertTo-JavaScript | Should -Be $Expected
+    }
+    It 'can convert directed edge types' {
+        $Expected = "{source: {id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, target: {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}}"
+        $A = [Node]::New('9f0a2929-9991-4c3a-943f-de235d9fcd37', 'A')
+        $B = [Node]::New('bd0da46a-511d-4c90-8a1d-3546b1693a52', 'B')
+        $AB = New-Edge $A $B -Directed
+        $AB | ConvertTo-JavaScript | Should -Be $Expected
+    }
+    It 'can convert graph types' {
+        $Expected = "{nodes: [{id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}], edges: {source: {id: '9f0a2929-9991-4c3a-943f-de235d9fcd37', label: 'A'}, target: {id: 'bd0da46a-511d-4c90-8a1d-3546b1693a52', label: 'B'}}}"
+        $A = [Node]::New('9f0a2929-9991-4c3a-943f-de235d9fcd37', 'A')
+        $B = [Node]::New('bd0da46a-511d-4c90-8a1d-3546b1693a52', 'B')
+        $AB = New-Edge $A $B
+        $G = $AB | New-Graph
+        $G | ConvertTo-JavaScript | Should -Be $Expected
+    }
+    It 'will act like ConvertTo-Json for non-Prelude types' {
+        $A = @{ a = 'one' }
+        $B = @{ b = 'two' }
+        ConvertTo-JavaScript $A | Should -Be '{"a":"one"}'
+        $A | ConvertTo-JavaScript | Should -Be '{"a":"one"}'
+        ConvertTo-JavaScript $A, $B | Should -Be '[{"a":"one"}, {"b":"two"}]'
+        $A, $B | ConvertTo-JavaScript | Should -Be '[{"a":"one"}, {"b":"two"}]'
     }
 }
 Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {

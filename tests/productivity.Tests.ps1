@@ -193,8 +193,8 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
             Comment = 'bar'
         }
         Update-HostsFile @A -Path $Path
-        { Update-HostsFile @B -Path $Path -WhatIf | Out-Null } | Should -not -Throw
-        { Update-HostsFile @C -Path $Path -WhatIf | Out-Null } | Should -not -Throw
+        { Update-HostsFile @B -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
+        { Update-HostsFile @C -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
         Remove-Item $Path
     }
 }
@@ -206,13 +206,13 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Lo
     }
     It 'can output SSML' {
         $Text = 'this should not be heard either'
-        Invoke-Speak $Text -Silent -Output ssml | Should -match "<p>$Text</p>"
+        Invoke-Speak $Text -Silent -Output ssml | Should -Match "<p>$Text</p>"
     }
     It 'can output SSML with custom rate' {
         $Text = 'this should not be heard either'
         $Rate = 10
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<p>$Text</p>"
-        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -match "<prosody rate=`"$Rate`">"
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<p>$Text</p>"
+        Invoke-Speak $Text -Silent -Output ssml -Rate $Rate | Should -Match "<prosody rate=`"$Rate`">"
     }
 }
 Describe 'Measure-Performance' -Tag 'Local', 'Remote' {
@@ -234,16 +234,16 @@ Describe 'New-File (touch)' -Tag 'Local', 'Remote' {
     It 'can create a file' {
         Mock Write-Color {} -ModuleName 'Prelude'
         $Content = 'testing'
-        './SomeFile' | Should -not -Exist
+        './SomeFile' | Should -Not -Exist
         New-File SomeFile
         New-File SomeFile
-        { New-File SomeFile -WhatIf } | Should -not -Throw
+        { New-File SomeFile -WhatIf } | Should -Not -Throw
         Write-Output $Content >> ./SomeFile
         './SomeFile' | Should -FileContentMatch $Content
     }
     It 'supports WhatIf parameter' {
         Mock Write-Color {} -ModuleName 'Prelude'
-        { New-File 'foo.txt' -WhatIf } | Should -not -Throw
+        { New-File 'foo.txt' -WhatIf } | Should -Not -Throw
     }
 }
 Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {
@@ -264,15 +264,15 @@ Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {
         $Bar | Should -Exist
         $Baz | Should -Exist
         $Foo, $Bar, $Baz | Remove-DirectoryForce
-        $Foo | Should -not -Exist
-        $Bar | Should -not -Exist
-        $Baz | Should -not -Exist
+        $Foo | Should -Not -Exist
+        $Bar | Should -Not -Exist
+        $Baz | Should -Not -Exist
     }
     It 'supports WhatIf parameter' {
         Mock Write-Color {} -ModuleName 'Prelude'
         $Foo = Join-Path $TestDrive 'foo.txt'
         New-Item $Foo
-        { Remove-DirectoryForce $Foo -WhatIf } | Should -not -Throw
+        { Remove-DirectoryForce $Foo -WhatIf } | Should -Not -Throw
         Remove-Item $Foo
     }
 }
@@ -340,7 +340,7 @@ Describe 'Rename-FileExtension' -Tag 'Local', 'Remote' {
         $Path = Join-Path $TestDrive 'foo.bar'
         New-Item $Path
         Get-ChildItem -Path $TestDrive -Name '*.bar' -File | Should -Be 'foo.bar'
-        { Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -TXT -WhatIf } | Should -not -Throw
+        { Rename-FileExtension -Path (Join-Path $TestDrive 'foo.bar') -TXT -WhatIf } | Should -Not -Throw
         Get-ChildItem -Path $TestDrive -Name '*.txt' -File | Should -BeNullOrEmpty
         Remove-Item (Join-Path $TestDrive 'foo.bar')
     }
@@ -358,7 +358,7 @@ Describe 'Test-Command' -Tag 'Local', 'Remote' {
 Describe 'Test-Empty' -Tag 'Local', 'Remote' {
     It 'should return true for directories with no contents' {
         $Foo = Join-Path $TestDrive 'Foo'
-        $Foo | Should -not -Exist
+        $Foo | Should -Not -Exist
         mkdir $Foo
         $Foo | Should -Exist
         Test-Empty $Foo | Should -BeTrue

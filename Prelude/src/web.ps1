@@ -123,76 +123,84 @@ function ConvertTo-JavaScript {
     .SYNOPSIS
     Convert PowerShell values to JavaScript strings. It is similar to ConvertTo-Json, but with broader support for Prelude types.
     .EXAMPLE
+    $A = [Node]'A'
+    $B = [Node]'B'
+    $A, $B | ConvertTo-JavaScript
+    .EXAMPLE
     @{ foo = 'bar' } | ConvertTo-JavaScript
-    # returns "{foo: 'bar'}"
+    # returns {"foo":"bar"}
     .NOTES
     The ConvertTo-JavaScript cmdlet is not intended to be used as a data serializer as data is removed during conversion.
     #>
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
+    [OutputType([System.String])]
     Param(
-        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Value
     )
     Begin {
-        $CoordinateTemplateString = "{latitude: {{ Latitude }}, longitude: {{ Longitude }}, height: {{ Height }}, hemisphere: '{{ Hemisphere }}'}"
-        $NodeTemplateString = "{id: '{{ Id }}', label: '{{ Label }}'}"
-        $EdgeTemplateString = '{source: {{ Source }}, target: {{ Target }}}'
-    }
-    Process {
-        $Type = $Value.GetType().Name
-        $Type | Write-Color -Cyan
-        $Result = switch ($Type) {
-            'Coordinate' {
-                $Function:render = $CoordinateTemplateString | New-Template
-                @{
-                    Latitude = $Value.Latitude
-                    Longitude = $Value.Longitude
-                    Height = $Value.Height
-                    Hemisphere = $Value.Hemisphere -join ''
-                } | render
-                break
+        $CoordinateTemplate = {
+            Param($Value)
+            "{latitude: $($Value.Latitude), longitude: $($Value.Longitude), height: $($Value.Height), hemisphere: '$($Value.Hemisphere -join '')'}"
+        }
+        $MatrixTemplate = {
+            Param($Value)
+            $Rows = $Value.Values |
+                Invoke-Chunk -Size $Value.Size[1] |
+                ForEach-Object { $_ -join ', ' } |
+                ForEach-Object { "[$_]" }
+            "[$($Rows -join ', ')]"
+        }
+        $NodeTemplate = {
+            Param($Value)
+            "{id: '$($Value.Id)', label: '$($Value.Label)'}"
+        }
+        $EdgeTemplate = {
+            Param($Value)
+            $Source = (& $NodeTemplate -Value $Value.Source)
+            $Target = (& $NodeTemplate -Value $Value.Destination)
+            "{source: $Source, target: $Target}"
+        }
+        $GraphTemplate = {
+            Param($Value)
+            "{nodes: $($Value.Nodes | ConvertTo-JavaScript), edges: $($Value.Edges | ConvertTo-JavaScript)}"
+        }
+        $DefaultTemplate = {
+            Param($Value)
+            $Value | ConvertTo-Json -Compress
+        }
+        function Invoke-Convert {
+            Param($Value)
+            $Type = $Value.GetType().Name
+            $Template = switch ($Type) {
+                'Coordinate' { $CoordinateTemplate }
+                'Matrix' { $MatrixTemplate }
+                'Node' { $NodeTemplate }
+                'DirectedEdge' { $EdgeTemplate }
+                'Edge' { $EdgeTemplate }
+                'Graph' { $GraphTemplate }
+                Default { $DefaultTemplate }
             }
-            'Matrix' {
-                break
+            & $Template -Value $Value
+        }
+        switch ($Value.Count) {
+            1 {
+                Invoke-Convert -Value $Value
             }
-            'Node' {
-                $Function:render = $NodeTemplateString | New-Template
-                @{
-                    id = $Value.Id
-                    label = $Value.Label
-                } | render
-                break
-            }
-            'Edge' {
-                $Function:render = $NodeTemplateString | New-Template
-                $Source = @{
-                    id = $Value.Source.Id
-                    label = $Value.Source.Label
-                } | render
-                $Target = @{
-                    id = $Value.Destination.Id
-                    label = $Value.Destination.Label
-                } | render
-                $Function:render = $EdgeTemplateString | New-Template
-                @{
-                    Source = $Source
-                    Target = $Target
-                } | render
-                break
-            }
-            'DirectedEdge' {
-                break
-            }
-            'Graph' {
-                break
-            }
-            Default {
-                $Value | ConvertTo-Json -Compress
+            { $_ -gt 1 } {
+                "[$(($Value | ForEach-Object { Invoke-Convert -Value $_ }) -join ', ')]"
             }
         }
-        $Result | Write-Color -Cyan
-        $Result
+    }
+    End {
+        switch ($Input.Count) {
+            1 {
+                Invoke-Convert -Value $Input[0]
+            }
+            { $_ -gt 1 } {
+                "[$(($Input | ForEach-Object { Invoke-Convert -Value $_ }) -join ', ')]"
+            }
+        }
     }
 }
 function ConvertTo-QueryString {

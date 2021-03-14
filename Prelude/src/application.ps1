@@ -263,20 +263,22 @@ function New-Template {
         [Parameter(ValueFromPipelineByPropertyName = $True)]
         [PSObject] $DefaultValues
     )
-    $Script:__template = $Template # This line is super important
-    $Script:__defaults = $DefaultValues # This line is also super important
+    # $Namespace = [Math]::Abs($Template.GetHashCode()).ToString()
+    # New-Variable -Name "__template$Namespace" -Value $Template -Scope Script -Force # This line is super important
+    New-Variable -Name '__template' -Value $Template -Scope Script -Force # This line is super important
+    New-Variable -Name '__defaults' -Value $DefaultValues -Scope Script -Force # This line is also super important
     $Renderer = {
         Param(
             [Parameter(Position = 0, ValueFromPipeline = $True)]
             [PSObject] $Data,
             [Switch] $PassThru
         )
-        if ($PassThru) {
-            $StringToRender = $Script:__template
-        } else {
+        # $StringToRender = Get-Variable -Name "__template$Namespace" -Scope Script -ValueOnly
+        $StringToRender = Get-Variable -Name '__template' -Scope Script -ValueOnly
+        if (-not $PassThru) {
             $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
             "`"Data`" variable name = $DataVariableName" | Write-Verbose
-            $StringToRender = $Script:__template | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
+            $StringToRender = $StringToRender | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
         }
         if (-not $Data) {
             "Data = $($Data | ConvertTo-Json)" | Write-Verbose
