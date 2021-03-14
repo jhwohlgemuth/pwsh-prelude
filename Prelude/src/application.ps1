@@ -117,7 +117,7 @@ function Invoke-RunApplication {
                 $State = [ApplicationState]@{ Id = $Id }
             }
         } else {
-            $State = [ApplicationState]@{ Id = $Id }
+            $State.Id = $Id
         }
     }
     if (-not $State) {
@@ -163,12 +163,11 @@ function New-ApplicationTemplate {
     [CmdletBinding()]
     Param()
     $Snippet = if (-not $IsLinux) {
-        "
-    {
-      Invoke-Speak 'Goodbye'
-      `$Id = `$Event.MessageData.State.Id
-      `"``nApplication ID: `$Id`$``n`" | Write-Color -Magenta
-    } | Invoke-ListenTo 'application:exit' | Out-Null"
+        "{
+            Invoke-Speak 'Goodbye'
+            `$Id = `$Event.MessageData.State.Id
+            `"``nApplication ID: `$Id``n`" | Write-Color -Magenta
+        } | Invoke-ListenTo 'application:exit' | Out-Null"
     } else {
         ''
     }
@@ -188,7 +187,8 @@ function New-ApplicationTemplate {
         `$Id = `$State.Id
         'Application Information:' | Write-Color
         `"ID = {{#green `$Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-        'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine$Snippet
+        'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine
+        $Snippet
         '' | Write-Color
         Start-Sleep 2
     }
