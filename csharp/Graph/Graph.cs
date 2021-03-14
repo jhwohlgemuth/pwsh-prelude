@@ -90,7 +90,7 @@ namespace Prelude {
         public Graph(List<Edge> edges) {
             Id = Guid.NewGuid();
             foreach (var edge in edges)
-                Add(edge.Source, edge.Destination);
+                Add(edge.Source, edge.Target);
             Add(edges);
         }
         /// <summary>
@@ -121,7 +121,7 @@ namespace Prelude {
         }
         private bool Add(Edge edge) {
             var source = edge.Source;
-            var destination = edge.Destination;
+            var destination = edge.Target;
             if (Contains(source) && Contains(destination)) {
                 Edges.Add(edge);
                 source.Neighbors.Add(destination);
@@ -283,7 +283,7 @@ namespace Prelude {
         /// <remarks>This method supports a fluent interface</remarks>
         public Graph Remove(Edge edge) {
             Node source = edge.Source;
-            Node destination = edge.Destination;
+            Node destination = edge.Target;
             if (Edges.Remove(edge)) {
                 if (Nodes.Remove(source))
                     source.Neighbors.Remove(destination);
@@ -299,7 +299,7 @@ namespace Prelude {
             var A = new Matrix(Nodes.Count);
             foreach (var edge in Edges) {
                 var source = edge.Source.Index;
-                var destination = edge.Destination.Index;
+                var destination = edge.Target.Index;
                 var weight = edge.Weight;
                 A.Rows[source][destination] = weight;
                 if (!edge.IsDirected)

@@ -56,7 +56,7 @@ namespace EdgeTests {
             var ab = new Edge(a, b);
             var clone = ab.Clone();
             Assert.Equal(ab.Source, clone.Source);
-            Assert.Equal(ab.Destination, clone.Destination);
+            Assert.Equal(ab.Target, clone.Target);
             Assert.Equal(ab, clone);
             Assert.NotEqual(ab.Id, clone.Id);
         }
@@ -66,8 +66,8 @@ namespace EdgeTests {
             var b = new Node("B");
             var ab = new Edge(a, b);
             var reversed = ab.Reverse();
-            Assert.Equal(ab.Source, reversed.Destination);
-            Assert.Equal(ab.Destination, reversed.Source);
+            Assert.Equal(ab.Source, reversed.Target);
+            Assert.Equal(ab.Target, reversed.Source);
             Assert.NotEqual(ab, reversed);
             Assert.NotEqual(ab.Id, reversed.Id);
         }

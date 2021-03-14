@@ -14,12 +14,12 @@ namespace Prelude {
         /// Constructor
         /// </summary>
         /// <param name="source">Direction of edge is from this node</param>
-        /// <param name="destination">Direction of edge is to this node</param>
+        /// <param name="target">Direction of edge is to this node</param>
         /// <param name="weight">Edge weight</param>
-        public DirectedEdge(Node source, Node destination, double weight = 1) : base(source, destination, weight) {
+        public DirectedEdge(Node source, Node target, double weight = 1) : base(source, target, weight) {
             Id = Guid.NewGuid();
             Source = source;
-            Destination = destination;
+            Target = target;
             Weight = weight;
         }
     }
