@@ -166,8 +166,8 @@ function New-ApplicationTemplate {
         "
     {
       Invoke-Speak 'Goodbye'
-      {{ Dollar }}Id = {{ Dollar }}Event.MessageData.State.Id
-      `"`{{ Grave }}nApplication ID: {{ Dollar }}Id`{{ Grave }}n`" | Write-Color -Magenta
+      `$Id = `$Event.MessageData.State.Id
+      `"`nApplication ID: `$Id`$`n`" | Write-Color -Magenta
     } | Invoke-ListenTo 'application:exit' | Out-Null"
     } else {
         ''
@@ -176,18 +176,18 @@ function New-ApplicationTemplate {
     #Requires -Modules Prelude
     [CmdletBinding()]
     Param(
-        [String] {{ Dollar }}Id,
-        [Switch] {{ Dollar }}Clear
+        [String] `$Id,
+        [Switch] `$Clear
     )
     $Empty
-    {{ Dollar }}InitialState = @{ Data = 0 }
+    `$InitialState = @{ Data = 0 }
     $Empty
-    {{ Dollar }}Init = {
+    `$Init = {
         Clear-Host
-        {{ Dollar }}State = {{ Dollar }}Args[0]
-        {{ Dollar }}Id = {{ Dollar }}State.Id
+        `$State = `$Args[0]
+        `$Id = `$State.Id
         'Application Information:' | Write-Color
-        `"ID = {{#green {{ Dollar }}Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
+        `"ID = {{#green `$Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
         'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine$Snippet
         '' | Write-Color
         Start-Sleep 2
@@ -195,16 +195,16 @@ function New-ApplicationTemplate {
     $Empty
     {{ Dollar }}Loop = {
         Clear-Host
-        {{ Dollar }}State = {{ Dollar }}args[0]
-        {{ Dollar }}Count = {{ Dollar }}State.Data
-        `"Current count is {{#green {{ Dollar }}Count}}`" | Write-Color -Cyan
-        {{ Dollar }}State.Data++
-        Save-State {{ Dollar }}State.Id {{ Dollar }}State | Out-Null
+        `$State = `$Args[0]
+        `$Count = `$State.Data
+        `"Current count is {{#green `$Count}}`" | Write-Color -Cyan
+        `$State.Data++
+        Save-State `$State.Id `$State | Out-Null
         Start-Sleep 1
     }
     $Empty
-    Invoke-RunApplication {{ Dollar }}Init {{ Dollar }}Loop {{ Dollar }}InitialState -Id {{ Dollar }}Id -ClearState:{{ Dollar }}Clear
-    " | New-Template -Data @{ Dollar = '$'; Grave = '`' } | Remove-Indent
+    Invoke-RunApplication `$Init `$Loop `$InitialState -Id `$Id -ClearState:`$Clear
+    " | Remove-Indent
 }
 function New-Template {
     <#
