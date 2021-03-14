@@ -158,7 +158,7 @@ function ConvertTo-JavaScript {
         $EdgeTemplate = {
             Param($Value)
             $Source = (& $NodeTemplate -Value $Value.Source)
-            $Target = (& $NodeTemplate -Value $Value.Destination)
+            $Target = (& $NodeTemplate -Value $Value.Target)
             "{source: $Source, target: $Target}"
         }
         $GraphTemplate = {

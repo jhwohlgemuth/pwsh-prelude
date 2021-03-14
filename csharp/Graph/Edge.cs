@@ -29,7 +29,7 @@ namespace Prelude {
         /// <returns>Edge</returns>
         public Edge Clone() => new Edge(Source, Target, Weight);
         /// <summary>
-        /// Check if an edge contains a node (source or destination)
+        /// Check if an edge contains a node (source or target)
         /// </summary>
         /// <param name="node">Node to check for</param>
         /// <returns></returns>
@@ -55,7 +55,7 @@ namespace Prelude {
             }
         }
         /// <summary>
-        /// Return new edge with source and destination nodes swapped
+        /// Return new edge with source and target nodes swapped
         /// </summary>
         /// <returns>Edge</returns>
         public Edge Reverse() => new Edge(Target, Source, Weight);

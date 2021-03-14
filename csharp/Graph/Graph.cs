@@ -121,11 +121,11 @@ namespace Prelude {
         }
         private bool Add(Edge edge) {
             var source = edge.Source;
-            var destination = edge.Target;
-            if (Contains(source) && Contains(destination)) {
+            var target = edge.Target;
+            if (Contains(source) && Contains(target)) {
                 Edges.Add(edge);
-                source.Neighbors.Add(destination);
-                destination.Neighbors.Add(source);
+                source.Neighbors.Add(target);
+                target.Neighbors.Add(source);
                 UpdateAdjacencyMatrix();
             }
             return Contains(edge);
@@ -283,15 +283,15 @@ namespace Prelude {
         /// <remarks>This method supports a fluent interface</remarks>
         public Graph Remove(Edge edge) {
             Node source = edge.Source;
-            Node destination = edge.Target;
+            Node target = edge.Target;
             if (Edges.Remove(edge)) {
                 if (Nodes.Remove(source))
-                    source.Neighbors.Remove(destination);
-                if (Nodes.Remove(destination))
-                    destination.Neighbors.Remove(source);
+                    source.Neighbors.Remove(target);
+                if (Nodes.Remove(target))
+                    target.Neighbors.Remove(source);
             }
             Nodes.Add(source);
-            Nodes.Add(destination);
+            Nodes.Add(target);
             UpdateAdjacencyMatrix();
             return this;
         }
@@ -299,11 +299,11 @@ namespace Prelude {
             var A = new Matrix(Nodes.Count);
             foreach (var edge in Edges) {
                 var source = edge.Source.Index;
-                var destination = edge.Target.Index;
+                var target = edge.Target.Index;
                 var weight = edge.Weight;
-                A.Rows[source][destination] = weight;
+                A.Rows[source][target] = weight;
                 if (!edge.IsDirected)
-                    A.Rows[destination][source] = weight;
+                    A.Rows[target][source] = weight;
             }
             _AdjacencyMatrix = A;
         }
