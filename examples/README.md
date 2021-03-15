@@ -3,7 +3,7 @@ Examples
 
 1. [Use GitHub API to retrieve notifications](#example-1)
 1. [Estimate when your laptop will die](#example-2)
-1. [under construction](#example-3)
+1. [Estimate the "Golden Ratio"](#example-3)
 1. [Solve a system of linear equations](#example-4)
 1. [Calculate eccentricity of earth using classical method](#example-5)
 1. [Analyze Pandemic game play using graph theory](#example-6)
@@ -96,15 +96,30 @@ $Reducer = {
 $Data = $Raw | transform $Lookup $Reducer | ? { $_.Capacity -gt 0 }
 ```
 
-We can now fit the data with a simple linear model using matrices:
+We can now fit the data with a simple linear model using matrices. This is done via the equation:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\widehat{\beta&space;}&space;=&space;{\left&space;(&space;\textbf{X}^{\text{T}}&space;\textbf{X}&space;\right&space;)}^{-1}&space;\textbf{X}^{\text{T}}\textbf{Y}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\widehat{\beta&space;}&space;=&space;{\left&space;(&space;\textbf{X}^{\text{T}}&space;\textbf{X}&space;\right&space;)}^{-1}&space;\textbf{X}^{\text{T}}\textbf{Y}" title="\widehat{\beta } = {\left ( \textbf{X}^{\text{T}} \textbf{X} \right )}^{-1} \textbf{X}^{\text{T}}\textbf{Y}" /></a>
+
+To ensure this equation will render an answer, we must first verify that **X<sup>T</sup> X** is non-singular, that is, we must verify
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\text{det}\begin{vmatrix}&space;\textbf{X}^{\text{T}}\textbf{X}&space;\end{vmatrix}&space;\neq&space;0" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\text{det}\begin{vmatrix}&space;\textbf{X}^{\text{T}}\textbf{X}&space;\end{vmatrix}&space;\neq&space;0" title="\text{det}\begin{vmatrix} \textbf{X}^{\text{T}}\textbf{X} \end{vmatrix} \neq 0" /></a>
+
+We can quickly calculate the necessary determinant:
 
 ```PowerShell
+# this return $True
+($X.Transpose() * $X).Det() -ne 0
+```
+
+With the knowledge that we possess a non-singular matrix, we proceed with the simple linear model calculations:
+
+```PowerShell
+# create the X and Y matrices
 $X0 = matrix $Data.Count,1 -Unit
 $X1 = $Data.Date
 $X = $X0.Augment($X1)
 $Y = $Data.Capacity | matrix $Data.Count, 1
-
-# fit linear model with matrices
+# fit the linear model with matrices
 $B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
 ```
 
@@ -116,15 +131,37 @@ $XIntercept = -1 * $B[0, 0] / $B[0, 1]
 $BatteryDeathDate = [DateTime]::FromFileTime($XIntercept)
 ```
 
-> The data in my battery report indicates that my Microsoft Surface Pro 6 battery may die sometime in 2028
+> 🤓 The data in my battery report indicates that my Microsoft Surface Pro 6 battery may die sometime in 2028
+
+After making a statistical inference, it is common practice to assess the quality of the estimation.
+
+👷‍♂️ ***UNDER CONSTRUCTION***
 
 ------
 
 Example #3
 ----------
-> ???
+> Estimate the "Golden Ratio" using matrices and the Fibonacci Sequence
 
-👷‍♂️ ***UNDER CONSTRUCTION***
+First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" title="\begin{matrix} F_{k + 2} = F_{k + 1} + F_{k}\\ F_{k + 1} = F_{k + 1} \end{matrix}" /></a>
+
+which can be codified with matrices as:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;U_{k}&space;=&space;\begin{bmatrix}&space;F_{k&space;&plus;&space;1}\\&space;F_{k}&space;\end{bmatrix},&space;U_{k&space;&plus;&space;1}&space;=&space;A&space;\cdot&space;U_{k}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;U_{k}&space;=&space;\begin{bmatrix}&space;F_{k&space;&plus;&space;1}\\&space;F_{k}&space;\end{bmatrix},&space;U_{k&space;&plus;&space;1}&space;=&space;A&space;\cdot&space;U_{k}" title="U_{k} = \begin{bmatrix} F_{k + 1}\\ F_{k} \end{bmatrix}, U_{k + 1} = A \cdot U_{k}" /></a>
+
+and
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;A&space;=&space;\begin{bmatrix}&space;1&space;&&space;1\\&space;1&space;&&space;0&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;A&space;=&space;\begin{bmatrix}&space;1&space;&&space;1\\&space;1&space;&&space;0&space;\end{bmatrix}" title="A = \begin{bmatrix} 1 & 1\\ 1 & 0 \end{bmatrix}" /></a>
+
+The final step is a simple matter of calculating the dominant eigenvalue of ***A***:
+
+```PowerShell
+$A = 1, 1, 1, 0 | matrix
+$Phi = $A.Eigenvalue()
+# 1.6180339887482
+```
 
 ------
 
