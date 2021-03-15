@@ -57,7 +57,7 @@ Example #2
 First, generate a battery report:
 
 ```PowerShell
-powercfg /batteryreport
+Invoke-Expression 'powercfg /batteryreport'
 ```
 
 The previous command should have created the file, `battery-report.html` in your current directory.
