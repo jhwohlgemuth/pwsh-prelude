@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Math;
@@ -12,8 +13,8 @@ namespace Prelude {
             get;
             private set;
         }
-        private double[][] _Rows;
-        public double[][] Rows {
+        private Complex[][] _Rows;
+        public Complex[][] Rows {
             get {
                 return _Rows;
             }
@@ -27,14 +28,14 @@ namespace Prelude {
                         _Rows[row][col] = value[i][0];
                     }
                 } else {
-                    double[][] temp = Create<double>(rowCount, columnCount);
+                    Complex[][] temp = Create<Complex>(rowCount, columnCount);
                     for (var row = 0; row < rowCount; ++row)
                         temp[row] = value[row].Take(columnCount).ToArray();
                     _Rows = temp;
                 }
             }
         }
-        public double[] this[int rowCount] {
+        public Complex[] this[int rowCount] {
             get {
                 return Rows[rowCount];
             }
@@ -42,7 +43,7 @@ namespace Prelude {
                 Rows[rowCount] = value;
             }
         }
-        public double this[int rowCount, int columnCount] {
+        public Complex this[int rowCount, int columnCount] {
             get {
                 return Rows[rowCount][columnCount];
             }
@@ -50,7 +51,7 @@ namespace Prelude {
                 Rows[rowCount][columnCount] = value;
             }
         }
-        public IEnumerable<double> Values {
+        public IEnumerable<Complex> Values {
             get {
                 foreach (var row in Rows)
                     foreach (var value in row)
@@ -100,7 +101,7 @@ namespace Prelude {
         /// <param name="n">Number of rows/columns</param>
         public Matrix(int n) {
             Size = new int[] { n, n };
-            Rows = Create<double>(n, n);
+            Rows = Create<Complex>(n, n);
         }
         /// <summary>
         /// Constructor for creating matrices of arbitrary size
@@ -109,7 +110,7 @@ namespace Prelude {
         /// <param name="columnCount">Number of columns</param>
         public Matrix(int rowCount, int columnCount) {
             Size = new int[] { rowCount, columnCount };
-            Rows = Create<double>(rowCount, columnCount);
+            Rows = Create<Complex>(rowCount, columnCount);
         }
         /// <summary>
         /// Add matrices, element by element
@@ -175,7 +176,7 @@ namespace Prelude {
         /// </remarks>
         /// <see cref="CalculateDeterminantParallel(Matrix)"/>
         /// <see cref="InterlockAddDoubles(ref double, double)"/>
-        public static double Det(Matrix a) {
+        public static Complex Det(Matrix a) {
             int rowCount = a.Size[0];
             switch (rowCount) {
                 case 1:
@@ -200,7 +201,7 @@ namespace Prelude {
             var product = new Matrix(m, n);
             foreach (var index in product.Indexes()) {
                 int i = index[0], j = index[1];
-                double sum = 0;
+                Complex sum = 0;
                 for (int k = 0; k < p; ++k) {
                     sum += a[i][k] * b[k][j];
                 }
@@ -215,6 +216,14 @@ namespace Prelude {
         /// <param name="a">Matrix to fill</param>
         /// <param name="value">Static value to fill matrix with</param>
         /// <returns>Matrix</returns>
+        public static Matrix Fill(Matrix a, Complex value) {
+            var temp = a.Clone();
+            foreach (var index in temp.Indexes()) {
+                int i = index[0], j = index[1];
+                temp[i][j] = value;
+            }
+            return temp;
+        }
         public static Matrix Fill(Matrix a, double value) {
             var temp = a.Clone();
             foreach (var index in temp.Indexes()) {
@@ -235,9 +244,9 @@ namespace Prelude {
             for (int i = rowCount - 1; i >= 0; --i) {
                 double sum = 0;
                 for (int j = i + 1; j <= rowCount - 1; ++j) {
-                    sum += (solutions[j][0] * clone[i][j]);
+                    sum += (solutions[j][0].Real * clone[i][j].Real);
                 }
-                solutions[i][0] = Round((clone[i][columnCount - 1] - sum) / clone[i][i], 2);
+                solutions[i][0] = Round((clone[i][columnCount - 1].Real - sum) / clone[i][i].Real, 2);
             }
             return solutions;
         }
@@ -266,6 +275,14 @@ namespace Prelude {
         /// <returns>Matrix</returns>
         /// <seealso cref="operator*"/>
         /// <seealso cref="operator/"/>
+        public static Matrix Multiply(Matrix a, Complex k) {
+            var clone = a.Clone();
+            foreach (var index in clone.Indexes()) {
+                int i = index[0], j = index[1];
+                clone[i][j] *= k;
+            }
+            return clone;
+        }
         public static Matrix Multiply(Matrix a, double k) {
             var clone = a.Clone();
             foreach (var index in clone.Indexes()) {
@@ -275,8 +292,11 @@ namespace Prelude {
             return clone;
         }
         public static Matrix operator *(double k, Matrix a) => Multiply(a, k);
+        public static Matrix operator *(Complex k, Matrix a) => Multiply(a, k);
         public static Matrix operator *(Matrix a, double k) => Multiply(a, k);
+        public static Matrix operator *(Matrix a, Complex k) => Multiply(a, k);
         public static Matrix operator /(Matrix a, double k) => Multiply(a, (1 / k));
+        public static Matrix operator /(Matrix a, Complex k) => Multiply(a, (1 / k));
         /// <summary>
         /// Similar to Math.Pow, but for matrices
         /// </summary>
@@ -312,7 +332,14 @@ namespace Prelude {
         /// </summary>
         /// <param name="a">Input matrix</param>
         /// <returns>Scalar value</returns>
-        public static double Trace(Matrix a) => Range(0, Min(a.Size[0], a.Size[1])).Select(i => a[i][i]).Sum();
+        public static Complex Trace(Matrix a) {
+            var diagonal = Range(0, Min(a.Size[0], a.Size[1])).Select(i => a[i][i]);
+            Complex sum = 0;
+            foreach (var element in diagonal)
+                sum += element;
+            return sum;
+        }
+
         /// <summary>
         /// Calculate transpose of a given matrix
         /// </summary>
@@ -340,10 +367,10 @@ namespace Prelude {
         /// <returns>Matrix</returns>
         public static Matrix Unit(int rowCount, int columnCount) => Fill(new Matrix(rowCount, columnCount), 1);
         private static double InterlockAddDoubles(ref double a, double b) {
-            double newCurrentValue = a;
+            var newCurrentValue = a;
             while (true) {
-                double currentValue = newCurrentValue;
-                double newValue = currentValue + b;
+                var currentValue = newCurrentValue;
+                var newValue = currentValue + b;
                 newCurrentValue = Interlocked.CompareExchange(ref a, newValue, currentValue);
                 if (newCurrentValue == currentValue)
                     return newValue;
@@ -351,7 +378,7 @@ namespace Prelude {
         }
         private static Func<int, ParallelLoopState, double, double> CalculateDeterminantParallel(Matrix a) {
             return (i, loop, result) => {
-                result += a[0][i] * a.Cofactor(0, i);
+                result += a[0][i].Real * a.Cofactor(0, i).Real;
                 return result;
             };
         }
@@ -394,7 +421,7 @@ namespace Prelude {
         public Matrix CoerceZero(double limit = 1E-15) {
             foreach (var pair in Indexes()) {
                 int i = pair[0], j = pair[1];
-                if (this[i, j] < limit)
+                if (this[i, j].Magnitude < limit)
                     this[i, j] = 0;
             }
             return this;
@@ -406,7 +433,7 @@ namespace Prelude {
         /// <param name="j">Element column index</param>
         /// <returns>Matrix</returns>
         /// <see cref="Det(Matrix)"/>
-        public double Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
+        public Complex Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
         /// <summary>
         /// Return list of index pairs
         /// </summary>
@@ -429,7 +456,7 @@ namespace Prelude {
         /// Calculate eigenvalue of dominant eigenvector using the Rayleigh Quotient
         /// </summary>
         /// <returns>Scalar value</returns>
-        public double Eigenvalue(int maxIterations = 100, double tolerance = 1E-5) {
+        public Complex Eigenvalue(int maxIterations = 100, double tolerance = 1E-5) {
             var A = this;
             var v = Eigenvector(maxIterations, tolerance);
             return (Transpose(v) * A * v).Values.First() / (Transpose(v) * v).Values.First();
@@ -449,8 +476,11 @@ namespace Prelude {
             for (var count = 0; count < maxIterations; ++count) {
                 var prev = x;
                 x = (A * x).Normalize();
-                double error = Range(0, m).Select(i => Abs(x[i][0] - prev[i][0])).Sum();
-                if (error < tolerance)
+                Complex error = 0;
+                var differences = Range(0, m).Select(i => (x[i][0] - prev[i][0]).Magnitude);
+                foreach (var difference in differences)
+                    error += difference;
+                if (error.Magnitude < tolerance)
                     return x;
             }
             throw new Exception("Eigenvector algorithm failed to converge");
@@ -471,13 +501,32 @@ namespace Prelude {
         /// <remarks>
         /// The Frobenius norm is sometimes referred to as the Schur norm
         /// </remarks>
-        public double FrobeniusNorm() => Sqrt(Values.Select(x => Math.Pow(Abs(x), 2)).Sum());
+        public double FrobeniusNorm() => Sqrt(Values.Select(x => Math.Pow(x.Magnitude, 2)).Sum());
         /// <summary>
         /// Return clone of calling matrix with column inserted at passed zero-index column index
         /// </summary>
         /// <param name="index">Index where column should be inserted</param>
         /// <param name="column">Column values</param>
         /// <returns>Matrix</returns>
+        public Matrix InsertColumn(int index, Complex[] column) {
+            var original = this;
+            int rowCount = original.Size[0], columnCount = original.Size[1];
+            if (index < 0 || index > columnCount || column.Length > rowCount) {
+                return original;
+            } else {
+                var updatedColumnCount = columnCount + 1;
+                var updated = new Matrix(rowCount, updatedColumnCount);
+                for (var i = 0; i < rowCount; ++i)
+                    for (var j = 0; j < index; ++j)
+                        updated[i][j] = original[i][j];
+                for (var i = 0; i < column.Length; ++i)
+                    updated[i][index] = column[i];
+                for (var i = 0; i < rowCount; ++i)
+                    for (var j = index + 1; j < updatedColumnCount; ++j)
+                        updated[i][j] = original[i][j - 1];
+                return updated;
+            }
+        }
         public Matrix InsertColumn(int index, double[] column) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
@@ -503,7 +552,7 @@ namespace Prelude {
         /// <param name="index">Index where row should be inserted</param>
         /// <param name="row">Row values</param>
         /// <returns>Matrix</returns>
-        public Matrix InsertRow(int index, double[] row) {
+        public Matrix InsertRow(int index, Complex[] row) {
             var original = this;
             int rowCount = original.Size[0], columnCount = original.Size[1];
             if (index < 0 || index > rowCount || row.Length > columnCount) {
@@ -514,6 +563,22 @@ namespace Prelude {
                 for (var i = 0; i < index; ++i)
                     updated[i] = original[i];
                 updated[index] = row;
+                for (var i = index + 1; i < updatedRowCount; ++i)
+                    updated[i] = original[i - 1];
+                return updated;
+            }
+        }
+        public Matrix InsertRow(int index, double[] row) {
+            var original = this;
+            int rowCount = original.Size[0], columnCount = original.Size[1];
+            if (index < 0 || index > rowCount || row.Length > columnCount) {
+                return original;
+            } else {
+                var updatedRowCount = rowCount + 1;
+                var updated = new Matrix(updatedRowCount, columnCount);
+                for (var i = 0; i < index; ++i)
+                    updated[i] = original[i];
+                updated[index] = row.Select(x => (Complex)x).ToArray();
                 for (var i = index + 1; i < updatedRowCount; ++i)
                     updated[i] = original[i - 1];
                 return updated;
@@ -562,7 +627,7 @@ namespace Prelude {
         public double L1Norm() {
             var largest = 0;
             foreach (var column in Transpose(this).Rows)
-                largest = Max(largest, column.Select(x => Abs((int)x)).Sum());
+                largest = Max(largest, column.Select(x => (int)x.Magnitude).Sum());
             return largest;
         }
         /// <summary>
@@ -631,11 +696,11 @@ namespace Prelude {
         /// <summary>
         /// Calculate spectral norm of calling matrix
         /// </summary>
-        /// <returns>Double</returns>
+        /// <returns>Complex</returns>
         /// <remarks>
         /// Spectral norm is also known as the matrix "2-norm". Calling matrix must be square.
         /// </remarks>
-        public double SpectralNorm() => Sqrt((Transpose(this) * this).Eigenvalue());
+        public Complex SpectralNorm() => Sqrt((Transpose(this) * this).Eigenvalue().Magnitude);
         /// <summary>
         /// Return clone of calling matrix with two rows swapped
         /// </summary>
@@ -673,11 +738,11 @@ namespace Prelude {
             int rowCount = Size[0];
             Matrix clone = Clone();
             for (int i = 0; i < rowCount; ++i) {
-                var pivot = clone[i][i];
+                var pivot = clone[i][i].Magnitude;
                 int j = i;
                 for (int k = i + 1; k < rowCount; ++k) {
-                    if (pivot < Abs(clone[k][i])) {
-                        pivot = clone[k][i];
+                    if (pivot < clone[k][i].Magnitude) {
+                        pivot = clone[k][i].Magnitude;
                         j = k;
                     }
                 }
@@ -685,7 +750,7 @@ namespace Prelude {
                     clone = clone.SwapRows(i, j);
                 }
                 for (int l = i + 1; l < rowCount; ++l) {
-                    var factor = clone[l][i] / clone[i][i];
+                    var factor = clone[l][i].Real / clone[i][i].Real;
                     clone = clone.ElementaryRowOperation(i, l, -1 * factor);
                 }
             }

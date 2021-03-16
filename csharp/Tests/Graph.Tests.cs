@@ -1,6 +1,7 @@
 using Xunit;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Prelude;
 
 namespace GraphTests {
@@ -35,18 +36,18 @@ namespace GraphTests {
         [Fact]
         public void Graph_creators_update_adjacency_matrix() {
             var bipartite = Graph.Bipartite(1, 2);
-            Assert.Equal(new double[] { 0, 1, 1 }, bipartite.AdjacencyMatrix[0]);
-            Assert.Equal(new double[] { 1, 0, 0 }, bipartite.AdjacencyMatrix[1]);
-            Assert.Equal(new double[] { 1, 0, 0 }, bipartite.AdjacencyMatrix[2]);
+            Assert.Equal(new Complex[] { 0, 1, 1 }, bipartite.AdjacencyMatrix[0]);
+            Assert.Equal(new Complex[] { 1, 0, 0 }, bipartite.AdjacencyMatrix[1]);
+            Assert.Equal(new Complex[] { 1, 0, 0 }, bipartite.AdjacencyMatrix[2]);
             var complete = Graph.Complete(3);
-            Assert.Equal(new double[] { 0, 1, 1 }, complete.AdjacencyMatrix[0]);
-            Assert.Equal(new double[] { 1, 0, 1 }, complete.AdjacencyMatrix[1]);
-            Assert.Equal(new double[] { 1, 1, 0 }, complete.AdjacencyMatrix[2]);
+            Assert.Equal(new Complex[] { 0, 1, 1 }, complete.AdjacencyMatrix[0]);
+            Assert.Equal(new Complex[] { 1, 0, 1 }, complete.AdjacencyMatrix[1]);
+            Assert.Equal(new Complex[] { 1, 1, 0 }, complete.AdjacencyMatrix[2]);
             var ring = Graph.Ring(4);
-            Assert.Equal(new double[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[0]);
-            Assert.Equal(new double[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[1]);
-            Assert.Equal(new double[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[2]);
-            Assert.Equal(new double[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[3]);
+            Assert.Equal(new Complex[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[0]);
+            Assert.Equal(new Complex[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[1]);
+            Assert.Equal(new Complex[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[2]);
+            Assert.Equal(new Complex[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[3]);
         }
         [Theory]
         [InlineData(2)]
@@ -123,9 +124,9 @@ namespace GraphTests {
             var edges = new List<Edge> { ab, bc };
             var graph = new Graph(nodes, edges);
             var adjacencyMatrix = graph.AdjacencyMatrix;
-            Assert.Equal(new List<double> { 0, 2, 0 }, adjacencyMatrix.Rows[0]);
-            Assert.Equal(new List<double> { 2, 0, 1 }, adjacencyMatrix.Rows[1]);
-            Assert.Equal(new List<double> { 0, 1, 0 }, adjacencyMatrix.Rows[2]);
+            Assert.Equal(new List<Complex> { 0, 2, 0 }, adjacencyMatrix.Rows[0]);
+            Assert.Equal(new List<Complex> { 2, 0, 1 }, adjacencyMatrix.Rows[1]);
+            Assert.Equal(new List<Complex> { 0, 1, 0 }, adjacencyMatrix.Rows[2]);
         }
         [Fact]
         public void Can_maintain_matrix_representation_with_directed_edges() {
@@ -138,9 +139,9 @@ namespace GraphTests {
             var edges = new List<Edge> { ab, bc };
             var graph = new Graph(nodes, edges);
             var adjacencyMatrix = graph.AdjacencyMatrix;
-            Assert.Equal(new List<double> { 0, 1, 0 }, adjacencyMatrix.Rows[0]);
-            Assert.Equal(new List<double> { 0, 0, 5 }, adjacencyMatrix.Rows[1]);
-            Assert.Equal(new List<double> { 0, 0, 0 }, adjacencyMatrix.Rows[2]);
+            Assert.Equal(new List<Complex> { 0, 1, 0 }, adjacencyMatrix.Rows[0]);
+            Assert.Equal(new List<Complex> { 0, 0, 5 }, adjacencyMatrix.Rows[1]);
+            Assert.Equal(new List<Complex> { 0, 0, 0 }, adjacencyMatrix.Rows[2]);
         }
         [Fact]
         public void Can_get_nodes() {
