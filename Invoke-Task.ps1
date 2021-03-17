@@ -150,9 +150,14 @@ function Invoke-Build {
     if ((Test-Path $CompilerPath)) {
         $CsharpDirectory = "$PSScriptRoot/csharp"
         $OutputDirectory = "$PSScriptRoot/Prelude/bin"
-        'Geodetic', 'Matrix' | ForEach-Object {
+        $SystemNumerics = "$([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory())\System.Numerics.dll"
+        'Geodetic' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -target:library -optimize -nologo
+        }
+        'Matrix' | ForEach-Object {
+            "==> Building $_ link library" | Write-Output
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -target:library -reference:$SystemNumerics -optimize -nologo
         }
         'Node' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
@@ -164,7 +169,7 @@ function Invoke-Build {
         }
         'DirectedEdge', 'Graph' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:$SystemNumerics -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -target:library -optimize -nologo
         }
         Write-Message done
     } else {
