@@ -265,6 +265,60 @@ namespace MatrixTests {
             Assert.True(I.IsDiagonal());
         }
         [Fact]
+        public void Can_check_if_matrix_is_hermitian() {
+            var A = new Matrix(3);
+            Complex[,] rows = new Complex[,] {
+                { 1, 0, 0 },
+                { 0, 5, 0 },
+                { 0, 0, 9 }
+            };
+            foreach (var Index in A.Indexes()) {
+                int i = Index[0], j = Index[1];
+                A[i][j] = rows[i, j];
+            }
+            var B = new Matrix(3);
+            var x = new Complex(7, 3);
+            var y = Complex.Conjugate(x);
+            rows = new Complex[,] {
+                { 1, 0, x },
+                { 0, 5, 0 },
+                { y, 0, 0 }
+            };
+            foreach (var Index in B.Indexes()) {
+                int i = Index[0], j = Index[1];
+                B[i][j] = rows[i, j];
+            }
+            var C = new Matrix(3);
+            rows = new Complex[,] {
+                { 1, 0, 9 },
+                { 0, 5, 0 },
+                { 4, 0, 2 }
+            };
+            foreach (var Index in C.Indexes()) {
+                int i = Index[0], j = Index[1];
+                C[i][j] = rows[i, j];
+            }
+            var D = new Matrix(3);
+            rows = new Complex[,] {
+                { 1, 0, 4 },
+                { 0, x, 0 },
+                { 4, 0, 0 }
+            };
+            foreach (var Index in D.Indexes()) {
+                int i = Index[0], j = Index[1];
+                D[i][j] = rows[i, j];
+            }
+            var U = Matrix.Unit(3);
+            var I = Matrix.Identity(3);
+            Assert.True(A.IsHermitian());
+            Assert.True(B.IsHermitian());
+            Assert.False(C.IsHermitian());
+            Assert.False(D.IsHermitian());
+            Assert.True(D.IsSymmetric());
+            Assert.True(U.IsHermitian());
+            Assert.True(I.IsHermitian());
+        }
+        [Fact]
         public void Can_check_if_matrix_is_orthogonal() {
             var I = Matrix.Identity(3);
             Assert.True(I.IsOrthogonal());
@@ -630,10 +684,17 @@ namespace MatrixTests {
                 sum += identity;
             }
             var A = Matrix.Identity(2);
-            var product = Matrix.Multiply(A, k);
+            var product = A * k;
             Assert.Equal(sum.Rows, product.Rows);
             Assert.Equal(new Complex[] { k, 0 }, product[0]);
             Assert.Equal(new Complex[] { 0, k }, product[1]);
+            var c = new Complex(k, 1);
+            product = A * c;
+            Assert.Equal(new Complex[] { c, 0 }, product[0]);
+            Assert.Equal(new Complex[] { 0, c }, product[1]);
+            product = c * A;
+            Assert.Equal(new Complex[] { c, 0 }, product[0]);
+            Assert.Equal(new Complex[] { 0, c }, product[1]);
         }
         [Theory]
         [InlineData(3)]
@@ -817,10 +878,12 @@ namespace MatrixTests {
             var A = Matrix.Fill(new Matrix(1, 2), 1E-14);
             var B = Matrix.Fill(new Matrix(1, 2), 1E-15);
             var C = Matrix.Fill(new Matrix(1, 2), 1E-16);
+            var C1 = Matrix.Fill(new Matrix(1, 2), new Complex(1E-16, 1E-17));
             var D = Matrix.Fill(new Matrix(1, 2), 1E-16);
             Assert.Equal(new Complex[] { 1E-14, 1E-14 }, A.CoerceZero()[0]);
             Assert.Equal(new Complex[] { 1E-15, 1E-15 }, B.CoerceZero()[0]);
             Assert.Equal(new Complex[] { 0, 0 }, C.CoerceZero()[0]);
+            Assert.Equal(new Complex[] { 0, 0 }, C1.CoerceZero()[0]);
             Assert.Equal(new Complex[] { 0, 0 }, A.CoerceZero(1E-13)[0]);
             Assert.Equal(new Complex[] { 1E-16, 1E-16 }, D.CoerceZero(1E-16)[0]);
         }
@@ -993,6 +1056,11 @@ namespace MatrixTests {
             Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
             Assert.Equal(new Complex[] { 4, 5, 6 }, edited[1]);
             Assert.Equal(new Complex[] { 7, 8, 9 }, edited[2]);
+            edited = A.InsertColumn(4, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new Complex[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new Complex[] { 7, 8, 9 }, edited[2]);
             edited = A.InsertColumn(3, new Complex[] { 11, 22, 33 }).InsertColumn(3, new double[] { 44, 55, 66 });
             Assert.Equal(new int[] { 3, 5 }, edited.Size);
             Assert.Equal(new Complex[] { 1, 2, 3, 44, 11 }, edited[0]);
@@ -1029,6 +1097,12 @@ namespace MatrixTests {
             Assert.Equal(new Complex[] { 11, 22, 33 }, edited[1]);
             Assert.Equal(new Complex[] { 4, 5, 6 }, edited[2]);
             Assert.Equal(new Complex[] { 7, 8, 9 }, edited[3]);
+            edited = A.InsertRow(1, new double[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 4, 3 }, edited.Size);
+            Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new Complex[] { 11, 22, 33 }, edited[1]);
+            Assert.Equal(new Complex[] { 4, 5, 6 }, edited[2]);
+            Assert.Equal(new Complex[] { 7, 8, 9 }, edited[3]);
             edited = A.InsertRow(3, new Complex[] { 11, 22, 33 });
             Assert.Equal(new int[] { 4, 3 }, edited.Size);
             Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
@@ -1036,6 +1110,11 @@ namespace MatrixTests {
             Assert.Equal(new Complex[] { 7, 8, 9 }, edited[2]);
             Assert.Equal(new Complex[] { 11, 22, 33 }, edited[3]);
             edited = A.InsertRow(4, new Complex[] { 11, 22, 33 });
+            Assert.Equal(new int[] { 3, 3 }, edited.Size);
+            Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new Complex[] { 4, 5, 6 }, edited[1]);
+            Assert.Equal(new Complex[] { 7, 8, 9 }, edited[2]);
+            edited = A.InsertRow(4, new double[] { 11, 22, 33 });
             Assert.Equal(new int[] { 3, 3 }, edited.Size);
             Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
             Assert.Equal(new Complex[] { 4, 5, 6 }, edited[1]);
@@ -1048,6 +1127,20 @@ namespace MatrixTests {
             Assert.Equal(new Complex[] { 4, 5, 6 }, edited[3]);
             Assert.Equal(new Complex[] { 7, 8, 9 }, edited[4]);
             edited = A.InsertRow(1, new Complex[] { 11, 22, 33 }).InsertRow(4, new Complex[] { 44, 55, 66 });
+            Assert.Equal(new int[] { 5, 3 }, edited.Size);
+            Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new Complex[] { 11, 22, 33 }, edited[1]);
+            Assert.Equal(new Complex[] { 4, 5, 6 }, edited[2]);
+            Assert.Equal(new Complex[] { 7, 8, 9 }, edited[3]);
+            Assert.Equal(new Complex[] { 44, 55, 66 }, edited[4]);
+            edited = A.InsertRow(1, new double[] { 11, 22, 33 }).InsertRow(4, new double[] { 44, 55, 66 });
+            Assert.Equal(new int[] { 5, 3 }, edited.Size);
+            Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
+            Assert.Equal(new Complex[] { 11, 22, 33 }, edited[1]);
+            Assert.Equal(new Complex[] { 4, 5, 6 }, edited[2]);
+            Assert.Equal(new Complex[] { 7, 8, 9 }, edited[3]);
+            Assert.Equal(new Complex[] { 44, 55, 66 }, edited[4]);
+            edited = A.InsertRow(1, new double[] { 11, 22, 33 }).InsertRow(4, new Complex[] { 44, 55, 66 });
             Assert.Equal(new int[] { 5, 3 }, edited.Size);
             Assert.Equal(new Complex[] { 1, 2, 3 }, edited[0]);
             Assert.Equal(new Complex[] { 11, 22, 33 }, edited[1]);

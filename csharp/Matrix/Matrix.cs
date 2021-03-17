@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Math;
@@ -203,7 +204,7 @@ namespace Prelude {
                 int i = index[0], j = index[1];
                 Complex sum = 0;
                 for (int k = 0; k < p; ++k) {
-                    sum += a[i][k] * b[k][j];
+                    sum += Complex.Conjugate(a[i][k]) * b[k][j];
                 }
                 product[i][j] = sum;
             }
@@ -485,11 +486,18 @@ namespace Prelude {
             }
             throw new Exception("Eigenvector algorithm failed to converge");
         }
-        public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, double scalar = 1) {
+        /// <summary>
+        /// Perform elementary row operation: Given two rows, A and B, and a scalar constant, k, add (k * A) to row B.
+        /// </summary>
+        /// <param name="rowIndexA">Index of first row</param>
+        /// <param name="rowIndexB">Index of second row</param>
+        /// <param name="scalar">Optional scalar value to multiply with A before adding to B</param>
+        /// <returns>Matrix</returns>
+        public Matrix ElementaryRowOperation(int rowIndexA, int rowIndexB, [Optional] Complex scalar) {
             int rowCount = Size[0], columnCount = Size[1];
             var temp = new Matrix(rowCount, columnCount);
             temp[rowIndexB] = Rows[rowIndexA];
-            if (scalar != 1) {
+            if (scalar.Magnitude > 0) {
                 temp *= scalar;
             }
             return this + temp;
@@ -501,7 +509,7 @@ namespace Prelude {
         /// <remarks>
         /// The Frobenius norm is sometimes referred to as the Schur norm
         /// </remarks>
-        public double FrobeniusNorm() => Sqrt(Values.Select(x => Math.Pow(x.Magnitude, 2)).Sum());
+        public double FrobeniusNorm() => Sqrt(Values.Select(x => Complex.Pow(x, 2).Magnitude).Sum());
         /// <summary>
         /// Return clone of calling matrix with column inserted at passed zero-index column index
         /// </summary>
@@ -595,6 +603,21 @@ namespace Prelude {
             foreach (var pair in Indexes()) {
                 int i = pair[0], j = pair[1];
                 if (i != j && this[i][j] != 0)
+                    return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Return true if calling matrix is Hermitian
+        /// </summary>
+        /// <returns>Boolean</returns>
+        /// <remarks>
+        /// Hermitian matrices can be understood as the complex extension of symmetric matrices
+        /// </remarks>
+        public bool IsHermitian() {
+            foreach (var pair in Indexes()) {
+                int i = pair[0], j = pair[1];
+                if (this[i][j] != Complex.Conjugate(this[j][i]))
                     return false;
             }
             return true;
@@ -700,7 +723,7 @@ namespace Prelude {
         /// <remarks>
         /// Spectral norm is also known as the matrix "2-norm". Calling matrix must be square.
         /// </remarks>
-        public Complex SpectralNorm() => Sqrt((Transpose(this) * this).Eigenvalue().Magnitude);
+        public Complex SpectralNorm() => Complex.Sqrt((Transpose(this) * this).Eigenvalue());
         /// <summary>
         /// Return clone of calling matrix with two rows swapped
         /// </summary>
@@ -750,7 +773,7 @@ namespace Prelude {
                     clone = clone.SwapRows(i, j);
                 }
                 for (int l = i + 1; l < rowCount; ++l) {
-                    var factor = clone[l][i].Real / clone[i][i].Real;
+                    var factor = clone[l][i] / clone[i][i];
                     clone = clone.ElementaryRowOperation(i, l, -1 * factor);
                 }
             }
