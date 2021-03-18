@@ -152,6 +152,7 @@ Functions
   - `Enable-Remoting`
   - `Find-Duplicate`
   - `Find-FirstIndex`
+  - `Format-ComplexValue`
   - `Format-MoneyValue`
   - `Get-Covariance`
   - `Get-DefaultBrowser`
@@ -207,6 +208,7 @@ Functions
   - `Measure-Performance`
   - `Measure-Readability`
   - `New-ApplicationTemplate`
+  - `New-ComplexValue`
   - `New-DailyShutdownJob` <sup>[[3]](#3)</sup>
   - `New-File`
   - `New-ProxyCommand`

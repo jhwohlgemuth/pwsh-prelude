@@ -1,5 +1,21 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'matrix'
 
+Describe 'Complex value helper functions' -Tag 'Local', 'Remote' {
+    It 'can create complex values' {
+        $C1 = New-ComplexValue 2 3
+        $C2 = New-ComplexValue -Re 5 -Im 9
+        $C1.Real | Should -Be 2
+        $C1.Imaginary | Should -Be 3
+        $C2.Real | Should -Be 5
+        $C2.Imaginary | Should -Be 9
+    }
+    It 'can format complex values as strings' {
+        
+    }
+    It 'can format complex values as strings, with color' {
+
+    }
+}
 Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {
     It 'can provide wrapper for matrix creation' {
         $A = 1..9 | New-Matrix 3, 3
