@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+    <Controls>
+        <Control>
+            <Name>Complex-Value</Name>
+            <CustomControl>
+                <CustomEntries>
+                    <CustomEntry>
+                        <CustomItem>
+                            <ExpressionBinding>
+                                <ScriptBlock>
+                                    $Re = if ($_.Real -eq 0) { '' } else { $_.Real }
+                                    $Im = if ($_.Imaginary -eq 0) { '' } else { "$([Math]::Abs($_.Imaginary)){{#cyan i}}" }
+                                    $Sign = if ([Math]::Sign($_.Imaginary) -lt 0) { '-' } else { '+' }
+                                    $Op = if ($Re.Length -gt 0 -and $Im.Length -gt 0) { " $Sign " } else { '' }
+                                    $Minus = if ($_.Imaginary -lt 0 -and $Re.Length -eq 0) { '-' } else { '' }
+                                    "${Re}${Op}${Minus}${Im}" | Write-Label -Color White -Indent 2
+                                </ScriptBlock>
+                            </ExpressionBinding>
+                        </CustomItem>
+                    </CustomEntry>
+                </CustomEntries>
+            </CustomControl>
+        </Control>
+    </Controls>
+    <ViewDefinitions>
+        <View>
+            <Name>Complex</Name>
+            <ViewSelectedBy>
+                <TypeName>System.Numerics.Complex</TypeName>
+            </ViewSelectedBy>
+            <CustomControl>
+                <CustomEntries>
+                    <CustomEntry>
+                        <CustomItem>
+                            <Frame>
+                                <CustomItem>
+                                    <ExpressionBinding>
+                                        <CustomControlName>Complex-Value</CustomControlName>
+                                    </ExpressionBinding>
+                                </CustomItem>
+                            </Frame>
+                        </CustomItem>
+                    </CustomEntry>
+                </CustomEntries>
+            </CustomControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>
