@@ -163,6 +163,11 @@ Describe 'Get-Sum' -Tag 'Local', 'Remote' {
         1, 1, 1, 1, 1 | Get-Sum | Should -Be 5
         1..100 | Get-Sum | Should -Be 5050
         Get-Sum -Values (1..100) | Should -Be 5050
+        $C1 = New-ComplexValue 1 1
+        $C2 = New-ComplexValue 2 2
+        $C3 = New-ComplexValue 3 3
+        $Expected = New-ComplexValue 6 6
+        $C1, $C2, $C3 | Get-Sum | Should -Be $Expected
     }
     It 'can return the weighted sum of a list of numbers' {
         1, 1, 1, 1, 1 | Get-Sum -Weight 1, 2, 3, 4, 5 | Should -Be 15

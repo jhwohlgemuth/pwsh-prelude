@@ -511,6 +511,8 @@ function Get-Sum {
     #>
     [CmdletBinding()]
     [Alias('sum')]
+    [OutputType([System.Numerics.Complex])]
+    [OutputType([Int])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $Values,
@@ -523,9 +525,17 @@ function Get-Sum {
                 $Size = $Values.Count
                 $X = $Values | New-Matrix -Size 1, $Size
                 $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
-                $Values = [Matrix]::Dot($X, $W).Rows[0]
+                $Values = ($X * $W).Values
             }
-            ($Values | Measure-Object -Sum).Sum
+            $Sum = 0
+            foreach ($Value in $Values) {
+                $Sum += $Value
+            }
+            if ($Sum.Imaginary -eq 0) {
+                $Sum.Real
+            } else {
+                $Sum
+            }
         }
     }
     End {
@@ -534,11 +544,19 @@ function Get-Sum {
                 $Size = $Input.Count
                 $X = $Input | New-Matrix -Size 1, $Size
                 $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
-                $Values = [Matrix]::Dot($X, $W).Rows[0]
+                $Values = ($X * $W).Values
             } else {
                 $Values = $Input
             }
-            ($Values | Measure-Object -Sum).Sum
+            $Sum = 0
+            foreach ($Value in $Values) {
+                $Sum += $Value
+            }
+            if ($Sum.Imaginary -eq 0) {
+                $Sum.Real
+            } else {
+                $Sum
+            }
         }
     }
 }
