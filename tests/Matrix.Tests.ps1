@@ -10,10 +10,24 @@ Describe 'Complex value helper functions' -Tag 'Local', 'Remote' {
         $C2.Imaginary | Should -Be 9
     }
     It 'can format complex values as strings' {
-        
+        New-ComplexValue -Re 5 -Im 9 | Format-ComplexValue | Should -Be '5 + 9i'
+        New-ComplexValue -Re -5 -Im 9 | Format-ComplexValue | Should -Be '-5 + 9i'
+        New-ComplexValue -Re -5 -Im -9 | Format-ComplexValue | Should -Be '-5 - 9i'
+        New-ComplexValue -Re 5 -Im -9 | Format-ComplexValue | Should -Be '5 - 9i'
+        New-ComplexValue -Re 5 | Format-ComplexValue | Should -Be '5'
+        New-ComplexValue -Im 9 | Format-ComplexValue | Should -Be '9i'
+        New-ComplexValue -Im -9 | Format-ComplexValue | Should -Be '-9i'
+        New-ComplexValue -Re 0 -Im 0 | Format-ComplexValue | Should -Be '0'
     }
     It 'can format complex values as strings, with color' {
-
+        New-ComplexValue -Re 5 -Im 9 | Format-ComplexValue -WithColor | Should -Be '5 + 9{{#cyan i}}'
+        New-ComplexValue -Re -5 -Im 9 | Format-ComplexValue -WithColor | Should -Be '-5 + 9{{#cyan i}}'
+        New-ComplexValue -Re -5 -Im -9 | Format-ComplexValue -WithColor | Should -Be '-5 - 9{{#cyan i}}'
+        New-ComplexValue -Re 5 -Im -9 | Format-ComplexValue -WithColor | Should -Be '5 - 9{{#cyan i}}'
+        New-ComplexValue -Re 5 | Format-ComplexValue -WithColor | Should -Be '5'
+        New-ComplexValue -Im 9 | Format-ComplexValue -WithColor | Should -Be '9{{#cyan i}}'
+        New-ComplexValue -Im -9 | Format-ComplexValue -WithColor | Should -Be '-9{{#cyan i}}'
+        New-ComplexValue -Re 0 -Im 0 | Format-ComplexValue -WithColor | Should -Be '0'
     }
 }
 Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {

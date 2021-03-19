@@ -29,13 +29,13 @@
                                     $Values = $_.Rows
                                     $MaximumLength = $_.Indexes() | ForEach-Object {
                                         $Row, $Col = $_
-                                        $Values[$Row][$Col].ToString().Length
+                                        ($Values[$Row][$Col] | Format-ComplexValue).Length
                                     } | Get-Maximum
                                     $Padding = [Math]::Max(3, $MaximumLength)
                                     $Values | ForEach-Object {
                                         $_ | ForEach-Object {
                                             $Color = if ($_ -eq 0) { 'DarkGray' } else { 'White' }
-                                            "$($_.ToString().PadLeft($Padding + 1, ' '))" | Write-Color -Color $Color -NoNewLine
+                                            "$(($_ | Format-ComplexValue).PadLeft($Padding + 1, ' '))" | Write-Color -Color $Color -NoNewLine
                                         }
                                         '' | Write-Color
                                     }

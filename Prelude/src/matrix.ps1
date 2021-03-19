@@ -8,19 +8,28 @@
     [CmdletBinding()]
     [OutputType([String])]
     Param(
-        [Parameter(Mandatory = $True, Position = 0)]
-        [Complex] $Value,
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [System.Numerics.Complex] $Value,
         [Switch] $WithColor
     )
     $Real = $Value.Real
     $Imaginary = $Value.Imaginary
-    $Re = if ($Real -eq 0) { '' } else { $Real }
-    $Sign = if ([Math]::Sign($Imaginary) -lt 0) { '-' } else { '+' }
-    $Op = if ($Re.Length -gt 0 -and $Im.Length -gt 0) { " $Sign " } else { '' }
-    $Minus = if ($Imaginary -lt 0 -and $Re.Length -eq 0) { '-' } else { '' }
-    $Im = if ($Imaginary -eq 0) { '' } else { [Math]::Abs($Imaginary) }
-    $I = if ($WithColor) { '{{#cyan i}}' } else { 'i' }
-    "${Re}${Op}${Minus}${Im}${I}"
+    if ($Real -eq 0 -and $Imaginary -eq 0) {
+        '0'
+    } else {
+        $Re = if ($Real -eq 0) { '' } else { $Real }
+        $Sign = if ([Math]::Sign($Imaginary) -lt 0) { '-' } else { '+' }
+        $Op = if ($Re.Length -gt 0 -and $Imaginary -ne 0) { " $Sign " } else { '' }
+        $Minus = if ($Imaginary -lt 0 -and $Re.Length -eq 0) { '-' } else { '' }
+        $Im = if ($Imaginary -eq 0) { '' } else { [Math]::Abs($Imaginary) }
+        $I = if ($Imaginary -ne 0) { 'i' } else { '' }
+        if ($WithColor) {
+            $WithI = if ($Imaginary -ne 0) { "{{#cyan $I}}" } else { '' }
+            "${Re}${Op}${Minus}${Im}${WithI}"
+        } else {
+            "${Re}${Op}${Minus}${Im}${I}"
+        }
+    }
 }
 function New-ComplexValue {
     <#
