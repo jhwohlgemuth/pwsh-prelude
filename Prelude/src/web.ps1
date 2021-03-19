@@ -145,7 +145,7 @@ function ConvertTo-JavaScript {
         }
         $MatrixTemplate = {
             Param($Value)
-            $Rows = $Value.Values |
+            $Rows = $Value.Values.Real |
                 Invoke-Chunk -Size $Value.Size[1] |
                 ForEach-Object { $_ -join ', ' } |
                 ForEach-Object { "[$_]" }
