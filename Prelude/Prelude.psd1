@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.0.58'
+    ModuleVersion = '0.0.59'
     RootModule = 'Prelude.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Wohlgemuth Technology Foundation'
@@ -25,6 +25,7 @@
     )
     AliasesToExport = @(
         'basicauth'
+        'complex'
         'chunk'
         'covariance'
         'dropWhile'
@@ -100,6 +101,7 @@
         'Export-GraphData'
         'Find-Duplicate'
         'Find-FirstIndex'
+        'Format-ComplexValue'
         'Find-FirstTrueVariable'
         'Format-MoneyValue'
         'Get-Covariance'
@@ -160,6 +162,7 @@
         'Measure-Performance'
         'Measure-Readability'
         'New-ApplicationTemplate'
+        'New-ComplexValue'
         'New-DailyShutdownJob'
         'New-Edge'
         'New-File'

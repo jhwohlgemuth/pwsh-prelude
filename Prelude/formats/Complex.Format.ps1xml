@@ -9,12 +9,7 @@
                         <CustomItem>
                             <ExpressionBinding>
                                 <ScriptBlock>
-                                    $Re = if ($_.Real -eq 0) { '' } else { $_.Real }
-                                    $Im = if ($_.Imaginary -eq 0) { '' } else { "$([Math]::Abs($_.Imaginary)){{#cyan i}}" }
-                                    $Sign = if ([Math]::Sign($_.Imaginary) -lt 0) { '-' } else { '+' }
-                                    $Op = if ($Re.Length -gt 0 -and $Im.Length -gt 0) { " $Sign " } else { '' }
-                                    $Minus = if ($_.Imaginary -lt 0 -and $Re.Length -eq 0) { '-' } else { '' }
-                                    "${Re}${Op}${Minus}${Im}" | Write-Label -Color White -Indent 2
+                                    $_ | Format-ComplexValue -WithColor | Write-Label -Color White -Indent 2
                                 </ScriptBlock>
                             </ExpressionBinding>
                         </CustomItem>

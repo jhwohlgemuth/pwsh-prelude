@@ -1,4 +1,55 @@
-﻿function New-Matrix {
+﻿function Format-ComplexValue {
+    <#
+    .SYNOPSIS
+    Utility method for rendering readable output for complex numbers
+    .PARAMETER WithColor
+    When -WithColor is used, the output will include color templates to add color (see Write-Label)
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [System.Numerics.Complex] $Value,
+        [Switch] $WithColor
+    )
+    $Real = $Value.Real
+    $Imaginary = $Value.Imaginary
+    if ($Real -eq 0 -and $Imaginary -eq 0) {
+        '0'
+    } else {
+        $Re = if ($Real -eq 0) { '' } else { $Real }
+        $Sign = if ([Math]::Sign($Imaginary) -lt 0) { '-' } else { '+' }
+        $Op = if ($Re.Length -gt 0 -and $Imaginary -ne 0) { " $Sign " } else { '' }
+        $Minus = if ($Imaginary -lt 0 -and $Re.Length -eq 0) { '-' } else { '' }
+        $Im = if ($Imaginary -eq 0) { '' } else { [Math]::Abs($Imaginary) }
+        $I = if ($Imaginary -ne 0) { 'i' } else { '' }
+        if ($WithColor) {
+            $WithI = if ($Imaginary -ne 0) { "{{#cyan $I}}" } else { '' }
+            "${Re}${Op}${Minus}${Im}${WithI}"
+        } else {
+            "${Re}${Op}${Minus}${Im}${I}"
+        }
+    }
+}
+function New-ComplexValue {
+    <#
+    .SYNOPSIS
+    Utility method for creating complex values
+    #>
+    [CmdletBinding()]
+    [Alias('complex')]
+    [OutputType([System.Numerics.Complex])]
+    Param(
+        [Parameter(Position = 0)]
+        [Alias('Re')]
+        [Int] $Real = 0,
+        [Parameter(Position = 1)]
+        [Alias('Im')]
+        [Int] $Imaginary = 0
+    )
+    [System.Numerics.Complex]::New($Real, $Imaginary)
+}
+function New-Matrix {
     <#
     .SYNOPSIS
     Utility wrapper function for creating matrices
