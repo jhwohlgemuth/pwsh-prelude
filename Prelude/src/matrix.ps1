@@ -197,6 +197,7 @@ function Test-Matrix {
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         $Value,
         [Switch] $Diagonal,
+        [Switch] $Hermitian,
         [Switch] $Square,
         [Switch] $Symmetric
     )
@@ -204,6 +205,9 @@ function Test-Matrix {
         $Result = $True
         if ($Diagonal) {
             $Result = $Result -and $Value.IsDiagonal()
+        }
+        if ($Hermitian) {
+            $Result = $Result -and $Value.IsHermitian()
         }
         if ($Square) {
             $Result = $Result -and $Value.IsSquare()

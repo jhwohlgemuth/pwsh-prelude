@@ -81,11 +81,17 @@ Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {
         $A = 1..3 | New-Matrix 3, 3 -Diagonal
         $A | Test-Matrix -Diagonal | Should -BeTrue
         $A | Test-Matrix -Diagonal -Square -Symmetric | Should -BeTrue
+        $A | Test-Matrix -Hermitian | Should -BeTrue
         $A = 1..4 | New-Matrix 2, 2
+        $A | Test-Matrix -Hermitian | Should -BeFalse
         $A | Test-Matrix -Square | Should -BeTrue
         $A | Test-Matrix -Square -Symmetric | Should -BeFalse
         $A | Test-Matrix -Symmetric | Should -BeFalse
         42 | Test-Matrix | Should -BeFalse
         42 | Test-Matrix -Square | Should -BeFalse
+        $C = New-ComplexValue 1 2
+        $D = [System.Numerics.Complex]::Conjugate($C)
+        1, $C, $D, 1 | New-Matrix | Test-Matrix -Hermitian | Should -BeTrue
+        1, $C, $C, 1 | New-Matrix | Test-Matrix -Hermitian | Should -BeFalse
     }
 }
