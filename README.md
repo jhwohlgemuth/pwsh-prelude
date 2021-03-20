@@ -7,9 +7,15 @@ Powershell Prelude <sup>[[1]](#1)</sup>
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
 
-PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#5)</sup> the typical use cases.
+PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#5)</sup> the typical use cases. Use cases are varied and include:
+- Linear algebra, graph theory, and statistics
+- Data shaping, analysis, and visualization
+- Local and remote automation
+- Creating robust and intuitive user interfaces in the command line
+- PowerShell meta-programming
+- **see the [examples folder](./examples) for detailed examples**
 
-This module provides functional programming patterns for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#6)</sup>, and take control of your productivity.
+This module provides patterns that prefer pipes meant for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It strives to make your scripts more sustainable and encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#6)</sup>, and take control of your productivity.
 > For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
 Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
@@ -253,6 +259,22 @@ Get-Alias | Where-Object { $_.Source -eq 'Prelude' }
 
 Type Accelerators
 -----------------
+- `[Complex]`
+  > Shortcut for `System.Numerics.Complex` provided for convenience
+  ```PowerShell
+  $C = [Complex]::New(1, 7)
+
+  # ...or use the helper function
+  $C = complex 1 7
+
+  # Complex values have a custom format ps1xml file
+  # simply return a complex value to see the beauty
+  $C
+
+  # ...or format complex values for us in your scripts
+  $C | Format-ComplexValue -WithColor | Write-Label
+  ```
+  > **Note:** Full class name is `System.Numerics.Complex`
 - `[Coordinate]`
   > Class for working with geodetic and cartesian earth coordinate values.
   ```PowerShell
@@ -296,10 +318,12 @@ Type Accelerators
   $I = matrix 3,3 -Identity
   $IsEqual = (2 * $I) -eq ($I + $I) # now $IsEqual is True!
 
-  # Use the method of least squares to fit a line to some data
-  $X = 1,-2,1,-1,1,0,1,1,1,2 | matrix 5,2
+  # fit a simple linear regression model
+  $X0 = 1,1,1,1,1 | matrix 5,1
+  $X1 = -2,-1,0,1,2 | matrix 5,1
+  $X = $X0.Augment($X1)
   $Y = 0,0,1,1,3 | matrix 5,1
-  $B = $X.Transpose().Dot($X).Inverse().Dot($X.Transpose().Dot($Y))
+  $B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
   # ==> The result is a 2x1 matrix with the desired values (1 and 0.7, in this case)
 
   ```
