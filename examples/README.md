@@ -5,7 +5,7 @@ Examples
 1. [Estimate when your laptop will die](#example-2)
 1. [Estimate the "Golden Ratio"](#example-3)
 1. [Solve a system of linear equations](#example-4)
-1. [Calculate eccentricity of earth using classical method](#example-5)
+1. [Create a CLI application](#example-5)
 1. [Analyze Pandemic game play using graph theory](#example-6)
 
 Example #1
@@ -107,7 +107,7 @@ To ensure this equation will render an answer, we must first verify that **X<sup
 We can quickly calculate the necessary determinant:
 
 ```PowerShell
-# this return $True
+# this should return $True
 ($X.Transpose() * $X).Det() -ne 0
 ```
 
@@ -197,7 +197,7 @@ which yields the result,
 
 Example #5
 ----------
-> Use classical methods to calculate the eccentricity of the earth
+> Create a CLI application
 
 👷‍♂️ ***UNDER CONSTRUCTION***
 
