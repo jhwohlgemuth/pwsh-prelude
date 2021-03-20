@@ -201,6 +201,7 @@ Functions
   - `Invoke-Pick`
   - `Invoke-PropertyTransform`
   - `Invoke-Reduce`
+  - `Invoke-Repeat`
   - `Invoke-RemoteCommand`
   - `Invoke-RunApplication`
   - `Invoke-Speak` <sup>[[3]](#3)</sup>

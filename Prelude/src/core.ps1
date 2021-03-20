@@ -933,6 +933,31 @@ function Invoke-Reduce {
         }
     }
 }
+function Invoke-Repeat {
+    <#
+    .SYNOPSIS
+    Create an array with -Times number of items, all equal to $Value
+    .EXAMPLE
+    'a' | Invoke-Repeat -Times 3
+    # returns 'a', 'a', 'a'
+    .EXAMPLE
+    1 | repeat -x 5
+    # returns 1, 1, 1, 1, 1
+    #>
+    [CmdletBinding()]
+    [Alias('repeat')]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [AllowEmptyString()]
+        [String] $Value,
+        [Parameter(Position = 1)]
+        [Alias('x')]
+        [Int] $Times = 1
+    )
+    Process {
+        [System.Linq.Enumerable]::Repeat($Value, $Times)
+    }
+}
 function Invoke-TakeWhile {
     <#
     .SYNOPSIS

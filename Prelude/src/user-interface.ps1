@@ -352,8 +352,8 @@ function Invoke-Menu {
             $LengthValues = $Items | ForEach-Object { $_.ToString().Length }
             $MaxLength = Get-Maximum $LengthValues
             $MinLength = Get-Minimum $LengthValues
-            $Clear = ' ' | Write-Repeat -Times ($MaxLength - $MinLength)
-            $LeftPadding = ' ' | Write-Repeat -Times $Indent
+            $Clear = ' ' | Invoke-Repeat -Times ($MaxLength - $MinLength) | Invoke-Reduce -Add
+            $LeftPadding = ' ' | Invoke-Repeat -Times $Indent | Invoke-Reduce -Add
             if ($ShowHeader) {
                 $TextLength = $TotalPages.ToString().Length
                 $CurrentPage = ($PageNumber + 1).ToString().PadLeft($TextLength, '0')
@@ -578,8 +578,8 @@ function Write-BarChart {
         $Name = $_.Name
         $Value = ($_.Value / $LargestValue) * $Width
         $IsEven = ($Index % 2) -eq 0
-        $Padding = $Space | Write-Repeat -Times ($LongestNameLength - $Name.Length)
-        $Bar = $Marker | Write-Repeat -Times $Value
+        $Padding = $Space | Invoke-Repeat -Times ($LongestNameLength - $Name.Length) | Invoke-Reduce -Add
+        $Bar = $Marker | Invoke-Repeat -Times $Value | Invoke-Reduce -Add
         $ValueLabel = & { if ($ShowValues) { " $($Data.$Name)" } else { '' } }
         if ($WithColor) {
             $Color = @{
@@ -687,28 +687,6 @@ function Write-Label {
     Write-Color (' ' * $Indent) -NoNewLine
     Write-Color "$Text " -Color $Color -NoNewLine:$(-not $NewLine)
 }
-function Write-Repeat {
-    <#
-    .SYNOPSIS
-    Create string by repeating input -Value -Times times
-    .EXAMPLE
-    'nana' | repeat -Times 4
-    # returns 'nananananananana'
-    #>
-    [CmdletBinding()]
-    [Alias('repeat')]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [AllowEmptyString()]
-        [String] $Value,
-        [Parameter(Position = 1)]
-        [Alias('x')]
-        [Int] $Times = 1
-    )
-    Process {
-        Write-Output ($Value * $Times)
-    }
-}
 function Write-Title {
     <#
     .SYNOPSIS
@@ -793,7 +771,7 @@ function Write-Title {
         $BottomRight = [Char]9496
     }
     $PaddingLength = [Math]::Floor(($Width - $TextLength - 2) / 2)
-    $Padding = $Space | Write-Repeat -Times $PaddingLength
+    $Padding = $Space | Invoke-Repeat -Times $PaddingLength | Invoke-Reduce -Add
     $WidthInside = (2 * $PaddingLength) + $TextLength
     $BorderColor = @{
         Cyan = $Cyan
@@ -811,13 +789,16 @@ function Write-Title {
         DarkMagenta = $DarkMagenta
         DarkYellow = $DarkYellow
     }
-    Write-Color "$(Write-Repeat $Space -Times $Indent)$TopLeft$(Write-Repeat "$TopEdge" -Times $WidthInside)$TopRight" @BorderColor
+    $TitleIndent = $Space | Invoke-Repeat -Times $Indent | Invoke-Reduce -Add
+    $TitleTopLine = "$TopEdge" | Invoke-Repeat -Times ($WidthInside + 2) | Invoke-Reduce -Add
+    $TitleBottomLine = "$BottomEdge" | Invoke-Repeat -Times ($WidthInside - $SubText.Length + 2) | Invoke-Reduce -Add
+    Write-Color "$TitleIndent$TopLeft$TitleTopLine$TopRight" @BorderColor
     if ($TextColor) {
-        Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding{{#$TextColor $Text}}$Padding$RightEdge" @BorderColor
+        Write-Color "$TitleIndent$LeftEdge$Padding{{#$TextColor $Text}}$Padding$RightEdge" @BorderColor
     } else {
-        Write-Color "$(Write-Repeat $Space -Times $Indent)$LeftEdge$Padding$Text$Padding$RightEdge" @BorderColor
+        Write-Color "$TitleIndent$LeftEdge$Padding$Text$Padding$RightEdge" @BorderColor
     }
-    Write-Color "$(Write-Repeat $Space -Times $Indent)$BottomLeft$(Write-Repeat "$BottomEdge" -Times ($WidthInside - $SubText.Length))$SubText$BottomRight" @BorderColor
+    Write-Color "$TitleIndent$BottomLeft$TitleBottomLine$SubText$BottomRight" @BorderColor
     if ($PassThru) {
         $Text
     }

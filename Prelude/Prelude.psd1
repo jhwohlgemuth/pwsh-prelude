@@ -150,6 +150,7 @@
         'Invoke-PropertyTransform'
         'Invoke-Reduce'
         'Invoke-RemoteCommand'
+        'Invoke-Repeat'
         'Invoke-RunApplication'
         'Invoke-Speak'
         'Invoke-TakeWhile'
@@ -196,7 +197,6 @@
         'Write-BarChart'
         'Write-Color'
         'Write-Label'
-        'Write-Repeat'
         'Write-Title'
     )
     PrivateData = @{

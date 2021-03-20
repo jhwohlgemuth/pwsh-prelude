@@ -525,6 +525,22 @@ Describe 'Invoke-Reduce' -Tag 'Local', 'Remote' {
         $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
     }
 }
+
+Describe 'Invoke-Repeat' -Tag 'Local', 'Remote' {
+    It 'can create array of repeated values' {
+        Invoke-Repeat 'O' | Should -Be 'O'
+        Invoke-Repeat 'O' -Times 0 | Should -BeNullOrEmpty
+        Invoke-Repeat 'O' -Times 3 | Should -Be 'O', 'O', 'O'
+        'O' | Invoke-Repeat | Should -Be 'O'
+        '' | Invoke-Repeat -Times 5 | Should -Be '', '', '', '', ''
+        'O' | Invoke-Repeat -Times 0 | Should -BeNullOrEmpty
+        'O' | Invoke-Repeat -Times 3 | Should -Be 'O', 'O', 'O'
+        10 | Invoke-Repeat -Times 3 | Should -Be 10, 10, 10
+        0 | Invoke-Repeat -Times 6 | Should -Be 0, 0, 0, 0, 0, 0
+        1, 2, 3 | Invoke-Repeat -Times 3 | Should -Be 1, 1, 1, 2, 2, 2, 3, 3, 3
+        ' ' | Invoke-Repeat -Times 5 | Invoke-Reduce -Add | Should -Be '     '
+    }
+}
 Describe 'Invoke-TakeWhile' -Tag 'Local', 'Remote' {
     It 'can take elements until passed predicate is False' {
         $LessThan3 = { Param($X) $X -lt 3 }
