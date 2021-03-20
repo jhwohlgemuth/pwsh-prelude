@@ -28,12 +28,13 @@ function Add-TypeData {
     }
 }
 $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
-if (-not 'Complex' -as [Type]) {
+if (-not ('Complex' -as [Type])) {
     $Accelerators::Add('Complex', 'System.Numerics.Complex')
 }
 if (-not ('Prelude.Matrix' -as [Type])) {
-    Add-TypeData -Name 'Matrix'
-    $Accelerators::Add('Matrix', 'Prelude.Matrix')
+    $Name = 'Matrix'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.Matrix')
 }
 if (-not ('Prelude.Geodetic' -as [Type])) {
     Add-TypeData -Name 'Geodetic'
@@ -41,20 +42,24 @@ if (-not ('Prelude.Geodetic' -as [Type])) {
     $Accelerators::Add('Datum', 'Prelude.Geodetic.Datum')
 }
 if (-not ('Prelude.Node' -as [Type])) {
-    Add-TypeData -Name 'Node'
-    $Accelerators::Add('Node', 'Prelude.Node')
+    $Name = 'Node'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.Node')
 }
 if (-not ('Prelude.Edge' -as [Type])) {
-    Add-TypeData -Name 'Edge'
-    $Accelerators::Add('Edge', 'Prelude.Edge')
+    $Name = 'Edge'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.Edge')
 }
 if (-not ('Prelude.DirectedEdge' -as [Type])) {
-    Add-TypeData -Name 'DirectedEdge'
-    $Accelerators::Add('DirectedEdge', 'Prelude.DirectedEdge')
+    $Name = 'DirectedEdge'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.DirectedEdge')
 }
 if (-not ('Prelude.Graph' -as [Type])) {
-    Add-TypeData -Name 'Graph'
-    $Accelerators::Add('Graph', 'Prelude.Graph')
+    $Name = 'Graph'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.Graph')
 }
 <#
 Import source files
