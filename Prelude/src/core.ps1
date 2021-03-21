@@ -914,7 +914,8 @@ function Invoke-Reduce {
                 Default { $Callback }
             }
             foreach ($Item in $Items) {
-                if ($InitialValue -is [Int] -or $InitialValue -is [String] -or $InitialValue -is [Bool] -or $InitialValue -is [Array]) {
+                $ShouldSaveResult = ([Array], [Bool], [System.Numerics.Complex], [Int], [String] | ForEach-Object { $InitialValue -is $_ }) -contains $True
+                if ($ShouldSaveResult) {
                     $Result = & $Callback $Result $Item $Index $Items
                 } else {
                     & $Callback $Result $Item $Index $Items
