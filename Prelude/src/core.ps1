@@ -949,7 +949,7 @@ function Invoke-Repeat {
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [AllowEmptyString()]
-        [String] $Value,
+        $Value,
         [Parameter(Position = 1)]
         [Alias('x')]
         [Int] $Times = 1
