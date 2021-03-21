@@ -439,6 +439,14 @@ Describe 'Invoke-PropertyTransform' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Invoke-Reduce' -Tag 'Local', 'Remote' {
+    It -Skip 'can accept complex values as initial values' {
+        $A = New-ComplexValue 1 1
+        $B = New-ComplexValue 2 2
+        $B = New-ComplexValue 3 3
+        $Zero = New-ComplexValue 0 0
+        $Expected = New-ComplexValue 6 6
+        $A, $B, $C | Invoke-Reduce -Add -InitialValue $Zero | Should -Be $Expected
+    }
     It 'will use the first item when no initial value is passed' {
         $Expected = 55
         $AllTrue = $True, $True, $True
