@@ -11,11 +11,11 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 - Linear algebra, graph theory, and statistics
 - Data shaping, analysis, and visualization
 - Local and remote automation
-- Creating robust and intuitive user interfaces in the command line
+- Creating command line [user interfaces](./kitchensink.ps1)
 - PowerShell meta-programming
-- **see the [examples folder](./examples) for detailed examples**
+- **See the [examples folder](./examples) for detailed examples**
 
-This module provides patterns that prefer pipes meant for scripting within a [ubiquitous terminal](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It strives to make your scripts more sustainable and encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#6)</sup>, and take control of your productivity.
+This module provides patterns that prefer pipes meant for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It strives to make your scripts more sustainable and encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#6)</sup>, and take control of your productivity.
 > For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
 Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
@@ -90,7 +90,7 @@ $Callback | listenTo 'boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $boot = 43
 ```
-- Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for another example)
+- Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
 ```Powershell
 'Example' | Write-Title
 $Fullname = input 'Full Name?' -Indent 4
