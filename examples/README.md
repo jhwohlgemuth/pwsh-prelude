@@ -123,7 +123,7 @@ $Y = $Data.Capacity | matrix $Data.Count, 1
 $B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
 ```
 
-Finally, we can figure out when the line crosses zero to determine when our laptop will die:
+Now we can figure out when the line crosses zero to determine when our laptop will die:
 
 ```PowerShell
 # since Y = (B1 * X) + B0, when y = 0 we know X = -B0 / B1
@@ -133,9 +133,16 @@ $BatteryDeathDate = [DateTime]::FromFileTime($XIntercept)
 
 > 🤓 The data in my battery report indicates that my Microsoft Surface Pro 6 battery may die sometime in 2028
 
-After making a statistical inference, it is common practice to assess the quality of the estimation.
+After making a statistical inference, it is common practice to assess the quality of the estimation. We can calculate an estimator for the variance with
 
-👷‍♂️ ***UNDER CONSTRUCTION***
+<a href="https://www.codecogs.com/eqnedit.php?latex=s^{2}&space;=&space;\frac{\text{SSE}}{n&space;-&space;2}&space;=&space;\frac{\textbf{Y}^{\text{T}}\textbf{Y}&space;-&space;\beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n&space;-&space;2}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?s^{2}&space;=&space;\frac{\text{SSE}}{n&space;-&space;2}&space;=&space;\frac{\textbf{Y}^{\text{T}}\textbf{Y}&space;-&space;\beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n&space;-&space;2}" title="s^{2} = \frac{\text{SSE}}{n - 2} = \frac{\textbf{Y}^{\text{T}}\textbf{Y} - \beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n - 2}" /></a>
+
+and the associated code,
+
+```PowerShell
+$SSE = ($Y.Transpose() * $Y) - ($B.Transpose() * $X.Transpose() * $Y)
+$Var = $SSE / ($Data.Count - 2)
+```
 
 ------
 
