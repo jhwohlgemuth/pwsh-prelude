@@ -9,7 +9,6 @@ function Export-GraphData {
     .EXAMPLE
     Export-GraphData 'path/to/file.xml'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -17,10 +16,20 @@ function Export-GraphData {
         [ValidateScript( { Test-Path $_ })]
         [String] $Path,
         [String] $Name,
-        [ValidateSet('CSV', 'JSON', 'XML')]
-        [String] $Format = 'CSV',
+        [Switch] $CSV,
+        [Switch] $JSON,
+        [Switch] $XML,
+        [Switch] $Mermaid,
+        [ValidateSet('CSV', 'JSON', 'XML', 'Mermaid')]
+        [String] $Format,
+        [Switch] $PassThru,
         [Switch] $Force
     )
+    $Format = if ($Format.Length -gt 0) {
+        $Format
+    } else {
+        Find-FirstTrueVariable 'CSV', 'JSON', 'XML', 'Mermaid'
+    }
     switch ($Format) {
         'JSON' {
             # UNDER CONSTRUCTION
@@ -30,10 +39,25 @@ function Export-GraphData {
             # UNDER CONSTRUCTION
             break
         }
+        'Mermaid' {
+            $Result = "graph TD`n"
+            foreach ($Edge in $Graph.Edges) {
+                $Source = $Edge.Source
+                $Target = $Edge.Target
+                $Arrow = if ($Edge.IsDirected) { '-->' } else { '---' }
+                $Result += "`t$($Source.Id)[$($Source.Label)] ${Arrow} $($Target.Id)[$($Target.Label)]`n"
+            }
+        }
         Default {
             # UNDER CONSTRUCTION
             break
         }
+    }
+    if ($PassThru) {
+        $Result | Write-Verbose
+        $Result
+    } else {
+        # UNDER CONSTRUCTION
     }
 }
 function Import-GraphData {

@@ -1,6 +1,28 @@
 & (Join-Path $PSScriptRoot '_setup.ps1') 'graph'
 
 Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
+    It -Skip 'can export graph objects to JSON format' {
+        
+    }
+    It -Skip 'can export graph objects to CSV format' {
+        
+    }
+    It -Skip 'can export graph objects to XML format' {
+        
+    }
+    It 'can export graph objects to mermaid format' {
+        $A = [Node]::New('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'a')
+        $B = [Node]::New('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'b')
+        $C = [Node]::New('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c')
+        $AB = New-Edge $A $B
+        $AC = New-Edge $A $C -Directed
+        $BC = New-Edge $B $C
+        $Edges = $AB, $BC, $AC
+        $G = [Graph]::New($Edges)
+        $Expected = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
+        $G | Export-GraphData -Mermaid -PassThru | Should -Be $Expected
+        $G | Export-GraphData -Format 'Mermaid' -PassThru | Should -Be $Expected
+    }
     It 'can create edges from nodes' {
         $A = [Node]'A'
         $B = [Node]'B'
