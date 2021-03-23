@@ -30,7 +30,8 @@ The Prelude module entry point, [Prelude.psm1](../Prelude/Prelude.psm1), simply 
   - [`core.ps1`](../src/core.ps1): Functional helper functions like `Invoke-Reduce` and `Test-Equal`. These functions typically do not have dependencies on other files in the [src](../Prelude/src) folder
   - [`data.ps1`](../src/data.ps1): Functions for ingesting, analyzing, and shaping various types of data
   - [`events.ps1`](../src/events.ps1): Functions needed for event-driven operations (inspired by [`Backbone.Events` API](https://backbonejs.org/#Events))
-  - [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` objects
+  - [`graph.ps1`](../src/graph.ps1): Helper functions for working with `[Node]`, `[Edge]`, and `[Graph]` data types.
+  - [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` data type
   - [`productivity.ps1`](../src/productivity.ps1): A grab bag that contains functions like `Touch`, `Take`, and `Test-Empty`
   - [`user-interface.ps1`](../src/user-interface.ps1): User interface components such as text inputs and multi-select menus (see [the kitchen sink](../kitchensink.ps1) for an example)
   - [`web.ps1`](../src/web.ps1): Functions for working with web technology
@@ -39,7 +40,7 @@ The Prelude module entry point, [Prelude.psm1](../Prelude/Prelude.psm1), simply 
 - [`Prelude\types\`](../Prelude/types)
   - [`Types.ps1xml` files](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_types.ps1xml?view=powershell-7.1)
 - [`Prelude\Prelude.psd1`](../Prelude/Prelude.psd1): Prelude module manifest file
-- [`Prelude\Prelude.psd1`](../Prelude/Prelude.psm1): Prelude module entry point
+- [`Prelude\Prelude.psm1`](../Prelude/Prelude.psm1): Prelude module entry point
 
 The Prelude project contains C# code that is added to the module as dynamic link libraries (DLLs). The code is organized as a single solution with multiple projects:
 - [`csharp\`]()
