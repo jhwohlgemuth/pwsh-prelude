@@ -5,8 +5,7 @@ Examples
 1. [Estimate when your laptop will die](#example-2)
 1. [Estimate the "Golden Ratio"](#example-3)
 1. [Solve a system of linear equations](#example-4)
-1. [Create a CLI application](#example-5)
-1. [Analyze Pandemic game play using graph theory](#example-6)
+1. [Analyze Pandemic game play using graph theory](#example-5)
 
 Example #1
 ----------
@@ -203,14 +202,6 @@ which yields the result,
 ------
 
 Example #5
-----------
-> Create a CLI application
-
-👷‍♂️ ***UNDER CONSTRUCTION***
-
-------
-
-Example #6
 ----------
 > Analyze the game play tactics of the [Pandemic board game](https://www.amazon.com/Z-Man-Games-ZM7101-Pandemic/dp/B00A2HD40E)
 
