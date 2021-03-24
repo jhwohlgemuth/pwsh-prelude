@@ -1,6 +1,9 @@
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'G')]
+Param()
+
 & (Join-Path $PSScriptRoot '_setup.ps1') 'graph'
 
-Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
+Describe 'Graph import/export helper functions' -Tag 'Local', 'Remote' {
     BeforeAll {
         function Get-TestGraph {
             $A = [Node]::New('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'a')
@@ -14,24 +17,36 @@ Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
             $Graph
         }
     }
-    It -Skip 'can export graph objects to JSON format' {
-        
-    }
-    It -Skip 'can export graph objects to CSV format' {
+    BeforeEach {
         $G = Get-TestGraph
-        $Expected = "SourceId,SourceLabel,SourceWeight,TargetId,TargetLabel,TargetWeight`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,1,False,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,1,False,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`n"
+    }
+    It 'can export graph objects to JSON format strings' {
+        $G | Export-GraphData -JSON -PassThru | Should -Match '"Edges":  \['
+        $G | Export-GraphData -Format 'JSON' -PassThru | Should -Match '"Edges":  \['
+        $G | Export-GraphData -JSON -Compress -PassThru | Should -Match '{"Edges":\[\{"Target"'
+        $Graph = $G | Export-GraphData -JSON -PassThru | ConvertFrom-Json
+        $Graph.Nodes | Should -HaveCount 3
+        $Graph.Edges | Should -HaveCount 3
+    }
+    It 'can export graph objects to CSV format strings' {
+        $Expected = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,True`n"
         $G | Export-GraphData -CSV -PassThru | Should -Be $Expected
         $G | Export-GraphData -Format 'CSV' -PassThru | Should -Be $Expected
     }
-    It -Skip 'can export graph objects to XML format' {
-        
+    It 'can export graph objects to XML format strings' {
+        [Xml]$Data = $G | Export-GraphData -XML -PassThru
+        $Data.Graph.Edges.Edge | Should -HaveCount 3
+        $Data.Graph.Edges.Edge[0].Node[0].id | Should -Be 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+        [Xml]$Data = $G | Export-GraphData -Format 'XML' -PassThru -Compress
+        $Data.Graph.Edges.Edge | Should -HaveCount 3
     }
-    It 'can export graph objects to mermaid format' {
-        $G = Get-TestGraph
+    It 'can export graph objects to mermaid format strings' {
         $Expected = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
         $G | Export-GraphData -Mermaid -PassThru | Should -Be $Expected
         $G | Export-GraphData -Format 'Mermaid' -PassThru | Should -Be $Expected
     }
+}
+Describe 'Graph creation helper functions' -Tag 'Local', 'Remote' {
     It 'can create edges from nodes' {
         $A = [Node]'A'
         $B = [Node]'B'
@@ -94,4 +109,3 @@ Describe 'Graph helper functions' -Tag 'Local', 'Remote' {
         $G.Edges | Should -HaveCount 2
     }
 }
-

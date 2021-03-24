@@ -7,9 +7,20 @@ function Export-GraphData {
     .PARAMETER Force
     Overwrite file at destination path, if one exists
     .EXAMPLE
-    Export-GraphData 'path/to/file.xml'
+    # Export graph data to ./graph.csv
+    $Graph | Export-GraphData
+    .EXAMPLE
+    # Write mermaid format graph data to terminal
+    $Graph | Export-GraphData -Mermaid -PassThru | Write-Color -Cyan
+    .EXAMPLE
+    # Export compressed JSON data (compress also works with XML format)
+    $Graph | Export-GraphData -JSON -Compress
+    .EXAMPLE
+    # Supports passing format as string paramter
+    $Graph | Export-GraphData -Format 'XML'
     #>
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Prelude.Graph] $Graph,
@@ -23,6 +34,7 @@ function Export-GraphData {
         [ValidateSet('CSV', 'JSON', 'XML', 'Mermaid')]
         [String] $Format,
         [Switch] $PassThru,
+        [Switch] $Compress,
         [Switch] $Force
     )
     $Format = if ($Format.Length -gt 0) {
@@ -33,20 +45,52 @@ function Export-GraphData {
     switch ($Format) {
         'CSV' {
             $Name = "${Name}.csv"
-            $Result = "SourceId,SourceLabel,SourceWeight,TargetId,TargetLabel,TargetWeight`n"
+            $Result = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`n"
             foreach ($Edge in $Graph.Edges) {
                 $Source = $Edge.Source
                 $Target = $Edge.Target
-                $Result += "$($Source.Id),$($Source.Label),$($Source.Weight),$($Source.IsDirected),$($Target.Id),$($Target.Label),$($Target.Weight),$($Target.IsDirected)`n"
+                $Result += "$($Source.Id),$($Source.Label),$($Target.Id),$($Target.Label),$($Edge.Weight),$($Edge.IsDirected)`n"
             }
         }
         'JSON' {
-            # UNDER CONSTRUCTION
-            break
+            function Format-Node {
+                Param(
+                    [Parameter(ValueFromPipeline = $True)]
+                    [Node] $Node
+                )
+                Process {
+                    $Node | Select-Object 'Id', 'Label'
+                }
+            }
+            $Name = "${Name}.json"
+            $Nodes = $Graph.Nodes | Format-Node
+            $Edges = $Graph.Edges
+            $Result = @{
+                Nodes = $Nodes
+                Edges = $Edges | ForEach-Object {
+                    @{
+                        Source = $_.Source | Format-Node
+                        Target = $_.Target | Format-Node
+                        Weight = $_.Weight
+                        IsDirected = $_.IsDirected
+                    }
+                }
+            } | ConvertTo-Json -Depth 3 -Compress:$Compress
         }
         'XML' {
-            # UNDER CONSTRUCTION
-            break
+            $Name = "${Name}.xml"
+            $Break = if ($Compress) { '' } else { "`n" }
+            $Tab = if ($Compress) { '' } else { '    ' }
+            $Header = "<?xml version=`"1.0`" encoding=`"UTF-8`"?>${Break}"
+            $Result = "${Header}<Graph>${Break}${Tab}<Edges>${Break}"
+            $Edges = $Graph.Edges | ForEach-Object {
+                $EdgeOpen = "<Edge id=`"$($_.Id)`" weight=`"$($_.Weight)`" directed=`"$($_.IsDirected.ToString().ToLower())`">${Break}"
+                $Source = "${Tab}${Tab}${Tab}<Node type=`"source`" id=`"$($_.Source.Id)`" label=`"$($_.Source.Label)`"/>"
+                $Target = "${Tab}${Tab}${Tab}<Node type=`"target`" id=`"$($_.Target.Id)`" label=`"$($_.Target.Label)`"/>"
+                "${Tab}${Tab}${EdgeOpen}${Source}${Break}${Target}${Break}${Tab}${Tab}</Edge>"
+            }
+            $Result += ($Edges -join $Break)
+            $Result += "${Break}${Tab}</Edges>${Break}</Graph>"
         }
         'Mermaid' {
             $Name = "${Name}.mmd"
