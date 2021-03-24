@@ -14,8 +14,8 @@ function Export-GraphData {
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Prelude.Graph] $Graph,
         [ValidateScript( { Test-Path $_ })]
-        [String] $Path,
-        [String] $Name,
+        [String] $Path = (Get-Location),
+        [String] $Name = 'graph',
         [Switch] $CSV,
         [Switch] $JSON,
         [Switch] $XML,
@@ -31,6 +31,15 @@ function Export-GraphData {
         Find-FirstTrueVariable 'CSV', 'JSON', 'XML', 'Mermaid'
     }
     switch ($Format) {
+        'CSV' {
+            $Name = "${Name}.csv"
+            $Result = "SourceId,SourceLabel,SourceWeight,TargetId,TargetLabel,TargetWeight`n"
+            foreach ($Edge in $Graph.Edges) {
+                $Source = $Edge.Source
+                $Target = $Edge.Target
+                $Result += "$($Source.Id),$($Source.Label),$($Source.Weight),$($Source.IsDirected),$($Target.Id),$($Target.Label),$($Target.Weight),$($Target.IsDirected)`n"
+            }
+        }
         'JSON' {
             # UNDER CONSTRUCTION
             break
@@ -40,6 +49,7 @@ function Export-GraphData {
             break
         }
         'Mermaid' {
+            $Name = "${Name}.mmd"
             $Result = "graph TD`n"
             foreach ($Edge in $Graph.Edges) {
                 $Source = $Edge.Source
@@ -48,16 +58,12 @@ function Export-GraphData {
                 $Result += "`t$($Source.Id)[$($Source.Label)] ${Arrow} $($Target.Id)[$($Target.Label)]`n"
             }
         }
-        Default {
-            # UNDER CONSTRUCTION
-            break
-        }
     }
     if ($PassThru) {
         $Result | Write-Verbose
         $Result
     } else {
-        # UNDER CONSTRUCTION
+        $Result | Out-File -FilePath (Join-Path $Path $Name)
     }
 }
 function Import-GraphData {
