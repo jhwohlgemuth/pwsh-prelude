@@ -20,6 +20,10 @@ Describe 'Graph import/export helper functions' -Tag 'Local', 'Remote' {
     BeforeEach {
         $G = Get-TestGraph
     }
+    It 'can export graph data to a file' {
+        $G | Export-GraphData -Path $TestDrive
+        (Get-Content -Path (Join-Path $TestDrive 'graph.csv'))[0] | Should -Be 'SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected'
+    }
     It 'can export graph objects to JSON format strings' -Tag 'WindowsOnly' {
         $G | Export-GraphData -JSON -PassThru | Should -Match '"Edges":  \['
         $G | Export-GraphData -Format 'JSON' -PassThru | Should -Match '"Edges":  \['
