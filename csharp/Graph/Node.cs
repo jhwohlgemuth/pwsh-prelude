@@ -48,6 +48,33 @@ namespace Prelude {
             Label = label;
             Neighbors = new List<Node> { };
         }
+        public bool Equals(Node other) {
+            if (other == null)
+                return false;
+            return other.Id == Id && other.Label == Label;
+        }
+        /// <summary>
+        /// Determines if two nodes are equal
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <seealso cref="operator=="/>
+        /// <seealso cref="operator!="/>
+        /// <seealso cref="GetHashCode"/>
+        public override bool Equals(object obj) {
+            Node a = obj as Node;
+            return Equals(a);
+        }
+        public override int GetHashCode() => Id.GetHashCode();
+        public static bool operator ==(Node left, Node right) {
+            if (((object)left) == null || ((object)right == null))
+                return Equals(left, right);
+            return left.Equals(right);
+        }
+        public static bool operator !=(Node left, Node right) {
+            if (((object)left) == null || ((object)right == null))
+                return !Equals(left, right);
+            return !(left.Equals(right));
+        }
         /// <summary>
         /// Check if value is a valid Node identifier
         /// </summary>
