@@ -23,6 +23,33 @@ namespace Prelude {
             Target = target;
             Weight = weight;
         }
+        public bool Equals(Edge other) {
+            if (other == null)
+                return false;
+            return other.Source == Source && other.Target == Target && other.Weight == Weight && other.IsDirected == IsDirected;
+        }
+        /// <summary>
+        /// Determines if two edges are equal
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <seealso cref="operator=="/>
+        /// <seealso cref="operator!="/>
+        /// <seealso cref="GetHashCode"/>
+        public override bool Equals(object obj) {
+            Edge a = obj as Edge;
+            return Equals(a);
+        }
+        public override int GetHashCode() => Id.GetHashCode();
+        public static bool operator ==(Edge left, Edge right) {
+            if (((object)left) == null || ((object)right == null))
+                return Equals(left, right);
+            return left.Equals(right);
+        }
+        public static bool operator !=(Edge left, Edge right) {
+            if (((object)left) == null || ((object)right == null))
+                return !Equals(left, right);
+            return !(left.Equals(right));
+        }
         /// <summary>
         /// Return clone of calling edge
         /// </summary>
