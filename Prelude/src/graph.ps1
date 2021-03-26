@@ -119,20 +119,33 @@ function Import-GraphData {
     .EXAMPLE
     $G = Import-GraphData 'path/to/file.xml'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter')]
     [CmdletBinding()]
+    [OutputType([Prelude.Graph])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
-        [String] $Path
+        [String] $FilePath
     )
-    $Extension = [System.IO.Path]::GetExtension($Path).Substring(1).ToUpper()
+    $Extension = [System.IO.Path]::GetExtension($FilePath).Substring(1).ToUpper()
     switch ($Extension) {
+        'CSV' {
+            $Rows = Import-Csv -Path $FilePath
+            $Graph = [Graph]::New()
+            foreach ($Row in $Rows) {
+                $Source = [Node]::New($Row.SourceId, $Row.SourceLabel)
+                $Target = [Node]::New($Row.TargetId, $Row.TargetLabel)
+                $Weight = $Row.Weight
+                $IsDirected = if ($Row.IsDirected -eq 'True') { $True } else { $False }
+                $Edge = New-Edge $Source $Target -Weight $Weight -Directed:$IsDirected
+                $Graph.Add($Source, $Target)
+                $Graph.Add($Edge)
+            }
+        }
         'JSON' {
             # UNDER CONSTRUCTION
             break
         }
-        'TXT' {
+        'MMD' {
             # UNDER CONSTRUCTION
             break
         }
@@ -140,11 +153,8 @@ function Import-GraphData {
             # UNDER CONSTRUCTION
             break
         }
-        Default {
-            # UNDER CONSTRUCTION
-            break
-        }
     }
+    $Graph
 }
 function New-Edge {
     <#

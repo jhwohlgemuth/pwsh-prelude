@@ -3,7 +3,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'graph'
 
-Describe 'Graph import/export helper functions' -Tag 'Local', 'Remote' {
+Describe 'Graph export helper functions' -Tag 'Local', 'Remote' {
     BeforeAll {
         function Get-TestGraph {
             $A = [Node]::New('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'a')
@@ -48,6 +48,31 @@ Describe 'Graph import/export helper functions' -Tag 'Local', 'Remote' {
         $Expected = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
         $G | Export-GraphData -Mermaid -PassThru | Should -Be $Expected
         $G | Export-GraphData -Format 'Mermaid' -PassThru | Should -Be $Expected
+    }
+}
+Describe 'Graph import helper functions' -Tag 'Local', 'Remote' {
+    BeforeAll {
+        function Get-TestGraph {
+            $A = [Node]::New('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'a')
+            $B = [Node]::New('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'b')
+            $C = [Node]::New('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c')
+            $AB = New-Edge $A $B
+            $AC = New-Edge $A $C -Directed
+            $BC = New-Edge $B $C
+            $Edges = $AB, $BC, $AC
+            $Graph = [Graph]::New($Edges)
+            $Graph
+        }
+    }
+    BeforeEach {
+        $G = Get-TestGraph
+    }
+    It -Skip 'can import graph objects from CSV file' {
+        $Expected = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,True`n"
+        $Path = Join-Path $TestDrive 'file.csv'
+        $Expected | Out-File -FilePath $Path
+        $Graph = Import-GraphData -FilePath $Path
+        $Graph.Nodes | Should -HaveCount 3
     }
 }
 Describe 'Graph creation helper functions' -Tag 'Local', 'Remote' {
