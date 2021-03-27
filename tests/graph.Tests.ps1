@@ -51,28 +51,17 @@ Describe 'Graph export helper functions' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Graph import helper functions' -Tag 'Local', 'Remote' {
-    BeforeAll {
-        function Get-TestGraph {
-            $A = [Node]::New('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'a')
-            $B = [Node]::New('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'b')
-            $C = [Node]::New('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c')
-            $AB = New-Edge $A $B
-            $AC = New-Edge $A $C -Directed
-            $BC = New-Edge $B $C
-            $Edges = $AB, $BC, $AC
-            $Graph = [Graph]::New($Edges)
-            $Graph
-        }
-    }
-    BeforeEach {
-        $G = Get-TestGraph
-    }
-    It -Skip 'can import graph objects from CSV file' {
+    It 'can import graph objects from CSV file' {
         $Expected = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,True`n"
         $Path = Join-Path $TestDrive 'file.csv'
         $Expected | Out-File -FilePath $Path
         $Graph = Import-GraphData -FilePath $Path
-        $Graph.Nodes | Should -HaveCount 3
+        $Graph.Nodes.Count | Should -Be 3
+        $Graph.Edges.Count | Should -Be 3
+        $Graph.Edges.IsDirected | Should -Be $False, $False, $True
+        foreach ($Node in $Graph.Nodes) {
+            $Node.Neighbors | Should -HaveCount 2
+        }
     }
 }
 Describe 'Graph creation helper functions' -Tag 'Local', 'Remote' {

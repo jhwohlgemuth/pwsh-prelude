@@ -134,12 +134,13 @@ function Import-GraphData {
             foreach ($Row in $Rows) {
                 $Source = [Node]::New($Row.SourceId, $Row.SourceLabel)
                 $Target = [Node]::New($Row.TargetId, $Row.TargetLabel)
-                $Weight = $Row.Weight
+                $From = if ($Graph.GetNode($Source.Id)) { $Graph.GetNode($Source.Id) } else { $Source }
+                $To = if ($Graph.GetNode($Target.Id)) { $Graph.GetNode($Target.Id) } else { $Target }
                 $IsDirected = if ($Row.IsDirected -eq 'True') { $True } else { $False }
-                $Edge = New-Edge $Source $Target -Weight $Weight -Directed:$IsDirected
-                $Graph.Add($Source, $Target)
-                $Graph.Add($Edge)
+                $Edge = New-Edge -From $From -To $To -Weight $Row.Weight -Directed:$IsDirected
+                $Graph.Add($From, $To).Add($Edge) | Out-Null
             }
+            $Graph
         }
         'JSON' {
             # UNDER CONSTRUCTION
@@ -154,7 +155,6 @@ function Import-GraphData {
             break
         }
     }
-    $Graph
 }
 function New-Edge {
     <#
