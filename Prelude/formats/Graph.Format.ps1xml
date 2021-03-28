@@ -28,7 +28,7 @@
                                 <ScriptBlock>
                                     $AdjacencyMatrix = $_.AdjacencyMatrix
                                     $Values = $AdjacencyMatrix.Rows
-                                    $MaximumLength = $_.Indexes() | ForEach-Object {
+                                    $MaximumLength = $AdjacencyMatrix.Indexes() | ForEach-Object {
                                         $Row, $Col = $_
                                         ($Values[$Row][$Col] | Format-ComplexValue).Length
                                     } | Get-Maximum
