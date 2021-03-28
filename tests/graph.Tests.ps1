@@ -81,6 +81,10 @@ Describe 'Graph import helper functions' -Tag 'Local', 'Remote' {
         $Data = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,True`n"
         $Data | Out-File -FilePath $Path
     }
+    It 'can import graph objects from JSON file' {
+        $Path = Join-Path $TestDrive 'file.json'
+        $G | Export-GraphData -JSON -PassThru | Out-File -FilePath $Path
+    }
     It 'can import graph objects from Mermaid file' {
         $Path = Join-Path $TestDrive 'file.mmd'
         $Data = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"

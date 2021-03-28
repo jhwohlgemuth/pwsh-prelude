@@ -127,60 +127,70 @@ function Import-GraphData {
         [String] $FilePath
     )
     $Extension = [System.IO.Path]::GetExtension($FilePath).Substring(1).ToUpper()
+    function Get-Node {
+        Param(
+            [Graph] $Graph,
+            [Node] $Node
+        )
+        $ExistingNode = $Graph.GetNode($Node.Id)
+        if ($ExistingNode) { $ExistingNode } else { $Node }
+    }
+    $Graph = [Graph]::New()
     switch ($Extension) {
         'CSV' {
-            $Rows = Import-Csv -Path $FilePath
-            $Graph = [Graph]::New()
-            foreach ($Row in $Rows) {
-                $Source = [Node]::New($Row.SourceId, $Row.SourceLabel)
-                $Target = [Node]::New($Row.TargetId, $Row.TargetLabel)
-                $From = if ($Graph.GetNode($Source.Id)) { $Graph.GetNode($Source.Id) } else { $Source }
-                $To = if ($Graph.GetNode($Target.Id)) { $Graph.GetNode($Target.Id) } else { $Target }
-                $IsDirected = if ($Row.IsDirected -eq 'True') { $True } else { $False }
-                $Edge = New-Edge -From $From -To $To -Weight $Row.Weight -Directed:$IsDirected
+            $Data = Import-Csv -Path $FilePath
+            foreach ($Item in $Data) {
+                $Source = [Node]::New($Item.SourceId, $Item.SourceLabel)
+                $Target = [Node]::New($Item.TargetId, $Item.TargetLabel)
+                $From = Get-Node -Graph $Graph -Node $Source
+                $To = Get-Node -Graph $Graph -Node $Target
+                $IsDirected = if ($Item.IsDirected -eq 'True') { $True } else { $False }
+                $Edge = New-Edge -From $From -To $To -Weight $Item.Weight -Directed:$IsDirected
                 $Graph.Add($From, $To).Add($Edge) | Out-Null
             }
-            $Graph
         }
         'JSON' {
-            # UNDER CONSTRUCTION
-            break
+            $Data = Get-Content -Path $FilePath | ConvertFrom-Json
+            foreach ($Item in $Data.Edges) {
+                $Source = [Node]::New($Item.Source.Id, $Item.Source.Label)
+                $Target = [Node]::New($Item.Target.Id, $Item.Target.Label)
+                $From = Get-Node -Graph $Graph -Node $Source
+                $To = Get-Node -Graph $Graph -Node $Target
+                $IsDirected = $Item.IsDirected
+                $Edge = New-Edge -From $From -To $To -Weight $Item.weight -Directed:$IsDirected
+                $Graph.Add($From, $To).Add($Edge) | Out-Null
+            }
         }
         'MMD' {
             $IsNotSquareBracket = { Param($X) $X -ne '[' }
             $_, $Lines = (Get-Content -Path $FilePath) -split "`n" | Invoke-Method 'Trim' | Deny-Empty
             $Data = $Lines | Invoke-Operator split ' ' | Invoke-Chunk -Size 3
-            $Graph = [Graph]::New()
             foreach ($Item in $Data) {
-                $SourceId = $Item[0] | Invoke-TakeWhile $IsNotSquareBracket
-                $TargetId = $Item[2] | Invoke-TakeWhile $IsNotSquareBracket
                 $SourceLabel = if (($Item[0] -match '\[.*\]')) { $Matches[0] } else { 'source' }
                 $TargetLabel = if (($Item[1] -match '\[.*\]')) { $Matches[0] } else { 'target' }
-                $Source = [Node]::New($SourceId, $SourceLabel)
-                $Target = [Node]::New($TargetId, $TargetLabel)
-                $From = if ($Graph.GetNode($Source.Id)) { $Graph.GetNode($Source.Id) } else { $Source }
-                $To = if ($Graph.GetNode($Target.Id)) { $Graph.GetNode($Target.Id) } else { $Target }
+                $Source = [Node]::New(($Item[0] | Invoke-TakeWhile $IsNotSquareBracket), $SourceLabel)
+                $Target = [Node]::New(($Item[2] | Invoke-TakeWhile $IsNotSquareBracket), $TargetLabel)
+                $From = Get-Node -Graph $Graph -Node $Source
+                $To = Get-Node -Graph $Graph -Node $Target
                 $IsDirected = if ($Item[1] -eq '-->') { $True } else { $False }
-                $Edge = New-Edge -From $From -To $To -Directed:$IsDirected
+                $Edge = New-Edge -From $From -To $To -Weight 1 -Directed:$IsDirected
                 $Graph.Add($From, $To).Add($Edge) | Out-Null
             }
-            $Graph
         }
         'XML' {
             [Xml]$Data = Get-Content -Path $FilePath
-            $Graph = [Graph]::New()
             foreach ($Item in $Data.Graph.Edges.Edge) {
                 $Source = [Node]::New($Item.Node[0].id, $Item.Node[0].label)
                 $Target = [Node]::New($Item.Node[1].id, $Item.Node[1].label)
-                $From = if ($Graph.GetNode($Source.Id)) { $Graph.GetNode($Source.Id) } else { $Source }
-                $To = if ($Graph.GetNode($Target.Id)) { $Graph.GetNode($Target.Id) } else { $Target }
+                $From = Get-Node -Graph $Graph -Node $Source
+                $To = Get-Node -Graph $Graph -Node $Target
                 $IsDirected = if ($Item.directed -eq 'true') { $True } else { $False }
                 $Edge = New-Edge -From $From -To $To -Weight $Item.weight -Directed:$IsDirected
                 $Graph.Add($From, $To).Add($Edge) | Out-Null
             }
-            $Graph
         }
     }
+    $Graph
 }
 function New-Edge {
     <#
