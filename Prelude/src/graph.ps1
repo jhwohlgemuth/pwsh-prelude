@@ -1,4 +1,4 @@
-function Export-GraphData {
+﻿function Export-GraphData {
     <#
     .SYNOPSIS
     Export graph data to an XML file or a JSON file.
@@ -147,8 +147,24 @@ function Import-GraphData {
             break
         }
         'MMD' {
-            # UNDER CONSTRUCTION
-            break
+            $IsNotSquareBracket = { Param($X) $X -ne '[' }
+            $_, $Lines = (Get-Content -Path $FilePath) -split "`n" | Invoke-Method 'Trim' | Deny-Empty
+            $Data = $Lines | Invoke-Operator split ' ' | Invoke-Chunk -Size 3
+            $Graph = [Graph]::New()
+            foreach ($Item in $Data) {
+                $SourceId = $Item[0] | Invoke-TakeWhile $IsNotSquareBracket
+                $TargetId = $Item[2] | Invoke-TakeWhile $IsNotSquareBracket
+                $SourceLabel = if (($Item[0] -match '\[.*\]')) { $Matches[0] } else { 'source' }
+                $TargetLabel = if (($Item[1] -match '\[.*\]')) { $Matches[0] } else { 'target' }
+                $Source = [Node]::New($SourceId, $SourceLabel)
+                $Target = [Node]::New($TargetId, $TargetLabel)
+                $From = if ($Graph.GetNode($Source.Id)) { $Graph.GetNode($Source.Id) } else { $Source }
+                $To = if ($Graph.GetNode($Target.Id)) { $Graph.GetNode($Target.Id) } else { $Target }
+                $IsDirected = if ($Item[1] -eq '-->') { $True } else { $False }
+                $Edge = New-Edge -From $From -To $To -Directed:$IsDirected
+                $Graph.Add($From, $To).Add($Edge) | Out-Null
+            }
+            $Graph
         }
         'XML' {
             [Xml]$Data = Get-Content -Path $FilePath
