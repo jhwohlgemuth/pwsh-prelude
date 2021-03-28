@@ -151,8 +151,18 @@ function Import-GraphData {
             break
         }
         'XML' {
-            # UNDER CONSTRUCTION
-            break
+            [Xml]$Data = Get-Content -Path $FilePath
+            $Graph = [Graph]::New()
+            foreach ($Item in $Data.Graph.Edges.Edge) {
+                $Source = [Node]::New($Item.Node[0].id, $Item.Node[0].label)
+                $Target = [Node]::New($Item.Node[1].id, $Item.Node[1].label)
+                $From = if ($Graph.GetNode($Source.Id)) { $Graph.GetNode($Source.Id) } else { $Source }
+                $To = if ($Graph.GetNode($Target.Id)) { $Graph.GetNode($Target.Id) } else { $Target }
+                $IsDirected = if ($Item.directed -eq 'true') { $True } else { $False }
+                $Edge = New-Edge -From $From -To $To -Weight $Item.weight -Directed:$IsDirected
+                $Graph.Add($From, $To).Add($Edge) | Out-Null
+            }
+            $Graph
         }
     }
 }
