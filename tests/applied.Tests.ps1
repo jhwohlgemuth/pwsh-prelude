@@ -92,7 +92,7 @@ Describe 'Get-Mean/Median' -Tag 'Local', 'Remote' {
         $Mean = 3, 5, 6, 6, 7, 10, 12 | Get-Mean -Geometric
         [Math]::Round($Mean, 2).ToString() | Should -Be '6.43'
         $Mean = 2, 4, 8 | Get-Mean -Geometric
-        $Mean.ToString() | Should -Be '4'
+        [Math]::Round($Mean, 2).ToString() | Should -Be '4'
     }
     It 'can calculate quadratic mean (root mean square)' {
         1, 3, 4, 5, 7 | Get-Mean -Quadratic | Should -Be 4.47213595499958
