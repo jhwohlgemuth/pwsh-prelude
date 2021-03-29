@@ -90,7 +90,7 @@ Describe 'Get-Mean/Median' -Tag 'Local', 'Remote' {
     }
     It 'can calculate geometric mean' {
         $Mean = 3, 5, 6, 6, 7, 10, 12 | Get-Mean -Geometric
-        $Mean.ToString() | Should -Be '6.42830019118304'
+        [Math]::Round($Mean, 2).ToString() | Should -Be '6.43'
         $Mean = 2, 4, 8 | Get-Mean -Geometric
         $Mean.ToString() | Should -Be '4'
     }
