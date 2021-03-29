@@ -88,6 +88,16 @@ Describe 'Get-Mean/Median' -Tag 'Local', 'Remote' {
         $Population = 4779736, 710231, 6392017, 2915918, 37253956, 5029196, 3574097, 897934
         $Population | Get-Mean | Should -Be 7694135.625
     }
+    It 'can calculate geometric mean' {
+        $Mean = 3, 5, 6, 6, 7, 10, 12 | Get-Mean -Geometric
+        $Mean.ToString() | Should -Be '6.42830019118304'
+        $Mean = 2, 4, 8 | Get-Mean -Geometric
+        $Mean.ToString() | Should -Be '4'
+    }
+    It 'can calculate quadratic mean (root mean square)' {
+        1, 3, 4, 5, 7 | Get-Mean -Quadratic | Should -Be 4.47213595499958
+        3, 5, 6, 6, 7, 10, 12 | Get-Mean -Quadratic | Should -Be 7.54983443527075
+    }
     It 'can calculate "trimmed" mean' {
         1..10 | Get-Mean -Trim 0.1 | Should -Be 5.5 -Because '1..10 and 2..9 have the same mean'
         Get-Mean -Data (1..10) -Trim 0.1 | Should -Be 5.5

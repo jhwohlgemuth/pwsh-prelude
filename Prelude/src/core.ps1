@@ -882,6 +882,7 @@ function Invoke-Reduce {
         $InitialValue,
         [Switch] $Identity,
         [Switch] $Add,
+        [Switch] $Multiply,
         [Switch] $Every,
         [Switch] $Some,
         [Switch] $FileInfo
@@ -905,9 +906,10 @@ function Invoke-Reduce {
             }
             $Index = 0
             $Result = $InitialValue
-            $Callback = switch ((Find-FirstTrueVariable 'Identity', 'Add', 'Every', 'Some', 'FileInfo')) {
+            $Callback = switch ((Find-FirstTrueVariable 'Identity', 'Add', 'Multiply', 'Every', 'Some', 'FileInfo')) {
                 'Identity' { $Callback }
                 'Add' { { Param($A, $B) $A + $B } }
+                'Multiply' { { Param($A, $B) $A * $B } }
                 'Every' { { Param($A, $B) $A -and $B } }
                 'Some' { { Param($A, $B) $A -or $B } }
                 'FileInfo' { { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length } }

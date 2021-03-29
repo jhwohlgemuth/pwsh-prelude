@@ -215,9 +215,15 @@ function Get-Mean {
     #>
     [CmdletBinding()]
     [Alias('mean')]
+    [OutputType([System.Double])]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Data,
+        [Switch] $Arithmetic,
+        [Switch] $Geometric,
+        [Switch] $Harmonic,
+        [Alias('RMS')]
+        [Switch] $Quadratic,
         [ValidateRange(0, [Double]::PositiveInfinity)]
         [Double] $Trim = 0,
         [Array] $Weight
@@ -229,9 +235,29 @@ function Get-Mean {
         if ($Trim -gt 0 -and $Trim -lt 1) {
             $Trim = [Math]::Floor($Trim * $Data.Count)
         }
+        $Type = Find-FirstTrueVariable 'Arithmetic', 'Geometric', 'Harmonic', 'Quadratic'
+        $Type | Write-Verbose
         $Data = $Data | Sort-Object
         $Data = $Data[$Trim..($Data.Count - 1 - $Trim)]
-        ($Data | Get-Sum -Weight $Weight) / $Data.Count
+        switch ($Type) {
+            'Arithmetic' {
+                ($Data | Get-Sum -Weight $Weight) / $Data.Count
+            }
+            'Geometric' {
+                $Product = $Data | Invoke-Reduce -Multiply
+                [Double]([Math]::Pow($Product, 1 / $Data.Count))
+            }
+            'Harmonic' {
+                # UNDER CONSTRUCTION
+            }
+            'Quadratic' {
+                if ($Weight) {
+                    '==> Quadratic mean does not use weights' | Write-Warning
+                }
+                $Sum = $Data | ForEach-Object { [Math]::Pow($_, 2) } | Get-Sum
+                [Math]::Sqrt($Sum / $Data.Count)
+            }
+        }
     }
 }
 function Get-Median {

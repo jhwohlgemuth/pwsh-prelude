@@ -458,6 +458,8 @@ Describe 'Invoke-Reduce' -Tag 'Local', 'Remote' {
         1..10 | Invoke-Reduce -Add | Should -Be $Expected
         1..10 | Invoke-Reduce $Add | Should -Be $Expected
         1..10 | Invoke-Reduce $Add '' | Should -Be '12345678910'
+        1..3 | Invoke-Reduce -Multiply | Should -Be 6
+        1..3 | Invoke-Reduce -Multiply -InitialValue 'x' | Should -Be 'xxxxxx'
         $AllTrue | Invoke-Reduce -Callback $Every | Should -BeTrue
         $OneFalse | Invoke-Reduce -Callback $Some | Should -BeTrue
         $AllTrue | Invoke-Reduce -Callback $Some | Should -BeTrue
