@@ -212,7 +212,13 @@ function Get-Mean {
     1..10 | mean
     .EXAMPLE
     1..10 | mean -Trim 1
+    .EXAMPLE
+    1..10 | mean -Quadratic
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Arithmetic')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Geometric')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Harmonic')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Quadratic')]
     [CmdletBinding()]
     [Alias('mean')]
     [OutputType([System.Double])]
@@ -236,7 +242,6 @@ function Get-Mean {
             $Trim = [Math]::Floor($Trim * $Data.Count)
         }
         $Type = Find-FirstTrueVariable 'Arithmetic', 'Geometric', 'Harmonic', 'Quadratic'
-        $Type | Write-Verbose
         $Data = $Data | Sort-Object
         $Data = $Data[$Trim..($Data.Count - 1 - $Trim)]
         switch ($Type) {
@@ -248,7 +253,11 @@ function Get-Mean {
                 [Double]([Math]::Pow($Product, 1 / $Data.Count))
             }
             'Harmonic' {
-                # UNDER CONSTRUCTION
+                if ($Weight) {
+                    '==> Harmonic mean does not use weights' | Write-Warning
+                }
+                $Sum = $Data | ForEach-Object { 1 / $_ } | Get-Sum
+                $Data.Count / $Sum
             }
             'Quadratic' {
                 if ($Weight) {

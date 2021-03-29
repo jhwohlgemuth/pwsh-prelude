@@ -94,6 +94,9 @@ Describe 'Get-Mean/Median' -Tag 'Local', 'Remote' {
         $Mean = 2, 4, 8 | Get-Mean -Geometric
         [Math]::Round($Mean, 2).ToString() | Should -Be '4'
     }
+    It 'can calculate harmonic mean' {
+        1, 4, 4 | Get-Mean -Harmonic | Should -Be 2
+    }
     It 'can calculate quadratic mean (root mean square)' {
         1, 3, 4, 5, 7 | Get-Mean -Quadratic | Should -Be 4.47213595499958
         3, 5, 6, 6, 7, 10, 12 | Get-Mean -Quadratic | Should -Be 7.54983443527075
