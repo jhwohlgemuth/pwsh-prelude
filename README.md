@@ -51,12 +51,12 @@ Things You Can Do With Prelude
 ```
 - Perform various operations on strings
 ```Powershell
-$abc = 'b' | insert -To 'ac' -At 2
-$abc = 'abcd' | remove -Last
+$Abc = 'b' | insert -To 'ac' -At 2
+$Abc = 'abcd' | remove -Last
 ```
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
 ```Powershell
-$Sum = 1..100 | reduce { Param($a, $b) $a + $b }
+$Sum = 1..100 | reduce { Param($A, $B) $A + $B }
 
 # or with the -Add switch
 $Sum = 1..100 | reduce -Add
@@ -79,16 +79,16 @@ say 'Hello World'
 
 # You can even listen to variables!!!
 # Declare a value for boot
-$boot = 42
+$Boot = 42
 # Create a callback
 $Callback = {
   $Data = $Event.MessageData
   say "$($Data.Name) was changed from $($Data.OldValue), to $($Data.Value)"
 }
 # Start the variable listener
-$Callback | listenTo 'boot' -Variable
+$Callback | listenTo 'Boot' -Variable
 # Change the value of boot and have your computer tell you what changed
-$boot = 43
+$Boot = 43
 ```
 - Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
 ```Powershell
