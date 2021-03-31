@@ -342,6 +342,8 @@ function Invoke-WebRequestBasicAuth {
     Data (Body) payload for HTTP request. Will only function with PUT and POST requests.
     ==> Analogous to the '-d' cURL flag
     ==> Data object will be converted to JSON string
+    .PARAMETER WebRequestParameters
+    Object for passing parameters to underlying invocation of Invoke-WebRequest
     .EXAMPLE
     # Authenticate a GET request with a token
     $Uri = 'https://api.github.com/notifications'
@@ -358,6 +360,12 @@ function Invoke-WebRequestBasicAuth {
     # Execute a PUT request with a data payload
     $Uri = 'https://api.github.com/notifications'
     @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put
+    .EXAMPLE
+    $Uri = 'https://api.github.com/notifications'
+    $Parameters = @{
+        SkipCertificateChecks = $True
+    }
+    @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put -RequestParameters $Parameters
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '')]
@@ -384,7 +392,7 @@ function Invoke-WebRequestBasicAuth {
         [Switch] $Delete,
         [Parameter(ValueFromPipeline = $True)]
         [PSObject] $Data = @{},
-        [Switch] $SkipCertificateCheck
+        [PSObject] $WebRequestParameters = @{}
     )
     Process {
         $Authorization = if ($Token.Length -gt 0) {
@@ -413,7 +421,6 @@ function Invoke-WebRequestBasicAuth {
             Headers = $Headers
             Method = $Method
             Uri = $Uri.Uri
-            SkipCertificateCheck = $SkipCertificateCheck
         }
         "==> Headers: $($Parameters.Headers | ConvertTo-Json)" | Write-Verbose
         "==> Method: $($Parameters.Method)" | Write-Verbose
@@ -422,7 +429,7 @@ function Invoke-WebRequestBasicAuth {
             $Parameters.Body = $Data | ConvertTo-Json
             "==> Data: $($Data | ConvertTo-Json)" | Write-Verbose
         }
-        $Request = Invoke-WebRequest @Parameters
+        $Request = Invoke-WebRequest @Parameters @WebRequestParameters
         if ($ParseContent) {
             $Request.Content | ConvertFrom-Json
         } else {
