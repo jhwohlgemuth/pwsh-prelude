@@ -5,7 +5,30 @@ Powershell Prelude <sup>[[1]](#1)</sup>
 [![Code Coverage](https://img.shields.io/codecov/c/github/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&token=3NMKOGN0Q8&logo=codecov "Codecov Code Coverage")](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/Prelude?label=version&style=for-the-badge&logo=powershell "PowerShell Gallery Version")](https://www.powershellgallery.com/packages/Prelude)
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
-> A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful "*functional-programming-pattern-preferring*" helpers, functions, utilities, wrappers, and aliases for things you might find yourself wanting to do on a somewhat regular basis.
+> A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful helpers, functions, utilities, wrappers, [type accelerators](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_type_accelerators?view=powershell-7.1), and aliases for things you might find yourself wanting to do on a somewhat regular basis - from meta-programming to linear algebra.
+
+Quick Start
+-----------
+
+1. Open PowerShell prompt (or [Windows Terminal app](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab))
+
+2. Install Prelude module via [PowerShell Gallery](https://www.powershellgallery.com/)
+```Powershell
+Install-Module -Name Prelude -Scope CurrentUser
+```
+
+2. **[ALTERNATIVE]** Download this repo and save the [./Prelude](./Prelude) folder to your modules directory. You can list your module directories by executing `$Env:PSModulePath -split ';'` in your PowerShell terminal. Choose one that suits your needs and permissions.
+
+3. Import Prelude into current context
+```Powershell
+Import-Module -Name Prelude
+```
+
+> ***TIP***: For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
+
+What is Prelude?
+----------------
+> Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better.
 
 PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#5)</sup> the typical use cases. Use cases are varied and include:
 - Linear algebra, graph theory, and statistics
@@ -15,29 +38,16 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 - PowerShell meta-programming
 - **See the [examples folder](./examples) for detailed examples**
 
-This module provides patterns that prefer pipes meant for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). It strives to make your scripts more sustainable and encourages you to embrace experimentation, put away the black boxes<sup>[[6]](#6)</sup>, and take control of your productivity.
-> For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
-
-Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
-
-
 > "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all their favorite functions and aliases into a grab-bag module..."  
 *- Anonymous*
 
-Quick Start
------------
+So what, big deal, who cares?
+-----------------------------
 
-1. Install module
-```Powershell
-Install-Module -Name Prelude -Scope CurrentUser
-```
+This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[[6]](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[[7]](#7)</sup> without system/administrator/root privileges.
+> For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
-2. Import module
-```Powershell
-Import-Module -Name Prelude
-```
-
-> ***TIP***: For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
+Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
 
 Things You Can Do With Prelude
 ------------------------------
@@ -470,3 +480,7 @@ Credits
 [6]
 ---
 > Compiled code, closed source software, arcane code snippets copy/pasted from the internet nether-realm, etc...
+
+[7]
+---
+> The installation of Prelude can be as simple as copying the [./Prelude](./Prelude) folder into one of the directories in your `$Env:PSModulePath` variable.
