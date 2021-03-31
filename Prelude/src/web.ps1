@@ -383,7 +383,8 @@ function Invoke-WebRequestBasicAuth {
         [Switch] $Put,
         [Switch] $Delete,
         [Parameter(ValueFromPipeline = $True)]
-        [PSObject] $Data = @{}
+        [PSObject] $Data = @{},
+        [Switch] $SkipCertificateCheck
     )
     Process {
         $Authorization = if ($Token.Length -gt 0) {
@@ -412,6 +413,7 @@ function Invoke-WebRequestBasicAuth {
             Headers = $Headers
             Method = $Method
             Uri = $Uri.Uri
+            SkipCertificateCheck = $SkipCertificateCheck
         }
         "==> Headers: $($Parameters.Headers | ConvertTo-Json)" | Write-Verbose
         "==> Method: $($Parameters.Method)" | Write-Verbose
