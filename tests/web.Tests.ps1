@@ -218,3 +218,13 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Values | Should -Contain (ConvertTo-Json $Data)
     }
 }
+Describe 'Test-Url' -Tag 'Local', 'Remote' {
+    It 'can test if google is accessible' {
+        'google.com', 'https://google.com', 'https://www.google.com' | Test-Url | Should -Be $True, $True, $True
+        'google.com', 'https://google.com', 'https://www.google.com' | Test-Url -Code | Should -Be '200', '200', '200'
+    }
+    It 'will return 404 if URL does not exist' {
+        'https://ifhtisSiteEverExistsIwillQuitTheInter.net' | Test-Url | Should -Be $False
+        'https://ifhtisSiteEverExistsIwillQuitTheInter.net' | Test-Url -Code | Should -Be '404'
+    }
+}

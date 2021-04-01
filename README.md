@@ -244,6 +244,7 @@ Functions
   - `Test-Matrix`
   - `Test-SquareMatrix`
   - `Test-SymmetricMatrix`
+  - `Test-Url`
   - `Update-HostsFile`
   - `Use-Grammar` <sup>[[3]](#3)</sup>
   - `Use-Speech` <sup>[[3]](#3)</sup>

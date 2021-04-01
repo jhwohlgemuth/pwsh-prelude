@@ -539,6 +539,43 @@ function Out-Browser {
         }
     }
 }
+function Test-Url {
+    <#
+    .SYNOPSIS
+    Test if a URL is accessible
+    .PARAMETER Code
+    Return status code as a string instead of boolean value
+    .PARAMETER WebRequestParameters
+    Object for passing parameters to underlying invocation of Invoke-WebRequest
+    .EXAMPLE
+    'https://google.com' | Test-Url
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [UriBuilder] $Value,
+        [Switch] $Code,
+        [PSObject] $WebRequestParameters = @{}
+    )
+    Process {
+        $Response = try {
+            Invoke-WebRequestBasicAuth -Uri $Value.Uri -WebRequestParameters $WebRequestParameters
+        } catch {
+            @{ StatusCode = '404' }
+        }
+        $StatusCode = $Response | Get-Property StatusCode
+        switch ($StatusCode) {
+            200 {
+                if ($Code) { '200' } else { $True }
+            }
+            Default {
+                if ($Code) { $StatusCode.ToString() } else { $False }
+            }
+        }
+    }
+}
 function Use-Web {
     <#
     .SYNOPSIS
