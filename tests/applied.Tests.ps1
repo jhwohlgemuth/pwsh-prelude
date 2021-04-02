@@ -97,7 +97,7 @@ Describe 'Get-Mean/Median' -Tag 'Local', 'Remote' {
     It 'can calculate harmonic mean' {
         1, 4, 4 | Get-Mean -Harmonic | Should -Be 2
         $Mean = 3, 5, 6, 6, 7, 10, 12 | Get-Mean -Harmonic
-        $Mean.ToString() | Should -Be '5.86826347305389'
+        [Math]::Round($Mean, 2).ToString() | Should -Be '5.87'
     }
     It 'can calculate quadratic mean (root mean square)' {
         1, 3, 4, 5, 7 | Get-Mean -Quadratic | Should -Be 4.47213595499958
