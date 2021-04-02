@@ -1,5 +1,6 @@
-Examples
-========
+Prelude Usage Examples
+======================
+> Are you more familiar with Python? You can find some Python vs Prelude comparison examples [here](./Compare.md).
 
 1. [Use GitHub API to retrieve notifications](#example-1)
 1. [Estimate when your laptop will die](#example-2)
