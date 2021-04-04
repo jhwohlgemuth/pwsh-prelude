@@ -307,6 +307,56 @@ function Get-GithubOAuthToken {
         "One or more scope values are invalid (Scopes: $(Join-StringsWithGrammar $Scope))" | Write-Error
     }
 }
+function Get-HtmlElement {
+    <#
+    .SYNOPSIS
+    Helper utility for getting elements as an array from HTML formatted input using tagname, id, or class name
+    .EXAMPLE
+    $Html | Get-HtmlElement 'div'
+    .EXAMPLE
+    $Html | Get-HtmlElement '.some-class'
+    .EXAMPLE
+    $Html | Get-HtmlElement '#some-identifier'
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(ValueFromPipeline = $True)]
+        $InputObject,
+        [Parameter(Mandatory = $True, Position = 0)]
+        [String] $Selector
+    )
+    Process {
+        $InputType = $InputObject.GetType().Name
+        $Html = if ($InputType -eq 'String') {
+            $InputObject | ConvertFrom-Html
+        } else {
+            $InputObject
+        }
+        $Elements = @()
+        switch -Regex ($Selector) {
+            '^[.].*' {
+                $ClassName = $_ | Remove-Character -At 0
+                foreach ($Element in $Html.all) {
+                    if ($Element.className -eq $ClassName) {
+                        $Elements += $Element
+                    }
+                }
+            }
+            '^#.*' {
+                $Id = $_ | Remove-Character -At 0
+                foreach ($Element in $Html.getElementById($Id)) {
+                    $Elements += $Element
+                }
+            }
+            Default {
+                foreach ($Element in $Html.all.tags($Selector)) {
+                    $Elements += $Element
+                }
+            }
+        }
+        $Elements
+    }
+}
 function Import-Html {
     <#
     .SYNOPSIS

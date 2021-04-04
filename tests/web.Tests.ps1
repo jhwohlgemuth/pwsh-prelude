@@ -161,6 +161,20 @@ Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {
         @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
     }
 }
+Describe 'Get-HtmlElement' -Tag 'Local', 'Remote' {
+    It 'can get elements from HTML string' {
+        $Html = '<html><div id="foo">foo</div><div class="foo">bar</div></html>'
+        ($Html | Get-HtmlElement 'div').innerText | Should -Be 'foo', 'bar'
+        ($Html | Get-HtmlElement '#foo').innerText | Should -Be 'foo'
+        ($Html | Get-HtmlElement '.foo').innerText | Should -Be 'bar'
+    }
+    It 'can get elements from HTML string' {
+        $Html = '<html><div id="foo">foo</div><div class="foo">bar</div></html>' | ConvertFrom-Html
+        ($Html | Get-HtmlElement 'div').innerText | Should -Be 'foo', 'bar'
+        ($Html | Get-HtmlElement '#foo').innerText | Should -Be 'foo'
+        ($Html | Get-HtmlElement '.foo').innerText | Should -Be 'bar'
+    }
+}
 Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
     It 'can make a simple request' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'

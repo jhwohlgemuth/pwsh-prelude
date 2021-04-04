@@ -177,6 +177,7 @@ Functions
   - `Get-File`
   - `Get-GithubOAuthToken`
   - `Get-HostsContent`
+  - `Get-HtmlElement`
   - `Get-LogisticSigmoid`
   - `Get-Maximum`
   - `Get-Minimum`
