@@ -4,9 +4,10 @@ Prelude Usage Examples
 
 1. [Use GitHub API to retrieve notifications](#example-1)
 1. [Estimate when your laptop will die](#example-2)
-1. [Estimate the "Golden Ratio"](#example-3)
-1. [Solve a system of linear equations](#example-4)
-1. [Analyze Pandemic game play using graph theory](#example-5)
+1. [Identify carrier of a phone number](#example-3)
+1. [Estimate the "Golden Ratio"](#example-4)
+1. [Solve a system of linear equations](#example-5)
+1. [Analyze Pandemic game play using graph theory](#example-6)
 
 Example #1
 ----------
@@ -148,6 +149,76 @@ $Var = $SSE / ($Data.Count - 2)
 
 Example #3
 ----------
+> Identify the phone carrier (ex: Verizon, ATT, etc...) of a given phone number
+
+Suppose we have a phone number, `555-123-4567`. To get started we need to prepare a query object:
+
+```PowerShell
+$Query = @{
+    npa = '555'
+    nxx = '123'
+    thoublock = '4567'
+}
+```
+
+From here we will leverage the [fonfinder](http://fonefinder.net/) site to ascertain the phone carrier, albeit in a somewhat circumspect manner. First we need to get the anchor tags from the appropriate fonefinder URL. In the same step we will filter the content to only include the URL that contains the information we seek. A mildly complex regular expression is required:
+
+```PowerShell
+$Re = '(?<=(http://fonefinder[.]net/)).*(?=[.]php$)'
+$Uri = 'http://www.fonefinder.net/findome.php'
+$Href = basicauth -Uri $Uri -Query $Query |
+    prop Content |
+    Get-HtmlElement 'a' |
+    prop href |
+    ? { $_ -match $Re }
+```
+
+Finally, we liberate the carrier name from the URL found in the previous step with
+```PowerShell
+$Href -match $Re
+$Matches[0] | Write-Color -Green
+```
+
+This code could easily be packaged as a cmdlet,
+
+```PowerShell
+function Get-Carrier {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0)]
+        [String] $PhoneNumber
+    )
+    $Npa, $Nxx, $Thoublock = $PhoneNumber -split '-'
+    $Query = @{
+        npa = $Npa
+        nxx = $Nxx
+        thoublock = $Thoublock
+    }
+    $Uri = 'http://www.fonefinder.net/findome.php'
+    $Re = '(?<=(http://fonefinder[.]net/)).*(?=[.]php$)'
+    $Href = Invoke-WebRequestBasicAuth -Uri $Uri -Query $Query |
+        Get-Property 'Content' |
+        Get-HtmlElement 'a' |
+        Get-Property 'href' |
+        Where-Object { $_ -match $Re }
+    if ($Href -match $Re) {
+        $Matches[0]
+    } else {
+        'Unknown'
+    }
+}
+```
+which would be used like this:
+
+```PowerShell
+"Your carrier is $(Get-Carrier '555-123-4567')" | Write-Color -Cyan
+```
+
+
+------
+
+Example #4
+----------
 > Estimate the "Golden Ratio" using matrices and the Fibonacci Sequence
 
 First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations:
@@ -172,7 +243,7 @@ $Phi = $A.Eigenvalue()
 
 ------
 
-Example #4
+Example #5
 ----------
 > Solve system of equations using [Gaussian elimination](https://en.wikipedia.org/wiki/Gaussian_elimination)
 
@@ -202,7 +273,7 @@ which yields the result,
 
 ------
 
-Example #5
+Example #6
 ----------
 > Analyze the game play tactics of the [Pandemic board game](https://www.amazon.com/Z-Man-Games-ZM7101-Pandemic/dp/B00A2HD40E)
 
