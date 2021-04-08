@@ -5,9 +5,10 @@ Prelude Usage Examples
 1. [Use GitHub API to retrieve notifications](#example-1)
 1. [Estimate when your laptop will die](#example-2)
 1. [Identify carrier of a phone number](#example-3)
-1. [Estimate the "Golden Ratio"](#example-4)
-1. [Solve a system of linear equations](#example-5)
-1. [Analyze Pandemic game play using graph theory](#example-6)
+1. [Get current count of space objects](#example-4)
+1. [Estimate the "Golden Ratio"](#example-5)
+1. [Solve a system of linear equations](#example-6)
+1. [Analyze Pandemic game play using graph theory](#example-7)
 
 Example #1
 ----------
@@ -214,10 +215,25 @@ which would be used like this:
 "Your carrier is $(Get-Carrier '555-123-4567')" | Write-Color -Cyan
 ```
 
-
 ------
 
 Example #4
+----------
+> Get current number of objects in space
+
+The [Texas Advanced Computing Center (TACC)](tacc.utexas.edu) provides an updated count of space objects. We can easily scrape their website with
+
+```PowerShell
+basicauth -Uri 'http://astria.tacc.utexas.edu/compliance/default?' |
+    prop 'Content' |
+    Get-HtmlElement 'td' |
+    prop 'innerText' |
+    method 'Trim'
+```
+
+------
+
+Example #5
 ----------
 > Estimate the "Golden Ratio" using matrices and the Fibonacci Sequence
 
@@ -243,7 +259,7 @@ $Phi = $A.Eigenvalue()
 
 ------
 
-Example #5
+Example #6
 ----------
 > Solve system of equations using [Gaussian elimination](https://en.wikipedia.org/wiki/Gaussian_elimination)
 
@@ -273,7 +289,7 @@ which yields the result,
 
 ------
 
-Example #6
+Example #7
 ----------
 > Analyze the game play tactics of the [Pandemic board game](https://www.amazon.com/Z-Man-Games-ZM7101-Pandemic/dp/B00A2HD40E)
 
