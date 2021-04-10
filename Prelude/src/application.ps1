@@ -340,7 +340,7 @@ function Save-State {
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     Param(
-        [Parameter(Position = 0)]
+        [Parameter(Mandatory = $True, Position = 0)]
         [String] $Id,
         [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
         [PSObject] $State,
@@ -351,10 +351,7 @@ function Save-State {
         $Path = Join-Path $TempRoot "state-$Id.xml"
     }
     if ($PSCmdlet.ShouldProcess($Path)) {
-        $State = [ApplicationState]$State
-        if ($Id) {
-            $State.Id = $Id
-        }
+        $State.Id = $Id
         $State | Export-Clixml -Path $Path
         "==> Saved state to $Path" | Write-Verbose
     } else {
