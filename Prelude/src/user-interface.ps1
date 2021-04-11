@@ -561,26 +561,28 @@ function Write-BarChart {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [PSObject] $InputObject,
+        $InputObject,
         [Int] $Width = 100,
         [Switch] $ShowValues,
         [Switch] $Alternate,
         [Switch] $WithColor
     )
-    $Data = [PSCustomObject]$InputObject
+    $Index = 0
     $Space = ' '
     $Tee = ([Char]9508).ToString()
     $Marker = ([Char]9608).ToString()
-    $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
-    $LongestNameLength = ($Data.PSObject.Properties.Name | Sort-Object { $_.Length } -Descending | Select-Object -First 1).Length
-    $Index = 0
-    $Data.PSObject.Properties | Sort-Object { $_.Value } | ForEach-Object {
-        $Name = $_.Name
-        $Value = ($_.Value / $LargestValue) * $Width
+    function Write-Bar {
+        Param(
+            [String] $Name,
+            [Int] $Value,
+            [String] $LargestName = '#',
+            [Int] $LargestValue = 1
+        )
+        $Value = ($Value / $LargestValue) * $Width
         $IsEven = ($Index % 2) -eq 0
-        $Padding = $Space | Invoke-Repeat -Times ($LongestNameLength - $Name.Length) | Invoke-Reduce -Add
+        $Padding = $Space | Invoke-Repeat -Times ($LongestName.Length - $Name.Length) | Invoke-Reduce -Add
         $Bar = $Marker | Invoke-Repeat -Times $Value | Invoke-Reduce -Add
-        $ValueLabel = & { if ($ShowValues) { " $($Data.$Name)" } else { '' } }
+        $ValueLabel = & { if ($ShowValues) { " $Name" } else { '' } }
         if ($WithColor) {
             $Color = @{
                 Cyan = $($IsEven -and $Alternate)
@@ -595,6 +597,27 @@ function Write-BarChart {
         "$Padding{{#white $Name $Tee}}$Bar" | Write-Color @Color -NoNewLine
         $ValueLabel | Write-Color @Color
         $Index++
+    }
+    switch ($InputObject.GetType().Name) {
+        'Matrix' {
+            $Columns = $InputObject.Columns
+            $LongestName = $Columns[0].Real | Sort-Object { $_.ToString().Length } -Descending | Select-Object -First 1
+            $LargestValue = $Columns[1].Real | Get-Maximum
+            $InputObject.Rows | Sort-Object { $_[1].Real } | ForEach-Object {
+                $Name, $Value = $_.Real
+                Write-Bar -Name $Name -Value $Value -LongestName $LongestName -LargestValue $LargestValue
+            }
+        }
+        Default {
+            $Data = [PSCustomObject]$InputObject
+            $LongestName = $Data.PSObject.Properties.Name | Sort-Object { $_.Length } -Descending | Select-Object -First 1
+            $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
+            $Data.PSObject.Properties | Sort-Object { $_.Value } | ForEach-Object {
+                $Name = $_.Name
+                $Value = $_.Value
+                Write-Bar -Name $Name -Value $Value -LargestName $LongestName -LargestValue $LargestValue
+            }
+        }
     }
 }
 function Write-Color {
