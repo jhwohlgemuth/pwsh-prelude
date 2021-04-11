@@ -16,7 +16,7 @@ Describe 'Application State' -Tag 'Local', 'Remote' {
         $Id = (New-Guid).Guid
         $Value = (New-Guid).Guid
         $State = @{ Id = $Id; Data = @{ Value = $Value } }
-        $State | Save-State -Path $Path
+        $State | Save-State -Id $Id -Path $Path
         $Expected = Get-State -Path $Path
         $Expected.Id | Should -Be $Id
         $Expected.Data.Value | Should -Be $Value
@@ -25,7 +25,7 @@ Describe 'Application State' -Tag 'Local', 'Remote' {
     It 'can test save using -WhatIf switch' {
         Mock Write-Verbose {}
         $Path = Join-Path $TestDrive 'test.xml'
-        @{ Data = 42 } | Save-State -Path $Path -WhatIf
+        @{ Data = 42 } | Save-State -Id 'whatif' -Path $Path -WhatIf
         (Test-Path $Path) | Should -BeFalse
     }
 }
