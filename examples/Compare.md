@@ -3,6 +3,7 @@ Comparison Examples
 - [Python vs Prelude](#python-vs-prelude)
 - [Pandas vs Prelude](#pandas-vs-prelude)
 - [NumPy vs Prelude](#numpy-vs-prelude)
+- [JavaScript vs Prelude](#javascript-vs-prelude)
 
 Python vs Prelude
 =================
@@ -142,4 +143,83 @@ Import-Module 'Prelude'
 $X = 4, 8, 7, 9 | matrix
 $Determinant = $X.Det()
 $Inverse = $X.Inverse()
+```
+
+JavaScript vs Prelude
+=====================
+
+Find the length of the longest word in a list
+---------------------------------------------
+
+**JavaScript**
+```js
+const result = Math.max(...(['always', 'look', 'on', 'the', 'bright', 'side', 'of', 'life'].map(el => el.length)));
+console.log(result);
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+'always', 'look', 'on', 'the', 'bright', 'side', 'of', 'life' | prop Length | max
+```
+
+Partition an array
+------------------
+
+**JavaScript**
+```js
+const partition = (arr, predicate) => arr.reduce((acc, i) => (acc[predicate(i) ? 0 : 1].push(i), acc), [[], []]);
+const isEven = n => n % 2 === 0
+const result = partition([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], isEven);
+console.log(result);
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+$IsEven = { Param($X) $X % 2 -eq 0 }
+1..10 | partition $IsEven
+```
+
+Chunk an array into smaller arrays
+----------------------------------
+
+**JavaScript**
+```js
+const chunk = (arr, size) => arr.reduce((acc, e, i) => (i % size ? acc[acc.length - 1].push(e) : acc.push([e]), acc), []);
+const result = chunk([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3);
+console.log(result);
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+1..10 | chunk -s 3
+```
+
+Zip two arrays into a single array
+----------------------------------
+
+**JavaScript**
+```js
+const zip = (...arr) => Array.from({length: Math.max(...arr.map(a => a.length))}, (_, i) => arr.map(a => a[i]));
+const result = zip(['a', 'b', 'c', 'd', 'e'], [1, 2, 3, 4, 5]);
+console.log(result);
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+@('a', 'b', 'c', 'd', 'e'), (1..5) | zip
+```
+
+Unzip an array into two arrays
+------------------------------
+
+**JavaScript**
+```js
+const unzip = arr => arr.reduce((acc, c) => (c.forEach((v, i) => acc[i].push(v)), acc), Array.from({length: Math.max(...arr.map(a => a.length))}, (_) => []));
+const result = unzip([['a', 1], ['b', 2], ['c', 3], ['d', 4], ['e', 5]]);
+console.log(result);
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+@('a', 1), @('b', 2), @('c', 3), @('d', 4), @('e', 5) | unzip
 ```
