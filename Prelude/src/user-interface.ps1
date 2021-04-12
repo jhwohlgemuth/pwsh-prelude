@@ -556,6 +556,15 @@ function Write-BarChart {
     .EXAMPLE
     # Easily display a bar chart of files using Invoke-Reduce
     Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor
+    .EXAMPLE
+    # Use a 2-column matrix as input (names must be numbers)
+    1..8 | matrix 4,2 | Write-BarChart
+    .EXAMPLE
+    # Use an array of values as input - name, value, name, value, etc...
+    'red', 55, 'white', 30, 'blue', 200 | Write-BarChart
+
+    # or with zip
+    @('red', 'white', 'blue'), @(55, 30, 200) | zip | Write-BarChart
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
@@ -567,55 +576,75 @@ function Write-BarChart {
         [Switch] $Alternate,
         [Switch] $WithColor
     )
-    $Index = 0
-    $Space = ' '
-    $Tee = ([Char]9508).ToString()
-    $Marker = ([Char]9608).ToString()
-    function Write-Bar {
-        Param(
-            [String] $Name,
-            [Int] $Value,
-            [String] $LargestName = '#',
-            [Int] $LargestValue = 1
-        )
-        $Value = ($Value / $LargestValue) * $Width
-        $IsEven = ($Index % 2) -eq 0
-        $Padding = $Space | Invoke-Repeat -Times ($LongestName.Length - $Name.Length) | Invoke-Reduce -Add
-        $Bar = $Marker | Invoke-Repeat -Times $Value | Invoke-Reduce -Add
-        $ValueLabel = & { if ($ShowValues) { " $Name" } else { '' } }
-        if ($WithColor) {
-            $Color = @{
-                Cyan = $($IsEven -and $Alternate)
-                DarkCyan = $((-not $IsEven -and $Alternate) -or (-not $Alternate))
+    Begin {
+        $Tee = ([Char]9508).ToString()
+        $Marker = ([Char]9608).ToString()
+        function Write-Bar {
+            Param(
+                [String] $Name,
+                [Int] $Value,
+                [Int] $Index,
+                [String] $LongestName = '#',
+                [Int] $LargestValue = 1
+            )
+            $NormalizedValue = ($Value / $LargestValue) * $Width
+            $Bar = $Marker | Invoke-Repeat -Times $NormalizedValue | Invoke-Reduce -Add
+            $ValueLabel = if ($ShowValues) { " $Value" } else { '' }
+            $IsEven = ($Index % 2) -eq 0
+            if ($WithColor) {
+                $Color = @{
+                    Cyan = $($IsEven -and $Alternate)
+                    DarkCyan = $((-not $IsEven -and $Alternate) -or (-not $Alternate))
+                }
+            } else {
+                $Color = @{
+                    White = $($IsEven -and $Alternate)
+                    Gray = $(-not $IsEven -and $Alternate)
+                }
             }
-        } else {
-            $Color = @{
-                White = $($IsEven -and $Alternate)
-                Gray = $(-not $IsEven -and $Alternate)
-            }
+            $PaddedName = $Name.PadLeft($LongestName.Length, ' ')
+            " {{#white $PaddedName $Tee}}$Bar" | Write-Color @Color -NoNewLine
+            $ValueLabel | Write-Color @Color
         }
-        "$Padding{{#white $Name $Tee}}$Bar" | Write-Color @Color -NoNewLine
-        $ValueLabel | Write-Color @Color
-        $Index++
     }
-    switch ($InputObject.GetType().Name) {
-        'Matrix' {
-            $Columns = $InputObject.Columns
-            $LongestName = $Columns[0].Real | Sort-Object { $_.ToString().Length } -Descending | Select-Object -First 1
-            $LargestValue = $Columns[1].Real | Get-Maximum
-            $InputObject.Rows | Sort-Object { $_[1].Real } | ForEach-Object {
-                $Name, $Value = $_.Real
-                Write-Bar -Name $Name -Value $Value -LongestName $LongestName -LargestValue $LargestValue
+    End {
+        $Index = 0
+        if ($Input.Count -gt 1) {
+            $Names, $Values = $Input | Invoke-Flatten | Invoke-Chunk -Size 2 | Invoke-Unzip
+            $LongestName = $Names | Sort-Object { $_.ToString().Length } -Descending | Select-Object -First 1
+            $LargestValue = $Values | Get-Maximum
+            $Data = for ($Index = 0; $Index -lt $Names.Count; ++$Index) {
+                @{
+                    Name = $Names[$Index]
+                    Value = $Values[$Index]
+                }
             }
-        }
-        Default {
-            $Data = [PSCustomObject]$InputObject
-            $LongestName = $Data.PSObject.Properties.Name | Sort-Object { $_.Length } -Descending | Select-Object -First 1
-            $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
-            $Data.PSObject.Properties | Sort-Object { $_.Value } | ForEach-Object {
+            $Data | Sort-Object { $_.Value } | ForEach-Object {
                 $Name = $_.Name
                 $Value = $_.Value
-                Write-Bar -Name $Name -Value $Value -LargestName $LongestName -LargestValue $LargestValue
+                Write-Bar -Name $Name -Value $Value -Index ($Index++) -LongestName $LongestName -LargestValue $LargestValue
+            }
+        } else {
+            switch ($InputObject.GetType().Name) {
+                'Matrix' {
+                    $Columns = $InputObject.Columns
+                    $LongestName = $Columns[0].Real | Sort-Object { $_.ToString().Length } -Descending | Select-Object -First 1
+                    $LargestValue = $Columns[1].Real | Get-Maximum
+                    $InputObject.Rows | Sort-Object { $_[1].Real } | ForEach-Object {
+                        $Name, $Value = $_.Real
+                        Write-Bar -Name $Name -Value $Value -Index ($Index++) -LongestName $LongestName -LargestValue $LargestValue
+                    }
+                }
+                Default {
+                    $Data = [PSCustomObject]$InputObject
+                    $LongestName = $Data.PSObject.Properties.Name | Sort-Object { $_.Length } -Descending | Select-Object -First 1
+                    $LargestValue = $Data.PSObject.Properties | Select-Object -ExpandProperty Value | Sort-Object -Descending | Select-Object -First 1
+                    $Data.PSObject.Properties | Sort-Object { $_.Value } | ForEach-Object {
+                        $Name = $_.Name
+                        $Value = $_.Value
+                        Write-Bar -Name $Name -Value $Value -Index ($Index++) -LongestName $LongestName -LargestValue $LargestValue
+                    }
+                }
             }
         }
     }

@@ -319,6 +319,7 @@ function Get-HtmlElement {
     $Html | Get-HtmlElement '#some-identifier'
     #>
     [CmdletBinding()]
+    [OutputType([System.Object[]])]
     Param(
         [Parameter(ValueFromPipeline = $True)]
         $InputObject,
