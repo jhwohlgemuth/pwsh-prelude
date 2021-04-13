@@ -245,6 +245,15 @@ namespace Prelude {
         /// <returns></returns>
         public bool Contains(Edge edge) => Edges.Contains(edge);
         /// <summary>
+        /// Calculate degree distribution dictionary for calling graph
+        /// </summary>
+        /// <returns>Dictionary<degree, count></returns>
+        public Dictionary<int, int> DegreeDistribution() {
+            return Nodes
+                .GroupBy(x => x.Degree, (deg, n) => new int[] { deg, n.Count() })
+                .ToDictionary(x => x[0], x => x[1]);
+        }
+        /// <summary>
         /// Get reference to node using node object
         /// </summary>
         /// <param name="node">Node to get</param>

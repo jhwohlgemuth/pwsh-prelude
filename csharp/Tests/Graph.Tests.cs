@@ -373,5 +373,14 @@ namespace GraphTests {
             Assert.Equal(1, graph.GetNode(b).Degree);
             Assert.Equal(1, graph.GetNode(c).Degree);
         }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(5)]
+        [InlineData(10)]
+        public void Can_calculate_degree_distribution(int N) {
+            var graph = Graph.Complete(N);
+            Assert.Equal(new Dictionary<int, int> { { N - 1, N } }, graph.DegreeDistribution());
+        }
     }
 }
