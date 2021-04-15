@@ -196,6 +196,7 @@ Functions
   - `Invoke-DropWhile`
   - `Invoke-Flatten`
   - `Invoke-FireEvent`
+  - `Invoke-GoogleSearch`
   - `Invoke-Input`
   - `Invoke-InsertString`
   - `Invoke-ListenTo`

@@ -198,6 +198,48 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
         Remove-Item $Path
     }
 }
+Describe 'Invoke-GoogleSearch' -Tag 'Local', 'Remote' {
+    InModuleScope 'Prelude' {
+        It 'can use Out-Browser to open web page' {
+            Mock Out-Browser {}
+            Assert-MockCalled Out-Browser -Times 0
+            Invoke-GoogleSearch 'foo'
+            Assert-MockCalled Out-Browser -Times 1
+        }
+    }
+    It 'can create search string for search on single word' {
+        Invoke-GoogleSearch 'foo' -PassThru | Should -Be 'foo'
+        Invoke-GoogleSearch 'foo' -Private -PassThru | Should -Be 'foo'
+        'foo' | Invoke-GoogleSearch -PassThru | Should -Be 'foo'
+        'foo' | Invoke-GoogleSearch -Private -PassThru | Should -Be 'foo'
+        Invoke-GoogleSearch 'foo' -Exact -PassThru | Should -Be '"foo"'
+        'foo' | Invoke-GoogleSearch -Exact -PassThru | Should -Be '"foo"'
+        'foo' | Invoke-GoogleSearch -Site 'example.com' -PassThru | Should -Be 'foo site:example.com'
+        'foo' | Invoke-GoogleSearch -Site 'example.com' -Exact -PassThru | Should -Be '"foo" site:example.com'
+    }
+    It 'can create search string from array input via pipe' {
+        'foo', 'bar' | Invoke-GoogleSearch -PassThru | Should -Be 'foo OR bar'
+    }
+    It 'can include and exclude multiple terms' {
+        'foo' | Invoke-GoogleSearch -Exclude 'bar', 'baz' -PassThru | Should -Be 'foo -bar -baz'
+        'foo' | Invoke-GoogleSearch -Include 'a' -Exclude 'b', 'c' -PassThru | Should -Be 'foo +a -b -c'
+    }
+    It 'can search site subdomains' {
+        Invoke-GoogleSearch -site 'example.com' -PassThru | Should -Be 'site:example.com'
+        Invoke-GoogleSearch -site 'example.com' -Subdomain -PassThru | Should -Be 'site:example.com -inurl:www'
+        'foo' | Invoke-GoogleSearch -site 'example.com' -PassThru | Should -Be 'foo site:example.com'
+        'foo' | Invoke-GoogleSearch -site 'example.com' -Subdomain -PassThru | Should -Be 'foo site:example.com -inurl:www'
+    }
+    It 'can add multiple operators' {
+        'foo' | Invoke-GoogleSearch -PassThru -Related 'example.com' -Source 'bar' -Text 'baz' -Url 'this' -Type 'pdf' | Should -Be 'foo related:example.com source:bar intext:baz inurl:this filetype:pdf'
+    }
+    It 'can add custom search operators' {
+        'foo' | Invoke-GoogleSearch -Custom '(this AND that)' -PassThru | Should -Be 'foo (this AND that)'
+    }
+    It 'can URL encode search string' {
+        'foo:bar' | Invoke-GoogleSearch -Encode -PassThru | Should -Be 'foo%3abar'
+    }
+}
 Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local', 'Remote' {
     It 'can passthru text without speaking' {
         $Text = 'this should not be heard'

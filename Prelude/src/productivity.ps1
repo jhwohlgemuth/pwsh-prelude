@@ -307,6 +307,120 @@ function Get-Screenshot {
         }
     }
 }
+function Invoke-GoogleSearch {
+    <#
+    .SYNOPSIS
+    Perform Google search within default web browser using Google search operators, available as cmdlet paramters
+    .EXAMPLE
+    'PowerShell Prelude' | google -Url 'pwsh'
+    .EXAMPLE
+    'Small-World Properties of Facebook Group Networks' | google -Type 'pdf' -Exact
+    .EXAMPLE
+    # Search subdomains for a given site
+
+    google -Site 'example.com' -Subdomain
+    #>
+    [CmdletBinding()]
+    [Alias('google')]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String[]] $Keyword = @(),
+        [Switch] $Exact,
+        [String[]] $Exclude,
+        [String[]] $Include,
+        [Switch] $Private,
+        [ValidateSet(
+            'swf', 'pdf', 'ps', 'dwf', 'kml', 'kmz',
+            'gpx', 'hwp', 'htm', 'html', 'xls', 'xlsx',
+            'ppt', 'pptx', 'doc', 'docx', 'odp', 'ods',
+            'odt', 'rtf', 'svg', 'tex', 'txt', 'text',
+            'bas', 'c', 'cc', 'cpp', 'h', 'hpp', 'cs',
+            'java', 'pl', 'py', 'wml', 'wap', 'xml'
+        )]
+        [String] $Type,
+        [String] $Related,
+        [String[]] $Site,
+        [Switch] $Subdomain,
+        [String] $Source,
+        [String] $Text,
+        [String] $Url,
+        [String] $Custom,
+        [Switch] $Encode,
+        [Switch] $PassThru
+    )
+    Begin {
+        function Invoke-Wrap {
+            Param(
+                [Parameter(ValueFromPipeline = $True)]
+                [String] $Value,
+                [String] $With
+            )
+            Process {
+                "${With}$Value${With}"
+            }
+        }
+        Add-Type -AssemblyName System.Web
+        $Root = if ($Private) { 'https://duckduckgo.com/?q=' } else { 'https://google.com/search?q=' }
+        $Terms = @()
+    }
+    End {
+        if ($Input.Count -gt 1) {
+            $Keyword = $Input
+        }
+        if ($Exact) {
+            $Keyword = $Keyword | Invoke-Wrap -With '"'
+        }
+        if ($Include.Count -gt 0) {
+            $Data = $Include | ForEach-Object { "+$_" }
+            $Terms += ($Data -join ' ')
+        }
+        if ($Exclude.Count -gt 0) {
+            $Data = $Exclude | ForEach-Object { "-$_" }
+            $Terms += ($Data -join ' ')
+        }
+        if ($Related.Length -gt 0) {
+            $Terms += "related:$Related"
+        }
+        if ($Site.Count -gt 0) {
+            $Data = $Site | ForEach-Object { "site:$_" }
+            $Terms += ($Data -join ' OR ')
+            if ($Subdomain) {
+                $Terms += '-inurl:www'
+            }
+        }
+        if ($Source.Length -gt 0) {
+            $Terms += "source:$Source"
+        }
+        if ($Text.Length -gt 0) {
+            $Terms += "intext:$Text"
+        }
+        if ($Url.Length -gt 0) {
+            $Terms += "inurl:$Url"
+        }
+        if ($Type.Length -gt 0) {
+            $Terms += "filetype:$Type"
+        }
+        if ($Custom.Length -gt 0) {
+            $Terms += $Custom
+        }
+        $SearchString += ($Keyword -join ' OR ')
+        if ($Terms.Count -gt 0) {
+            if ($SearchString.Length -gt 0) {
+                $SearchString += ' '
+            }
+            $SearchString += "$($Terms -join ' ')"
+        }
+        if ($Encode) {
+            $SearchString = [System.Web.HttpUtility]::UrlEncode($SearchString)
+        }
+        if ($PassThru) {
+            return $SearchString
+        } else {
+            "${Root}${SearchString}" | Out-Browser -Default
+        }
+    }
+}
 function Invoke-ListenForWord {
     <#
     .SYNOPSIS
