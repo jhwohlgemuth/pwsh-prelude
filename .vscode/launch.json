@@ -5,14 +5,68 @@
    "version": "0.2.0",
    "configurations": [
         {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Launch Current File",
+            "script": "${file}",
+            "args": [],
+            "cwd": "${file}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Launch Current File in Temporary Console",
+            "script": "${file}",
+            "args": [],
+            "cwd": "${file}",
+            "createTemporaryIntegratedConsole": true
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Launch Current File w/Args Prompt",
+            "script": "${file}",
+            "args": [ "${command:SpecifyScriptArgs}" ],
+            "cwd": "${file}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Launch DebugTest.ps1",
+            "script": "${workspaceRoot}/DebugTest.ps1",
+            "args": ["-Count 55 -DelayMilliseconds 250"],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Interactive Session",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "PowerShell Pester Tests",
+            "script": "Invoke-Pester",
+            "args": [],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "attach",
+            "name": "PowerShell Attach to Host Process",
+            "processId": "${command:PickPSHostProcess}",
+            "runspaceId": 1
+        },
+        {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/cs/Tests/bin/Debug/net5.0/Tests.dll",
+            "program": "${workspaceFolder}/csharp/Tests/bin/Debug/net5.0/Tests.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/cs/Tests",
+            "cwd": "${workspaceFolder}/csharp/Tests",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

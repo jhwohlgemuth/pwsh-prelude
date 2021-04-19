@@ -4,4 +4,6 @@ coverage.xml
 # Benchmark Results
 BenchmarkDotNet.Artifacts
 # Visual Studio
-/.vs
+.vs/
+# VSCode Ionide
+.ionide/
