@@ -82,5 +82,14 @@ namespace NodeTests {
             values = new List<Node> { a, b, null };
             Assert.Throws<InvalidOperationException>(() => values.Sort());
         }
+        [Theory]
+        [InlineData("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")]
+        [InlineData("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "cccccccc-cccc-cccc-cccc-cccccccccccc")]
+        public void Can_sort_nodes_by_identifiers(string left, string right) {
+            Node a = new Node(left, "left");
+            Node b = new Node(right, "right");
+            Assert.True(a < b);
+            Assert.False(a > b);
+        }
     }
 }

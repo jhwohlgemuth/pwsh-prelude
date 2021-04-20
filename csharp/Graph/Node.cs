@@ -75,6 +75,16 @@ namespace Prelude {
                 return !Equals(left, right);
             return !(left.Equals(right));
         }
+        public static bool operator <(Node left, Node right) {
+            if (((object)left) == null || ((object)right == null))
+                return false;
+            return (String.Compare(left.Id.ToString(), right.Id.ToString(), StringComparison.InvariantCulture) < 0);
+        }
+        public static bool operator >(Node left, Node right) {
+            if (((object)left) == null || ((object)right == null))
+                return false;
+            return (String.Compare(left.Id.ToString(), right.Id.ToString(), StringComparison.InvariantCulture) > 0) ;
+        }
         /// <summary>
         /// Check if value is a valid Node identifier
         /// </summary>
