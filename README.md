@@ -140,6 +140,11 @@ screenshot
 Get-Location | Find-Duplicate
 ```
 
+- Identify bad links using your browser bookmarks export
+```Powershell
+'bookmarks.html' | Import-Html | Get-HtmlElement 'a' | prop 'href' | ? { -not (Test-Url $_) }
+```
+
 ### And much more! Check out the [functions](#Functions) and [aliases](#Aliases) sections below for details
 
 Functions
