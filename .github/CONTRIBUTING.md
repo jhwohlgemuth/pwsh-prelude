@@ -134,7 +134,7 @@ Project Standards
 
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
 - Although this project has many rules <sup>[[3]](#3)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
-  - Use two-spaces for indentation <sup>[[4]](#4)</sup>
+  - Use four-spaces for indentation <sup>[[4]](#4)</sup>
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
   - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
   - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...).
@@ -163,21 +163,21 @@ Project Standards
   - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[4]](#4)</sup>
     ```Powershell
     if ($Condition) {
-      # code code code
+        # code code code
     } else {
-      # code code code
+        # code code code
     }
     function Invoke-Awesome {
-      # code code code
+        # code code code
     }
     ```
   - Prefer pipelines and avoid un-necessary variable declarations.
   - Use `DarkGray` when using `Write-Color` within "WhatIf" blocks.
     ```Powershell
     if ($PSCmdlet.ShouldProcess($Path)) {
-      # code code code
+        # code code code
     } else {
-      '==> Would have executed code code code' | Write-Color -DarkGray
+        '==> Would have executed code code code' | Write-Color -DarkGray
     }
     ```
   - When in doubt, write code that is consistent with preponderance of existing codebase. Let's call this the "***priority of pre-existing preponderance rule***".
