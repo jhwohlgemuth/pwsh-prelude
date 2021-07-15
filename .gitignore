@@ -7,3 +7,5 @@ BenchmarkDotNet.Artifacts
 .vs/
 # VSCode Ionide
 .ionide/
+#JetBrains
+csharp/.idea/

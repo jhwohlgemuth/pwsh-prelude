@@ -41,12 +41,12 @@ namespace Prelude {
         }
         public override int GetHashCode() => Id.GetHashCode();
         public static bool operator ==(Edge left, Edge right) {
-            if (((object)left) == null || ((object)right == null))
+            if ((left is null) || (right is null))
                 return Equals(left, right);
             return left.Equals(right);
         }
         public static bool operator !=(Edge left, Edge right) {
-            if (((object)left) == null || ((object)right == null))
+            if ((left is null) || (right is null))
                 return !Equals(left, right);
             return !(left.Equals(right));
         }
