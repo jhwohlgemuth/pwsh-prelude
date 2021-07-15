@@ -22,7 +22,7 @@ namespace HeapTests {
         }
         [Fact]
         public void should_sort_values_using_push_and_pop() {
-            var values = new List<int> {6, 2, 1, 3, 4, 5};
+            var values = new List<int> { 6, 2, 1, 3, 4, 5 };
             var result = new List<Item> { };
             var h = new Heap();
             foreach (var value in values)
@@ -30,7 +30,7 @@ namespace HeapTests {
             Assert.Equal(6, h.Count);
             while (h.Count > 0)
                 result.Add(h.Pop());
-            Assert.Equal(new List<int> {1, 2, 3, 4, 5, 6}, result.Select(x => x.Value));
+            Assert.Equal(new List<int> { 1, 2, 3, 4, 5, 6 }, result.Select(x => x.Value));
         }
 
         [Fact]

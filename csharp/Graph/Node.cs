@@ -83,7 +83,7 @@ namespace Prelude {
         public static bool operator >(Node left, Node right) {
             if ((left is null) || (right is null))
                 return false;
-            return (string.Compare(left.Id.ToString(), right.Id.ToString(), StringComparison.InvariantCulture) > 0) ;
+            return (string.Compare(left.Id.ToString(), right.Id.ToString(), StringComparison.InvariantCulture) > 0);
         }
         /// <summary>
         /// Check if value is a valid Node identifier
