@@ -166,6 +166,40 @@ namespace GraphTests {
             Assert.Equal(1, graph.Nodes[1].Index);
         }
         [Fact]
+        public void Has_density_property_for_undirected_graphs() {
+            var graph = new Graph();
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            graph.Add(a, b, c).Add(ab, bc);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(2, graph.Edges.Count);
+            Assert.Equal(0.6666666865348816, graph.Density);
+            graph.Add(ac);
+            Assert.Equal(3, graph.Edges.Count);
+            Assert.Equal(1, graph.Density);
+        }
+        [Fact]
+        public void Has_density_property_for_directed_graphs() {
+            var graph = new Graph();
+            var a = new Node();
+            var b = new Node();
+            var c = new Node();
+            var ab = new DirectedEdge(a, b);
+            var bc = new DirectedEdge(b, c);
+            var ac = new DirectedEdge(a, c);
+            graph.Add(a, b, c).Add(ab, bc);
+            Assert.Equal(3, graph.Nodes.Count);
+            Assert.Equal(2, graph.Edges.Count);
+            Assert.Equal(0.3333333432674408, graph.Density);
+            graph.Add(ac);
+            Assert.Equal(3, graph.Edges.Count);
+            Assert.Equal(0.5, graph.Density);
+        }
+        [Fact]
         public void Will_only_add_unique_nodes() {
             var label = "unique";
             var graph = new Graph();

@@ -8,9 +8,12 @@ namespace Prelude {
         public List<Node> Nodes = new List<Node> { };
         public List<Edge> Edges = new List<Edge> { };
         private Matrix _AdjacencyMatrix;
-        public Matrix AdjacencyMatrix {
+        public Matrix AdjacencyMatrix => _AdjacencyMatrix;
+
+        public float Density {
             get {
-                return _AdjacencyMatrix;
+                var multiplier = Edges.Exists(e => e.IsDirected) ? 1 : 2;
+                return multiplier * (float)Edges.Count / ((Nodes.Count) * (Nodes.Count - 1));
             }
         }
         /// <summary>
