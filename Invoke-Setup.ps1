@@ -5,7 +5,8 @@ Param(
     [String] $Platform = 'windows'
 )
 if ($Platform -eq 'windows') {
-    dotnet tool install -g dotnet-format
+    dotnet tool install --global dotnet-format
+    dotnet tool install --global dotnet-reportgenerator-globaltool
 }
 Install-Module -Force -Scope CurrentUser -Name PSScriptAnalyzer
 Install-Module -Force -Scope CurrentUser -Name BuildHelpers
