@@ -704,7 +704,7 @@ function New-File {
         }
     } else {
         if ($PSCmdlet.ShouldProcess($Name)) {
-            New-Item -Path . -Name $Name -ItemType 'file' -Value ''
+            New-Item -Path . -Name $Name -ItemType 'file' -Value '' -Force
             "==> Created new file, $Name" | Write-Verbose
             $Result = $True
         } else {
@@ -812,7 +812,7 @@ function Remove-DirectoryForce {
         $AbsolutePath = Resolve-Path $Path
         if ($PSCmdlet.ShouldProcess($AbsolutePath)) {
             "==> Deleting $AbsolutePath" | Write-Verbose
-            Remove-Item -Path $AbsolutePath -Recurse
+            Remove-Item -Path $AbsolutePath -Recurse -Force
             "==> Deleted $AbsolutePath" | Write-Verbose
         } else {
             "==> Would have deleted $AbsolutePath" | Write-Color -DarkGray
