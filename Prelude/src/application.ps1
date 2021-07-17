@@ -140,7 +140,7 @@ function Invoke-RunApplication {
         & $Loop $State
         'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }
     } else {
-        While (& $ShouldContinue $State) {
+        while (& $ShouldContinue $State) {
             'application:loop:before' | Invoke-FireEvent -Data @{ State = $State }
             & $Loop $State
             'application:loop:after' | Invoke-FireEvent -Data @{ State = $State }

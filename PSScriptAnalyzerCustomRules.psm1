@@ -1,4 +1,4 @@
-﻿function Measure-AdvancedFunctionHelp {
+function Measure-AdvancedFunctionHelp {
     <#
   .SYNOPSIS
   Named script blocks (Begin, Process, etc...) should be PascalCase.
@@ -71,28 +71,92 @@
         }
     }
 }
+function Measure-FlowControlStatementLowercase {
+    <#
+    .SYNOPSIS
+    While and do flow control keywords should be lowercase
+    .DESCRIPTION
+    "While" should be "while" and "Do" should be "do"
+    .EXAMPLE
+    # BAD
+    While ($Condition) {...}
+
+    #GOOD
+    while ($Condition) {...}
+
+    .INPUTS
+    [System.Management.Automation.Language.ScriptBlockAst]
+    .OUTPUTS
+    [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]
+    .NOTES
+    Reference: Personal preference
+    Note: Whether you prefer lowercase or otherwise, consistency is what matters most.
+    #>
+    [CmdletBinding()]
+    [OutputType([Object[]])]
+    Param(
+        [Parameter(Mandatory = $True)]
+        [ValidateNotNullOrEmpty()]
+        [System.Management.Automation.Language.ScriptBlockAst] $ScriptBlockAst
+    )
+    Begin {
+        $Results = @()
+        $Predicate = {
+            Param(
+                [System.Management.Automation.Language.Ast] $Ast
+            )
+            $IsWhile = $Ast -is [System.Management.Automation.Language.WhileStatementAst]
+            $IsDo = $Ast -is [System.Management.Automation.Language.DoWhileStatementAst]
+            $IsDoUntil = $Ast -is [System.Management.Automation.Language.DoUntilStatementAst]
+            ($IsWhile -or $IsDo -or $IsDoUntil) -and ($Ast.Extent.Text -cmatch '^[WD]')
+        }
+    }
+    Process {
+        try {
+            $Violations = $ScriptBlockAst.FindAll($Predicate, $False)
+            foreach ($Violation in $Violations) {
+                $Extent = $Violation.Extent
+                $Correction = $Extent.Text -creplace '^W', 'w'
+                $Correction = $Extent.Text -creplace '^D', 'd'
+                $CorrectionExtent = New-Object 'Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent' @($Extent.StartLineNumber, $Extent.EndLineNumber, $Extent.StartColumnNumber, $Extent.EndColumnNumber, $Correction, '')
+                $SuggestedCorrections = New-Object System.Collections.ObjectModel.Collection['Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.CorrectionExtent']
+                [Void]$SuggestedCorrections.Add($CorrectionExtent)
+                $Results += [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord[]]@{
+                    Message = 'Flow control keywords should be lowercase'
+                    RuleName = 'FlowControlStatementLowercase'
+                    Severity = 'Warning'
+                    Extent = $Extent
+                    SuggestedCorrections = $SuggestedCorrections
+                }
+            }
+            return $Results
+        } catch {
+            $PSCmdlet.ThrowTerminatingError($PSItem)
+        }
+    }
+}
 function Measure-NamedBlockPascalCase {
     <#
-  .SYNOPSIS
-  Named script blocks (Begin, Process, etc...) should be PascalCase.
-  .DESCRIPTION
-  The first letter of named script block names should be capitalized.
-  This rule can auto-fix violations.
-  .EXAMPLE
-  # BAD
-  process {...}
+    .SYNOPSIS
+    Named script blocks (Begin, Process, etc...) should be PascalCase.
+    .DESCRIPTION
+    The first letter of named script block names should be capitalized.
+    This rule can auto-fix violations.
+    .EXAMPLE
+    # BAD
+    process {...}
 
-  #GOOD
-  Process {...}
+    #GOOD
+    Process {...}
 
-  .INPUTS
-  [System.Management.Automation.Language.ScriptBlockAst]
-  .OUTPUTS
-  [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]
-  .NOTES
-  Reference: Personal preference
-  Note: Whether you prefer title case named script blocks or otherwise, consistency is what matters most.
-  #>
+    .INPUTS
+    [System.Management.Automation.Language.ScriptBlockAst]
+    .OUTPUTS
+    [Microsoft.Windows.Powershell.ScriptAnalyzer.Generic.DiagnosticRecord[]]
+    .NOTES
+    Reference: Personal preference
+    Note: Whether you prefer title case named script blocks or otherwise, consistency is what matters most.
+    #>
     [CmdletBinding()]
     [OutputType([Object[]])]
     Param(

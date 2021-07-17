@@ -225,10 +225,10 @@ Describe 'Invoke-GoogleSearch' -Tag 'Local', 'Remote' {
         'foo' | Invoke-GoogleSearch -Include 'a' -Exclude 'b', 'c' -PassThru | Should -Be 'foo +a -b -c'
     }
     It 'can search site subdomains' {
-        Invoke-GoogleSearch -site 'example.com' -PassThru | Should -Be 'site:example.com'
-        Invoke-GoogleSearch -site 'example.com' -Subdomain -PassThru | Should -Be 'site:example.com -inurl:www'
-        'foo' | Invoke-GoogleSearch -site 'example.com' -PassThru | Should -Be 'foo site:example.com'
-        'foo' | Invoke-GoogleSearch -site 'example.com' -Subdomain -PassThru | Should -Be 'foo site:example.com -inurl:www'
+        Invoke-GoogleSearch -Site 'example.com' -PassThru | Should -Be 'site:example.com'
+        Invoke-GoogleSearch -Site 'example.com' -Subdomain -PassThru | Should -Be 'site:example.com -inurl:www'
+        'foo' | Invoke-GoogleSearch -Site 'example.com' -PassThru | Should -Be 'foo site:example.com'
+        'foo' | Invoke-GoogleSearch -Site 'example.com' -Subdomain -PassThru | Should -Be 'foo site:example.com -inurl:www'
     }
     It 'can add multiple operators' {
         'foo' | Invoke-GoogleSearch -PassThru -Related 'example.com' -Source 'bar' -Text 'baz' -Url 'this' -Type 'pdf' | Should -Be 'foo related:example.com source:bar intext:baz inurl:this filetype:pdf'

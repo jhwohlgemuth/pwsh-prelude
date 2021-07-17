@@ -102,7 +102,7 @@
             [Console]::SetCursorPosition($Left, [Console]::CursorTop)
         }
     }
-    Do {
+    do {
         $KeyInfo = [Console]::ReadKey($True)
         $KeyChar = $KeyInfo.KeyChar
         switch ($KeyInfo.Key) {
@@ -267,7 +267,7 @@
                 }
             }
         }
-    } Until ($KeyInfo.Key -eq 'Enter' -or $KeyInfo.Key -eq 'Escape')
+    } until ($KeyInfo.Key -eq 'Enter' -or $KeyInfo.Key -eq 'Escape')
     Write-Color ''
     if ($KeyInfo.Key -ne 'Escape') {
         if ($Number) {
@@ -448,7 +448,7 @@ function Invoke-Menu {
             Indent = $Indent
         }
         Invoke-MenuDraw @Parameters
-        While ($Keycode -notin $Keycodes.enter, $Keycodes.escape) {
+        while ($Keycode -notin $Keycodes.enter, $Keycodes.escape) {
             $Keycode = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').virtualkeycode
             switch ($Keycode) {
                 $Keycodes.escape {
