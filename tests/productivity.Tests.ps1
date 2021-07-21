@@ -198,6 +198,29 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
         Remove-Item $Path
     }
 }
+Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
+    It 'can get parameters from input code string' {
+        $List = '{ Param($A, $B, $C) $A + $B + $C }' | Get-ParameterList
+        $List.Name | Should -Be 'A', 'B', 'C'
+        $List.Type | Should -Be 'System.Object', 'System.Object', 'System.Object'
+        $List = '{ Param([String]$A, [Switch]$B) $A + $B }' | Get-ParameterList
+        $List.Name | Should -Be 'A', 'B'
+        $List.Type | Should -Be 'System.String', 'System.Management.Automation.SwitchParameter'
+    }
+    It 'can get parameters from input name of a function' {
+        $List = 'Get-Maximum' | Get-ParameterList
+        $List.Name | Should -Be 'Values'
+        $List.Type | Should -Be 'System.Array'
+    }
+    It 'can get parameters from file' {
+        $Path = Join-Path $TestDrive 'code.txt'
+        '{ Param($A, $B, $C) $A + $B + $C }' | Out-File $Path
+        $List = Get-ParameterList -Path $Path
+        $List.Name | Should -Be 'A', 'B', 'C'
+        $List.Type | Should -Be 'System.Object', 'System.Object', 'System.Object'
+        Remove-Item $Path
+    }
+}
 Describe 'Invoke-GoogleSearch' -Tag 'Local', 'Remote' {
     InModuleScope 'Prelude' {
         It 'can use Out-Browser to open web page' {

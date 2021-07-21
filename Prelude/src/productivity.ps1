@@ -235,6 +235,61 @@ function Get-HostsContent {
         $LineNumber++
     }
 }
+function Get-ParameterList {
+    <#
+    .SYNOPSIS
+    Get parameter names and types for a given piece of PowerShell code
+    .EXAMPLE
+    '{ Param($A, $B, $C) $A + $B + $C }' | Get-ParameterList
+    .EXAMPLE
+    'Get-Maximum' | Get-ParameterList
+    .EXAMPLE
+    Get-ParameterList -Path 'path/to/Some-Function.ps1'
+    #>
+    [CmdletBinding()]
+    [OutputType([System.Management.Automation.Language.ScriptBlockAst])]
+    Param(
+        [Parameter(Position = 0)]
+        [String] $Path,
+        [Parameter(ValueFromPipeline = $True)]
+        [String] $String
+    )
+    $AlwaysTrue = { $True }
+    $Lookup = @{
+        Name = 'Name'
+        Type = 'StaticType'
+    }
+    $Reducer = {
+        Param($Name, $Value)
+        switch ($Name) {
+            'Name' {
+                $Value -replace '^\$', ''
+            }
+            'StaticType' {
+                $Value.ToString()
+            }
+            Default {
+                $Value
+            }
+        }
+    }
+    $Code = if ($Path) {
+        Get-Content $Path
+    } else {
+        if (Test-Command $String) {
+            (Get-Item -Path function:$String).Definition
+        } else {
+            $String
+        }
+    }
+    $Ast = $Code | ConvertTo-AbstractSyntaxTree
+    $Ast.Findall($AlwaysTrue, $True) |
+        ForEach-Object ParamBlock |
+        Deny-Null |
+        ForEach-Object Parameters |
+        Select-Object Name, StaticType |
+        Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer
+}
 function Get-Screenshot {
     <#
     .SYNOPSIS

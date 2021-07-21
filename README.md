@@ -186,6 +186,7 @@ Functions
   - `Get-LogisticSigmoid`
   - `Get-Maximum`
   - `Get-Minimum`
+  - `Get-ParameterList`
   - `Get-Permutation`
   - `Get-Plural`
   - `Get-Property`

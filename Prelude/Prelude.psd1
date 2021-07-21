@@ -118,6 +118,7 @@
         'Get-Mean'
         'Get-Median'
         'Get-Minimum'
+        'Get-ParameterList'
         'Get-Permutation'
         'Get-Plural'
         'Get-Property'
