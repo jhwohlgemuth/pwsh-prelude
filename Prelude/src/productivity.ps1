@@ -247,7 +247,7 @@ function Get-ParameterList {
     Get-ParameterList -Path 'path/to/Some-Function.ps1'
     #>
     [CmdletBinding()]
-    [OutputType([System.Management.Automation.Language.ScriptBlockAst])]
+    [OutputType([System.Object])]
     Param(
         [Parameter(Position = 0)]
         [String] $Path,
