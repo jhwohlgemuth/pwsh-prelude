@@ -537,6 +537,41 @@ function Get-Permutation {
         & $GetResults $Input
     }
 }
+function Get-Softmax {
+    <#
+    .SYNOPSIS
+    Apply "softmax" function to list of numbers
+    .EXAMPLE
+    1..10 | Get-Softmax
+    .EXAMPLE
+    Get-Softmax 1..10
+    #>
+    [CmdletBinding()]
+    [Alias('softmax')]
+    [OutputType([Int[]])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [Array] $Values
+    )
+    Begin {
+        $Calculate = {
+            Param($Values)
+            $Numerators = $Values | ForEach-Object { [Math]::Exp($_) }
+            $Denominator = $Numerators | Get-Sum
+            foreach ($Value in $Numerators) {
+                $Value / $Denominator
+            }
+        }
+        if ($Values.Count -gt 0) {
+            & $Calculate -Values $Values
+        }
+    }
+    End {
+        if ($Input.Count -gt 0) {
+            & $Calculate -Values $Input
+        }
+    }
+}
 function Get-Sum {
     <#
     .SYNOPSIS

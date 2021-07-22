@@ -192,6 +192,7 @@ Functions
   - `Get-Property`
   - `Get-Screenshot`
   - `Get-Singular`
+  - `Get-Softmax`
   - `Get-State`
   - `Get-SyllableCount`
   - `Get-Variance`
