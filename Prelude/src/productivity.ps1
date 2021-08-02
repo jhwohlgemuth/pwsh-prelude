@@ -169,26 +169,6 @@ function Get-DefaultBrowser {
         Default { 'Unknown' }
     }
 }
-function Get-File {
-    <#
-    .SYNOPSIS
-    Download a file from an internet endpoint (ex: http://example.com/file.txt)
-    .EXAMPLE
-    Get-File http://example.com/file.txt
-    .EXAMPLE
-    Get-File http://example.com/file.txt -File myfile.txt
-    .EXAMPLE
-    'http://example.com/file.txt' | Get-File
-    #>
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [String] $Url,
-        [String] $File = 'download.txt'
-    )
-    $Client = New-Object System.Net.WebClient
-    $Client.DownloadFile($Url, $File)
-}
 function Get-HostsContent {
     <#
     .SYNOPSIS

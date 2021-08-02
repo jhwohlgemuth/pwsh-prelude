@@ -179,7 +179,6 @@ Functions
   - `Get-DefaultBrowser`
   - `Get-Extremum`
   - `Get-Factorial`
-  - `Get-File`
   - `Get-GithubOAuthToken`
   - `Get-HostsContent`
   - `Get-HtmlElement`
