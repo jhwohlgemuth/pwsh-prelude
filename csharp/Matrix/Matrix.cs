@@ -67,12 +67,10 @@ namespace Prelude {
                     int i = pair[0], j = pair[1];
                     if (other.Rows[i][j] != Rows[i][j])
                         return false;
-
                 }
                 return true;
-            } else {
-                return false;
             }
+            return false;
         }
         /// <summary>
         /// Determines if two matrices are equal
