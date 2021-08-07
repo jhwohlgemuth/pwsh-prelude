@@ -1394,3 +1394,73 @@ function Test-Equal {
         }
     }
 }
+function Test-Match {
+    <#
+    .SYNOPSIS
+    Test if passed value matches regular expression(s) of certain format(s)
+    .EXAMPLE
+    'https://google.com' | Test-Match -Url
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [ValidateNotNull()]
+        [String] $Value,
+        [Switch] $AsBoolean,
+        [Switch] $Single,
+        [Switch] $Url
+    )
+    Begin {
+        $TopLevelDomain = @(
+            'au'
+            'ca'
+            'cn'
+            'de'
+            'in'
+            'ir'
+            'me'
+            'nl'
+            'ru'
+            'tk'
+            'ua'
+            'uk'
+            'us'
+            'biz'
+            'com'
+            'edu'
+            'gov'
+            'icu'
+            'mil'
+            'net'
+            'org'
+            'top'
+            'xyz'
+            'info'
+            'name'
+            'site'
+            'tech'
+            'online'
+        ) -join '|' -join '|'
+    }
+    Process {
+        $Re = switch ($True) {
+            { $Url } {
+                "((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*"
+            }
+            Default {
+                $False
+            }
+        }
+        $Re = if ($Single) { "^${Re}$" } else { $Re }
+        if ($AsBoolean) {
+            if ($Value -match $Re) {
+                $True
+            } else {
+                $False
+            }
+        } else {
+            ([Regex]$Re).Matches($Value)
+        }
+    }
+}

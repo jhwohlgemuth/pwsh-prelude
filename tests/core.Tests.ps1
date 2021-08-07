@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 114
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 115
         }
         It 'should import aliases' {
             (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 57
@@ -799,5 +799,44 @@ Describe 'Test-Equal' -Tag 'Local', 'Remote' {
         Test-Equal $False $False | Should -BeTrue
         Test-Equal $True $False | Should -BeFalse
         Test-Equal $Null $Null | Should -BeTrue
+    }
+}
+Describe 'Test-Match' -Tag 'Local', 'Remote' {
+    It 'can test URL strings' {
+        $TestUrl = 'https://foo.bar.com'
+        $TestUrl | Test-Match -Url -AsBoolean -Single | Should -BeTrue
+        "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url -Single | Should -BeNull
+        "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url -AsBoolean -Single | Should -BeFalse
+    }
+    It 'can test URL strings for multiple matches' {
+        $Valid = @(
+            'https://google.com'
+            'http://google.com'
+            'https://www.google.com'
+            'http://www.google.com'
+            'https://data.google.com'
+            'http://data.google.com'
+            'www.google.com'
+            'google.com'
+            'foo.bar.google.com'
+            'google.me'
+        )
+        $InValid = @(
+            'foo'
+            'bar'
+            'foo//bar'
+            '//foobar'
+            'htt://www.foo.bar'
+        )
+        $Valid | ForEach-Object { $_ | Test-Match -Url -AsBoolean | Should -BeTrue }
+        $Valid | Test-Match -Url -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
+        $InValid | ForEach-Object { $_ | Test-Match -Url -AsBoolean | Should -BeFalse }
+        $TestUrl = 'https://foo.bar.com'
+        $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
+        $Result[0].Value | Should -Be $TestUrl
+        $Result.Groups[$Result.Groups.Count - 1].Name | Should -Be 'TLD'
+        $Result.Groups[$Result.Groups.Count - 1].Value | Should -Be 'com'
+        $Result = "The url for my website is ${TestUrl}. Once again, the site is ${TestUrl}." | Test-Match -Url
+        $Result.Value | Should -Be $TestUrl, $TestUrl
     }
 }

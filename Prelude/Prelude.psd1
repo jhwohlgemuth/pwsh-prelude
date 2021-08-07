@@ -189,6 +189,7 @@
         'Test-Equal'
         'Test-Installed'
         'Test-Matrix'
+        'Test-Match'
         'Test-SquareMatrix'
         'Test-SymmetricMatrix'
         'Test-Url'
