@@ -1227,6 +1227,84 @@ function Join-StringsWithGrammar {
         Join-StringArray $Input
     }
 }
+function New-RegexString {
+    <#
+    .SYNOPSIS
+    Create a regular expression using string input and cmdlet parameters
+    .EXAMPLE
+    # Create a regular expression string that will match a single email
+    $Re = New-RegexString -Single -Url
+    'https://google.com' -match $Re #True
+    .EXAMPLE
+    # Regular expression that matches "foo", "bar", OR "baz"
+    'foo', 'bar', 'baz' | New-RegularExpression
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(ValueFromPipeline = $True)]
+        [String[]] $Value,
+        [Switch] $Single,
+        [Switch] $Url,
+        [Switch] $Email,
+        [Switch] $DateTime
+    )
+    Begin {
+        $TopLevelDomain = @(
+            'au'
+            'ca'
+            'cn'
+            'de'
+            'in'
+            'ir'
+            'me'
+            'nl'
+            'ru'
+            'tk'
+            'ua'
+            'uk'
+            'us'
+            'biz'
+            'com'
+            'edu'
+            'gov'
+            'icu'
+            'mil'
+            'net'
+            'org'
+            'top'
+            'xyz'
+            'info'
+            'name'
+            'site'
+            'tech'
+            'online'
+        ) -join '|' -join '|'
+        function Get-RegexString {
+            Param(
+                [String[]] $Value
+            )
+            $Re = switch ($True) {
+                { $Url } {
+                    "((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*"
+                }
+                Default {
+                    "($($Value -join '|'))"
+                }
+            }
+            $Re = if ($Single) { "^${Re}$" } else { $Re }
+            $Re
+        }
+        if ($Value.Count -gt 0) {
+            Get-RegexString -Value $Value
+        }
+    }
+    End {
+        if ($Input.Count -gt 0) {
+            Get-RegexString -Value $Input
+        }
+    }
+}
 function Remove-Character {
     <#
     .SYNOPSIS
@@ -1411,48 +1489,8 @@ function Test-Match {
         [Switch] $Single,
         [Switch] $Url
     )
-    Begin {
-        $TopLevelDomain = @(
-            'au'
-            'ca'
-            'cn'
-            'de'
-            'in'
-            'ir'
-            'me'
-            'nl'
-            'ru'
-            'tk'
-            'ua'
-            'uk'
-            'us'
-            'biz'
-            'com'
-            'edu'
-            'gov'
-            'icu'
-            'mil'
-            'net'
-            'org'
-            'top'
-            'xyz'
-            'info'
-            'name'
-            'site'
-            'tech'
-            'online'
-        ) -join '|' -join '|'
-    }
     Process {
-        $Re = switch ($True) {
-            { $Url } {
-                "((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*"
-            }
-            Default {
-                $False
-            }
-        }
-        $Re = if ($Single) { "^${Re}$" } else { $Re }
+        $Re = New-RegexString -Value $Value -Url:$Url -Single:$Single
         if ($AsBoolean) {
             if ($Value -match $Re) {
                 $True

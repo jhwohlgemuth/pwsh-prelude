@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 115
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 116
         }
         It 'should import aliases' {
             (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 57
@@ -658,6 +658,23 @@ Describe 'Join-StringsWithGrammar' -Tag 'Local', 'Remote' {
         'one', 'two', 'three', 'four' | Join-StringsWithGrammar | Should -Be 'one, two, three, and four'
         Join-StringsWithGrammar @('one', 'two', 'three') | Should -Be 'one, two, and three'
         Join-StringsWithGrammar @('one', 'two', 'three', 'four') | Should -Be 'one, two, three, and four'
+    }
+}
+
+Describe 'New-RegexString' -Tag 'Local', 'Remote' {
+    It 'can create regex string from a single string' {
+        $Re = 'boot' | New-RegexString
+        'boot' -match $Re | Should -BeTrue
+        'foo' -match $Re | Should -BeFalse
+        'bar' -match $Re | Should -BeFalse
+        'baz' -match $Re | Should -BeFalse
+    }
+    It 'can create regex string from array of strings' {
+        $Re = 'foo', 'bar', 'baz' | New-RegexString
+        'foo' -match $Re | Should -BeTrue
+        'bar' -match $Re | Should -BeTrue
+        'baz' -match $Re | Should -BeTrue
+        'boot' -match $Re | Should -BeFalse
     }
 }
 Describe 'Remove-Character' -Tag 'Local', 'Remote' {
