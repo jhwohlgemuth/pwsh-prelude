@@ -1244,7 +1244,7 @@ function New-RegexString {
     Param(
         [Parameter(ValueFromPipeline = $True)]
         [String[]] $Value,
-        [Switch] $Single,
+        [Switch] $Only,
         [Switch] $Url,
         [Switch] $Email,
         [Switch] $DateTime
@@ -1284,15 +1284,23 @@ function New-RegexString {
             Param(
                 [String[]] $Value
             )
-            $Re = switch ($True) {
+            $ReArray = @()
+            switch ($True) {
                 { $Url } {
-                    "((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*"
+                    $ReArray += "(?<url>((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*)"
+                    break
+                }
+                { $Email } {
+                    # RFC 5322 Official Standard (https://www.emailregex.com/)
+                    $ReArray += "(?<email>(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|`"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*`")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\]))"
+                    break
                 }
                 Default {
-                    "($($Value -join '|'))"
+                    $ReArray += $Value
                 }
             }
-            $Re = if ($Single) { "^${Re}$" } else { $Re }
+            $Re = "($($ReArray -join '|'))"
+            $Re = if ($Only) { "^${Re}$" } else { $Re }
             $Re
         }
         if ($Value.Count -gt 0) {
@@ -1486,11 +1494,12 @@ function Test-Match {
         [ValidateNotNull()]
         [String] $Value,
         [Switch] $AsBoolean,
-        [Switch] $Single,
+        [Switch] $Only,
+        [Switch] $Email,
         [Switch] $Url
     )
     Process {
-        $Re = New-RegexString -Value $Value -Url:$Url -Single:$Single
+        $Re = New-RegexString -Value $Value -Email:$Email -Url:$Url -Only:$Only
         if ($AsBoolean) {
             if ($Value -match $Re) {
                 $True
