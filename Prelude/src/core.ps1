@@ -1244,12 +1244,49 @@ function New-RegexString {
     Param(
         [Parameter(ValueFromPipeline = $True)]
         [String[]] $Value,
-        [Switch] $Only,
-        [Switch] $Url,
+        [Switch] $Date,
         [Switch] $Email,
-        [Switch] $DateTime
+        [Switch] $Url,
+        [Switch] $Only
     )
     Begin {
+        $Month = @(
+            'January'
+            'February'
+            'March'
+            'April'
+            'May'
+            'June'
+            'July'
+            'August'
+            'September'
+            'October'
+            'November'
+            'December'
+        )
+        $MMM = $Month |
+            ForEach-Object { $_.Substring(0, 3) } |
+            Invoke-Reduce { Param($Str, $Mon) "$Str|$Mon" }
+        $DateFormats = @(
+            # DDMMMYY
+            # DMMMYY
+            # DDMMMYYYY
+            # DD MMM YYYY
+            # D MMM YYYY
+            "(?<Day>[0-3]?[0-9])\s?(?<Month>($MMM))\s?(?<Year>[12]?[0123456789]?[0126789][012345689])"
+            # YYYYMMDD
+            # YYYY-MM-DD
+            # under construction
+            # Month Day, Year
+            # under construction
+            # MM/DD/YY
+            # MM/DD/YYYY
+            # MM.DD.YY
+            # MM.DD.YYYY
+            # MM-DD-YY
+            # MM-DD-YYYY
+            # under construction
+        ) -join '|'
         $TopLevelDomain = @(
             'au'
             'ca'
@@ -1286,13 +1323,17 @@ function New-RegexString {
             )
             $ReArray = @()
             switch ($True) {
-                { $Url } {
-                    $ReArray += "(?<url>((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*)"
+                { $Date } {
+                    $ReArray += "(?<Date>($DateFormats))"
                     break
                 }
                 { $Email } {
                     # RFC 5322 Official Standard (https://www.emailregex.com/)
                     $ReArray += "(?<email>(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|`"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*`")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\]))"
+                    break
+                }
+                { $Url } {
+                    $ReArray += "(?<url>((?<Protocol>(ht|f)tp(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.(?<TLD>${TopLevelDomain})(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*)"
                     break
                 }
                 Default {
@@ -1493,13 +1534,14 @@ function Test-Match {
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [ValidateNotNull()]
         [String] $Value,
-        [Switch] $AsBoolean,
-        [Switch] $Only,
+        [Switch] $Date,
         [Switch] $Email,
-        [Switch] $Url
+        [Switch] $Url,
+        [Switch] $Only,
+        [Switch] $AsBoolean
     )
     Process {
-        $Re = New-RegexString -Value $Value -Email:$Email -Url:$Url -Only:$Only
+        $Re = New-RegexString -Value $Value -Date:$Date -Email:$Email -Url:$Url -Only:$Only
         if ($AsBoolean) {
             if ($Value -match $Re) {
                 $True

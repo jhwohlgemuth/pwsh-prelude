@@ -834,6 +834,58 @@ Describe 'Test-Equal' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Test-Match' -Tag 'Local', 'Remote' {
+    It 'can test and match date strings' {
+        $Valid = @(
+            '04JUL76'
+            '4JUL76'
+            '04JUL1776'
+            '25DEC21'
+            '25DEC2021'
+            '25 Dec 2021'
+            '04 Jul 1776'
+            '4 Jul 1776'
+        )
+        $InValid = @(
+            'not a date'
+            # '99JUN99' # Day greater than 31
+        )
+        $Valid | ForEach-Object { $_ | Test-Match -Date -AsBoolean | Should -BeTrue }
+        $Valid | Test-Match -Date -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
+        $InValid | ForEach-Object { $_ | Test-Match -Date -AsBoolean | Should -BeFalse }
+        $Result = '04 Jul 1776' | Test-Match -Date -Only
+    }
+    It 'can test and match email strings' {
+        $Valid = @(
+            'simple@example.com'
+            'very.common@example.com'
+            'disposable.style.email.with+symbol@example.com'
+            'other.email-with-hyphen@example.com'
+            'fully-qualified-domain@example.com'
+            'user.name+tag+sorting@example.com' #may go to user.name@example.com inbox depending on mail server
+            'x@example.com' #one-letter local-part
+            'example-indeed@strange-example.com'
+            'test/test@test.com' #slashes are a printable character, and allowed
+            'example@s.example' #see the List of Internet top-level domains
+            'mailhost!username@example.org' #bangified host route used for uucp mailers
+            'user%example.com@example.org' #% escaped mail route to user@example.com via example.org
+            '"john..doe"@example.org' #quoted double dot
+        )
+        $InValid = @(
+            'admin@mailserver1' #ICANN highly discourages dotless email addresses
+            '" "@example.org' #space between the quotes
+            'Abc.example.com' #no @ character
+            # 'A@b@c@example.com' #only one @ is allowed outside quotation marks
+            # 'a"b(c)d,e:f;g<h>i[j\k]l@example.com' #none of the special characters in this local-part are allowed outside quotation marks
+            # 'just"not"right@example.com' #quoted strings must be dot separated or the only element making up the local-part
+            # 'this is"not\allowed@example.com' #spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash
+            # 'this\ still\"not\\allowed@example.com' #even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes
+            # '1234567890123456789012345678901234567890123456789012345678901234+x@example.com' #local-part is longer than 64 characters
+            'i_like_underscore@but_its_not_allowed_in_this_part.example.com' #Underscore is not allowed in domain part
+        )
+        $Valid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeTrue }
+        $Valid | Test-Match -Email -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
+        $InValid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeFalse }
+    }
     It 'can test URL strings' {
         $TestUrl = 'https://foo.bar.com'
         $TestUrl | Test-Match -AsBoolean -Only -Url | Should -BeTrue
@@ -870,37 +922,5 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Result.Groups[$Result.Groups.Count - 1].Value | Should -Be 'com'
         $Result = "The url for my website is ${TestUrl}. Once again, the site is ${TestUrl}." | Test-Match -Url
         $Result.Value | Should -Be $TestUrl, $TestUrl
-    }
-    It 'can test and match email strings' {
-        $Valid = @(
-            'simple@example.com'
-            'very.common@example.com'
-            'disposable.style.email.with+symbol@example.com'
-            'other.email-with-hyphen@example.com'
-            'fully-qualified-domain@example.com'
-            'user.name+tag+sorting@example.com' #may go to user.name@example.com inbox depending on mail server
-            'x@example.com' #one-letter local-part
-            'example-indeed@strange-example.com'
-            'test/test@test.com' #slashes are a printable character, and allowed
-            'example@s.example' #see the List of Internet top-level domains
-            'mailhost!username@example.org' #bangified host route used for uucp mailers
-            'user%example.com@example.org' #% escaped mail route to user@example.com via example.org
-            '"john..doe"@example.org' #quoted double dot
-        )
-        $InValid = @(
-            'admin@mailserver1' #ICANN highly discourages dotless email addresses
-            '" "@example.org' #space between the quotes
-            'Abc.example.com' #no @ character
-            # 'A@b@c@example.com' #only one @ is allowed outside quotation marks
-            # 'a"b(c)d,e:f;g<h>i[j\k]l@example.com' #none of the special characters in this local-part are allowed outside quotation marks
-            # 'just"not"right@example.com' #quoted strings must be dot separated or the only element making up the local-part
-            # 'this is"not\allowed@example.com' #spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash
-            # 'this\ still\"not\\allowed@example.com' #even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes
-            # '1234567890123456789012345678901234567890123456789012345678901234+x@example.com' #local-part is longer than 64 characters
-            'i_like_underscore@but_its_not_allowed_in_this_part.example.com' #Underscore is not allowed in domain part
-        )
-        $Valid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeTrue }
-        $Valid | Test-Match -Email -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
-        $InValid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeFalse }
     }
 }
