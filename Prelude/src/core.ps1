@@ -1264,28 +1264,34 @@ function New-RegexString {
             'November'
             'December'
         )
+        $DD = '(0[1-9])|(1[0-9])|(2[0-9])|(3[0-1])'
+        $Day = '(1(st)?)|(2(nd)?)|(3(rd)?)|([4-9](th)?)'
+        $MM = '(0(1|2|3|4|5|6|7|8|9))|(10)|(11)|(12)'
         $MMM = $Month |
             ForEach-Object { $_.Substring(0, 3) } |
             Invoke-Reduce { Param($Str, $Mon) "$Str|$Mon" }
+        $Months = $Month -join '|'
+        $YYYY = '((?<!\d)[0-9]{2}(?!\d))|([0-9]{4})'
         $DateFormats = @(
             # DDMMMYY
             # DMMMYY
             # DDMMMYYYY
             # DD MMM YYYY
+            # DD MMM YY
             # D MMM YYYY
-            "(?<Day>[0-3]?[0-9])\s?(?<Month>($MMM))\s?(?<Year>[12]?[0123456789]?[0126789][012345689])"
+            "(?<Day>(((?<!\d)([1-9](?!\d)))|$DD))\s?(?<Month>($MMM))\s?(?<Year>($YYYY))"
             # YYYYMMDD
             # YYYY-MM-DD
-            # under construction
-            # Month Day, Year
-            # under construction
-            # MM/DD/YY
-            # MM/DD/YYYY
+            "(?<Year>([012345689]{4}))-?(?<Month>($MM))-?(?<Day>($DD))"
+            # Month Day, YYYY
+            "(?<Month>($Months)) (?<Day>($Day)),? (?<Year>($YYYY))"
             # MM.DD.YY
             # MM.DD.YYYY
+            # MM/DD/YY
+            # MM/DD/YYYY
             # MM-DD-YY
             # MM-DD-YYYY
-            # under construction
+            "($MM)[./-]($DD)[./-]($YYYY)"
         ) -join '|'
         $TopLevelDomain = @(
             'au'
