@@ -89,6 +89,7 @@
         'ConvertFrom-QueryString'
         'ConvertTo-AbstractSyntaxTree'
         'ConvertTo-Degree'
+        'ConvertTo-Html'
         'ConvertTo-PowershellSyntax'
         'ConvertTo-Iso8601'
         'ConvertTo-JavaScript'

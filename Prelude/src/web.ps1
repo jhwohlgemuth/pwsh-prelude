@@ -102,6 +102,24 @@ function ConvertFrom-QueryString {
         }
     }
 }
+function ConvertTo-Html {
+    <#
+    .SYNOPSIS
+    Identify certain elements and wrap them in semantic HTML tags.
+    .EXAMPLE
+    'My email is foo@bar.com' | ConvertTo-Html
+    #>
+    Param(
+        [Parameter(Mandatory = $True, Position = 0)]
+        [String] $Value
+    )
+    Begin {
+
+    }
+    Process {
+        
+    }
+}
 function ConvertTo-Iso8601 {
     <#
     .SYNOPSIS
