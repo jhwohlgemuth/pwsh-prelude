@@ -78,6 +78,12 @@ Describe 'ConvertFrom-QueryString' -Tag 'Local', 'Remote' {
         $Result.Values | Sort-Object | Should -Be '1', '2', 'last'
     }
 }
+Describe 'ConvertTo-Html' -Tag 'Local', 'Remote' {
+    It 'can convert an unstructured string to HTML' {
+        'My email is foo@bar.com, not bar@foo.com' | ConvertTo-Html | Write-Color -Cyan
+        'The date of the event is 25 DEC 2021' | ConvertTo-Html | Write-Color -Green
+    }
+}
 Describe 'ConvertTo-Iso8601' -Tag 'Local', 'Remote' {
     It 'can convert values to ISO-8601 format' {
         $Expected = '2020-07-04T00:00:00.000Z'

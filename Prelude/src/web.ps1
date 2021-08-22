@@ -110,14 +110,20 @@ function ConvertTo-Html {
     'My email is foo@bar.com' | ConvertTo-Html
     #>
     Param(
-        [Parameter(Mandatory = $True, Position = 0)]
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Value
     )
     Begin {
-
+        $Date = New-RegexString -Date
+        $Email = New-RegexString -Email
+        $Url = New-RegexString -Url
+        $DateTemplate = '<time itemscope itemtype="https://schema.org/DateTime" class="dt-event" datetime="<ISO8601 value>">${date}</time>'
+        $EmailTemplate = '<a itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email" href="mailto:${email}">${email}</a>'
     }
     Process {
-        
+        $Value = $Value -replace $Email, $EmailTemplate
+        $Value = $Value -replace $Date, $DateTemplate
+        $Value
     }
 }
 function ConvertTo-Iso8601 {

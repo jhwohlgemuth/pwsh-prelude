@@ -685,7 +685,7 @@ Describe 'New-RegexString' -Tag 'Local', 'Remote' {
     It 'can create regex that will match url or email' {
         $Url = 'https://google.com'
         $Email = 'foo@bar.com'
-        $Re = $Url, $Email | New-RegexString -Url -Email
+        $Re = New-RegexString -Url -Email
         $Url -match $Re | Should -BeTrue
         $Email -match $Re | Should -BeTrue
         'contains a url (https://foo.com)' -match $Re | Should -BeTrue
