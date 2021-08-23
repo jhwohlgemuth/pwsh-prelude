@@ -1347,15 +1347,14 @@ function New-RegexString {
             $Re = if ($Only) { "^${Re}$" } else { $Re }
             $Re
         }
-        if ($Value.Count -gt 0) {
-            Get-RegexString -Value $Value
-        }
     }
     End {
         if ($Input.Count -gt 0) {
             Get-RegexString -Value $Input
-        } else {
+        } elseif ($Value.Count -eq 0) {
             Get-RegexString
+        } else {
+            Get-RegexString -Value $Value
         }
     }
 }
