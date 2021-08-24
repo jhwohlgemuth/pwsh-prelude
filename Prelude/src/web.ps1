@@ -111,18 +111,31 @@ function ConvertTo-Html {
     #>
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [String] $Value
+        [String] $Value,
+        [Switch] $Metadata
     )
     Begin {
         $Date = New-RegexString -Date
         $Email = New-RegexString -Email
         $Url = New-RegexString -Url
-        $DateTemplate = '<time itemscope itemtype="https://schema.org/DateTime" class="dt-event" datetime="<ISO8601 value>">${date}</time>'
-        $EmailTemplate = '<a itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email" href="mailto:${email}">${email}</a>'
+        $Template = if ($Metadata) {
+            @{
+                Date = '<time itemscope itemtype="https://schema.org/DateTime" class="dt-event" datetime="<ISO8601 value>">${date}</time>'
+                Email = '<a itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email" href="mailto:${email}">${email}</a>'
+                Url = '<a itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url" href="${url}">${url}</a>'
+            }
+        } else {
+            @{
+                Date = '<time>${date}</time>'
+                Email = '<a href="mailto:${email}">${email}</a>'
+                Url = '<a>${url}</a>'
+            }
+        }
     }
     Process {
-        $Value = $Value -replace $Email, $EmailTemplate
-        $Value = $Value -replace $Date, $DateTemplate
+        # $Value = $Value -replace $Url, $Template.Url
+        $Value = $Value -replace $Date, $Template.Date
+        $Value = $Value -replace $Email, $Template.Email
         $Value
     }
 }

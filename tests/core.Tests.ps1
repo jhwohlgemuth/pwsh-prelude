@@ -932,8 +932,10 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
             'google.com'
             'foo.bar.google.com'
             'google.me'
+            'foo://example.com:8042/over/there?name=ferret#nose'
         )
         $InValid = @(
+            # 't@jason.me'
             'foo'
             'bar'
             'foo//bar'

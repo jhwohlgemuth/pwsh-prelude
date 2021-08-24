@@ -80,8 +80,8 @@ Describe 'ConvertFrom-QueryString' -Tag 'Local', 'Remote' {
 }
 Describe 'ConvertTo-Html' -Tag 'Local', 'Remote' {
     It 'can convert an unstructured string to HTML' {
-        'My email is foo@bar.com, not bar@foo.com' | ConvertTo-Html | Write-Color -Cyan
-        'The date of the event is 25 DEC 2021' | ConvertTo-Html | Write-Color -Green
+        $Text = 'On 25 Dec 2021, I changed my email from foo@bar.com to bar@foo.com.'
+        $Text | ConvertTo-Html | Write-Color -Cyan
     }
 }
 Describe 'ConvertTo-Iso8601' -Tag 'Local', 'Remote' {
