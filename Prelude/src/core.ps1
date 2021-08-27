@@ -1269,7 +1269,7 @@ function New-RegexString {
         $MM = '(0(1|2|3|4|5|6|7|8|9))|(10)|(11)|(12)'
         $MMM = $Month |
             ForEach-Object { $_.Substring(0, 3) } |
-            Invoke-Reduce { Param($Str, $Mon) "$Str|$Mon" }
+            Invoke-Reduce { Param($Str, $Mon) "$Str|$Mon|$($Mon.toUpper())" }
         $Months = $Month -join '|'
         $YYYY = '((?<!\d)[0-9]{2}(?!\d))|([0-9]{4})'
         $DateFormats = @(
@@ -1279,19 +1279,21 @@ function New-RegexString {
             # DD MMM YYYY
             # DD MMM YY
             # D MMM YYYY
-            "(?<Day>(((?<!\d)([1-9](?!\d)))|$DD))\s?(?<Month>($MMM))\s?(?<Year>($YYYY))"
+            "(?<day>(((?<!\d)([1-9](?!\d)))|$DD))\s?(?<month>($MMM))\s?(?<year>($YYYY))"
             # YYYYMMDD
             # YYYY-MM-DD
-            "(?<Year>([012345689]{4}))-?(?<Month>($MM))-?(?<Day>($DD))"
+            "(?<year>([012345689]{4}))-?(?<month>($MM))-?(?<day>($DD))"
             # Month Day, YYYY
-            "(?<Month>($Months)) (?<Day>($Day)),? (?<Year>($YYYY))"
+            "(?<month>($Months)) (?<day>($Day)),? (?<year>($YYYY))"
             # MM.DD.YY
             # MM.DD.YYYY
             # MM/DD/YY
             # MM/DD/YYYY
             # MM-DD-YY
             # MM-DD-YYYY
-            "($MM)[./-]($DD)[./-]($YYYY)"
+            "(?<month>$MM)[./-](?<day>$DD)[./-](?<year>$YYYY)"
+            # DD MM YYYY
+            "(?<day>$DD) (?<month>$MM) (?<year>$YYYY)"
         ) -join '|'
         $TopLevelDomain = @(
             'au'
@@ -1334,10 +1336,24 @@ function New-RegexString {
                 }
                 { $Email } {
                     # RFC 5322 Official Standard (https://www.emailregex.com/)
-                    $ReArray += "(?<email>(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|`"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*`")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\]))"
+                    $ReArray += @(
+                        '(?<email>'
+                        "(?<username>(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|`"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*`"))"
+                        '(?<symbol>@)'
+                        '(?<domain>(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\]))'
+                        ')'
+                    ) -join ''
                 }
                 { $Url } {
-                    $ReArray += "(?<url>((?<scheme>(ht|f)tp(s?))\:\/\/)?(?<subdomain>(www.|[a-zA-Z].))(?<authority>[a-zA-Z0-9\-\.]+\.(?<tld>${TopLevelDomain}))(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*)"
+                    $ReArray += @(
+                        '(?<url>'
+                        '((?<scheme>(ht|f)tp(s?))\:\/\/)?'
+                        '(?<subdomain>www|[a-zA-Z](?=\.))?'
+                        "\.?(?<authority>[a-zA-Z0-9\-\.]+\.(?<tld>${TopLevelDomain}))"
+                        '\:?(?<port>([0-9]+)*)'
+                        "(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&%\$#\=~_\-]+))*"
+                        ')'
+                    ) -join ''
                 }
                 Default {
                     $ReArray += $Value
@@ -1534,6 +1550,7 @@ function Test-Match {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
+    [OutputType([System.Collections.Hashtable])]
     Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [ValidateNotNull()]
@@ -1553,7 +1570,55 @@ function Test-Match {
                 $False
             }
         } else {
-            ([Regex]$Re).Matches($Value)
+            $Results = ([Regex]$Re).Matches($Value)
+            function Get-Value {
+                Param(
+                    [String] $Name
+                )
+                $Results.Groups | Where-Object { $_.Name -eq $Name } | Get-Property 'Value'
+            }
+            switch ($True) {
+                { $Date } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
+                            Day = Get-Value -Name 'day'
+                            Month = Get-Value -Name 'month'
+                            Year = Get-Value -Name 'year'
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                { $Email } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
+                            Username = Get-Value -Name 'username'
+                            Symbol = Get-Value -Name 'symbol'
+                            Domain = Get-Value -Name 'domain'
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                { $Url } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
+                            Scheme = Get-Value -Name 'scheme'
+                            Authority = Get-Value -Name 'authority'
+                            TLD = Get-Value -Name 'tld'
+                            Port = Get-Value -Name 'port'
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                Default {
+                    $Results
+                }
+            }
         }
     }
 }

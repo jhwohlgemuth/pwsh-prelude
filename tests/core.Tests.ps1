@@ -691,6 +691,32 @@ Describe 'New-RegexString' -Tag 'Local', 'Remote' {
         'contains a url (https://foo.com)' -match $Re | Should -BeTrue
         'not a url or email' -match $Re | Should -BeFalse
     }
+    It 'can parse URLs into capture groups' {
+        $Re = New-RegexString -Url
+        'http://www.example.com' -match $Re
+        $Matches.url | Should -Be 'http://www.example.com'
+        $Matches.scheme | Should -Be 'http'
+        $Matches.subdomain | Should -Be 'www'
+        $Matches.authority | Should -Be 'example.com'
+        $Matches.tld | Should -Be 'com'
+        $Matches.port | Should -BeNull
+
+        'https://example.com:8042/over/there?name=ferret#nose' -match $Re
+        $Matches.url | Should -Be 'https://example.com:8042/over/there?name=ferret#nose'
+        $Matches.scheme | Should -Be 'https'
+        $Matches.subdomain | Should -BeNull
+        $Matches.authority | Should -Be 'example.com'
+        $Matches.tld | Should -Be 'com'
+        $Matches.port | Should -Be '8042'
+
+        'example.com:1337' -match $Re
+        $Matches.url | Should -Be 'example.com:1337'
+        $Matches.scheme | Should -BeNull
+        $Matches.subdomain | Should -BeNull
+        $Matches.authority | Should -Be 'example.com'
+        $Matches.tld | Should -Be 'com'
+        $Matches.port | Should -Be '1337'
+    }
 }
 Describe 'Remove-Character' -Tag 'Local', 'Remote' {
     It 'can remove single character from string' {
@@ -834,6 +860,37 @@ Describe 'Test-Equal' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Test-Match' -Tag 'Local', 'Remote' {
+    It 'can return capture groups for dates' {
+        $TestDate = '25 Dec 2021'
+        $Result = $TestDate | Test-Match -Date
+        $Result.Value | Should -Be $TestDate
+        $Result.day | Should -Be '25'
+        $Result.month | Should -Be 'DEC'
+        $Result.year | Should -Be '2021'
+        $TestDate = '25 DEC 2021'
+        $Result = $TestDate | Test-Match -Date
+        $Result.Value | Should -Be $TestDate
+        $Result.day | Should -Be '25'
+        $Result.month | Should -Be 'DEC'
+        $Result.year | Should -Be '2021'
+    }
+    It 'can return capture groups for emails' {
+        $TestEmail = 'jason@foo.com'
+        $Result = $TestEmail | Test-Match -Email
+        $Result.Value | Should -Be $TestEmail
+        $Result.Username | Should -Be 'jason'
+        $Result.Symbol | Should -Be '@'
+        $Result.Domain | Should -Be 'foo.com'
+    }
+    It 'can return capture groups for URLs' {
+        $TestUrl = 'https://foo.bar.com:4669'
+        $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
+        $Result.Value | Should -Be $TestUrl
+        $Result.Scheme | Should -Be 'https'
+        $Result.Authority | Should -Be 'foo.bar.com'
+        $Result.TLD | Should -Be 'com'
+        $Result.Port | Should -Be '4669'
+    }
     It 'can test and match date strings' {
         $Valid = @(
             '04JUL76'
@@ -842,8 +899,11 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
             '25DEC21'
             '01Apr21'
             '25DEC2021'
+            '25 DEC 21'
+            '25 DEC 2021'
             '25 Dec 21'
             '25 Dec 2021'
+            '30 12 2021'
             '04 Jul 1776'
             '4 Jul 1776'
             '1815-12-15'
@@ -859,8 +919,9 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         )
         $InValid = @(
             'not a date'
+            '30-12-2021' # month is greater than 12
             '04 Foo 1776' # foo is not a month
-            '1815 12 15' # spaces not allowed for this format
+            '32 32 15' # day and month are both too big
             '021-08-26' # year is only 3 digits
             '2099-07-00' # day is double zero
             '2099-07-32' # day greater than 31
@@ -947,9 +1008,9 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $InValid | ForEach-Object { $_ | Test-Match -Url -AsBoolean | Should -BeFalse }
         $TestUrl = 'https://foo.bar.com'
         $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
-        $Result[0].Value | Should -Be $TestUrl
-        $Result.Groups[$Result.Groups.Count - 1].Name | Should -Be 'TLD'
-        $Result.Groups[$Result.Groups.Count - 1].Value | Should -Be 'com'
+        # $Result[0].Value | Should -Be $TestUrl
+        # $Result.Groups[$Result.Groups.Count - 2].Name | Should -Be 'TLD'
+        # $Result.Groups[$Result.Groups.Count - 2].Value | Should -Be 'com'
         $Result = "The url for my website is ${TestUrl}. Once again, the site is ${TestUrl}." | Test-Match -Url
         $Result.Value | Should -Be $TestUrl, $TestUrl
     }
