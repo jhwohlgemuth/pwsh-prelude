@@ -960,6 +960,9 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
             '"john..doe"@example.org' #quoted double dot
         )
         $InValid = @(
+            'hello@'
+            '@test'
+            'email@gmail'
             'admin@mailserver1' #ICANN highly discourages dotless email addresses
             '" "@example.org' #space between the quotes
             'Abc.example.com' #no @ character
@@ -974,6 +977,35 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Valid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeTrue }
         $Valid | Test-Match -Email -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
         $InValid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeFalse }
+    }
+    It 'can test IPv4 strings' {
+        $Valid = @(
+            '192.168.1.1'
+            '10.10.10.10'
+        )
+        $InValid = @(
+            '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+            'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'
+            '2001::::'
+            'test.test.test.test'
+        )
+        $Valid | ForEach-Object { $_ | Test-Match -IPv4 -AsBoolean | Should -BeTrue }
+        $Valid | Test-Match -IPv4 -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
+        $InValid | ForEach-Object { $_ | Test-Match -IPv4 -AsBoolean | Should -BeFalse }
+    }
+    It 'can test IPv6 strings' {
+        $Valid = @(
+            '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+            'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'
+            '2001::::'
+        )
+        $InValid = @(
+            '192.168.1.1'
+            'test:test:test:test:test:test:test:test'
+        )
+        $Valid | ForEach-Object { $_ | Test-Match -IPv6 -AsBoolean | Should -BeTrue }
+        $Valid | Test-Match -IPv6 -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
+        $InValid | ForEach-Object { $_ | Test-Match -IPv6 -AsBoolean | Should -BeFalse }
     }
     It 'can test URL strings' {
         $TestUrl = 'https://foo.bar.com'

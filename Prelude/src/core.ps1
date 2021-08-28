@@ -1246,6 +1246,8 @@ function New-RegexString {
         [String[]] $Value,
         [Switch] $Date,
         [Switch] $Email,
+        [Switch] $IPv4,
+        [Switch] $IPv6,
         [Switch] $Url,
         [Switch] $Only
     )
@@ -1343,6 +1345,14 @@ function New-RegexString {
                         '(?<domain>(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\]))'
                         ')'
                     ) -join ''
+                }
+                { $IPv4 } {
+                    # https://ihateregex.io/expr/ip/
+                    $ReArray += '(?<ipv4>(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})'
+                }
+                { $IPv6 } {
+                    # https://ihateregex.io/expr/ipv6/
+                    $ReArray += '(?<ipv6>(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])))'
                 }
                 { $Url } {
                     $ReArray += @(
@@ -1557,12 +1567,23 @@ function Test-Match {
         [String] $Value,
         [Switch] $Date,
         [Switch] $Email,
+        [Switch] $IPv4,
+        [Switch] $IPv6,
         [Switch] $Url,
         [Switch] $Only,
         [Switch] $AsBoolean
     )
     Process {
-        $Re = New-RegexString -Value $Value -Date:$Date -Email:$Email -Url:$Url -Only:$Only
+        $Parameters = @{
+            Value = $Value
+            Date = $Date
+            Email = $Email
+            IPv4 = $IPv4
+            IPv6 = $IPv6
+            Url = $Url
+            Only = $Only
+        }
+        $Re = New-RegexString @Parameters
         if ($AsBoolean) {
             if ($Value -match $Re) {
                 $True
@@ -1597,6 +1618,24 @@ function Test-Match {
                             Username = Get-Value -Name 'username'
                             Symbol = Get-Value -Name 'symbol'
                             Domain = Get-Value -Name 'domain'
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                { $IPv4 } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                { $IPv6 } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
                         }
                     } else {
                         $Null
