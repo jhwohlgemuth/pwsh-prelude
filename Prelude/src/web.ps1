@@ -117,7 +117,7 @@ function ConvertTo-Html {
     Begin {
         $Date = New-RegexString -Date
         $Email = New-RegexString -Email
-        $Url = New-RegexString -Url
+        # $Url = New-RegexString -Url
         $Template = if ($Metadata) {
             @{
                 Date = '<time itemscope itemtype="https://schema.org/DateTime" class="dt-event" datetime="<ISO8601 value>">${date}</time>'

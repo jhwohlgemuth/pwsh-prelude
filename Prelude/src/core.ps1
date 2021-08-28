@@ -1239,6 +1239,7 @@ function New-RegexString {
     # Regular expression that matches "foo", "bar", OR "baz"
     'foo', 'bar', 'baz' | New-RegularExpression
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
     [CmdletBinding()]
     [Alias('re')]
     [OutputType([String])]
@@ -1627,6 +1628,7 @@ function Test-Match {
         } else {
             $Results = ([Regex]$Re).Matches($Value)
             function Get-Value {
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Name')]
                 Param(
                     [String] $Name
                 )
