@@ -1240,6 +1240,7 @@ function New-RegexString {
     'foo', 'bar', 'baz' | New-RegularExpression
     #>
     [CmdletBinding()]
+    [Alias('re')]
     [OutputType([String])]
     Param(
         [Parameter(ValueFromPipeline = $True)]

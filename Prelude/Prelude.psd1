@@ -57,6 +57,7 @@
         'plain'
         'plural'
         'prop'
+        're'
         'reduce'
         'remove'
         'repeat'
