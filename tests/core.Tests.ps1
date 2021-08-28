@@ -1057,9 +1057,6 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $InValid | ForEach-Object { $_ | Test-Match -Url -AsBoolean | Should -BeFalse }
         $TestUrl = 'https://foo.bar.com'
         $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
-        # $Result[0].Value | Should -Be $TestUrl
-        # $Result.Groups[$Result.Groups.Count - 2].Name | Should -Be 'TLD'
-        # $Result.Groups[$Result.Groups.Count - 2].Value | Should -Be 'com'
         $Result = "The url for my website is ${TestUrl}. Once again, the site is ${TestUrl}." | Test-Match -Url
         $Result.Value | Should -Be $TestUrl, $TestUrl
     }
