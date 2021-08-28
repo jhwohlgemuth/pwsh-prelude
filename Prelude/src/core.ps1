@@ -1249,6 +1249,7 @@ function New-RegexString {
         [Switch] $IPv4,
         [Switch] $IPv6,
         [Switch] $Url,
+        [Switch] $And,
         [Switch] $Only
     )
     Begin {
@@ -1393,7 +1394,15 @@ function New-RegexString {
                     $ReArray += $Value
                 }
             }
-            $Re = "($($ReArray -join '|'))"
+            $Re = if ($And) {
+                # (?=.*word1)(?=.*word2)(?=.*word3).*
+                @(
+                    $ReArray | ForEach-Object { "(?=.*${_})" }
+                    '.*'
+                ) -join ''
+            } else {
+                "($($ReArray -join '|'))"
+            }
             $Re = if ($Only) { "^${Re}$" } else { $Re }
             $Re
         }

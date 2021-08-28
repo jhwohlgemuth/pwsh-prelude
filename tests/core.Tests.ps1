@@ -670,7 +670,7 @@ Describe 'New-RegexString' -Tag 'Local', 'Remote' {
         'bar' -match $Re | Should -BeFalse
         'baz' -match $Re | Should -BeFalse
     }
-    It 'can create regex string from array of strings' {
+    It 'can create regex string from array of strings (OR)' {
         $Re = 'boot' | New-RegexString
         'boot' -match $Re | Should -BeTrue
         'foo' -match $Re | Should -BeFalse
@@ -681,6 +681,14 @@ Describe 'New-RegexString' -Tag 'Local', 'Remote' {
         'bar' -match $Re | Should -BeTrue
         'baz' -match $Re | Should -BeTrue
         'boot' -match $Re | Should -BeFalse
+    }
+    It 'can create regex string from array of strings (AND)' {
+        $Re = 'foo', 'bar', 'baz' | New-RegexString -And
+        'foo' -match $Re | Should -BeFalse
+        'bar' -match $Re | Should -BeFalse
+        'baz' -match $Re | Should -BeFalse
+        'boot' -match $Re | Should -BeFalse
+        'foobarbaz' -match $Re | Should -BeTrue
     }
     It 'can create regex that will match url or email' {
         $Url = 'https://google.com'
