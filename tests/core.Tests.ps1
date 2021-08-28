@@ -882,6 +882,15 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Result.Symbol | Should -Be '@'
         $Result.Domain | Should -Be 'foo.com'
     }
+    It 'can return capture groups for IPv4' {
+        $TestAddress = '192.168.1.157'
+        $Result = $TestAddress | Test-Match -IPv4
+        $Result.Value | Should -Be $TestAddress
+        $Result.Part1 | Should -Be '192'
+        $Result.Part2 | Should -Be '168'
+        $Result.Part3 | Should -Be '1'
+        $Result.Part4 | Should -Be '157'
+    }
     It 'can return capture groups for URLs' {
         $TestUrl = 'https://foo.bar.com:4669'
         $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
