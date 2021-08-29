@@ -1038,14 +1038,14 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
             'http://www.google.com'
             'https://data.google.com'
             'http://data.google.com'
+            'ftp://example.com:8042/over/there?name=ferret#nose'
+        )
+        $InValid = @(
             'www.google.com'
             'google.com'
             'foo.bar.google.com'
             'google.me'
-            'foo://example.com:8042/over/there?name=ferret#nose'
-        )
-        $InValid = @(
-            # 't@jason.me'
+            't@jason.me'
             'foo'
             'bar'
             'foo//bar'

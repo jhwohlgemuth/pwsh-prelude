@@ -80,7 +80,7 @@ Describe 'ConvertFrom-QueryString' -Tag 'Local', 'Remote' {
 }
 Describe 'ConvertTo-Html' -Tag 'Local', 'Remote' {
     It 'can convert an unstructured string to HTML' {
-        $Text = 'On 25 Dec 2021, I changed my email from foo@bar.com to bar@foo.com.'
+        $Text = 'On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from foo@bar.com to bar@foo.com.'
         $Text | ConvertTo-Html | Write-Color -Cyan
     }
 }

@@ -1384,7 +1384,8 @@ function New-RegexString {
                 { $Url } {
                     $ReArray += @(
                         '(?<url>'
-                        '((?<scheme>(ht|f)tp(s?))\:\/\/)?'
+                        '((?<scheme>(ht|f)tp(s?))\:\/\/)'
+                        # '?'
                         '(?<subdomain>www|[a-zA-Z](?=\.))?'
                         "\.?(?<authority>[a-zA-Z0-9\-\.]+\.(?<tld>${TopLevelDomain}))"
                         '\:?(?<port>([0-9]+)*)'

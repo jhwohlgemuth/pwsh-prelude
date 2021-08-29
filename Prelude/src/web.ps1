@@ -109,34 +109,66 @@ function ConvertTo-Html {
     .EXAMPLE
     'My email is foo@bar.com' | ConvertTo-Html
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Metadata')]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Value,
         [Switch] $Metadata
     )
     Begin {
-        $Date = New-RegexString -Date
-        $Email = New-RegexString -Email
-        # $Url = New-RegexString -Url
-        $Template = if ($Metadata) {
-            @{
-                Date = '<time itemscope itemtype="https://schema.org/DateTime" class="dt-event" datetime="<ISO8601 value>">${date}</time>'
-                Email = '<a itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email" href="mailto:${email}">${email}</a>'
-                Url = '<a itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url" href="${url}">${url}</a>'
-            }
-        } else {
-            @{
-                Date = '<time>${date}</time>'
-                Email = '<a href="mailto:${email}">${email}</a>'
-                Url = '<a>${url}</a>'
-            }
+        $Date = [Regex](New-RegexString -Date)
+        $Email = [Regex](New-RegexString -Email)
+        $Url = [Regex](New-RegexString -Url)
+        $Attributes = @{
+            Date = 'itemscope itemtype="https://schema.org/DateTime" class="dt-event"'
+            Email = 'itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email"'
+            Url = 'itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url"'
         }
     }
     Process {
-        # $Value = $Value -replace $Url, $Template.Url
-        $Value = $Value -replace $Date, $Template.Date
-        $Value = $Value -replace $Email, $Template.Email
+        $Value = $Url.Replace(
+            $Value,
+            {
+                Param($Match)
+                $Value = $Match.Groups[1].Value
+                if ($Metadata) {
+                    "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
+                } else {
+                    "<a href=`"${Value}`">${Value}</a>"
+                }
+            }
+        )
+        $Value = $Date.Replace(
+            $Value,
+            {
+                Param($Match)
+                $Value = $Match.Groups[1].value
+                $IsoValue = [DateTime]$Value | ConvertTo-Iso8601
+                if ($Metadata) {
+                    "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
+                } else {
+                    "<time datetime=`"${IsoValue}`">${Value}</time>"
+                }
+            }
+        )
+        $Value = $Email.Replace(
+            $Value,
+            {
+                Param($Match)
+                $Value = $Match.Groups[1].Value
+                if ($Metadata) {
+                    "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
+                } else {
+                    "<a href=`"mailto:${Value}`">${Value}</a>"
+                }
+            }
+        )
+        "<!DOCTYPE html>
+<html>
+    <body>
         $Value
+    </body>
+</html>"
     }
 }
 function ConvertTo-Iso8601 {
