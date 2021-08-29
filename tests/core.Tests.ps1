@@ -708,7 +708,6 @@ Describe 'New-RegexString' -Tag 'Local', 'Remote' {
         $Matches.authority | Should -Be 'example.com'
         $Matches.tld | Should -Be 'com'
         $Matches.port | Should -BeNull
-
         'https://example.com:8042/over/there?name=ferret#nose' -match $Re
         $Matches.url | Should -Be 'https://example.com:8042/over/there?name=ferret#nose'
         $Matches.scheme | Should -Be 'https'
@@ -716,14 +715,6 @@ Describe 'New-RegexString' -Tag 'Local', 'Remote' {
         $Matches.authority | Should -Be 'example.com'
         $Matches.tld | Should -Be 'com'
         $Matches.port | Should -Be '8042'
-
-        'example.com:1337' -match $Re
-        $Matches.url | Should -Be 'example.com:1337'
-        $Matches.scheme | Should -BeNull
-        $Matches.subdomain | Should -BeNull
-        $Matches.authority | Should -Be 'example.com'
-        $Matches.tld | Should -Be 'com'
-        $Matches.port | Should -Be '1337'
     }
 }
 Describe 'Remove-Character' -Tag 'Local', 'Remote' {
