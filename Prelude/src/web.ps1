@@ -21,6 +21,96 @@ class BrowserOptions: Options {
     [PSObject] $Size = @{ Height = 700; Width = 960 }
     [Bool] $IsWebBrowserContextMenuEnabled = $False
 }
+function Add-Metadata {
+    <#
+    .SYNOPSIS
+    Identify certain elements and wrap them in semantic HTML tags.
+    .EXAMPLE
+    'My email is foo@bar.com' | ConvertTo-Html
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [String] $Text,
+        [String[]] $Keyword,
+        [Switch] $Microformat,
+        [ValidateSet('date', 'email', 'url')]
+        [String[]] $Disable
+    )
+    Begin {
+        $Custom = [Regex](($Keyword | ForEach-Object { "(\b${_}\b)" }) -join '|' )
+        $Date = [Regex](New-RegexString -Date)
+        $Email = [Regex](New-RegexString -Email)
+        $Url = [Regex](New-RegexString -Url)
+        $Attributes = @{
+            Date = 'itemscope itemtype="https://schema.org/DateTime" class="dt-event"'
+            Email = 'itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email"'
+            Url = 'itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url"'
+        }
+    }
+    Process {
+        If ($Keyword.Count -gt 0) {
+            $Text = $Custom.Replace(
+                $Text,
+                {
+                    Param($Match)
+                    $Value = $Match.Value
+                    $ClassName = $Value -replace '\s', '-'
+                    "<span class=`"keyword__${ClassName}`">${Value}</span>"
+                }
+            )
+        }
+        switch ($True) {
+            { -not ('url' -in $Disable) } {
+                'URL' | Write-Color -Yellow
+                $Text = $Url.Replace(
+                    $Text,
+                    {
+                        Param($Match)
+                        $Value = $Match.Groups[1].Value
+                        if ($Microformat) {
+                            "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
+                        } else {
+                            "<a href=`"${Value}`">${Value}</a>"
+                        }
+                    }
+                )
+            }
+            { -not ('date' -in $Disable) } {
+                'date' | Write-Color -Yellow
+                $Text = $Date.Replace(
+                    $Text,
+                    {
+                        Param($Match)
+                        $Value = $Match.Groups[1].value
+                        $IsoValue = [DateTime]$Value | ConvertTo-Iso8601
+                        if ($Microformat) {
+                            "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
+                        } else {
+                            "<time datetime=`"${IsoValue}`">${Value}</time>"
+                        }
+                    }
+                )
+            }
+            { -not ('email' -in $Disable) } {
+                'email' | Write-Color -Yellow
+                $Text = $Email.Replace(
+                    $Text,
+                    {
+                        Param($Match)
+                        $Value = $Match.Groups[1].Value
+                        if ($Microformat) {
+                            "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
+                        } else {
+                            "<a href=`"mailto:${Value}`">${Value}</a>"
+                        }
+                    }
+                )
+            }
+        }
+        $Text
+    }
+}
 function ConvertFrom-ByteArray {
     <#
     .SYNOPSIS
@@ -100,75 +190,6 @@ function ConvertFrom-QueryString {
         } else {
             $Decoded
         }
-    }
-}
-function ConvertTo-Html {
-    <#
-    .SYNOPSIS
-    Identify certain elements and wrap them in semantic HTML tags.
-    .EXAMPLE
-    'My email is foo@bar.com' | ConvertTo-Html
-    #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Metadata')]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [String] $Value,
-        [Switch] $Metadata
-    )
-    Begin {
-        $Date = [Regex](New-RegexString -Date)
-        $Email = [Regex](New-RegexString -Email)
-        $Url = [Regex](New-RegexString -Url)
-        $Attributes = @{
-            Date = 'itemscope itemtype="https://schema.org/DateTime" class="dt-event"'
-            Email = 'itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email"'
-            Url = 'itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url"'
-        }
-    }
-    Process {
-        $Value = $Url.Replace(
-            $Value,
-            {
-                Param($Match)
-                $Value = $Match.Groups[1].Value
-                if ($Metadata) {
-                    "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
-                } else {
-                    "<a href=`"${Value}`">${Value}</a>"
-                }
-            }
-        )
-        $Value = $Date.Replace(
-            $Value,
-            {
-                Param($Match)
-                $Value = $Match.Groups[1].value
-                $IsoValue = [DateTime]$Value | ConvertTo-Iso8601
-                if ($Metadata) {
-                    "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
-                } else {
-                    "<time datetime=`"${IsoValue}`">${Value}</time>"
-                }
-            }
-        )
-        $Value = $Email.Replace(
-            $Value,
-            {
-                Param($Match)
-                $Value = $Match.Groups[1].Value
-                if ($Metadata) {
-                    "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
-                } else {
-                    "<a href=`"mailto:${Value}`">${Value}</a>"
-                }
-            }
-        )
-        "<!DOCTYPE html>
-<html>
-    <body>
-        $Value
-    </body>
-</html>"
     }
 }
 function ConvertTo-Iso8601 {

@@ -154,6 +154,7 @@ Functions
 <details>
   <summary>list of functions</summary>
   
+  - `Add-Metadata`
   - `ConvertFrom-ByteArray`
   - `ConvertFrom-Html`
   - `ConvertFrom-Pair`
