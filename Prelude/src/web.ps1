@@ -43,6 +43,7 @@ function Add-Metadata {
         $Email = [Regex](New-RegexString -Email)
         $Url = [Regex](New-RegexString -Url)
         $Attributes = @{
+            Custom = 'itemprop="thing"'
             Date = 'itemscope itemtype="https://schema.org/DateTime" class="dt-event"'
             Email = 'itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email"'
             Url = 'itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url"'
@@ -56,13 +57,16 @@ function Add-Metadata {
                     Param($Match)
                     $Value = $Match.Value
                     $ClassName = $Value -replace '\s', '-'
-                    "<span class=`"keyword__${ClassName}`">${Value}</span>"
+                    if ($Microformat) {
+                        "<span $($Attributes.Custom) class=`"keyword__${ClassName} p-item`">${Value}</span>"
+                    } else {
+                        "<span class=`"keyword__${ClassName}`">${Value}</span>"
+                    }
                 }
             )
         }
         switch ($True) {
             { -not ('url' -in $Disable) } {
-                'URL' | Write-Color -Yellow
                 $Text = $Url.Replace(
                     $Text,
                     {
@@ -77,13 +81,13 @@ function Add-Metadata {
                 )
             }
             { -not ('date' -in $Disable) } {
-                'date' | Write-Color -Yellow
                 $Text = $Date.Replace(
                     $Text,
                     {
                         Param($Match)
                         $Value = $Match.Groups[1].value
-                        $IsoValue = [DateTime]$Value | ConvertTo-Iso8601
+                        $Data = $Value | Test-Match -Date
+                        $IsoValue = [DateTime]"$($Data.Month)/$($Data.Day)/$($Data.Year)" | ConvertTo-Iso8601
                         if ($Microformat) {
                             "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
                         } else {
@@ -93,7 +97,6 @@ function Add-Metadata {
                 )
             }
             { -not ('email' -in $Disable) } {
-                'email' | Write-Color -Yellow
                 $Text = $Email.Replace(
                     $Text,
                     {

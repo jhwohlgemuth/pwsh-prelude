@@ -7,6 +7,12 @@ $HtmlFileSupported = try {
     $False
 }
 
+Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
+    It 'can convert an unstructured string to HTML' {
+        $Text = '[25 12 2022] On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from foo@bar.com to bar@foo.com.'
+        $Text | Add-Metadata -Keyword 'list..' -Disable 'email' | Write-Color -Cyan
+    }
+}
 Describe 'ConvertFrom-ByteArray' -Tag 'Local', 'Remote' {
     It 'can convert an array of bytes to text' {
         $Expected = 'hello world'
@@ -76,12 +82,6 @@ Describe 'ConvertFrom-QueryString' -Tag 'Local', 'Remote' {
             ConvertFrom-QueryString
         $Result.Keys | Sort-Object | Should -Be 'first', 'second', 'third'
         $Result.Values | Sort-Object | Should -Be '1', '2', 'last'
-    }
-}
-Describe 'ConvertTo-Html' -Tag 'Local', 'Remote' {
-    It 'can convert an unstructured string to HTML' {
-        $Text = 'On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from foo@bar.com to bar@foo.com.'
-        $Text | Add-Metadata -Keyword 'list..' -Disable 'url', 'email' | Write-Color -Cyan
     }
 }
 Describe 'ConvertTo-Iso8601' -Tag 'Local', 'Remote' {
