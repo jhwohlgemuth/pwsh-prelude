@@ -169,6 +169,101 @@ Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {
         @{ per_page = 100; page = 3 } | ConvertTo-QueryString -UrlEncode | Should -Be 'page%3d3%26per_page%3d100'
     }
 }
+Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
+    It 'can get content of hosts file from path' {
+        $Content = Get-HostsContent (Join-Path $PSScriptRoot 'fixtures/hosts')
+        $Content.Count | Should -Be 3
+        $Content | ForEach-Object Hostname | Should -Be 'foo', 'bar', 'foo.bar.baz'
+        $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111', '127.0.0.1', '192.168.0.2'
+        $Content | ForEach-Object Comment | Should -Be '', 'some random comment', ''
+        $Content = (Join-Path $PSScriptRoot 'fixtures/hosts') | Get-HostsContent
+        $Content.Count | Should -Be 3
+        $Content | ForEach-Object Hostname | Should -Be 'foo', 'bar', 'foo.bar.baz'
+        $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111', '127.0.0.1', '192.168.0.2'
+        $Content | ForEach-Object Comment | Should -Be '', 'some random comment', ''
+    }
+    It 'can add an entry to a hosts file' {
+        $Path = Join-Path $TestDrive 'hosts'
+        New-Item $Path
+        $A = @{
+            Hostname = 'home'
+            IPAddress = '127.0.0.1'
+        }
+        $B = @{
+            Hostname = 'foo'
+            IPAddress = '127.0.0.2'
+            Comment = 'bar'
+        }
+        $NewIpAddress = '127.0.0.42'
+        $NewComment = 'this is an updated comment'
+        $Updated = $A.Clone(), @{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge
+        Update-HostsFile @A -Path $Path
+        $Content = Get-HostsContent $Path
+        $Content.LineNumber | Should -Be 1
+        $Content.IPAddress | Should -Be $A.IPAddress
+        $Content.IsValidIP | Should -Be $True
+        $Content.Hostname | Should -Be $A.Hostname
+        $Content.Comment | Should -Be ''
+        Update-HostsFile @B -Path $Path
+        $Content = Get-HostsContent $Path
+        $Content[0].LineNumber | Should -Be 1
+        $Content[0].IPAddress | Should -Be $A.IPAddress
+        $Content[0].IsValidIP | Should -Be $True
+        $Content[0].Hostname | Should -Be $A.Hostname
+        $Content[0].Comment | Should -Be ''
+        $Content[1].LineNumber | Should -Be 3
+        $Content[1].IPAddress | Should -Be $B.IPAddress
+        $Content[1].IsValidIP | Should -Be $True
+        $Content[1].Hostname | Should -Be $B.Hostname
+        $Content[1].Comment | Should -Be $B.Comment
+        Update-HostsFile @Updated -Path $Path
+        $Content = Get-HostsContent $Path
+        $Content[0].LineNumber | Should -Be 1
+        $Content[0].IPAddress | Should -Be $NewIpAddress
+        $Content[0].IsValidIP | Should -Be $True
+        $Content[0].Hostname | Should -Be $A.Hostname
+        $Content[0].Comment | Should -Be $NewComment
+        $Content[1].LineNumber | Should -Be 3
+        $Content[1].IPAddress | Should -Be $B.IPAddress
+        $Content[1].IsValidIP | Should -Be $True
+        $Content[1].Hostname | Should -Be $B.Hostname
+        $Content[1].Comment | Should -Be $B.Comment
+        $Content = Update-HostsFile @B -Path $Path -PassThru
+        $Content[0].LineNumber | Should -Be 1
+        $Content[0].IPAddress | Should -Be $NewIpAddress
+        $Content[0].IsValidIP | Should -Be $True
+        $Content[0].Hostname | Should -Be $A.Hostname
+        $Content[0].Comment | Should -Be $NewComment
+        $Content[1].LineNumber | Should -Be 3
+        $Content[1].IPAddress | Should -Be $B.IPAddress
+        $Content[1].IsValidIP | Should -Be $True
+        $Content[1].Hostname | Should -Be $B.Hostname
+        $Content[1].Comment | Should -Be $B.Comment
+        Remove-Item $Path
+    }
+    It 'supports WhatIf parameter' {
+        Mock Write-Color {} -ModuleName 'Prelude'
+        $Path = Join-Path $TestDrive 'hosts'
+        New-Item $Path
+        $A = @{
+            Hostname = 'home'
+            IPAddress = '127.0.0.1'
+        }
+        $B = @{
+            Hostname = 'home'
+            IPAddress = '192.168.1.1'
+        }
+        $C = @{
+            Hostname = 'foo'
+            IPAddress = '127.0.0.2'
+            Comment = 'bar'
+        }
+        Update-HostsFile @A -Path $Path
+        { Update-HostsFile @B -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
+        { Update-HostsFile @C -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
+        Remove-Item $Path
+    }
+}
 Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote' {
     It 'can get elements from HTML string' {
         $Html = '<html><div id="foo">foo</div><div class="foo">bar</div></html>'
