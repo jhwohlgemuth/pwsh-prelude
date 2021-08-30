@@ -966,6 +966,7 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
             'mailhost!username@example.org' #bangified host route used for uucp mailers
             'user%example.com@example.org' #% escaped mail route to user@example.com via example.org
             '"john..doe"@example.org' #quoted double dot
+            'JAKE.T.WADSLEY.MIL@US.NAVY.MIL'
         )
         $InValid = @(
             'hello@'

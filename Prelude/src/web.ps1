@@ -48,11 +48,13 @@ function Add-Metadata {
             Email = 'itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email"'
             Url = 'itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url"'
         }
+        $Options = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
     }
     Process {
         If ($Keyword.Count -gt 0) {
-            $Text = $Custom.Replace(
+            $Text = [Regex]::Replace(
                 $Text,
+                $Custom,
                 {
                     Param($Match)
                     $Value = $Match.Value
@@ -67,8 +69,9 @@ function Add-Metadata {
         }
         switch ($True) {
             { -not ('url' -in $Disable) } {
-                $Text = $Url.Replace(
+                $Text = [Regex]::Replace(
                     $Text,
+                    $Url,
                     {
                         Param($Match)
                         $Value = $Match.Groups[1].Value
@@ -77,12 +80,14 @@ function Add-Metadata {
                         } else {
                             "<a href=`"${Value}`">${Value}</a>"
                         }
-                    }
+                    },
+                    $Options
                 )
             }
             { -not ('date' -in $Disable) } {
-                $Text = $Date.Replace(
+                $Text = [Regex]::Replace(
                     $Text,
+                    $Date,
                     {
                         Param($Match)
                         $Value = $Match.Groups[1].value
@@ -93,12 +98,14 @@ function Add-Metadata {
                         } else {
                             "<time datetime=`"${IsoValue}`">${Value}</time>"
                         }
-                    }
+                    },
+                    $Options
                 )
             }
             { -not ('email' -in $Disable) } {
-                $Text = $Email.Replace(
+                $Text = [Regex]::Replace(
                     $Text,
+                    $Email,
                     {
                         Param($Match)
                         $Value = $Match.Groups[1].Value
@@ -107,7 +114,8 @@ function Add-Metadata {
                         } else {
                             "<a href=`"mailto:${Value}`">${Value}</a>"
                         }
-                    }
+                    },
+                    $Options
                 )
             }
         }

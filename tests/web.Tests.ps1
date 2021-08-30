@@ -9,8 +9,10 @@ $HtmlFileSupported = try {
 
 Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
     It 'can convert an unstructured string to HTML' {
-        $Text = '[25 12 2022] On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from foo@bar.com to bar@foo.com.'
-        $Text | Add-Metadata -Keyword 'list..' -Disable 'email' | Write-Color -Cyan
+        $Text = '[25 12 2022] On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from FOO.BAR@baz.com to foo@bar.com.'
+        $Text | Add-Metadata | Write-Color -Cyan
+        # $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\NAV21181.txt') -Raw | Add-Metadata
+        # $Data | Write-Color -Yellow
     }
 }
 Describe 'ConvertFrom-ByteArray' -Tag 'Local', 'Remote' {
