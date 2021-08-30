@@ -174,7 +174,6 @@
         'New-File'
         'New-Graph'
         'New-Matrix'
-        'New-ProxyCommand'
         'New-RegexString'
         'New-Template'
         'Open-Session'

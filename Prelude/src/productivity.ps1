@@ -750,30 +750,6 @@ function New-File {
         $Result
     }
 }
-function New-ProxyCommand {
-    <#
-    .SYNOPSIS
-    Create function template for proxy function
-    .DESCRIPTION
-    This function can be used to create a framework for a proxy function. If you want to create a proxy function for a command named Some-Command,
-    you should pass "Some-Command" as the Name attribute - New-ProxyCommand -Name Some-Command
-    .EXAMPLE
-    New-ProxyCommand -Name 'Out-Default' | Out-File 'Out-Default.ps1'
-    .EXAMPLE
-    'Invoke-Item' | New-ProxyCommand | Out-File 'Invoke-Item-proxy.ps1'
-    #>
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [String] $Name
-    )
-    $Metadata = New-Object System.Management.Automation.CommandMetadata (Get-Command $Name)
-    Write-Output "
-  function $Name
-  {
-    $([System.Management.Automation.ProxyCommand]::Create($Metadata))
-  }"
-}
 function Open-Session {
     <#
     .SYNOPSIS

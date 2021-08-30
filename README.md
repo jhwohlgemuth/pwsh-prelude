@@ -236,7 +236,6 @@ Functions
   - `New-ApplicationTemplate`
   - `New-ComplexValue`
   - `New-File`
-  - `New-ProxyCommand`
   - `New-Template`
   - `Open-Session`
   - `Remove-Character`
