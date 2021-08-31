@@ -1,4 +1,4 @@
-﻿#Requires -Modules BuildHelpers,pester
+﻿#Requires -Modules BuildHelpers,pester,PSScriptAnalyzer
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
 [CmdletBinding()]
@@ -259,9 +259,9 @@ function Invoke-Lint {
             )
             $Path = Join-Path "$PSScriptRoot/csharp/$Name" "${Name}.csproj"
             if ($DryRun) {
-                dotnet format --check $Path --verbosity diagnostic
+                dotnet tool run dotnet-format --check $Path --verbosity diagnostic
             } else {
-                dotnet format $Path --verbosity detailed
+                dotnet tool run dotnet-format $Path --verbosity detailed
             }
         }
         if ((Get-Command 'dotnet')) {
@@ -465,7 +465,7 @@ switch (Get-TaskList) {
         if ($GenerateCoverageReport) {
             $SourceDirs = $SourceDirectory
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-            reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
+            dotnet tool run reportgenerator -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
             if ($Show) {
                 Invoke-Item ./coverage/index.htm
             }

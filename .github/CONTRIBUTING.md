@@ -66,8 +66,16 @@ Prelude uses a build script for PowerShell development tasks and `dotnet` for C#
 PowerShell Workflow Tasks
 -------------------------
 **Requirements**
-- Run `.\Invoke-Setup.ps1` to install PowerShell development depencencies
-> ***NOTE*** You may need to run `Set-ExecutionPolicy Unrestricted` before executing `Invoke-Setup.ps1`
+- [`dotnet`](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet) command line tool is required to install tools, run tasks, and build code
+- [BuildHelpers](https://github.com/RamblingCookieMonster/BuildHelpers/) is required for dev tasks
+- [Pester](https://pester.dev/) is required to run PowerShell tests
+- [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) is required to lint PowerShell code
+```Powershell
+dotnet tool restore
+Install-Module -Force -Scope CurrentUser -Name BuildHelpers
+Install-Module -Force -Scope CurrentUser -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4
+Install-Module -Force -Scope CurrentUser -Name PSScriptAnalyzer
+```
 
 All PowerShell tasks are contained within [Invoke-Task.ps1](../Invoke-Task.ps1) and can be executed via the following commands:
 
