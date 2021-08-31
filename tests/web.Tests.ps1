@@ -8,11 +8,22 @@ $HtmlFileSupported = try {
 }
 
 Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
-    It 'can convert an unstructured string to HTML' {
+    It 'can add metadata to an unstructured string' {
         $Text = '[25 12 2022] On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from FOO.BAR@baz.com to foo@bar.com.'
-        $Text | Add-Metadata | Write-Color -Cyan
-        # $Data = Get-Content (Join-Path $PSScriptRoot '\fixtures\NAV21181.txt') -Raw | Add-Metadata
-        # $Data | Write-Color -Yellow
+        $Result = '[<time datetime="2022-12-25T00:00:00.000Z">25 12 2022</time>] On <time datetime="2021-12-25T00:00:00.000Z">25 Dec 2021</time>, I changed my email listed on my website, <a href="https://resume.jasonwohlgemuth.com">https://resume.jasonwohlgemuth.com</a>, from <a href="mailto:FOO.BAR@baz.com">FOO.BAR@baz.com</a> to <a href="mailto:foo@bar.com">foo@bar.com</a>.'
+        $Text | Add-Metadata | Should -Be $Result
+        $Text = 'email = foo@BAR.com; url = https://google.com; date = 8 30 2021;'
+        $Text | Add-Metadata -Disable 'email' | Should -Be 'email = foo@BAR.com; url = <a href="https://google.com">https://google.com</a>; date = 8 30 2021;'
+        $Text | Add-Metadata -Disable 'date' | Should -Be 'email = <a href="mailto:foo@BAR.com">foo@BAR.com</a>; url = <a href="https://google.com">https://google.com</a>; date = 8 30 2021;'
+        $Text | Add-Metadata -Disable 'email' | Should -Be 'email = foo@BAR.com; url = <a href="https://google.com">https://google.com</a>; date = 8 30 2021;'
+        $Text = 'The quick brown fox jumped over the gate'
+        $Text | Add-Metadata -Keyword 'fox' | Should -Be 'The quick brown <span class="keyword__fox">fox</span> jumped over the gate'
+        $Text | Add-Metadata -Keyword 'jump.{2}' | Should -Be 'The quick brown fox <span class="keyword__jumped">jumped</span> over the gate'
+        $Text | Add-Metadata -Keyword '[tT]he', 'fox' | Should -Be '<span class="keyword__The">The</span> quick brown <span class="keyword__fox">fox</span> jumped over <span class="keyword__the">the</span> gate'
+    }
+    It 'can add metadata to an unstructured text file' {
+        $Text = Get-Content (Join-Path $PSScriptRoot '\fixtures\NAV21181.txt') -Raw
+        $Text | Add-Metadata | Should -Match '<a href="mailto:JAKE.T.WADSLEY.MIL@US.NAVY.MIL">JAKE.T.WADSLEY.MIL@US.NAVY.MIL</a>'
     }
 }
 Describe 'ConvertFrom-ByteArray' -Tag 'Local', 'Remote' {
