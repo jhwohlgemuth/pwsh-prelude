@@ -245,6 +245,17 @@ Describe 'Invoke-ObjectInvert' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
+    It 'can merge empty objects' {
+        $Empty = @{}
+        $Object = @{ foo = 'a'; bar = 'b' }
+        $Empty, $Empty | Invoke-ObjectMerge | Should -BeNullOrEmpty
+        $Result = $Object, $Empty | Invoke-ObjectMerge
+        $Result.foo | Should -Be 'a'
+        $Result.bar | Should -Be 'b'
+        $Result = $Empty, $Object | Invoke-ObjectMerge
+        $Result.foo | Should -Be 'a'
+        $Result.bar | Should -Be 'b'
+    }
     It 'should function as passthru for one object' {
         $Result = @{ foo = 'bar' } | Invoke-ObjectMerge
         $Result.foo | Should -Be 'bar'
@@ -252,10 +263,15 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
         $Result.foo | Should -Be 'bar'
     }
     It 'can merge two hashtables' {
-        $Result = @{ a = 1 }, @{ b = 2 } | Invoke-ObjectMerge
-        $Result.a | Should -Be 1
-        $Result.b | Should -Be 2
-        $Result.Keys | Sort-Object | Should -Be 'a', 'b'
+        $Result = @{ foo = 1; baz = 3 }, @{ bar = 2; bam = 4 } | Invoke-ObjectMerge
+        $Result.foo | Should -Be 1
+        $Result.bar | Should -Be 2
+        $Result.Keys | Sort-Object | Should -Be 'bam', 'bar', 'baz', 'foo'
+        $Result.Values | Sort-Object | Should -Be 1, 2, 3, 4
+        $Result = @{ foo = 1 }, @{ bar = 2 } | Invoke-ObjectMerge
+        $Result.foo | Should -Be 1
+        $Result.bar | Should -Be 2
+        $Result.Keys | Sort-Object | Should -Be 'bar', 'foo'
         $Result.Values | Sort-Object | Should -Be 1, 2
         $Result = @{ a = 1; x = 'this' }, @{ b = 2; y = 'that' } | Invoke-ObjectMerge
         $Result.a | Should -Be 1

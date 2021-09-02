@@ -171,24 +171,32 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
             & $RenderVariable @{} | Should -Be $Expected
         }
         It 'can support default values' {
-            $RenderVariable = New-Template -Template '<div>Hello {{ name }}</div>' -DefaultValues @{ name = 'Default' }
-            & $RenderVariable | Should -Be '<div>Hello Default</div>'
-            & $RenderVariable @{ name = 'Not Default' } | Should -Be '<div>Hello Not Default</div>'
+            $Function:render = '<div>Hello {{ name }}</div>' | New-Template -DefaultValues @{ name = 'Default' }
+            render | Should -Be '<div>Hello Default</div>'
+            $Data = @{ name = 'Not Default' }
+            render $Data | Should -Be '<div>Hello Not Default</div>'
+            'Hello {{ name }}' | New-Template -Data $Data -DefaultValues @{ name = 'Default' } | Should -Be 'Hello Not Default'
         }
     }
-    It 'can return a string when passed -Data paramter' {
-        'Hello {{ name }}' | New-Template -Data @{ name = 'World' } | Should -Be 'Hello World'
+    It 'can support multiple template functions at once' {
+        $Function:Div = '<div>{{ text }}</div>' | New-Template -DefaultValues @{ text = 'default' }
+        $Function:Span = '<span>{{ text }}</span>' | New-Template -DefaultValues @{ text = 'default' }
+        "$(Div @{ text = Span @{ text = 'hello' }})" | Should -Be '<div><span>hello</span></div>'
+    }
+    It 'can return a string when passed -Data parameter' {
+        $Data = @{ name = 'World' }
+        'Hello {{ name }}' | New-Template -Data $Data | Should -Be 'Hello World'
+        'Hello {{ name }} and {{ name }}' | New-Template -Data $Data | Should -Be 'Hello World and World'
+        'Hello {{ name }} and {{ name }}' | New-Template -Data $Data | Should -Be 'Hello World and World'
+        $Data = @{ a = 'FOO'; b = 'BAR' }
+        '{{ a }}{{ b }}' | New-Template -Data $Data | Should -Be 'FOOBAR'
+    }
+    It 'can skip color template entities, {{#color text }}' {
         '{{#green Hello}} {{ name }}' | New-Template -Data @{ name = 'World' } | Should -Be '{{#green Hello}} World'
     }
     It 'can create function from template string using mustache notation' {
         $Expected = '<div>Hello World!</div>'
         $Function:render = New-Template '<div>Hello {{ name }}!</div>'
-        render @{ name = 'World' } | Should -Be $Expected
-        @{ name = 'World' } | render | Should -Be $Expected
-    }
-    It 'can create function from template string using Powershell syntax' {
-        $Expected = '<div>Hello World!</div>'
-        $Function:render = New-Template '<div>Hello $($Data.name)!</div>'
         render @{ name = 'World' } | Should -Be $Expected
         @{ name = 'World' } | render | Should -Be $Expected
     }
@@ -204,22 +212,14 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
     </section>"
         & $Section @{ title = 'Title' } | Should -Be $Expected
     }
-    It 'can be nested within other templates (with Powershell syntax)' {
-        $Expected = '<section>
-      <h1>Title</h1>
-      <div>Hello World!</div>
-    </section>'
-        $Div = New-Template -Template '<div>{{ text }}</div>'
-        $Section = New-Template "<section>
-      <h1>`$(`$Data.title)</h1>
-      $(& $Div @{text = 'Hello World!'})
-    </section>"
-        & $Section @{ title = 'Title' } | Should -Be $Expected
-    }
     It 'can return pass-thru function that does no string interpolation' {
-        $Function:render = '{{#green Hello}} {{ name }}' | New-Template
-        render -Data @{ name = 'Jason' } | Should -Be '{{#green Hello}} Jason'
-        render -Data @{ name = 'Jason' } -PassThru | Should -Be '{{#green Hello}} {{ name }}'
+        $Template = 'Hello {{ name }}'
+        $Data = @{ name = 'Jason' }
+        $Template | New-Template -Data $Data | Should -Be 'Hello Jason'
+        $Template | New-Template -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
+        $Function:render = $Template | New-Template
+        render -Data $Data | Should -Be 'Hello Jason'
+        render -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
     }
 }
 Describe 'Remove-Indent' -Tag 'Local', 'Remote' {

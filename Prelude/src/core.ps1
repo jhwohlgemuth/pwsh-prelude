@@ -531,9 +531,26 @@ function Invoke-ObjectMerge {
                 $Result = if ($InputObject.Count -gt 1) {
                     $InputObject | Invoke-Reduce -InitialValue @{} -Callback {
                         Param($Acc, $Item)
-                        $Item | ConvertTo-Pair | Invoke-Zip | ForEach-Object {
-                            [String]$Key, $Value = $_
-                            $Acc.$Key = $Value
+                        $Type = $Item.GetType().Name
+                        $ItemCount = if ($Type -eq 'PSCustomObject') {
+                            $Item.PSObject.Properties.Name.Length
+                        } else {
+                            $Item.Count
+                        }
+                        switch ($ItemCount) {
+                            0 {
+                                # Return nothing
+                            }
+                            1 {
+                                $Pair = $Item | ConvertTo-Pair
+                                $Acc[$Pair[0]] = $Pair[1]
+                            }
+                            Default {
+                                $Item | ConvertTo-Pair | Invoke-Zip | ForEach-Object {
+                                    [String] $Key, $Value = $_
+                                    $Acc.$Key = $Value
+                                }
+                            }
                         }
                     }
                 } else {
