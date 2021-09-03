@@ -606,7 +606,7 @@ namespace Prelude {
             }
         }
         /// <summary>
-        /// Return true if calling matrix is diagonal - for a matrix, A, if i != 0 then A[i, j] == 0
+        /// Return true if calling matrix is diagonal - for a matrix, A, if i != j then A[i, j] == 0
         /// </summary>
         /// <returns>Boolean</returns>
         /// <remarks>

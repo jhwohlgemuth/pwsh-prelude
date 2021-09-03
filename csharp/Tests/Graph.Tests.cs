@@ -1,4 +1,6 @@
 using Xunit;
+using FsCheck;
+using FsCheck.Xunit;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -415,6 +417,23 @@ namespace GraphTests {
         public void Can_calculate_degree_distribution(int N) {
             var graph = Graph.Complete(N);
             Assert.Equal(new Dictionary<int, int> { { N - 1, N } }, graph.DegreeDistribution());
+        }
+        [Fact]
+        public void Can_calculate_degree_matrix() {
+            var graph = Graph.Complete(3);
+            Matrix d = graph.DegreeMatrix();
+            Assert.Equal(new Complex[] { 2, 0, 0 }, d[0]);
+            Assert.Equal(new Complex[] { 0, 2, 0 }, d[1]);
+            Assert.Equal(new Complex[] { 0, 0, 2 }, d[2]);
+        }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(5)]
+        [InlineData(10)]
+        public void Degree_matrix_is_diagonal(int N) {
+            var graph = Graph.Complete(N);
+            Assert.True(graph.DegreeMatrix().IsDiagonal());
         }
     }
 }

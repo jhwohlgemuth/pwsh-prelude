@@ -257,6 +257,16 @@ namespace Prelude {
                 .ToDictionary(x => x[0], x => x[1]);
         }
         /// <summary>
+        /// Return diagonal matrix of degree values for Graph
+        /// </summary>
+        /// <returns>Matrix</returns>
+        public Matrix DegreeMatrix() {
+            var temp = Matrix.Fill(new Matrix(Nodes.Count), 0);
+            for (var i = 0; i < Nodes.Count; ++i)
+                temp[i][i] = Nodes[i].Degree;
+            return temp;
+        }
+        /// <summary>
         /// Get reference to node using node object
         /// </summary>
         /// <param name="node">Node to get</param>
