@@ -338,7 +338,6 @@ namespace Prelude {
                 sum += element;
             return sum;
         }
-
         /// <summary>
         /// Calculate transpose of a given matrix
         /// </summary>
@@ -349,6 +348,20 @@ namespace Prelude {
             foreach (var index in a.Indexes()) {
                 int i = index[0], j = index[1];
                 temp[j][i] = a[i][j];
+            }
+            return temp;
+        }
+        /// <summary>
+        /// Calculate complex conjugate transpose of a given matrix
+        /// Note: An NxN Hermitian matrix has N real eigenvalues and is unitarily diagonizable
+        /// </summary>
+        /// <param name="a">Input matrix</param>
+        /// <returns>Matrix</returns>
+        public static Matrix ConjugateTranspose(Matrix a) {
+            var temp = new Matrix(a.Size[1], a.Size[0]);
+            foreach (var index in a.Indexes()) {
+                int i = index[0], j = index[1];
+                temp[j][i] = Complex.Conjugate(a[i][j]);
             }
             return temp;
         }
@@ -612,14 +625,7 @@ namespace Prelude {
         /// <remarks>
         /// Hermitian matrices can be understood as the complex extension of symmetric matrices
         /// </remarks>
-        public bool IsHermitian() {
-            foreach (var pair in Indexes()) {
-                int i = pair[0], j = pair[1];
-                if (this[i][j] != Complex.Conjugate(this[j][i]))
-                    return false;
-            }
-            return true;
-        }
+        public bool IsHermitian() => IsSquare() && this == ConjugateTranspose(this);
         /// <summary>
         /// Return true if calling matrix is orthogonal - for a matrix, A, Transpose(A) * A = I
         /// </summary>
