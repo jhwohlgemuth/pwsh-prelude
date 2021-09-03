@@ -211,6 +211,12 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
       $(& $Div @{text = 'Hello World!'})
     </section>"
         & $Section @{ title = 'Title' } | Should -Be $Expected
+        $Function:Div = '<div>{{ text }}</div>' | New-Template
+        $Function:Section = "<section>
+      <h1>{{ title }}</h1>
+      $(Div @{ text = 'Hello World!' })
+    </section>" | New-Template
+        Section @{ title = 'Title' } | Should -Be $Expected
     }
     It 'can return pass-thru function that does no string interpolation' {
         $Template = 'Hello {{ name }}'

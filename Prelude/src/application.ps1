@@ -206,103 +206,6 @@ function New-ApplicationTemplate {
     Invoke-RunApplication `$Init `$Loop `$InitialState -Id `$Id -ClearState:`$Clear
     " | Remove-Indent
 }
-# function New-Template {
-#     <#
-#     .SYNOPSIS
-#     Create render function that interpolates passed object values
-#     .PARAMETER Data
-#     Pass template data to New-Template when using New-Template within pipe chain (see examples)
-#     .EXAMPLE
-#     $Function:render = New-Template '<div>Hello {{ name }}!</div>'
-#     render @{ name = 'World' }
-#     # '<div>Hello World!</div>'
-
-#     Use mustache template syntax! Just like Handlebars.js!
-#     .EXAMPLE
-#     $Function:render = 'hello {{ name }}' | New-Template
-#     @{ name = 'world' } | render
-#     # 'hello world'
-
-#     New-Template supports idiomatic powershell pipeline syntax
-#     .EXAMPLE
-#     $Function:render = New-Template '<div>Hello $($Data.name)!</div>'
-#     render @{ name = 'World' }
-#     # '<div>Hello World!</div>'
-
-#     Or stick to plain Powershell syntax...this is a little more verbose ($Data is required)
-#     .EXAMPLE
-#     $title = New-Template -Template '<h1>{{ text }}</h1>' -DefaultValues @{ text = 'Default' }
-#     & $title
-#     # '<h1>Default</h1>'
-#     & $title @{ text = 'Hello World' }
-#     # '<h1>Hello World</h1>'
-
-#     Provide default values for your templates!
-#     .EXAMPLE
-#     $div = New-Template -Template '<div>{{ text }}</div>'
-#     $section = New-Template "<section>
-#         <h1>{{ title }}</h1>
-#         $(& $div @{ text = 'Hello World!' })
-#     </section>"
-
-#     Templates can even be nested!
-#     .EXAMPLE
-#     '{{#green Hello}} {{ name }}' | tpl -Data @{ name = 'World' } | Write-Color
-
-#     Use -Data parameter cause template to return formatted string instead of template function
-#     #>
-#     [CmdletBinding(DefaultParameterSetName = 'template')]
-#     [Alias('tpl')]
-#     [OutputType([ScriptBlock], ParameterSetName = 'template')]
-#     [OutputType([String], ParameterSetName = 'inline')]
-#     Param(
-#         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-#         [String] $Template,
-#         [Parameter(ParameterSetName = 'inline')]
-#         [PSObject] $Data,
-#         [Parameter(ValueFromPipelineByPropertyName = $True)]
-#         [PSObject] $DefaultValues
-#     )
-#     # $Namespace = [Math]::Abs($Template.GetHashCode()).ToString()
-#     # New-Variable -Name "__template$Namespace" -Value $Template -Scope Script -Force # This line is super important
-#     New-Variable -Name '__template' -Value $Template -Scope Script -Force # This line is super important
-#     New-Variable -Name '__defaults' -Value $DefaultValues -Scope Script -Force # This line is also super important
-#     $Renderer = {
-#         Param(
-#             [Parameter(Position = 0, ValueFromPipeline = $True)]
-#             [PSObject] $Data,
-#             [Switch] $PassThru
-#         )
-#         # $StringToRender = Get-Variable -Name "__template$Namespace" -Scope Script -ValueOnly
-#         $StringToRender = Get-Variable -Name '__template' -Scope Script -ValueOnly
-#         if (-not $PassThru) {
-#             $DataVariableName = Get-Variable -Name Data | ForEach-Object { $_.Name }
-#             "`"Data`" variable name = $DataVariableName" | Write-Verbose
-#             $StringToRender = $StringToRender | ConvertTo-PowershellSyntax -DataVariableName $DataVariableName
-#         }
-#         if (-not $Data) {
-#             "Data = $($Data | ConvertTo-Json)" | Write-Verbose
-#             $Data = $Script:__defaults
-#         }
-#         $StringToRender = $StringToRender -replace '"', '`"'
-#         "String to render = $StringToRender" | Write-Verbose
-#         $ImportDataVariable = "`$Data = '$(ConvertTo-Json ([System.Management.Automation.PSObject]$Data))' | ConvertFrom-Json"
-#         '==> Creating PowerShell sandbox' | Write-Verbose
-#         $Powershell = [Powershell]::Create()
-#         "==> Adding script: $ImportDataVariable" | Write-Verbose
-#         "==> Adding script: Write-Output `"$StringToRender`"" | Write-Verbose
-#         [Void]$Powershell.AddScript($ImportDataVariable).AddScript("Write-Output `"$StringToRender`"")
-#         '==> Invoking scripts within PowerShell sandbox' | Write-Verbose
-#         $Powershell.Invoke()
-#         '==> Disposing of PowerShell sandbox' | Write-Verbose
-#         [Void]$Powershell.Dispose()
-#     }
-#     if ($Data) {
-#         & $Renderer $Data
-#     } else {
-#         $Renderer
-#     }
-# }
 function New-Template {
     <#
     .SYNOPSIS
@@ -330,11 +233,10 @@ function New-Template {
 
     Provide default values for your templates!
     .EXAMPLE
-    $div = New-Template -Template '<div>{{ text }}</div>'
-    $section = New-Template "<section>
-        <h1>{{ title }}</h1>
-        $(& $div @{ text = 'Hello World!' })
-    </section>"
+    $Function:Div = '<div>{{ v }}</div>' | New-Template
+    $Function:Span = '<span>{{ v }}</span>' | New-Template
+    Div @{ v = Span @{ v = 'Hello World' } } | Write-Output
+    # "<div><span>Hello World</span></div>"
 
     Templates can even be nested!
     .EXAMPLE
