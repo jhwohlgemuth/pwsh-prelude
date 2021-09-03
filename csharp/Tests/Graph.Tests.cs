@@ -1,6 +1,4 @@
 using Xunit;
-using FsCheck;
-using FsCheck.Xunit;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
