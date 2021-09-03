@@ -249,8 +249,10 @@ function New-Template {
     [Alias('tpl')]
     [OutputType([String])]
     Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [Parameter(ParameterSetName = 'string', Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Template,
+        [Parameter(ParameterSetName = 'file')]
+        [String] $File,
         [Alias('Data')]
         [Hashtable] $Binding = @{},
         [Hashtable] $DefaultValues = @{},
@@ -284,6 +286,10 @@ function New-Template {
         }
     }
     Process {
+        if ($File) {
+            $Path = Resolve-Path $File
+            $Template = Get-Content $Path -Raw
+        }
         $TemplateScriptBlock = [ScriptBlock]::Create('$("' + [Regex]::Replace($Template, $Pattern, $Evaluator) + '" | Write-Output)')
         if ($Binding.Count -gt 0) {
             if ($PassThru) {

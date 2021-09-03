@@ -665,7 +665,7 @@ function Import-Raw {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0)]
-        [ValidateScript( { Test-Path $_ })]
+        [ValidateScript({ Test-Path $_ })]
         [String] $File,
         [Parameter(Position = 1)]
         [ScriptBlock] $Transform,
