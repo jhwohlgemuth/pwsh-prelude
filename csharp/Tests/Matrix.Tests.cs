@@ -266,6 +266,20 @@ namespace MatrixTests {
             Assert.True(I.IsOrthogonal());
         }
         [Fact]
+        public void Can_check_if_matrix_is_unitary() {
+            var A = new Matrix(3);
+            var I = Matrix.Identity(3);
+            Helpers.Populate(A, new double[,] {
+                { 0, 0, 1 },
+                { 1, 0, 0 },
+                { 0, 1, 0 }
+            });
+            Assert.True(A.IsOrthogonal());
+            Assert.True(I.IsOrthogonal());
+            Assert.True(A.IsUnitary());
+            Assert.True(I.IsUnitary());
+        }
+        [Fact]
         public void Can_check_if_matrix_is_square() {
             var A = Matrix.Unit(2);
             var B = Matrix.Unit(1, 3);

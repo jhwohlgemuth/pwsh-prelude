@@ -353,10 +353,12 @@ namespace Prelude {
         }
         /// <summary>
         /// Calculate complex conjugate transpose of a given matrix
-        /// Note: An NxN Hermitian matrix has N real eigenvalues and is unitarily diagonizable
         /// </summary>
         /// <param name="a">Input matrix</param>
         /// <returns>Matrix</returns>
+        /// <remarks>
+        /// An NxN Hermitian matrix has N real eigenvalues and is unitarily diagonizable
+        /// </remarks>
         public static Matrix ConjugateTranspose(Matrix a) {
             var temp = new Matrix(a.Size[1], a.Size[0]);
             foreach (var index in a.Indexes()) {
@@ -644,6 +646,14 @@ namespace Prelude {
         /// A matrix is said to be "symmetric" when it is equal to its own transpose
         /// </remarks>
         public bool IsSymmetric() => IsSquare() && this == Transpose(this);
+        /// <summary>
+        /// Return true if calling matrix is unitary - for a matrix, A, ConjugateTranspose(A) * A = I
+        /// </summary>
+        /// <returns>Boolean</returns>
+        /// <remarks>
+        /// A real Hermitian matrix is symmetric and a real unitary matrix is orthogonal
+        /// </remarks>
+        public bool IsUnitary() => ConjugateTranspose(this) * this == Identity(Size[0]);
         /// <summary>
         /// Calculate L1 Norm of calling matrix
         /// </summary>
