@@ -193,6 +193,7 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
     }
     It 'can skip color template entities, {{#color text }}' {
         '{{#green Hello}} {{ name }}' | New-Template -Data @{ name = 'World' } | Should -Be '{{#green Hello}} World'
+        'Hello {{#green {{ place }} }}' | tpl -Data @{ place = 'World' } | Should -Be 'Hello {{#green World }}'
     }
     It 'can create function from template string using mustache notation' {
         $Expected = '<div>Hello World!</div>'

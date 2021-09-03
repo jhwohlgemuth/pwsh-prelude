@@ -257,7 +257,7 @@ function New-Template {
         [Switch] $PassThru
     )
     Begin {
-        $Pattern = '(?<expression>{{(?<indicator>={1,2}|-|#)?\s*(?<variable>.*?)\s*}})'
+        $Pattern = '(?<expression>{{(?<indicator>(={1,2}|-|#))?\s+(?<variable>.*?)\s*}})'
         $Evaluator = {
             Param($Match)
             $Groups = $Match.Groups
