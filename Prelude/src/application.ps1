@@ -247,11 +247,15 @@ function New-Template {
     'The answer is {{= $Value + 2 }}' | tpl -Data @{ Value = 40 }
     # "The answer is 42"
 
-    Execute PowerShell code within your templates
+    Execute PowerShell code within your templates using the {{= ... }} syntax
     .EXAMPLE
     'The fox says {{= $Env:SomeRandomValue }}!!!' | New-Template -NoData
 
     Even access environment variables. Use -NoData when no data needs to be passed.
+    .EXAMPLE
+    '{{- This is a comment }}Super important stuff' | tpl -NoData
+
+    Add comments to templates using {{- ... }} syntax
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '')]
     [CmdletBinding()]
@@ -269,7 +273,7 @@ function New-Template {
         [Switch] $PassThru
     )
     Begin {
-        $Pattern = '(?<expression>{{(?<indicator>(=|#))?\s+(?<variable>.*?)\s*}})'
+        $Pattern = '(?<expression>{{(?<indicator>(=|-|#))?\s+(?<variable>.*?)\s*}})'
         $Renderer = {
             Param(
                 [ScriptBlock] $Script,
@@ -290,8 +294,10 @@ function New-Template {
             $Variable = $Groups | Where-Object { $_.Name -eq 'variable' } | Get-Property 'Value'
             switch ($Indicator) {
                 '#' { $Value }
+                '-' { '' }
                 '=' {
                     $Block = [ScriptBlock]::Create('$($(' + $Variable + ') | Write-Output)')
+                    $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
                     try {
                         $Powershell = [Powershell]::Create()
                         $Powershell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $Block).Invoke()

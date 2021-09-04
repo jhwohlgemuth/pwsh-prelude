@@ -159,22 +159,22 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
     Context 'when passed an empty object' {
         $Script:Expected = '<div>Hello </div>'
         It 'can return function that accepts positional parameter' {
-            $Function:render = New-Template '<div>Hello {{ name }}</div>'
-            render @{} | Should -Be $Expected
+            $Function:Render = New-Template '<div>Hello {{ name }}</div>'
+            Render @{} | Should -Be $Expected
         }
         It 'can return function when instantiated as function variable' {
-            $Function:render = New-Template -Template '<div>Hello {{ name }}</div>'
-            render @{} | Should -Be $Expected
+            $Function:Render = New-Template -Template '<div>Hello {{ name }}</div>'
+            Render @{} | Should -Be $Expected
         }
         It 'can return function when instantiated as normal variable' {
-            $RenderVariable = New-Template -Template '<div>Hello {{ name }}</div>'
-            & $RenderVariable @{} | Should -Be $Expected
+            $Render = New-Template -Template '<div>Hello {{ name }}</div>'
+            & $Render @{} | Should -Be $Expected
         }
         It 'can support default values' {
-            $Function:render = '<div>Hello {{ name }}</div>' | New-Template -DefaultValues @{ name = 'Default' }
-            render | Should -Be '<div>Hello Default</div>'
+            $Function:Render = '<div>Hello {{ name }}</div>' | New-Template -DefaultValues @{ name = 'Default' }
+            Render | Should -Be '<div>Hello Default</div>'
             $Data = @{ name = 'Not Default' }
-            render $Data | Should -Be '<div>Hello Not Default</div>'
+            Render $Data | Should -Be '<div>Hello Not Default</div>'
             'Hello {{ name }}' | New-Template -Data $Data -DefaultValues @{ name = 'Default' } | Should -Be 'Hello Not Default'
         }
     }
@@ -205,14 +205,21 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
     }
     It 'can execute code when {{= ... }} is used' {
         'The answer is {{= $Value + 2 }}' | New-Template -Data @{ Value = 40 } | Should -Be 'The answer is 42'
+        $Function:Render = 'The answer is {{= $Value + 2 }}' | New-Template -DefaultValues @{ Value = 100 }
+        Render | Should -Be 'The answer is 102'
         $Env:SomeRandomValue = 'woof'
         'The fox says {{= $Env:SomeRandomValue }}!!!' | New-Template -NoData | Should -Be 'The fox says woof!!!'
     }
+    It 'supports comments using {{- ... }} syntax' {
+        'Hello {{- This is a comment and will not show up in the output }}World' | New-Template -NoData | Should -Be 'Hello World'
+        $Function:Render = 'Hello {{- Some random comment }}{{ name }}' | New-Template
+        Render @{ name = 'World' } | Should -Be 'Hello World'
+    }
     It 'can create function from template string using mustache notation' {
         $Expected = '<div>Hello World!</div>'
-        $Function:render = New-Template '<div>Hello {{ name }}!</div>'
-        render @{ name = 'World' } | Should -Be $Expected
-        @{ name = 'World' } | render | Should -Be $Expected
+        $Function:Render = New-Template '<div>Hello {{ name }}!</div>'
+        Render @{ name = 'World' } | Should -Be $Expected
+        @{ name = 'World' } | Render | Should -Be $Expected
     }
     It 'can be nested within other templates' {
         $Expected = '<section>
@@ -237,9 +244,9 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         $Data = @{ name = 'Jason' }
         $Template | New-Template -Data $Data | Should -Be 'Hello Jason'
         $Template | New-Template -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
-        $Function:render = $Template | New-Template
-        render -Data $Data | Should -Be 'Hello Jason'
-        render -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
+        $Function:Render = $Template | New-Template
+        Render -Data $Data | Should -Be 'Hello Jason'
+        Render -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
     }
 }
 Describe 'Remove-Indent' -Tag 'Local', 'Remote' {
