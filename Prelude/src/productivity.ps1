@@ -315,6 +315,9 @@ function Invoke-GoogleSearch {
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String[]] $Keyword = @(),
+        [ValidateSet('OR', 'AND')]
+        [Alias('OP')]
+        [String] $BinaryOperation = 'OR',
         [Switch] $Exact,
         [String[]] $Exclude,
         [String[]] $Include,
@@ -339,16 +342,6 @@ function Invoke-GoogleSearch {
         [Switch] $PassThru
     )
     Begin {
-        function Invoke-Wrap {
-            Param(
-                [Parameter(ValueFromPipeline = $True)]
-                [String] $Value,
-                [String] $With
-            )
-            Process {
-                "${With}$Value${With}"
-            }
-        }
         Add-Type -AssemblyName System.Web
         $Root = if ($Private) { 'https://duckduckgo.com/?q=' } else { 'https://google.com/search?q=' }
         $Terms = @()
@@ -358,7 +351,7 @@ function Invoke-GoogleSearch {
             $Keyword = $Input
         }
         if ($Exact) {
-            $Keyword = $Keyword | Invoke-Wrap -With '"'
+            $Keyword = $Keyword | ForEach-Object { "`"$_`"" }
         }
         if ($Include.Count -gt 0) {
             $Data = $Include | ForEach-Object { "+$_" }
@@ -373,7 +366,7 @@ function Invoke-GoogleSearch {
         }
         if ($Site.Count -gt 0) {
             $Data = $Site | ForEach-Object { "site:$_" }
-            $Terms += ($Data -join ' OR ')
+            $Terms += ($Data -join " $BinaryOperation ")
             if ($Subdomain) {
                 $Terms += '-inurl:www'
             }
@@ -393,7 +386,7 @@ function Invoke-GoogleSearch {
         if ($Custom.Length -gt 0) {
             $Terms += $Custom
         }
-        $SearchString += ($Keyword -join ' OR ')
+        $SearchString += ($Keyword -join " $BinaryOperation ")
         if ($Terms.Count -gt 0) {
             if ($SearchString.Length -gt 0) {
                 $SearchString += ' '

@@ -147,6 +147,7 @@ Describe 'Invoke-GoogleSearch' -Tag 'Local', 'Remote' {
     }
     It 'can create search string from array input via pipe' {
         'foo', 'bar' | Invoke-GoogleSearch -PassThru | Should -Be 'foo OR bar'
+        'foo', 'bar' | Invoke-GoogleSearch -BinaryOperation 'AND' -PassThru | Should -Be 'foo AND bar'
     }
     It 'can include and exclude multiple terms' {
         'foo' | Invoke-GoogleSearch -Exclude 'bar', 'baz' -PassThru | Should -Be 'foo -bar -baz'
