@@ -203,6 +203,11 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         '{{#green Hello}} {{ name }}' | New-Template -Data @{ name = 'World' } | Should -Be '{{#green Hello}} World'
         'Hello {{#green {{ place }} }}' | New-Template -Data @{ place = 'World' } | Should -Be 'Hello {{#green World }}'
     }
+    It 'can execute code when {{= ... }} is used' {
+        'The answer is {{= $Value + 2 }}' | New-Template -Data @{ Value = 40 } | Should -Be 'The answer is 42'
+        $Env:SomeRandomValue = 'woof'
+        'The fox says {{= $Env:SomeRandomValue }}!!!' | New-Template -NoData | Should -Be 'The fox says woof!!!'
+    }
     It 'can create function from template string using mustache notation' {
         $Expected = '<div>Hello World!</div>'
         $Function:render = New-Template '<div>Hello {{ name }}!</div>'

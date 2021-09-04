@@ -513,7 +513,6 @@ function Invoke-ObjectMerge {
     [PSCustomObject]@{ a = 1 },[PSCustomObject]@{ b = 2 } | merge
     # [PSCustomObject]@{ a = 1; b = 2 }
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Acc', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('merge')]
     [OutputType([System.Collections.Hashtable])]

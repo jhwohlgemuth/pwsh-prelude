@@ -243,6 +243,15 @@ function New-Template {
     '{{#green Hello}} {{ name }}' | tpl -Data @{ name = 'World' } | Write-Color
 
     Use -Data parameter cause template to return formatted string instead of template function
+    .EXAMPLE
+    'The answer is {{= $Value + 2 }}' | tpl -Data @{ Value = 40 }
+    # "The answer is 42"
+
+    Execute PowerShell code within your templates
+    .EXAMPLE
+    'The fox says {{= $Env:SomeRandomValue }}!!!' | New-Template -NoData
+
+    Even access environment variables. Use -NoData when no data needs to be passed.
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '')]
     [CmdletBinding()]
@@ -255,23 +264,12 @@ function New-Template {
         [String] $File,
         [Alias('Data')]
         [Hashtable] $Binding = @{},
+        [Switch] $NoData,
         [Hashtable] $DefaultValues = @{},
         [Switch] $PassThru
     )
     Begin {
-        $Pattern = '(?<expression>{{(?<indicator>(={1,2}|-|#))?\s+(?<variable>.*?)\s*}})'
-        $Evaluator = {
-            Param($Match)
-            $Groups = $Match.Groups
-            $Value = $Groups[1].Value
-            $Indicator = $Groups | Where-Object { $_.Name -eq 'indicator' } | Get-Property 'Value'
-            $Variable = $Groups | Where-Object { $_.Name -eq 'variable' } | Get-Property 'Value'
-            if ($Indicator -ne '#') {
-                "`${${Variable}}"
-            } else {
-                $Value
-            }
-        }
+        $Pattern = '(?<expression>{{(?<indicator>(=|#))?\s+(?<variable>.*?)\s*}})'
         $Renderer = {
             Param(
                 [ScriptBlock] $Script,
@@ -284,6 +282,28 @@ function New-Template {
                 throw $_
             }
         }
+        $Evaluator = {
+            Param($Match)
+            $Groups = $Match.Groups
+            $Value = $Groups[1].Value
+            $Indicator = $Groups | Where-Object { $_.Name -eq 'indicator' } | Get-Property 'Value'
+            $Variable = $Groups | Where-Object { $_.Name -eq 'variable' } | Get-Property 'Value'
+            switch ($Indicator) {
+                '#' { $Value }
+                '=' {
+                    $Block = [ScriptBlock]::Create('$($(' + $Variable + ') | Write-Output)')
+                    try {
+                        $Powershell = [Powershell]::Create()
+                        $Powershell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $Block).Invoke()
+                    } finally {
+                        if ($Powershell) {
+                            $Powershell.Dispose()
+                        }
+                    }
+                }
+                Default { "`${${Variable}}" }
+            }
+        }
     }
     Process {
         if ($File) {
@@ -291,7 +311,7 @@ function New-Template {
             $Template = Get-Content $Path -Raw
         }
         $TemplateScriptBlock = [ScriptBlock]::Create('$("' + [Regex]::Replace($Template, $Pattern, $Evaluator) + '" | Write-Output)')
-        if ($Binding.Count -gt 0) {
+        if (($Binding.Count -gt 0) -or $NoData) {
             if ($PassThru) {
                 return $Template
                 exit
