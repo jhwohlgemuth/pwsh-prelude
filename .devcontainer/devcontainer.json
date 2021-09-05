@@ -8,6 +8,7 @@
         "wmaurer.change-case",
         "SirTori.indenticator",
         "christian-kohler.path-intellisense",
+        "ms-dotnettools.dotnet-interactive-vscode",
         "ms-vscode.powershell",
         "2gua.rainbow-brackets",
         "mechatroner.rainbow-csv",
