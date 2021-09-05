@@ -614,30 +614,34 @@ function Import-Excel {
     $RowCount = if ($Peek) { 1 } else { $Worksheet.UsedRange.Rows.Count }
     $ColumnCount = $Worksheet.UsedRange.Columns.Count
     $StartIndex = if ($FirstRowHeaders) { 2 } else { 1 }
+    $Headers = if ($FirstRowHeaders) {
+        $RowCount--
+        1..$ColumnCount | ForEach-Object {
+            $Name = $Worksheet.Cells.Item(1, $_).Value2
+            if ($Null -eq $Name) { "Column${_}" } else { $Name }
+        }
+    } elseif ($ColumnHeaders.Count -eq $ColumnCount) {
+        $ColumnHeaders
+    } else {
+        1..$ColumnCount | ForEach-Object { "Column${_}" }
+    }
+    $Rows = New-Object 'System.Collections.ArrayList'
     $Cells = @()
     for ($RowIndex = $StartIndex; $RowIndex -le $RowCount; $RowIndex++) {
         if ($ShowProgress) {
             Write-Progress -Activity 'Importing Excel data' -Status "Processing row ($RowIndex of ${RowCount})" -PercentComplete (($RowIndex / $RowCount) * 100)
         }
+        $Row = @{}
         for ($ColumnIndex = 1; $ColumnIndex -le $ColumnCount; $ColumnIndex++) {
             $Value = $Worksheet.Cells.Item($RowIndex, $ColumnIndex).Value2
             $Element = if ($Null -eq $Value) { $EmptyValue } else { $Value }
+            $Row[$Headers[$ColumnIndex - 1]] = $Element
             $Cells += $Element
         }
+        [Void]$Rows.Add($Row)
     }
     if ($ShowProgress) {
         Write-Progress -Activity 'Importing Excel data' -Completed
-    }
-    $Headers = if ($FirstRowHeaders) {
-        $RowCount--
-        1..$ColumnCount | ForEach-Object {
-            $Name = $Worksheet.Cells.Item(1, $_).Value2
-            if ($Null -eq $Name) { "column${_}" } else { $Name }
-        }
-    } elseif ($ColumnHeaders.Count -eq $ColumnCount) {
-        $ColumnHeaders
-    } else {
-        @()
     }
     $Workbook.Close()
     $Excel.Quit()
@@ -645,7 +649,7 @@ function Import-Excel {
         Size = @($RowCount, $ColumnCount)
         Headers = $Headers
         Cells = $Cells
-        Rows = $Cells | Invoke-Chunk -Size $ColumnCount
+        Rows = $Rows
     }
 }
 function Import-Raw {

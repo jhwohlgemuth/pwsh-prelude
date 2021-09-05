@@ -182,8 +182,15 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' -Tag 'Local', 'Remote' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path
         $Data.Size | Should -Be 6, 4
-        $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
-        $Data | Get-Property 'Rows.1' | Should -Be 'b', 1, 'bar', 'red'
+        $Data | Get-Property 'Rows.0.Values' | Sort-Object | Should -Be 'a', 'EMPTY', 'EMPTY', 'foo'
+        $Data | Get-Property 'Rows.1.Values' | Sort-Object | Should -Be 1, 'b', 'bar', 'red'
+    }
+    It 'will import first worksheet by default and display progress' {
+        $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
+        $Data = Import-Excel -Path $Path -ShowProgress
+        $Data.Size | Should -Be 6, 4
+        $Data | Get-Property 'Rows.0.Values' | Sort-Object | Should -Be 'a', 'EMPTY', 'EMPTY', 'foo'
+        $Data | Get-Property 'Rows.1.Values' | Sort-Object | Should -Be 1, 'b', 'bar', 'red'
     }
     It 'peek data and import only the first row' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
@@ -191,63 +198,59 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' -Tag 'Local', 'Remote' {
         $Data.Size | Should -Be 1, 2
         $Data.Cells | Should -Be 'Disciples', 'Gospels'
     }
-    It 'will import first worksheet by default and display progress' {
-        $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
-        $Data = Import-Excel -Path $Path -ShowProgress
-        $Data.Size | Should -Be 6, 4
-        $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
-        $Data | Get-Property 'Rows.1' | Should -Be 'b', 1, 'bar', 'red'
-    }
     It 'can import worksheet by name' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path -WorksheetName 'with-headers'
         $Data.Size | Should -Be 13, 2
-        $Data | Get-Property 'Rows.0' | Should -Be 'Disciples', 'Gospels'
-        $Data | Get-Property 'Rows.1' | Should -Be 'Peter', 'Matthew'
+        $Data | Get-Property 'Rows.0.Column1' | Should -Be 'Disciples'
+        $Data | Get-Property 'Rows.1.Column2' | Should -Be 'Matthew'
     }
     It 'can treat the cells in the first row as headers' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path -WorksheetName 'with-headers' -FirstRowHeaders
         $Data.Size | Should -Be 12, 2
         $Data | Get-Property 'Headers' | Should -Be 'Disciples', 'Gospels'
-        $Data | Get-Property 'Rows.0' | Should -Be 'Peter', 'Matthew'
-        $Data | Get-Property 'Rows.1' | Should -Be 'Andrew', 'Mark'
+        $Data | Get-Property 'Rows.0.Disciples' | Should -Be 'Peter'
+        $Data | Get-Property 'Rows.1.Gospels' | Should -Be 'Mark'
     }
     It 'can use custom header names' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path -ColumnHeaders 'A', 'B', 'C', 'D'
         $Data.Size | Should -Be 6, 4
         $Data.Headers | Should -Be 'A', 'B', 'C', 'D'
-        $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
+        $Data | Get-Property 'Rows.2.C' | Should -Be 'baz'
+        $Data | Get-Property 'Rows.0.Values' | Sort-Object | Should -Be 'a', 'EMPTY', 'EMPTY', 'foo'
     }
     It 'will only use the correct number of custom header names' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path -ColumnHeaders 'A', 'B'
-        $Data.Headers | Should -BeNullOrEmpty -Because 'there should be 4 headers'
-        $Data | Get-Property 'Rows.0' | Should -Be 'a', 'EMPTY', 'foo', 'EMPTY'
+        $Data.Headers | Should -Be 'Column1', 'Column2', 'Column3', 'Column4'
+        $Data | Get-Property 'Rows.0.Values' | Sort-Object | Should -Be 'a', 'EMPTY', 'EMPTY', 'foo'
+        $Data | Get-Property 'Rows.1.Values' | Sort-Object | Should -Be 1, 'b', 'bar', 'red'
     }
     It 'will provide placeholder headers when missing' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path -FirstRowHeaders
-        $Data.Headers | Should -Be 'a', 'column2', 'foo', 'column4' -Because 'there are empty cells in the first row'
-        $Data | Get-Property 'Rows.0' | Should -Be 'b', 1, 'bar', 'red'
+        $Data.Headers | Should -Be 'a', 'Column2', 'foo', 'Column4' -Because 'there are empty cells in the first row'
+        $Data | Get-Property 'Rows.0.Values' | Sort-Object | Should -Be 1, 'b', 'bar', 'red'
     }
     It 'supports custom "empty values"' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.xlsx'
         $Data = Import-Excel -Path $Path -EmptyValue 'BLANK'
-        $Data | Get-Property 'Rows.0' | Should -Be 'a', 'BLANK', 'foo', 'BLANK'
+        $Data | Get-Property 'Rows.0.Values' | Sort-Object | Should -Be 'a', 'BLANK', 'BLANK', 'foo'
     }
     It 'can open password-protected Workbooks' {
         $Password = '123456'
         $Path = Join-Path $PSScriptRoot '\fixtures\example_protected.xlsx'
         $Data = Import-Excel -Path $Path -Password $Password
         $Data.Size | Should -Be 6, 1
-        $Data | Get-Property 'Rows.0' | Should -Be 'secret'
-        $Data | Get-Property 'Rows.1' | Should -Be 'restricted'
+        ($Data.Headers -join ', ') | Write-Color -Yellow
+        $Data | Get-Property 'Rows.0.Values' | Should -Be 'secret'
+        $Data | Get-Property 'Rows.1.Values' | Should -Be 'restricted'
         $Data = Import-Excel -Path $Path -Password $Password -WorksheetName 'unprotected'
         $Data.Size | Should -Be 5, 1
-        $Data | Get-Property 'Rows.0' | Should -Be 'public'
-        $Data | Get-Property 'Rows.1' | Should -Be 'open'
+        $Data | Get-Property 'Rows.0.Values' | Should -Be 'public'
+        $Data | Get-Property 'Rows.1.Values' | Should -Be 'open'
         { Import-Excel -Path $Path -Password 'wrong' } | Should -Throw -Because 'the password is not correct'
     }
 }
