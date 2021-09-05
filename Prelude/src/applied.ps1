@@ -170,10 +170,11 @@ function Get-LogisticSigmoid {
     )
     Process {
         $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, (-1 * $GrowthRate) * ($X - $Midpoint))) }
+        $Result = & $Sigmoid $Value
         if ($Derivative) {
-            (& $Sigmoid $Value) * (& $Sigmoid -$Value)
+            $Result * (1 - $Result)
         } else {
-            & $Sigmoid $Value
+            $Result
         }
     }
 }
