@@ -1,0 +1,16 @@
+{
+    "recommendations": [
+        "ms-vscode.atom-keybindings",
+        "wmaurer.change-case",
+        "SirTori.indenticator",
+        "christian-kohler.path-intellisense",
+        "ms-dotnettools.dotnet-interactive-vscode",
+        "ms-vscode.powershell",
+        "2gua.rainbow-brackets",
+        "mechatroner.rainbow-csv",
+        "rafamel.subtle-brackets",
+        "emmanuelbeziat.vscode-great-icons",
+        "johnpapa.vscode-peacock",
+        "akamud.vscode-theme-onedark"
+    ],
+}
