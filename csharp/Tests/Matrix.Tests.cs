@@ -821,6 +821,35 @@ namespace MatrixTests {
         //    Assert.Equal(1.618, eigenvalue, 3);
         //}
         [Fact]
+        public void Can_map_function_over_matrix_values() {
+            var A = new Matrix(2);
+            Helpers.Populate(A, new double[,] {
+                { 1, 2 },
+                { 3, 4 }
+            });
+            Func<Complex, Complex> f = x => x + 1;
+            Func<Complex, int, int, Complex> g = (x, i, j) => x + i + j;
+            Func<Complex, int, int, Matrix, Complex> h = (x, i, j, m) => x + m.Size[0];
+            var B = A.Map(f);
+            Assert.Equal(new Complex[] { 2, 3 }, B[0]);
+            Assert.Equal(new Complex[] { 4, 5 }, B[1]);
+            // A is unchanged
+            Assert.Equal(new Complex[] { 1, 2 }, A[0]);
+            Assert.Equal(new Complex[] { 3, 4 }, A[1]);
+            var C = A.Map(g);
+            Assert.Equal(new Complex[] { 1, 3 }, C[0]);
+            Assert.Equal(new Complex[] { 4, 6 }, C[1]);
+            // A is unchanged
+            Assert.Equal(new Complex[] { 1, 2 }, A[0]);
+            Assert.Equal(new Complex[] { 3, 4 }, A[1]);
+            var D = A.Map(h);
+            Assert.Equal(new Complex[] { 3, 4 }, D[0]);
+            Assert.Equal(new Complex[] { 5, 6 }, D[1]);
+            // A is unchanged
+            Assert.Equal(new Complex[] { 1, 2 }, A[0]);
+            Assert.Equal(new Complex[] { 3, 4 }, A[1]);
+        }
+        [Fact]
         [Trait("Category", "Instance")]
         public void Can_multiply_row_by_scalar() {
             var A = new Matrix(2);

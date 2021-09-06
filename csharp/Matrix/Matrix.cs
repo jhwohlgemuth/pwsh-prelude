@@ -449,24 +449,6 @@ namespace Prelude {
         /// <see cref="Det(Matrix)"/>
         public Complex Cofactor(int i = 0, int j = 0) => Math.Pow(-1, i + j) * Det(RemoveRow(i).RemoveColumn(j));
         /// <summary>
-        /// Return list of index pairs
-        /// </summary>
-        /// <param name="offset"></param>
-        /// <returns>List of index pairs. Example: For a 2x2 matrix, the return will be (0, 0), (0, 1), (1, 0), (1, 1)</returns>
-        /// <remarks>
-        /// This method is useful for performing actions on elements dependent on the element's associated row and/or column
-        /// </remarks>
-        public List<int[]> Indexes(int offset = 0) {
-            int rows = Size[0], cols = Size[1];
-            var pairs = new List<int[]>();
-            for (var i = 0; i < rows; ++i)
-                for (var j = 0; j < cols; ++j) {
-                    int[] pair = { i + offset, j + offset };
-                    pairs.Add(pair);
-                }
-            return pairs;
-        }
-        /// <summary>
         /// Calculate eigenvalue of dominant eigenvector using the Rayleigh Quotient
         /// </summary>
         /// <returns>Scalar value</returns>
@@ -523,6 +505,24 @@ namespace Prelude {
         /// The Frobenius norm is sometimes referred to as the Schur norm
         /// </remarks>
         public double FrobeniusNorm() => Sqrt(Values.Select(x => Complex.Pow(x, 2).Magnitude).Sum());
+        /// <summary>
+        /// Return list of index pairs
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns>List of index pairs. Example: For a 2x2 matrix, the return will be (0, 0), (0, 1), (1, 0), (1, 1)</returns>
+        /// <remarks>
+        /// This method is useful for performing actions on elements dependent on the element's associated row and/or column
+        /// </remarks>
+        public List<int[]> Indexes(int offset = 0) {
+            int rows = Size[0], cols = Size[1];
+            var pairs = new List<int[]>();
+            for (var i = 0; i < rows; ++i)
+                for (var j = 0; j < cols; ++j) {
+                    int[] pair = { i + offset, j + offset };
+                    pairs.Add(pair);
+                }
+            return pairs;
+        }
         /// <summary>
         /// Return clone of calling matrix with column inserted at passed zero-index column index
         /// </summary>
@@ -666,6 +666,35 @@ namespace Prelude {
             foreach (var column in Transpose(this).Rows)
                 largest = Max(largest, column.Select(x => (int)x.Magnitude).Sum());
             return largest;
+        }
+        /// <summary>
+        /// Returns a new matrix where each element is the result of applying the lambda function, f, to each associated element of the calling matrix.
+        /// </summary>
+        /// <param name="f">Lambda function to be applied to each matrix element</param>
+        /// <returns>Matrix with f applied to each element</returns>
+        public Matrix Map(Func<Complex, Complex> f) {
+            Matrix clone = Clone();
+            int rows = Size[0], cols = Size[1];
+            for (var i = 0; i < rows; ++i)
+                for (var j = 0; j < cols; ++j)
+                    clone[i][j] = f(this[i][j]);
+            return clone;
+        }
+        public Matrix Map(Func<Complex, int, int, Complex> f) {
+            Matrix clone = Clone();
+            int rows = Size[0], cols = Size[1];
+            for (var i = 0; i < rows; ++i)
+                for (var j = 0; j < cols; ++j)
+                    clone[i][j] = f(this[i][j], i, j);
+            return clone;
+        }
+        public Matrix Map(Func<Complex, int, int, Matrix, Complex> f) {
+            Matrix clone = Clone();
+            int rows = Size[0], cols = Size[1];
+            for (var i = 0; i < rows; ++i)
+                for (var j = 0; j < cols; ++j)
+                    clone[i][j] = f(this[i][j], i, j, this);
+            return clone;
         }
         /// <summary>
         /// Multiple a certain row by a given scalar value
