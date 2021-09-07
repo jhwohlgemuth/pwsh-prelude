@@ -1,6 +1,49 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'matrix'
 
-Describe 'Complex value helper functions' -Tag 'Local', 'Remote' {
+Describe 'Invoke-MatrixMap' -Tag 'Local', 'Remote' {
+    It 'can accept 1-ary functions' {
+        $A = 1..4 | New-Matrix
+        $AddOne = { Param($X) $X + 1 }
+        $B = $A | Invoke-MatrixMap $AddOne
+        $B[0].Real | Should -Be 2, 3
+        $B[1].Real | Should -Be 4, 5
+    }
+    It 'can accept 3-ary functions' {
+        $A = 1..4 | New-Matrix
+        $Ex = { Param($X, $I, $J) $X + $I + $J }
+        $B = $A | Invoke-MatrixMap $Ex
+        $B[0].Real | Should -Be 1, 3
+        $B[1].Real | Should -Be 4, 6
+    }
+    It 'can accept 4-ary functions' {
+        $A = 1..4 | New-Matrix
+        $Ex = { Param($X, $I, $J, $M) $X + $I + $J + $M.Size[0] }
+        $B = $A | Invoke-MatrixMap $Ex
+        $B[0].Real | Should -Be 3, 5
+        $B[1].Real | Should -Be 6, 8
+    }
+    It 'will use identity for input functions with wrong arity' {
+        $A = 1..4 | New-Matrix
+        $B = $A | Invoke-MatrixMap { }
+        $B[0].Real | Should -Be 1, 2
+        $B[1].Real | Should -Be 3, 4
+        $B = $A | Invoke-MatrixMap { Param($A, $B, $C, $D, $E) $A + $B + $C + $D + $E }
+        $B[0].Real | Should -Be 1, 2
+        $B[1].Real | Should -Be 3, 4
+    }
+    It 'will use identity function when no function is passed' {
+        $A = 1..4 | New-Matrix
+        $B = $A | Invoke-MatrixMap
+        $B[0].Real | Should -Be 1, 2
+        $B[1].Real | Should -Be 3, 4
+    }
+    It 'will throw error when input function has wrong arity and Strict parameter is used' {
+        $A = 1..4 | New-Matrix
+        $Ex = { }
+        { $A | Invoke-MatrixMap $Ex -Strict } | Should -Throw 'Expression has wrong number of parameters'
+    }
+}
+Describe 'New-ComplexValue / Format-ComplexValue' -Tag 'Local', 'Remote' {
     It 'can create complex values' {
         $C1 = New-ComplexValue 2 3
         $C2 = New-ComplexValue -Re 5 -Im 9
@@ -30,7 +73,7 @@ Describe 'Complex value helper functions' -Tag 'Local', 'Remote' {
         New-ComplexValue -Re 0 -Im 0 | Format-ComplexValue -WithColor | Should -Be '0'
     }
 }
-Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {
+Describe 'New-Matrix' -Tag 'Local', 'Remote' {
     It 'can provide wrapper for matrix creation' {
         $A = 1..9 | New-Matrix 3, 3
         $A.Size | Should -Be 3, 3
@@ -77,6 +120,8 @@ Describe 'Matrix helper functions' -Tag 'Local', 'Remote' {
         $A[1].Real | Should -Be 1, 1, 1
         $A[2].Real | Should -Be 1, 1, 1
     }
+}
+Describe 'Test-Matrix' -Tag 'Local', 'Remote' {
     It 'can test matrix properties' {
         $A = 1..3 | New-Matrix 3, 3 -Diagonal
         $A | Test-Matrix -Diagonal | Should -BeTrue

@@ -31,6 +31,42 @@
         }
     }
 }
+function Invoke-MatrixMap {
+    <#
+    .SYNOPSIS
+    Apply passed function to each element of passed matrix and return new matrix with results.
+    .EXAMPLE
+    $A = 1..4 | matrix
+    $AddOne = { Param($X) $X + 1 }
+    $B = $A | map $AddOne
+    #>
+    [CmdletBinding()]
+    [Alias('matmap')]
+    [OutputType([Matrix])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [Matrix] $InputMatrix,
+        [Parameter(Position = 0)]
+        [ScriptBlock] $Expression = { },
+        [Switch] $Strict
+    )
+    Process {
+        $Parameters = ($Expression | Get-ParameterList).Name
+        $Morphism = switch ($Parameters.Count) {
+            1 { [System.Func[Complex, Complex]]$Expression }
+            3 { [System.Func[Complex, Int, Int, Complex]]$Expression }
+            4 { [System.Func[Complex, Int, Int, Matrix, Complex]]$Expression }
+            Default {
+                if ($Strict) {
+                    throw 'Expression has wrong number of parameters'
+                }
+                $Identity = { Param($X) $X }
+                [System.Func[Complex, Complex]]$Identity
+            }
+        }
+        $InputMatrix.Map($Morphism)
+    }
+}
 function New-ComplexValue {
     <#
     .SYNOPSIS

@@ -209,6 +209,7 @@ Functions
   - `Invoke-InsertString`
   - `Invoke-ListenTo`
   - `Invoke-ListenForWord` <sup>[[3]](#3)</sup>
+  - `Invoke-MatrixMap`
   - `Invoke-Menu`
   - `Invoke-Method`
   - `Invoke-Normalize`
