@@ -38,7 +38,7 @@ function Invoke-MatrixMap {
     .EXAMPLE
     $A = 1..4 | matrix
     $AddOne = { Param($X) $X + 1 }
-    $B = $A | map $AddOne
+    $B = $A | matmap $AddOne
     #>
     [CmdletBinding()]
     [Alias('matmap')]
