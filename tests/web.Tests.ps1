@@ -17,9 +17,11 @@ Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
         $Text | Add-Metadata -Disable 'date' | Should -Be 'email = <a href="mailto:foo@BAR.com">foo@BAR.com</a>; url = <a href="https://google.com">https://google.com</a>; date = 8 30 2021;'
         $Text | Add-Metadata -Disable 'email' | Should -Be 'email = foo@BAR.com; url = <a href="https://google.com">https://google.com</a>; date = 8 30 2021;'
         $Text = 'The quick brown fox jumped over the gate'
-        $Text | Add-Metadata -Keyword 'fox' | Should -Be 'The quick brown <span class="keyword__fox">fox</span> jumped over the gate'
-        $Text | Add-Metadata -Keyword 'jump.{2}' | Should -Be 'The quick brown fox <span class="keyword__jumped">jumped</span> over the gate'
-        $Text | Add-Metadata -Keyword '[tT]he', 'fox' | Should -Be '<span class="keyword__The">The</span> quick brown <span class="keyword__fox">fox</span> jumped over <span class="keyword__the">the</span> gate'
+        $Text | Add-Metadata -Keyword 'fox' | Should -Be 'The quick brown <span class="keyword" data-keyword="fox">fox</span> jumped over the gate'
+        $Text | Add-Metadata -Keyword 'jump.{2}' | Should -Be 'The quick brown fox <span class="keyword" data-keyword="jumped">jumped</span> over the gate'
+        $Text | Add-Metadata -Keyword '[tT]he', 'fox' | Should -Be '<span class="keyword" data-keyword="The">The</span> quick brown <span class="keyword" data-keyword="fox">fox</span> jumped over <span class="keyword" data-keyword="the">the</span> gate'
+        $Text = 'email = foo@BAR.com; url = 192.168.1.157; date = 7 September 2021;'
+        $Text | Add-Metadata -Disable 'email' | Should -Be 'email = foo@BAR.com; url = <a class="ip" href="192.168.1.157">192.168.1.157</a>; date = <time datetime="2021-09-07T00:00:00.000Z">7 September 2021</time>;'
     }
     It 'can add metadata to an unstructured text file' {
         $Text = Get-Content (Join-Path $PSScriptRoot '\fixtures\NAV21181.txt') -Raw

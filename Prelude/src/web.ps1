@@ -34,7 +34,7 @@ function Add-Metadata {
         [String] $Text,
         [String[]] $Keyword,
         [Switch] $Microformat,
-        [ValidateSet('date', 'email', 'url')]
+        [ValidateSet('date', 'email', 'url', 'ip')]
         [String[]] $Disable
     )
     Begin {
@@ -42,6 +42,7 @@ function Add-Metadata {
         $Date = [Regex](New-RegexString -Date)
         $Email = [Regex](New-RegexString -Email)
         $Url = [Regex](New-RegexString -Url)
+        $IpAdress = [Regex](New-RegexString -IPv4 -IPv6)
         $Attributes = @{
             Custom = 'itemprop="thing"'
             Date = 'itemscope itemtype="https://schema.org/DateTime" class="dt-event"'
@@ -60,9 +61,9 @@ function Add-Metadata {
                     $Value = $Match.Value
                     $ClassName = $Value -replace '\s', '-'
                     if ($Microformat) {
-                        "<span $($Attributes.Custom) class=`"keyword__${ClassName} p-item`">${Value}</span>"
+                        "<span $($Attributes.Custom) class=`"keyword p-item`" data-keyword=`"${ClassName}`">${Value}</span>"
                     } else {
-                        "<span class=`"keyword__${ClassName}`">${Value}</span>"
+                        "<span class=`"keyword`" data-keyword=`"${ClassName}`">${Value}</span>"
                     }
                 }
             )
@@ -114,6 +115,18 @@ function Add-Metadata {
                         } else {
                             "<a href=`"mailto:${Value}`">${Value}</a>"
                         }
+                    },
+                    $Options
+                )
+            }
+            { -not ('ip' -in $Disable) } {
+                $Text = [Regex]::Replace(
+                    $Text,
+                    $IpAdress,
+                    {
+                        Param($Match)
+                        $Value = $Match.Groups[1].Value
+                        "<a class=`"ip`" href=`"${Value}`">${Value}</a>"
                     },
                     $Options
                 )

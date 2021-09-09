@@ -1686,6 +1686,7 @@ function Test-Match {
                     if ($Results.Value) {
                         @{
                             Value = $Results.Value
+                            Version = 4
                             Part1 = Get-Value -Name 'part1'
                             Part2 = Get-Value -Name 'part2'
                             Part3 = Get-Value -Name 'part3'
@@ -1699,8 +1700,7 @@ function Test-Match {
                     if ($Results.Value) {
                         @{
                             Value = $Results.Value
-                            Network = Get-Value -Name 'network'
-                            Host = Get-Value -Name 'host'
+                            Version = 6
                         }
                     } else {
                         $Null
