@@ -888,6 +888,12 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Result.day | Should -Be '25'
         $Result.month | Should -Be 'DEC'
         $Result.year | Should -Be '2021'
+        $TestDate = '7 September 2021'
+        $Result = $TestDate | Test-Match -Date
+        $Result.Value | Should -Be $TestDate
+        $Result.day | Should -Be '7'
+        $Result.month | Should -Be 'September'
+        $Result.year | Should -Be '2021'
     }
     It 'can return capture groups for emails' {
         $TestEmail = 'jason@foo.com'
@@ -917,6 +923,13 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
     }
     It 'can test and match date strings' {
         $Valid = @(
+            'September 7th, 2021'
+            '7 September 2021'
+            '07 September 2021'
+            '07 SEPTEMBER 2021'
+            '7 September 21'
+            '07 September 21'
+            '07 SEPTEMBER 21'
             '04JUL76'
             '4JUL76'
             '04JUL1776'
@@ -943,25 +956,28 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         )
         $InValid = @(
             'not a date'
+            '2099-07-32' # day greater than 31
+            '2099-07-99' # day greater than 31
+            '2099-07-00' # day is double zero
+            '2099-13-30' # month greater than 12
+            '021-08-26' # year is only 3 digits
+            '13/04/1776' # month greater than 12
+            '32JUN99' # day greater than 31
+            '99JUN99' # day greater than 31
             '30-12-2021' # month is greater than 12
             '04 Foo 1776' # foo is not a month
             '32 32 15' # day and month are both too big
-            '021-08-26' # year is only 3 digits
-            '2099-07-00' # day is double zero
-            '2099-07-32' # day greater than 31
-            '2099-07-99' # day greater than 31
-            '2099-13-30' # month greater than 12
             '0Jan20' # day is zero
             '00Jan20' # day is double zero
             '15Mar0' # single digit year
             '15Mar9' # single digit year
-            '32JUN99' # day greater than 31
-            '99JUN99' # day greater than 31
             '07/32/1776' # day greater than 31
-            '13/04/1776' # month greater than 12
             '12/04/123' # year is only 3 digits
             'July 4nd, 1776' # wrong ordinal postfix
             'Septmber 3rd, 2021' # month mispelled
+            '0 September 2021' # Day is greater than 31
+            '32 September 2021' # Day is greater than 31
+            '99 September 2021' # Day is greater than 31
         )
         $Valid | ForEach-Object { $_ | Test-Match -Date -AsBoolean | Should -BeTrue }
         $Valid | Test-Match -Date -AsBoolean | ForEach-Object { $_ | Should -BeTrue }

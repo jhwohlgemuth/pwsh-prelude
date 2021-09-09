@@ -1304,8 +1304,14 @@ function New-RegexString {
             # YYYYMMDD
             # YYYY-MM-DD
             "(?<year>([012345689]{4}))-?(?<month>($MM))-?(?<day>($DD))"
+            # Month Day, YY
             # Month Day, YYYY
             "(?<month>($Months)) (?<day>($Day)),? (?<year>($YYYY))"
+            # D Month YY
+            # DD Month YY
+            # D Month YYYY
+            # DD Month YYYY
+            "(?<day>(((\b[1-9])|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)\b))\s+(?<month>($Months))\s+(?<year>($YYYY))"
             # MM.DD.YY
             # MM.DD.YYYY
             # MM/DD/YY
