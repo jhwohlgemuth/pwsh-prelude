@@ -1076,13 +1076,13 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
     ) {
         $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeFalse
     }
-    It 'can test URL strings' {
+    It 'can test URL strings within strings' {
         $TestUrl = 'https://foo.bar.com'
         $TestUrl | Test-Match -AsBoolean -Only -Url | Should -BeTrue
         "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Only -Url | Should -BeNull
         "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Only -Url -AsBoolean | Should -BeFalse
     }
-    It 'can test URL strings for multiple matches' {
+    It 'can test URL strings with multiple matches' {
         $TestUrl = 'https://foo.bar.com'
         $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
         $Result = "The url for my website is ${TestUrl}. Once again, the site is ${TestUrl}." | Test-Match -Url
