@@ -912,6 +912,21 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Result.Part3 | Should -Be '1'
         $Result.Part4 | Should -Be '157'
     }
+    It 'can return capture groups for the time, <Value>' -TestCases @(
+        @{ Value = '1234'; Seconds = ''; Zulu = $False }
+        @{ Value = '1234Z'; Seconds = ''; Zulu = $True }
+        @{ Value = '12:34Z'; Seconds = ''; Zulu = $True }
+        @{ Value = '1234:39'; Seconds = '39'; Zulu = $False }
+        @{ Value = '12:34:39'; Seconds = '39'; Zulu = $False }
+        @{ Value = '12:34:39Z'; Seconds = '39'; Zulu = $True }
+    ) {
+        $Result = $Value | Test-Match -Time
+        $Result.Value | Should -Be $Value
+        $Result.Hours | Should -Be '12'
+        $Result.Minutes | Should -Be '34'
+        $Result.Seconds | Should -Be $Seconds
+        $Result.IsZulu | Should -Be $Zulu
+    }
     It 'can return capture groups for URLs' {
         $TestUrl = 'https://foo.bar.com:4669'
         $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url

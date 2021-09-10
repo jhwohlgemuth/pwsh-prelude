@@ -1266,6 +1266,8 @@ function New-RegexString {
         [Switch] $Email,
         [Switch] $IPv4,
         [Switch] $IPv6,
+        [Switch] $ISO8601,
+        [Switch] $Time,
         [Switch] $Url,
         [Switch] $And,
         [Switch] $Only
@@ -1401,6 +1403,14 @@ function New-RegexString {
                         '|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])'
                         ')'
                         ')'
+                    ) -join ''
+                }
+                { $Time } {
+                    $ReArray += '(?<hours>([0-2][0-9])):?(?<minutes>([0-5][0-9])):?(?<seconds>([0-5][0-9]))?(?<zulu>Z)?(?![-:.])'
+                }
+                { $ISO8601 } {
+                    $ReArray += @(
+                        '(?<year>\d\d\d\d)([-])?(?<month>\d\d)([-])?(?<day>\d\d)((T|\s+)(?<hours>\d\d)(([:])?(?<minutes>\d\d)(([:])?(?<seconds>\d\d)(([.])?(?<fraction>\d+))?)?)?)?((?<tzzulu>Z)|(?<tzoffset>[-+])(?<tzhour>\d\d)([:])?(?<tzminute>\d\d))?'
                     ) -join ''
                 }
                 { $Url } {
@@ -1627,6 +1637,8 @@ function Test-Match {
         [Switch] $Email,
         [Switch] $IPv4,
         [Switch] $IPv6,
+        [Switch] $ISO8601,
+        [Switch] $Time,
         [Switch] $Url,
         [Switch] $Only,
         [Switch] $AsBoolean
@@ -1638,6 +1650,8 @@ function Test-Match {
             Email = $Email
             IPv4 = $IPv4
             IPv6 = $IPv6
+            ISO8601 = $ISO8601
+            Time = $Time
             Url = $Url
             Only = $Only
         }
@@ -1701,6 +1715,19 @@ function Test-Match {
                         @{
                             Value = $Results.Value
                             Version = 6
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                { $Time } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
+                            Hours = Get-Value -Name 'hours'
+                            Minutes = Get-Value -Name 'minutes'
+                            Seconds = Get-Value -Name 'seconds'
+                            IsZulu = (Get-Value -Name 'zulu') -eq 'Z'
                         }
                     } else {
                         $Null
