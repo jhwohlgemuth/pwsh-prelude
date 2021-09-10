@@ -874,68 +874,7 @@ Describe 'Test-Equal' -Tag 'Local', 'Remote' {
         Test-Equal $Null $Null | Should -BeTrue
     }
 }
-Describe 'Test-Match' -Tag 'Local', 'Remote' {
-    It 'can return capture groups for dates' {
-        $TestDate = '25 Dec 2021'
-        $Result = $TestDate | Test-Match -Date
-        $Result.Value | Should -Be $TestDate
-        $Result.day | Should -Be '25'
-        $Result.month | Should -Be 'DEC'
-        $Result.year | Should -Be '2021'
-        $TestDate = '25 DEC 2021'
-        $Result = $TestDate | Test-Match -Date
-        $Result.Value | Should -Be $TestDate
-        $Result.day | Should -Be '25'
-        $Result.month | Should -Be 'DEC'
-        $Result.year | Should -Be '2021'
-        $TestDate = '7 September 2021'
-        $Result = $TestDate | Test-Match -Date
-        $Result.Value | Should -Be $TestDate
-        $Result.day | Should -Be '7'
-        $Result.month | Should -Be 'September'
-        $Result.year | Should -Be '2021'
-    }
-    It 'can return capture groups for emails' {
-        $TestEmail = 'jason@foo.com'
-        $Result = $TestEmail | Test-Match -Email
-        $Result.Value | Should -Be $TestEmail
-        $Result.Username | Should -Be 'jason'
-        $Result.Symbol | Should -Be '@'
-        $Result.Domain | Should -Be 'foo.com'
-    }
-    It 'can return capture groups for IPv4' {
-        $TestAddress = '192.168.1.157'
-        $Result = $TestAddress | Test-Match -IPv4
-        $Result.Value | Should -Be $TestAddress
-        $Result.Part1 | Should -Be '192'
-        $Result.Part2 | Should -Be '168'
-        $Result.Part3 | Should -Be '1'
-        $Result.Part4 | Should -Be '157'
-    }
-    It 'can return capture groups for the time, <Value>' -TestCases @(
-        @{ Value = '1234'; Seconds = ''; Zulu = $False }
-        @{ Value = '1234Z'; Seconds = ''; Zulu = $True }
-        @{ Value = '12:34Z'; Seconds = ''; Zulu = $True }
-        @{ Value = '1234:39'; Seconds = '39'; Zulu = $False }
-        @{ Value = '12:34:39'; Seconds = '39'; Zulu = $False }
-        @{ Value = '12:34:39Z'; Seconds = '39'; Zulu = $True }
-    ) {
-        $Result = $Value | Test-Match -Time
-        $Result.Value | Should -Be $Value
-        $Result.Hours | Should -Be '12'
-        $Result.Minutes | Should -Be '34'
-        $Result.Seconds | Should -Be $Seconds
-        $Result.IsZulu | Should -Be $Zulu
-    }
-    It 'can return capture groups for URLs' {
-        $TestUrl = 'https://foo.bar.com:4669'
-        $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
-        $Result.Value | Should -Be $TestUrl
-        $Result.Scheme | Should -Be 'https'
-        $Result.Authority | Should -Be 'foo.bar.com'
-        $Result.TLD | Should -Be 'com'
-        $Result.Port | Should -Be '4669'
-    }
+Describe 'Test-Match (date)' -Tag 'Local', 'Remote' {
     It 'will match the date string, <Value>' -TestCases @(
         @{ Value = 'September 7th, 2021' }
         @{ Value = '7 September 2021' }
@@ -995,8 +934,30 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         @{ Value = '32 September 2021' } # Day is greater than 31
         @{ Value = '99 September 2021' } # Day is greater than 31
     ) {
-        $Value | Test-Match -Date -AsBoolean | Should -BeFalse
+        $Value | Test-Match -Date -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid date"
     }
+    It 'can return capture groups for dates' {
+        $TestDate = '25 Dec 2021'
+        $Result = $TestDate | Test-Match -Date
+        $Result.Value | Should -Be $TestDate
+        $Result.day | Should -Be '25'
+        $Result.month | Should -Be 'DEC'
+        $Result.year | Should -Be '2021'
+        $TestDate = '25 DEC 2021'
+        $Result = $TestDate | Test-Match -Date
+        $Result.Value | Should -Be $TestDate
+        $Result.day | Should -Be '25'
+        $Result.month | Should -Be 'DEC'
+        $Result.year | Should -Be '2021'
+        $TestDate = '7 September 2021'
+        $Result = $TestDate | Test-Match -Date
+        $Result.Value | Should -Be $TestDate
+        $Result.day | Should -Be '7'
+        $Result.month | Should -Be 'September'
+        $Result.year | Should -Be '2021'
+    }
+}
+Describe 'Test-Match (email)' -Tag 'Local', 'Remote' {
     It 'will match the email string, <Value>' -TestCases @(
         @{ Value = 'simple@example.com' }
         @{ Value = 'very.common@example.com' }
@@ -1030,8 +991,87 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         # @{ Value = '1234567890123456789012345678901234567890123456789012345678901234+x@example.com' } #local-part is longer than 64 characters
         # @{ Value = 'i_like_underscore@but_its_not_allowed_in_this_part.example.com' } #Underscore is not allowed in domain part
     ) {
-        $Value | Test-Match -Email -AsBoolean | Should -BeFalse
+        $Value | Test-Match -Email -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid email address"
     }
+    It 'can return capture groups for emails' {
+        $TestEmail = 'jason@foo.com'
+        $Result = $TestEmail | Test-Match -Email
+        $Result.Value | Should -Be $TestEmail
+        $Result.Username | Should -Be 'jason'
+        $Result.Symbol | Should -Be '@'
+        $Result.Domain | Should -Be 'foo.com'
+    }
+}
+Describe 'Test-Match (IP address)' -Tag 'Local', 'Remote' {
+    It 'will match the v<Version> IP address string, <Value>' -TestCases @(
+        @{ Value = '192.168.1.1'; Version = 4 }
+        @{ Value = '10.10.10.10'; Version = 4 }
+        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'; Version = 6 }
+        @{ Value = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'; Version = 6 }
+        @{ Value = '2001::::'; Version = 6 }
+    ) {
+        $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeTrue
+    }
+    It 'will NOT match the v$Version IP address string, <Value>' -TestCases @(
+        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'; Version = 4 }
+        @{ Value = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'; Version = 4 }
+        @{ Value = '2001::::'; Version = 4 }
+        @{ Value = 'test.test.test.test'; Version = 4 }
+        @{ Value = '192.168.1.1'; Version = 6 }
+        @{ Value = 'test:test:test:test:test:test:test:test'; Version = 6 }
+    ) {
+        $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid v$Version IP address"
+    }
+    It 'can return capture groups for IPv4' {
+        $TestAddress = '192.168.1.157'
+        $Result = $TestAddress | Test-Match -IPv4
+        $Result.Value | Should -Be $TestAddress
+        $Result.Part1 | Should -Be '192'
+        $Result.Part2 | Should -Be '168'
+        $Result.Part3 | Should -Be '1'
+        $Result.Part4 | Should -Be '157'
+    }
+}
+Describe 'Test-Match (time)' -Tag 'Local', 'Remote' {
+    It 'will match the time string, <Value>' -TestCases @(
+        @{ Value = '1234' }
+        @{ Value = '0100' }
+        @{ Value = '0000' }
+        @{ Value = '0000Z' }
+        @{ Value = '1234Z' }
+        @{ Value = '12:34Z' }
+        @{ Value = '1234:39' }
+        @{ Value = '12:34:39' }
+        @{ Value = '12:34:39Z' }
+        @{ Value = '00:00:00Z' }
+    ) {
+        $Value | Test-Match -Time -AsBoolean | Should -BeTrue
+    }
+    It 'will NOT match the time string, <Value>' -TestCases @(
+        @{ Value = '123' }
+        @{ Value = '12-34' }
+        @{ Value = '12abc34' }
+        @{ Value = 'note a time' }
+    ) {
+        $Value | Test-Match -Time -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid time"
+    }
+    It 'can return capture groups for the time, <Value>' -TestCases @(
+        @{ Value = '1234'; Seconds = ''; Zulu = $False }
+        @{ Value = '1234Z'; Seconds = ''; Zulu = $True }
+        @{ Value = '12:34Z'; Seconds = ''; Zulu = $True }
+        @{ Value = '1234:39'; Seconds = '39'; Zulu = $False }
+        @{ Value = '12:34:39'; Seconds = '39'; Zulu = $False }
+        @{ Value = '12:34:39Z'; Seconds = '39'; Zulu = $True }
+    ) {
+        $Result = $Value | Test-Match -Time
+        $Result.Value | Should -Be $Value
+        $Result.Hours | Should -Be '12'
+        $Result.Minutes | Should -Be '34'
+        $Result.Seconds | Should -Be $Seconds
+        $Result.IsZulu | Should -Be $Zulu
+    }
+}
+Describe 'Test-Match (URL)' -Tag 'Local', 'Remote' {
     It 'will match the URL string, <Value>' -TestCases @(
         @{ Value = 'https://google.com' }
         @{ Value = 'http://google.com' }
@@ -1055,26 +1095,16 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         @{ Value = '//foobar' }
         @{ Value = 'htt://www.foo.bar' }
     ) {
-        $Value | Test-Match -Url -AsBoolean | Should -BeFalse
+        $Value | Test-Match -Url -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid URL"
     }
-    It 'will match the v<Version> IP address string, <Value>' -TestCases @(
-        @{ Value = '192.168.1.1'; Version = 4 }
-        @{ Value = '10.10.10.10'; Version = 4 }
-        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'; Version = 6 }
-        @{ Value = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'; Version = 6 }
-        @{ Value = '2001::::'; Version = 6 }
-    ) {
-        $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeTrue
-    }
-    It 'will NOT match the v$Version IP address string, <Value>' -TestCases @(
-        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'; Version = 4 }
-        @{ Value = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'; Version = 4 }
-        @{ Value = '2001::::'; Version = 4 }
-        @{ Value = 'test.test.test.test'; Version = 4 }
-        @{ Value = '192.168.1.1'; Version = 6 }
-        @{ Value = 'test:test:test:test:test:test:test:test'; Version = 6 }
-    ) {
-        $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeFalse
+    It 'can return capture groups for URLs' {
+        $TestUrl = 'https://foo.bar.com:4669'
+        $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
+        $Result.Value | Should -Be $TestUrl
+        $Result.Scheme | Should -Be 'https'
+        $Result.Authority | Should -Be 'foo.bar.com'
+        $Result.TLD | Should -Be 'com'
+        $Result.Port | Should -Be '4669'
     }
     It 'can test URL strings within strings' {
         $TestUrl = 'https://foo.bar.com'
