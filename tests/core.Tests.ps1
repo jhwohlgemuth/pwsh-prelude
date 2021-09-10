@@ -936,67 +936,66 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Result.TLD | Should -Be 'com'
         $Result.Port | Should -Be '4669'
     }
-    It 'can test and match date strings' {
-        $Valid = @(
-            'September 7th, 2021'
-            '7 September 2021'
-            '07 September 2021'
-            '07 SEPTEMBER 2021'
-            '7 September 21'
-            '07 September 21'
-            '07 SEPTEMBER 21'
-            '04JUL76'
-            '4JUL76'
-            '04JUL1776'
-            '25DEC21'
-            '01Apr21'
-            '25DEC2021'
-            '25 DEC 21'
-            '25 DEC 2021'
-            '25 Dec 21'
-            '25 Dec 2021'
-            '30 12 2021'
-            '04 Jul 1776'
-            '4 Jul 1776'
-            '1815-12-15'
-            '1815-06-05'
-            '18151015'
-            '07.04.20'
-            '07.04.1776'
-            '07/04/1776'
-            '07-04-1776'
-            'July 4th, 1776'
-            'July 4, 1776'
-            'July 4 1776'
-        )
-        $InValid = @(
-            'not a date'
-            '2099-07-32' # day greater than 31
-            '2099-07-99' # day greater than 31
-            '2099-07-00' # day is double zero
-            '2099-13-30' # month greater than 12
-            '021-08-26' # year is only 3 digits
-            '13/04/1776' # month greater than 12
-            '32JUN99' # day greater than 31
-            '99JUN99' # day greater than 31
-            '30-12-2021' # month is greater than 12
-            '04 Foo 1776' # foo is not a month
-            '32 32 15' # day and month are both too big
-            '0Jan20' # day is zero
-            '00Jan20' # day is double zero
-            '15Mar0' # single digit year
-            '15Mar9' # single digit year
-            '07/32/1776' # day greater than 31
-            '12/04/123' # year is only 3 digits
-            'July 4nd, 1776' # wrong ordinal postfix
-            'Septmber 3rd, 2021' # month mispelled
-            '0 September 2021' # Day is greater than 31
-            '32 September 2021' # Day is greater than 31
-            '99 September 2021' # Day is greater than 31
-        )
-        $Valid | ForEach-Object { $_ | Test-Match -Date -AsBoolean | Should -BeTrue }
-        $Valid | Test-Match -Date -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
-        $InValid | ForEach-Object { $_ | Test-Match -Date -AsBoolean | Should -BeFalse }
+    It 'can match the date string, <Value>' -TestCases @(
+        @{ Value = 'September 7th, 2021' }
+        @{ Value = '7 September 2021' }
+        @{ Value = '07 September 2021' }
+        @{ Value = '07 SEPTEMBER 2021' }
+        @{ Value = '7 September 21' }
+        @{ Value = '07 September 21' }
+        @{ Value = '07 SEPTEMBER 21' }
+        @{ Value = '04JUL76' }
+        @{ Value = '4JUL76' }
+        @{ Value = '04JUL1776' }
+        @{ Value = '25DEC21' }
+        @{ Value = '01Apr21' }
+        @{ Value = '25DEC2021' }
+        @{ Value = '25 DEC 21' }
+        @{ Value = '25 DEC 2021' }
+        @{ Value = '25 Dec 21' }
+        @{ Value = '25 Dec 2021' }
+        @{ Value = '30 12 2021' }
+        @{ Value = '04 Jul 1776' }
+        @{ Value = '4 Jul 1776' }
+        @{ Value = '1815-12-15' }
+        @{ Value = '1815-06-05' }
+        @{ Value = '18151015' }
+        @{ Value = '07.04.20' }
+        @{ Value = '07.04.1776' }
+        @{ Value = '07/04/1776' }
+        @{ Value = '07-04-1776' }
+        @{ Value = 'July 4th, 1776' }
+        @{ Value = 'July 4, 1776' }
+        @{ Value = 'July 4 1776' }
+    ) {
+        $Value | Test-Match -Date -AsBoolean | Should -BeTrue
+    }
+    It 'will not match the date string, <Value>' -TestCases @(
+        @{ Value = 'not a date' }
+        @{ Value = '2099-07-32' } # day greater than 31
+        @{ Value = '2099-07-99' } # day greater than 31
+        @{ Value = '2099-07-00' } # day is double zero
+        @{ Value = '2099-13-30' } # month greater than 12
+        @{ Value = '021-08-26' } # year is only 3 digits
+        @{ Value = '13/04/1776' } # month greater than 12
+        @{ Value = '32JUN99' } # day greater than 31
+        @{ Value = '99JUN99' } # day greater than 31
+        @{ Value = '30-12-2021' } # month is greater than 12
+        @{ Value = '04 Foo 1776' } # foo is not a month
+        @{ Value = '32 32 15' } # day and month are both too big
+        @{ Value = '0Jan20' } # day is zero
+        @{ Value = '00Jan20' } # day is double zero
+        @{ Value = '15Mar0' } # single digit year
+        @{ Value = '15Mar9' } # single digit year
+        @{ Value = '07/32/1776' } # day greater than 31
+        @{ Value = '12/04/123' } # year is only 3 digits
+        @{ Value = 'July 4nd, 1776' } # wrong ordinal postfix
+        @{ Value = 'Septmber 3rd, 2021' } # month mispelled
+        @{ Value = '0 September 2021' } # Day is greater than 31
+        @{ Value = '32 September 2021' } # Day is greater than 31
+        @{ Value = '99 September 2021' } # Day is greater than 31
+    ) {
+        $Value | Test-Match -Date -AsBoolean | Should -BeFalse
     }
     It 'can test and match email strings' {
         $Valid = @(
