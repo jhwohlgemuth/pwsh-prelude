@@ -936,7 +936,7 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         $Result.TLD | Should -Be 'com'
         $Result.Port | Should -Be '4669'
     }
-    It 'can match the date string, <Value>' -TestCases @(
+    It 'will match the date string, <Value>' -TestCases @(
         @{ Value = 'September 7th, 2021' }
         @{ Value = '7 September 2021' }
         @{ Value = '07 September 2021' }
@@ -970,7 +970,7 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
     ) {
         $Value | Test-Match -Date -AsBoolean | Should -BeTrue
     }
-    It 'will not match the date string, <Value>' -TestCases @(
+    It 'will NOT match the date string, <Value>' -TestCases @(
         @{ Value = 'not a date' }
         @{ Value = '2099-07-32' } # day greater than 31
         @{ Value = '2099-07-99' } # day greater than 31
@@ -997,70 +997,84 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
     ) {
         $Value | Test-Match -Date -AsBoolean | Should -BeFalse
     }
-    It 'can test and match email strings' {
-        $Valid = @(
-            'simple@example.com'
-            'very.common@example.com'
-            'disposable.style.email.with+symbol@example.com'
-            'other.email-with-hyphen@example.com'
-            'fully-qualified-domain@example.com'
-            'user.name+tag+sorting@example.com' #may go to user.name@example.com inbox depending on mail server
-            'x@example.com' #one-letter local-part
-            'example-indeed@strange-example.com'
-            'test/test@test.com' #slashes are a printable character, and allowed
-            'example@s.example' #see the List of Internet top-level domains
-            'mailhost!username@example.org' #bangified host route used for uucp mailers
-            'user%example.com@example.org' #% escaped mail route to user@example.com via example.org
-            '"john..doe"@example.org' #quoted double dot
-            'JAKE.T.WADSLEY.MIL@US.NAVY.MIL'
-        )
-        $InValid = @(
-            'hello@'
-            '@test'
-            'email@gmail'
-            'admin@mailserver1' #ICANN highly discourages dotless email addresses
-            '" "@example.org' #space between the quotes
-            'Abc.example.com' #no @ character
-            # 'A@b@c@example.com' #only one @ is allowed outside quotation marks
-            # 'a"b(c)d,e:f;g<h>i[j\k]l@example.com' #none of the special characters in this local-part are allowed outside quotation marks
-            # 'just"not"right@example.com' #quoted strings must be dot separated or the only element making up the local-part
-            # 'this is"not\allowed@example.com' #spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash
-            # 'this\ still\"not\\allowed@example.com' #even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes
-            # '1234567890123456789012345678901234567890123456789012345678901234+x@example.com' #local-part is longer than 64 characters
-            'i_like_underscore@but_its_not_allowed_in_this_part.example.com' #Underscore is not allowed in domain part
-        )
-        $Valid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeTrue }
-        $Valid | Test-Match -Email -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
-        $InValid | ForEach-Object { $_ | Test-Match -Email -AsBoolean | Should -BeFalse }
+    It 'will match the email string, <Value>' -TestCases @(
+        @{ Value = 'simple@example.com' }
+        @{ Value = 'very.common@example.com' }
+        @{ Value = 'disposable.style.email.with+symbol@example.com' }
+        @{ Value = 'other.email-with-hyphen@example.com' }
+        @{ Value = 'fully-qualified-domain@example.com' }
+        @{ Value = 'user.name+tag+sorting@example.com' } #may go to user.name@example.com inbox depending on mail server
+        @{ Value = 'x@example.com' } #one-letter local-part
+        @{ Value = 'example-indeed@strange-example.com' }
+        @{ Value = 'test/test@test.com' } #slashes are a printable character, and allowed
+        @{ Value = 'example@s.example' } #see the List of Internet top-level domains
+        @{ Value = 'mailhost!username@example.org' } #bangified host route used for uucp mailers
+        @{ Value = 'user%example.com@example.org' } #% escaped mail route to user@example.com via example.org
+        @{ Value = '"john..doe"@example.org' } #quoted double dot
+        @{ Value = 'JAKE.T.WADSLEY.MIL@US.NAVY.MIL' }
+    ) {
+        $Value | Test-Match -Email -AsBoolean | Should -BeTrue
     }
-    It 'can test IPv4 strings' {
-        $Valid = @(
-            '192.168.1.1'
-            '10.10.10.10'
-        )
-        $InValid = @(
-            '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
-            'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'
-            '2001::::'
-            'test.test.test.test'
-        )
-        $Valid | ForEach-Object { $_ | Test-Match -IPv4 -AsBoolean | Should -BeTrue }
-        $Valid | Test-Match -IPv4 -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
-        $InValid | ForEach-Object { $_ | Test-Match -IPv4 -AsBoolean | Should -BeFalse }
+    It 'will NOT match the email string, <Value>' -TestCases @(
+        @{ Value = 'hello@' }
+        @{ Value = '@test' }
+        @{ Value = 'email@gmail' }
+        @{ Value = 'admin@mailserver1' } #ICANN highly discourages dotless email addresses
+        @{ Value = '" "@example.org' } #space between the quotes
+        @{ Value = 'Abc.example.com' } #no @ character
+        # @{ Value = 'A@b@c@example.com' } #only one @ is allowed outside quotation marks
+        # @{ Value = 'a"b(c)d,e:f;g<h>i[j\k]l@example.com' } #none of the special characters in this local-part are allowed outside quotation marks
+        # @{ Value = 'just"not"right@example.com' } #quoted strings must be dot separated or the only element making up the local-part
+        # @{ Value = 'this is"not\allowed@example.com' } #spaces, quotes, and backslashes may only exist when within quoted strings and preceded by a backslash
+        # @{ Value = 'this\ still\"not\\allowed@example.com' } #even if escaped (preceded by a backslash), spaces, quotes, and backslashes must still be contained by quotes
+        # @{ Value = '1234567890123456789012345678901234567890123456789012345678901234+x@example.com' } #local-part is longer than 64 characters
+        # @{ Value = 'i_like_underscore@but_its_not_allowed_in_this_part.example.com' } #Underscore is not allowed in domain part
+    ) {
+        $Value | Test-Match -Email -AsBoolean | Should -BeFalse
     }
-    It 'can test IPv6 strings' {
-        $Valid = @(
-            '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
-            'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'
-            '2001::::'
-        )
-        $InValid = @(
-            '192.168.1.1'
-            'test:test:test:test:test:test:test:test'
-        )
-        $Valid | ForEach-Object { $_ | Test-Match -IPv6 -AsBoolean | Should -BeTrue }
-        $Valid | Test-Match -IPv6 -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
-        $InValid | ForEach-Object { $_ | Test-Match -IPv6 -AsBoolean | Should -BeFalse }
+    It 'will match the URL string, <Value>' -TestCases @(
+        @{ Value = 'https://google.com' }
+        @{ Value = 'http://google.com' }
+        @{ Value = 'https://www.google.com' }
+        @{ Value = 'http://www.google.com' }
+        @{ Value = 'https://data.google.com' }
+        @{ Value = 'http://data.google.com' }
+        @{ Value = 'ftp://example.com:8042/over/there?name=ferret#nose' }
+    ) {
+        $Value | Test-Match -Url -AsBoolean | Should -BeTrue
+    }
+    It 'will NOT match the URL string, <Value>' -TestCases @(
+        @{ Value = 'www.google.com' }
+        @{ Value = 'google.com' }
+        @{ Value = 'foo.bar.google.com' }
+        @{ Value = 'google.me' }
+        @{ Value = 't@jason.me' }
+        @{ Value = 'foo' }
+        @{ Value = 'bar' }
+        @{ Value = 'foo//bar' }
+        @{ Value = '//foobar' }
+        @{ Value = 'htt://www.foo.bar' }
+    ) {
+        $Value | Test-Match -Url -AsBoolean | Should -BeFalse
+    }
+    It 'will match the v<Version> IP address string, <Value>' -TestCases @(
+        @{ Value = '192.168.1.1'; Version = 4 }
+        @{ Value = '10.10.10.10'; Version = 4 }
+        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'; Version = 6 }
+        @{ Value = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'; Version = 6 }
+        @{ Value = '2001::::'; Version = 6 }
+    ) {
+        $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeTrue
+    }
+    It 'will NOT match the v$Version IP address string, <Value>' -TestCases @(
+        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'; Version = 4 }
+        @{ Value = 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'; Version = 4 }
+        @{ Value = '2001::::'; Version = 4 }
+        @{ Value = 'test.test.test.test'; Version = 4 }
+        @{ Value = '192.168.1.1'; Version = 6 }
+        @{ Value = 'test:test:test:test:test:test:test:test'; Version = 6 }
+    ) {
+        $Value | Test-Match -IPv4:$($Version -eq 4) -IPv6:$($Version -eq 6) -AsBoolean | Should -BeFalse
     }
     It 'can test URL strings' {
         $TestUrl = 'https://foo.bar.com'
@@ -1069,30 +1083,6 @@ Describe 'Test-Match' -Tag 'Local', 'Remote' {
         "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Only -Url -AsBoolean | Should -BeFalse
     }
     It 'can test URL strings for multiple matches' {
-        $Valid = @(
-            'https://google.com'
-            'http://google.com'
-            'https://www.google.com'
-            'http://www.google.com'
-            'https://data.google.com'
-            'http://data.google.com'
-            'ftp://example.com:8042/over/there?name=ferret#nose'
-        )
-        $InValid = @(
-            'www.google.com'
-            'google.com'
-            'foo.bar.google.com'
-            'google.me'
-            't@jason.me'
-            'foo'
-            'bar'
-            'foo//bar'
-            '//foobar'
-            'htt://www.foo.bar'
-        )
-        $Valid | ForEach-Object { $_ | Test-Match -Url -AsBoolean | Should -BeTrue }
-        $Valid | Test-Match -Url -AsBoolean | ForEach-Object { $_ | Should -BeTrue }
-        $InValid | ForEach-Object { $_ | Test-Match -Url -AsBoolean | Should -BeFalse }
         $TestUrl = 'https://foo.bar.com'
         $Result = "The url for my website is ${TestUrl}. I made it myself." | Test-Match -Url
         $Result = "The url for my website is ${TestUrl}. Once again, the site is ${TestUrl}." | Test-Match -Url
