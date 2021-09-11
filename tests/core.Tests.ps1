@@ -1055,6 +1055,22 @@ Describe 'Test-Match (time)' -Tag 'Local', 'Remote' {
     ) {
         $Value | Test-Match -Time -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid time"
     }
+    It 'will match the ISO-8601 time string, <Value>' -TestCases @(
+        @{ Value = '2007-09-01T00:00:00.000Z' }
+        @{ Value = '20070901T000000000Z' }
+        @{ Value = '20070901T000000000+12' }
+        @{ Value = '20070901T000000000+1223' }
+        @{ Value = '20070901T000000000+12:23' }
+    ) {
+        $Value | Test-Match -Time -AsBoolean | Should -BeTrue -Because "`"$Value`" is a valid ISO-8601 formatted time string"
+    }
+    It 'will NOT match the ISO-8601 time string, <Value>' -TestCases @(
+        @{ Value = 'not ISO datetime' }
+        @{ Value = '2007-09-01T00:00-00-000Z' } # hyphen instead of period
+        @{ Value = '2007-09-01' } # Only date
+    ) {
+        $Value | Test-Match -Time -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid ISO-8601 formatted time string"
+    }
     It 'can return capture groups for the time, <Value>' -TestCases @(
         @{ Value = '1234'; Seconds = ''; Zulu = $False }
         @{ Value = '1234Z'; Seconds = ''; Zulu = $True }

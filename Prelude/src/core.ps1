@@ -1410,7 +1410,13 @@ function New-RegexString {
                 }
                 { $ISO8601 } {
                     $ReArray += @(
-                        '(?<year>\d\d\d\d)([-])?(?<month>\d\d)([-])?(?<day>\d\d)((T|\s+)(?<hours>\d\d)(([:])?(?<minutes>\d\d)(([:])?(?<seconds>\d\d)(([.])?(?<fraction>\d+))?)?)?)?((?<tzzulu>Z)|(?<tzoffset>[-+])(?<tzhour>\d\d)([:])?(?<tzminute>\d\d))?'
+                        '(?<year>\d\d\d\d)'
+                        '([-])?'
+                        '(?<month>\d\d)'
+                        '([-])?'
+                        '(?<day>\d\d)'
+                        '((T|\s+)(?<hours>\d\d)(([:])?(?<minutes>\d\d)(([:])?(?<seconds>\d\d)(([.])?(?<fraction>\d+))?)?)?)?'
+                        '((?<tzzulu>Z)|(?<tzoffset>[-+])(?<tzhour>\d\d)([:])?(?<tzminute>\d\d))?'
                     ) -join ''
                 }
                 { $Url } {
