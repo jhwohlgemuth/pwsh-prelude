@@ -1263,6 +1263,7 @@ function New-RegexString {
         [Parameter(ValueFromPipeline = $True)]
         [String[]] $Value,
         [Switch] $Date,
+        [Switch] $Duration,
         [Switch] $Email,
         [Switch] $IPv4,
         [Switch] $IPv6,
@@ -1362,6 +1363,14 @@ function New-RegexString {
             switch ($True) {
                 { $Date } {
                     $ReArray += "(?<date>($DateFormats))"
+                }
+                { $Duration } {
+                    $Hours = '[0-2][0-9]'
+                    $Minutes = '[0-5][0-9]'
+                    $Seconds = '[0-5][0-9]'
+                    $Start = "(?<start>((?<starthours>($Hours)):?(?<startminutes>($Minutes)):?(?<startseconds>($Seconds))?))(?<startzulu>Z)?(?![:])"
+                    $End = "(?<end>((?<endhours>($Hours)):?(?<endminutes>($Minutes)):?(?<endseconds>($Seconds))?))(?<endzulu>Z)?(?![:])"
+                    $ReArray += "(?<duration>(($Start)\s?-\s?($End)))"
                 }
                 { $Email } {
                     # RFC 5322 Official Standard (https://www.emailregex.com/)
@@ -1640,6 +1649,7 @@ function Test-Match {
         [ValidateNotNull()]
         [String] $Value,
         [Switch] $Date,
+        [Switch] $Duration,
         [Switch] $Email,
         [Switch] $IPv4,
         [Switch] $IPv6,
@@ -1653,6 +1663,7 @@ function Test-Match {
         $Parameters = @{
             Value = $Value
             Date = $Date
+            Duration = $Duration
             Email = $Email
             IPv4 = $IPv4
             IPv6 = $IPv6
@@ -1685,6 +1696,18 @@ function Test-Match {
                             Day = Get-Value -Name 'day'
                             Month = Get-Value -Name 'month'
                             Year = Get-Value -Name 'year'
+                        }
+                    } else {
+                        $Null
+                    }
+                }
+                { $Duration } {
+                    if ($Results.Value) {
+                        @{
+                            Value = $Results.Value
+                            Start = Get-Value -Name 'start'
+                            End = Get-Value -Name 'end'
+                            IsZulu = ((Get-Value -Name 'startzulu') -eq 'Z') -or ((Get-Value -Name 'endzulu') -eq 'Z')
                         }
                     } else {
                         $Null

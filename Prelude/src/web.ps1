@@ -34,19 +34,23 @@ function Add-Metadata {
         [String] $Text,
         [String[]] $Keyword,
         [Switch] $Microformat,
-        [ValidateSet('date', 'email', 'url', 'ip')]
+        [ValidateSet('date', 'duration', 'email', 'url', 'ip')]
         [String[]] $Disable
     )
     Begin {
         $Custom = [Regex](($Keyword | ForEach-Object { "(\b${_}\b)" }) -join '|' )
         $Date = [Regex](New-RegexString -Date)
+        $Duration = [RegEx](New-RegexString -Duration)
         $Email = [Regex](New-RegexString -Email)
         $Url = [Regex](New-RegexString -Url)
         $IpAdress = [Regex](New-RegexString -IPv4 -IPv6)
         $Attributes = @{
             Custom = 'itemprop="thing"'
             Date = 'itemscope itemtype="https://schema.org/DateTime" class="dt-event"'
+            Duration = 'itemscope itemprop="event" itemtype="https://schema.org/Event" class="duration dt-event"'
             Email = 'itemscope itemprop="email" itemtype="https://schema.org/email" class="u-email"'
+            End = 'itemscope itemprop="endTime" itemtype="https://schema.org/Time" class="dt-end"'
+            Start = 'itemscope itemprop="startTime" itemtype="https://schema.org/Time" class="dt-start"'
             Url = 'itemscope itemprop="url" itemtype="https://schema.org/URL" class="u-url"'
         }
         $Options = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
@@ -98,6 +102,26 @@ function Add-Metadata {
                             "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
                         } else {
                             "<time datetime=`"${IsoValue}`">${Value}</time>"
+                        }
+                    },
+                    $Options
+                )
+            }
+            { -not ('duration' -in $Disable) } {
+                $Text = [Regex]::Replace(
+                    $Text,
+                    $Duration,
+                    {
+                        Param($Match)
+                        $Value = $Match.Groups[1].value
+                        $Data = $Value | Test-Match -Duration
+                        $Start = $Data.Start
+                        $End = $Data.End
+                        $Timezone = if ($Data.IsZulu) { ' data-timezone="Zulu"' } else { '' }
+                        if ($Microformat) {
+                            "<span $($Attributes.Duration)${Timezone}><time $($Attributes.Start) datetime=`"${Start}`">${Start}</time> - <time $($Attributes.End) datetime=`"${End}`">${End}</time></span>"
+                        } else {
+                            "<span class=`"duration`"${Timezone}><time datetime=`"${Start}`">${Start}</time> - <time datetime=`"${End}`">${End}</time></span>"
                         }
                     },
                     $Options

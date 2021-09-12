@@ -244,7 +244,6 @@ Describe -Skip:(-not $ExcelSupported) 'Import-Excel' -Tag 'Local', 'Remote' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example_protected.xlsx'
         $Data = Import-Excel -Path $Path -Password $Password
         $Data.Size | Should -Be 6, 1
-        ($Data.Headers -join ', ') | Write-Color -Yellow
         $Data | Get-Property 'Rows.0.Values' | Should -Be 'secret'
         $Data | Get-Property 'Rows.1.Values' | Should -Be 'restricted'
         $Data = Import-Excel -Path $Path -Password $Password -WorksheetName 'unprotected'

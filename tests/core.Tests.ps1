@@ -1087,6 +1087,52 @@ Describe 'Test-Match (time)' -Tag 'Local', 'Remote' {
         $Result.IsZulu | Should -Be $Zulu
     }
 }
+Describe 'Test-Match (duration)' -Tag 'Local', 'Remote' {
+    It 'will match the time duration string, <Value>' -TestCases @(
+        @{ Value = '1200 - 1300' }
+        @{ Value = '1200 - 1300Z' }
+        @{ Value = '1200-1300' }
+        @{ Value = '1200-1300Z' }
+        @{ Value = '1200 -1300' }
+        @{ Value = '1200- 1300Z' }
+        @{ Value = '0000 - 0001' }
+        @{ Value = '0945Z - 1243Z' }
+        @{ Value = '12:34:39 - 13:07:45' }
+        @{ Value = '12:34:39 - 13:07:45Z' }
+        @{ Value = '1200 - 13:07:45Z' }
+    ) {
+        $Value | Test-Match -Duration -AsBoolean | Should -BeTrue
+    }
+    It 'will NOT match the time duration string, <Value>' -TestCases @(
+        @{ Value = 'not a duration' }
+        @{ Value = '2001:0db8:85a3:0000:0000:8a2e:0370:7334' } # This is an IPv6
+        @{ Value = '0945Z -- 1243Z' } # Duration has extra hyphen
+        @{ Value = '0945L - 1243Z' } # Start has invalid timezone
+        @{ Value = '000 - 1001' }# Start only has three digits
+        @{ Value = '1000 - 001' } # Stop only has three digits
+        @{ Value = '000 - 001' } # Start and stop only have three digits
+        @{ Value = '12:34:39 - abc' } # Stop is invalid
+    ) {
+        $Value | Test-Match -Duration -AsBoolean | Should -BeFalse -Because "`"$Value`" is NOT a valid time duration"
+    }
+    It 'can return capture groups for the time duration string, <Value>' -TestCases @(
+        @{ Value = '1200 - 1230Z'; Zulu = $True }
+        @{ Value = '1200 -1230Z'; Zulu = $True }
+        @{ Value = '1200- 1230Z'; Zulu = $True }
+        @{ Value = '1200Z - 1230'; Zulu = $True }
+        @{ Value = '1200-1230Z'; Zulu = $True }
+        @{ Value = '1200 - 1230'; Zulu = $False }
+        @{ Value = '1200 -1230'; Zulu = $False }
+        @{ Value = '1200- 1230'; Zulu = $False }
+        @{ Value = '1200-1230'; Zulu = $False }
+    ) {
+        $Result = $Value | Test-Match -Duration
+        $Result.Value | Should -Be $Value
+        $Result.Start | Should -Be '1200'
+        $Result.End | Should -Be '1230'
+        $Result.IsZulu | Should -Be $Zulu
+    }
+}
 Describe 'Test-Match (URL)' -Tag 'Local', 'Remote' {
     It 'will match the URL string, <Value>' -TestCases @(
         @{ Value = 'https://google.com' }

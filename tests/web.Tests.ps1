@@ -23,6 +23,24 @@ Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
         $Text = 'email = foo@BAR.com; url = 192.168.1.157; date = 7 September 2021;'
         $Text | Add-Metadata -Disable 'email' | Should -Be 'email = foo@BAR.com; url = <a class="ip" href="192.168.1.157">192.168.1.157</a>; date = <time datetime="2021-09-07T00:00:00.000Z">7 September 2021</time>;'
     }
+    It 'can add metadata to unstructured string that contains the duration, <Value>' -TestCases @(
+        @{ Value = '1230Z - 1345'; Zulu = $True }
+        @{ Value = '1230 - 1345Z'; Zulu = $True }
+        @{ Value = '1230Z - 1345Z'; Zulu = $True }
+        @{ Value = '1230Z- 1345Z'; Zulu = $True }
+        @{ Value = '1230Z -1345Z'; Zulu = $True }
+        @{ Value = '1230 - 1345'; Zulu = $False }
+    ) {
+        $Text = "The event will last ${Value}."
+        $Text | Add-Metadata -Disable 'duration' | Should -Be $Text
+        if ($Zulu) {
+            $Text | Add-Metadata | Should -Be 'The event will last <span class="duration" data-timezone="Zulu"><time datetime="1230">1230</time> - <time datetime="1345">1345</time></span>.'
+            $Text | Add-Metadata -Microformat | Should -Be 'The event will last <span itemscope itemprop="event" itemtype="https://schema.org/Event" class="duration dt-event" data-timezone="Zulu"><time itemscope itemprop="startTime" itemtype="https://schema.org/Time" class="dt-start" datetime="1230">1230</time> - <time itemscope itemprop="endTime" itemtype="https://schema.org/Time" class="dt-end" datetime="1345">1345</time></span>.'
+        } else {
+            $Text | Add-Metadata | Should -Be 'The event will last <span class="duration"><time datetime="1230">1230</time> - <time datetime="1345">1345</time></span>.'
+            $Text | Add-Metadata -Microformat | Should -Be 'The event will last <span itemscope itemprop="event" itemtype="https://schema.org/Event" class="duration dt-event"><time itemscope itemprop="startTime" itemtype="https://schema.org/Time" class="dt-start" datetime="1230">1230</time> - <time itemscope itemprop="endTime" itemtype="https://schema.org/Time" class="dt-end" datetime="1345">1345</time></span>.'
+        }
+    }
     It 'can add metadata to an unstructured text file' {
         $Text = Get-Content (Join-Path $PSScriptRoot '\fixtures\NAV21181.txt') -Raw
         $Text | Add-Metadata | Should -Match '<a href="mailto:JAKE.T.WADSLEY.MIL@US.NAVY.MIL">JAKE.T.WADSLEY.MIL@US.NAVY.MIL</a>'
