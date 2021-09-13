@@ -169,6 +169,49 @@ Describe 'Invoke-GoogleSearch' -Tag 'Local', 'Remote' {
         'foo:bar' | Invoke-GoogleSearch -Encode -PassThru | Should -Be 'foo%3abar'
     }
 }
+Describe 'Invoke-Pack' -Tag 'Local', 'Remote' {
+    BeforeEach {
+        Set-Location $TestDrive
+        $A = New-Item (Join-Path $TestDrive 'A.txt') -ItemType 'file'
+        $B = New-Item (Join-Path $TestDrive 'B.txt') -ItemType 'file'
+        $C = New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
+        $D = New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
+        $E = New-Item (Join-Path $D 'E.txt') -ItemType 'file'
+        'AAA' | Set-Content $A
+        'BBB' | Set-Content $B
+        'CCC' | Set-Content $C
+        'EEE' | Set-Content $E
+    }
+    AfterEach {
+        Set-Location $PSScriptRoot
+        Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
+    }
+    It 'can pack files within a directory (string path)' {
+        $Path = $TestDrive | Invoke-Pack
+        $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
+        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+    }
+    It 'can pack files within a directory (fileinfo array)' {
+        $Path = $A, $B, $C, $E | Invoke-Pack
+        $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
+        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+    }
+    It 'can pack files within a directory (directoryinfo array)' {
+        $Path = (Get-Item $TestDrive) | Invoke-Pack
+        $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
+        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+    }
+    It 'can pack files within a directory (-PathList)' {
+        $Path = Invoke-Pack -Items $TestDrive
+        $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
+        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+    }
+    It 'can pack files within a directory (-DirectoryList)' {
+        $Path = Invoke-Pack -Items (Get-Item $TestDrive)
+        $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
+        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+    }
+}
 Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local', 'Remote' {
     It 'can passthru text without speaking' {
         $Text = 'this should not be heard'

@@ -217,6 +217,7 @@ Functions
   - `Invoke-ObjectMerge`
   - `Invoke-Once`
   - `Invoke-Operator`
+  - `Invoke-Pack`
   - `Invoke-Partition`
   - `Invoke-Pick`
   - `Invoke-PropertyTransform`
@@ -227,6 +228,7 @@ Functions
   - `Invoke-Speak` <sup>[[3]](#3)</sup>
   - `Invoke-TakeWhile`
   - `Invoke-Tap`
+  - `Invoke-Unpack`
   - `Invoke-Unzip`
   - `Invoke-WebRequestBasicAuth`
   - `Invoke-Zip`
