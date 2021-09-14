@@ -458,6 +458,8 @@ function Invoke-Pack {
         [Parameter(ValueFromPipeline = $True)]
         [Array] $Items,
         [Parameter(Position = 0)]
+        [ValidateScript({ (Test-Path $_) })]
+        [String] $Path = (Get-Location).Path,
         [String] $Output = 'packed',
         [Switch] $Compress
     )
@@ -497,7 +499,7 @@ function Invoke-Pack {
                 }
                 @{
                     Name = $Name
-                    Path = ($Fullname).Replace((Get-Location).Path, '')
+                    Path = ($Fullname).Replace($Path, '')
                     Content = Get-Content $Fullname @Parameters
                 }
             }
@@ -505,43 +507,15 @@ function Invoke-Pack {
     }
     End {
         $Values = if ($Input.Count -gt 0) { $Input } else { $Items }
-        $PackedItems = ConvertTo-ObjectList (ConvertTo-ItemList $Values)
         $OutputPath = Join-Path (Get-Location).Path "$Output.xml"
-        $PackedItems | Export-Clixml $OutputPath -Force
+        ConvertTo-ObjectList (ConvertTo-ItemList $Values) | Export-Clixml $OutputPath -Force
         if ($Compress) {
-            Compress-Archive -Path $OutputPath -DestinationPath "$Output.zip"
+            $CompressedOutputPath = Join-Path (Get-Location).Path "$Output.zip"
+            Compress-Archive -Path $OutputPath -DestinationPath $CompressedOutputPath
             Remove-Item -Path $OutputPath
+            return Resolve-Path $CompressedOutputPath
         }
         Resolve-Path $OutputPath
-    }
-}
-function Invoke-Unpack {
-    <#
-    .SYNOPSIS
-    Function to restore files serialized via Invoke-Pack.
-    .EXAMPLE
-    'path/to/pack.xml' | Invoke-Unpack
-    #>
-    [CmdletBinding()]
-    Param(
-        [Parameter(Position = 0, ValueFromPipeline)]
-        [ValidateScript({ (Test-Path $_) -and $_.toLower().EndsWith('.xml') })]
-        [String] $PackPath
-    )
-    Begin {
-        $Root = (Get-Location).Path
-        $PackName = (Get-Item $PackPath).BaseName
-        $Pack = Import-Clixml $PackPath
-    }
-    Process {
-        foreach ($Item in $Pack) {
-            if ($Item.Path.EndsWith('.dll')) {
-                New-Item -Path "$Root\$PackName$($Item.Path)" -Force | Out-Null
-                $Item.Content | Set-Content -Path "$Root\$PackName$($Item.Path)" -Encoding 'Byte' -Force
-            } else {
-                New-Item -Path "$Root\$PackName$($Item.Path)" -Value ($Item.Content -join "`n") -Force | Out-Null
-            }
-        }
     }
 }
 function Invoke-RemoteCommand {
@@ -691,6 +665,35 @@ function Invoke-Speak {
                 Default {
                     Write-Verbose "==> $TotalText"
                 }
+            }
+        }
+    }
+}
+function Invoke-Unpack {
+    <#
+    .SYNOPSIS
+    Function to restore files serialized via Invoke-Pack.
+    .EXAMPLE
+    'path/to/pack.xml' | Invoke-Unpack
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [ValidateScript({ (Test-Path $_) })]
+        [String] $Path
+    )
+    Begin {
+        $Root = (Get-Location).Path
+        $PackName = (Get-Item $Path).BaseName
+        $Pack = Import-Clixml $Path
+    }
+    Process {
+        foreach ($Item in $Pack) {
+            if ($Item.Path.EndsWith('.dll')) {
+                New-Item -Path "$Root\$PackName$($Item.Path)" -Force | Out-Null
+                $Item.Content | Set-Content -Path "$Root\$PackName$($Item.Path)" -Encoding 'Byte' -Force
+            } else {
+                New-Item -Path "$Root\$PackName$($Item.Path)" -Value ($Item.Content -join "`n") -Force | Out-Null
             }
         }
     }
