@@ -452,7 +452,9 @@ function Invoke-Pack {
     .EXAMPLE
     Get-ChildItem 'path/to/folder' | Invoke-Pack
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Path')]
     [CmdletBinding()]
+    [Alias('pack')]
     [OutputType([String])]
     Param(
         [Parameter(ValueFromPipeline = $True)]
@@ -470,13 +472,13 @@ function Invoke-Pack {
                 [Array] $Values
             )
             foreach ($Value in $Values) {
-                $Item = Get-Item $Value
+                $Item = Get-Item -Path $Value.FullName
                 switch ($Item.GetType().Name) {
                     'DirectoryInfo' {
-                        Get-ChildItem $Value -File -Recurse -Force
+                        Get-ChildItem -Path $Item -File -Recurse -Force
                     }
                     'FileInfo' {
-                        Get-Item $Value
+                        Get-Item -Path $Item
                     }
                 }
             }
@@ -674,26 +676,30 @@ function Invoke-Unpack {
     .SYNOPSIS
     Function to restore files serialized via Invoke-Pack.
     .EXAMPLE
-    'path/to/pack.xml' | Invoke-Unpack
+    'path/to/packed.xml' | Invoke-Unpack
+    .EXAMPLE
+    ls 'some/folder' | % { unpack -File $_ }
     #>
     [CmdletBinding()]
+    [Alias('unpack')]
     Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript({ (Test-Path $_) })]
-        [String] $Path
+        [String] $Path,
+        [Parameter(ValueFromPipeline = $True)]
+        [System.IO.FileInfo] $File
     )
-    Begin {
-        $Root = (Get-Location).Path
-        $PackName = (Get-Item $Path).BaseName
-        $Pack = Import-Clixml $Path
-    }
     Process {
+        $Value = if ($Path) { $Path } else { Get-Item $File }
+        $Pack = Import-Clixml $Value
+        $Base = Join-Path (Get-Location).Path (Get-Item $Value).BaseName
         foreach ($Item in $Pack) {
+            $OutputPath = Join-Path $Base $Item.Path
             if ($Item.Path.EndsWith('.dll')) {
-                New-Item -Path "$Root\$PackName$($Item.Path)" -Force | Out-Null
-                $Item.Content | Set-Content -Path "$Root\$PackName$($Item.Path)" -Encoding 'Byte' -Force
+                New-Item -Path $OutputPath -Force | Out-Null
+                $Item.Content | Set-Content -Path $OutputPath -Encoding 'Byte' -Force
             } else {
-                New-Item -Path "$Root\$PackName$($Item.Path)" -Value ($Item.Content -join "`n") -Force | Out-Null
+                New-Item -Path $OutputPath -Value ($Item.Content -join "`n") -Force | Out-Null
             }
         }
     }

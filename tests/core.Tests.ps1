@@ -9,7 +9,7 @@ Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
             (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 119
         }
         It 'should import aliases' {
-            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 59
+            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 61
         }
     }
 }

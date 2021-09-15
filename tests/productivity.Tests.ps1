@@ -212,6 +212,35 @@ Describe 'Invoke-Pack' -Tag 'Local', 'Remote' {
         $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
     }
 }
+Describe 'Invoke-Unpack' -Tag 'Local', 'Remote' {
+    BeforeEach {
+        Set-Location $TestDrive
+        $A = New-Item (Join-Path $TestDrive 'A.txt') -ItemType 'file'
+        $B = New-Item (Join-Path $TestDrive 'B.txt') -ItemType 'file'
+        $C = New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
+        $D = New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
+        $E = New-Item (Join-Path $D 'E.txt') -ItemType 'file'
+        'AAA' | Set-Content $A
+        'BBB' | Set-Content $B
+        'CCC' | Set-Content $C
+        'EEE' | Set-Content $E
+        $Script:PackPath = $TestDrive | Invoke-Pack
+    }
+    AfterEach {
+        Set-Location $PSScriptRoot
+        Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
+    }
+    It 'can unpack files from a pack (string)' {
+        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt'
+        Invoke-Unpack $Script:PackPath
+        Get-ChildItem (Join-Path $TestDrive 'packed') -Recurse | ForEach-Object 'Name' | Sort-Object | Should -Be $Expected
+    }
+    It 'can unpack files from a pack (file)' {
+        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt'
+        Invoke-Unpack -File (Get-Item $Script:PackPath)
+        Get-ChildItem (Join-Path $TestDrive 'packed') -Recurse | ForEach-Object 'Name' | Sort-Object | Should -Be $Expected
+    }
+}
 Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local', 'Remote' {
     It 'can passthru text without speaking' {
         $Text = 'this should not be heard'
