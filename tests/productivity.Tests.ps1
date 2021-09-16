@@ -181,6 +181,17 @@ Describe 'Invoke-Pack' -Tag 'Local', 'Remote' {
         'BBB' | Set-Content $B
         'CCC' | Set-Content $C
         'EEE' | Set-Content $E
+        Set-Location (Join-Path $TestDrive 'D')
+        $F = New-Item (Join-Path $TestDrive 'D/F.txt') -ItemType 'file'
+        $G = New-Item (Join-Path $TestDrive 'D/G.txt') -ItemType 'file'
+        $H = New-Item (Join-Path $TestDrive 'D/H.txt') -ItemType 'file'
+        $I = New-Item (Join-Path $TestDrive 'D/I') -ItemType 'directory'
+        $J = New-Item (Join-Path $I 'J.txt') -ItemType 'file'
+        'FFF' | Set-Content $F
+        'GGG' | Set-Content $G
+        'HHH' | Set-Content $H
+        'JJJ' | Set-Content $J
+        Set-Location $TestDrive
     }
     AfterEach {
         Set-Location $PSScriptRoot
@@ -188,28 +199,33 @@ Describe 'Invoke-Pack' -Tag 'Local', 'Remote' {
     }
     It 'can pack files within a directory (string path)' {
         $Path = $TestDrive | Invoke-Pack
+        $Expected = 'AAA', 'BBB', 'CCC', 'EEE', 'FFF', 'GGG', 'HHH', 'JJJ'
         $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
-        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+        $Content | Should -Be $Expected
     }
     It 'can pack files within a directory (fileinfo array)' {
         $Path = $A, $B, $C, $E | Invoke-Pack
+        $Expected = 'AAA', 'BBB', 'CCC', 'EEE'
         $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
-        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+        $Content | Should -Be $Expected
     }
     It 'can pack files within a directory (directoryinfo array)' {
         $Path = (Get-Item $TestDrive) | Invoke-Pack
+        $Expected = 'AAA', 'BBB', 'CCC', 'EEE', 'FFF', 'GGG', 'HHH', 'JJJ'
         $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
-        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+        $Content | Should -Be $Expected
     }
     It 'can pack files within a directory (-PathList)' {
         $Path = Invoke-Pack -Items $TestDrive
+        $Expected = 'AAA', 'BBB', 'CCC', 'EEE', 'FFF', 'GGG', 'HHH', 'JJJ'
         $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
-        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+        $Content | Should -Be $Expected
     }
     It 'can pack files within a directory (-DirectoryList)' {
         $Path = Invoke-Pack -Items (Get-Item $TestDrive)
+        $Expected = 'AAA', 'BBB', 'CCC', 'EEE', 'FFF', 'GGG', 'HHH', 'JJJ'
         $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
-        $Content | Should -Be 'AAA', 'BBB', 'CCC', 'EEE'
+        $Content | Should -Be $Expected
     }
 }
 Describe 'Invoke-Unpack' -Tag 'Local', 'Remote' {
@@ -220,25 +236,42 @@ Describe 'Invoke-Unpack' -Tag 'Local', 'Remote' {
         $C = New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
         $D = New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
         $E = New-Item (Join-Path $D 'E.txt') -ItemType 'file'
+        $F = New-Item (Join-Path $TestDrive 'D/F.txt') -ItemType 'file'
+        $G = New-Item (Join-Path $TestDrive 'D/G.txt') -ItemType 'file'
+        $H = New-Item (Join-Path $TestDrive 'D/H.txt') -ItemType 'file'
+        $I = New-Item (Join-Path $TestDrive 'D/I') -ItemType 'directory'
+        $J = New-Item (Join-Path $I 'J.txt') -ItemType 'file'
+        # $K = New-Item (Join-Path $TestDrive 'K') -ItemType 'directory'
         'AAA' | Set-Content $A
         'BBB' | Set-Content $B
         'CCC' | Set-Content $C
         'EEE' | Set-Content $E
-        $Script:PackPath = $TestDrive | Invoke-Pack
+        'FFF' | Set-Content $F
+        'GGG' | Set-Content $G
+        'HHH' | Set-Content $H
+        'JJJ' | Set-Content $J
     }
     AfterEach {
         Set-Location $PSScriptRoot
         Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
     }
     It 'can unpack files from a pack (string)' {
-        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt'
-        Invoke-Unpack $Script:PackPath
+        $PackPath = $TestDrive | Invoke-Pack
+        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt', 'F.txt', 'G.txt', 'H.txt', 'I', 'J.txt'
+        Invoke-Unpack $PackPath
         Get-ChildItem (Join-Path $TestDrive 'packed') -Recurse | ForEach-Object 'Name' | Sort-Object | Should -Be $Expected
     }
     It 'can unpack files from a pack (file)' {
-        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt'
-        Invoke-Unpack -File (Get-Item $Script:PackPath)
+        $PackPath = $TestDrive | Invoke-Pack
+        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt', 'F.txt', 'G.txt', 'H.txt', 'I', 'J.txt'
+        Invoke-Unpack -File (Get-Item $PackPath)
         Get-ChildItem (Join-Path $TestDrive 'packed') -Recurse | ForEach-Object 'Name' | Sort-Object | Should -Be $Expected
+    }
+    It -Skip 'can unpack from different directory' {
+        Set-Location (Join-Path $TestDrive 'K')
+        $PackPath = $TestDrive | Invoke-Pack
+        Invoke-Unpack $PackPath
+        Get-ChildItem '.' | ForEach-Object 'Name' | ForEach-Object { $_ | Write-Color -Cyan }
     }
 }
 Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local', 'Remote' {

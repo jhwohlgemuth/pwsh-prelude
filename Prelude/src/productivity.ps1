@@ -466,6 +466,13 @@ function Invoke-Pack {
         [Switch] $Compress
     )
     Begin {
+        function Get-PathFragment {
+            Param(
+                [Parameter(Position = 0)]
+                [System.IO.FileInfo] $Item
+            )
+            $Item.FullName.Replace($Path, '')
+        }
         function ConvertTo-ItemList {
             Param(
                 [Parameter(Position = 0)]
@@ -490,7 +497,6 @@ function Invoke-Pack {
             )
             foreach ($Item in $Items) {
                 $Name = $Item.Name
-                $Fullname = $Item.FullName
                 $Parameters = if ($Name.EndsWith('.dll')) {
                     @{
                         Raw = $True
@@ -501,8 +507,8 @@ function Invoke-Pack {
                 }
                 @{
                     Name = $Name
-                    Path = ($Fullname).Replace($Path, '')
-                    Content = Get-Content $Fullname @Parameters
+                    Path = Get-PathFragment $Item
+                    Content = Get-Content $Item.FullName @Parameters
                 }
             }
         }
