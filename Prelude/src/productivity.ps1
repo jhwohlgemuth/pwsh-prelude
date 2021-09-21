@@ -449,10 +449,12 @@ function Invoke-Pack {
     <#
     .SYNOPSIS
     Function that will serialize one or more files into a single XML file. Use Invoke-Unpack to restore files.
+    .PARAMETER Root
+    Save paths relative to this path. Needed when packing folders/files not descendent from current location.
     .EXAMPLE
-    Get-ChildItem 'path/to/folder' | Invoke-Pack
+    ls some/folder | pack
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Path')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Root')]
     [CmdletBinding()]
     [Alias('pack')]
     [OutputType([String])]
@@ -461,7 +463,7 @@ function Invoke-Pack {
         [Array] $Items,
         [Parameter(Position = 0)]
         [ValidateScript({ (Test-Path $_) })]
-        [String] $Path = (Get-Location).Path,
+        [String] $Root = (Get-Location).Path,
         [String] $Output = 'packed',
         [Switch] $Compress
     )
@@ -471,7 +473,7 @@ function Invoke-Pack {
                 [Parameter(Position = 0)]
                 [System.IO.FileInfo] $Item
             )
-            $Item.FullName.Replace($Path, '')
+            $Item.FullName.Replace($Root, '')
         }
         function ConvertTo-ItemList {
             Param(
@@ -680,7 +682,7 @@ function Invoke-Speak {
 function Invoke-Unpack {
     <#
     .SYNOPSIS
-    Function to restore files serialized via Invoke-Pack.
+    Function to restore folders/files serialized via Invoke-Pack.
     .EXAMPLE
     'path/to/packed.xml' | Invoke-Unpack
     .EXAMPLE

@@ -197,7 +197,7 @@ Describe 'Invoke-Pack' -Tag 'Local', 'Remote' {
         Set-Location $PSScriptRoot
         Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
     }
-    It 'can pack files within a directory (string path)' {
+    It 'can pack files within a directory (directoryinfo)' {
         $Path = $TestDrive | Invoke-Pack
         $Expected = 'AAA', 'BBB', 'CCC', 'EEE', 'FFF', 'GGG', 'HHH', 'JJJ'
         $Content = Import-Clixml $Path | ForEach-Object { $_.Content }
