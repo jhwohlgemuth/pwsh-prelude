@@ -33,8 +33,9 @@ function Add-Metadata {
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Text,
         [String[]] $Keyword,
+        [Hashtable] $Abbreviations,
         [Switch] $Microformat,
-        [ValidateSet('date', 'duration', 'email', 'url', 'ip')]
+        [ValidateSet('all', 'date', 'duration', 'email', 'url', 'ip')]
         [String[]] $Disable
     )
     Begin {
@@ -72,88 +73,106 @@ function Add-Metadata {
                 }
             )
         }
-        switch ($True) {
-            { -not ('url' -in $Disable) } {
+        if ($Abbreviations.Count -gt 0) {
+            $Items = $Abbreviations.GetEnumerator()
+            foreach ($Item in $Items) {
+                $Name = $Item.Name
+                $Value = $Item.Value
                 $Text = [Regex]::Replace(
                     $Text,
-                    $Url,
+                    "\b${Value}\b",
                     {
                         Param($Match)
-                        $Value = $Match.Groups[1].Value
-                        if ($Microformat) {
-                            "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
-                        } else {
-                            "<a href=`"${Value}`">${Value}</a>"
-                        }
-                    },
-                    $Options
+                        $Value = $Match.Value
+                        "<abbr title=`"${Name}`">${Value}</abbr>"
+                    }
                 )
             }
-            { -not ('date' -in $Disable) } {
-                $Text = [Regex]::Replace(
-                    $Text,
-                    $Date,
-                    {
-                        Param($Match)
-                        $Value = $Match.Groups[1].value
-                        $Data = $Value | Test-Match -Date
-                        $IsoValue = [DateTime]"$($Data.Month)/$($Data.Day)/$($Data.Year)" | ConvertTo-Iso8601
-                        if ($Microformat) {
-                            "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
-                        } else {
-                            "<time datetime=`"${IsoValue}`">${Value}</time>"
-                        }
-                    },
-                    $Options
-                )
-            }
-            { -not ('duration' -in $Disable) } {
-                $Text = [Regex]::Replace(
-                    $Text,
-                    $Duration,
-                    {
-                        Param($Match)
-                        $Value = $Match.Groups[1].value
-                        $Data = $Value | Test-Match -Duration
-                        $Start = $Data.Start
-                        $End = $Data.End
-                        $Timezone = if ($Data.IsZulu) { ' data-timezone="Zulu"' } else { '' }
-                        if ($Microformat) {
-                            "<span $($Attributes.Duration)${Timezone}><time $($Attributes.Start) datetime=`"${Start}`">${Start}</time> - <time $($Attributes.End) datetime=`"${End}`">${End}</time></span>"
-                        } else {
-                            "<span class=`"duration`"${Timezone}><time datetime=`"${Start}`">${Start}</time> - <time datetime=`"${End}`">${End}</time></span>"
-                        }
-                    },
-                    $Options
-                )
-            }
-            { -not ('email' -in $Disable) } {
-                $Text = [Regex]::Replace(
-                    $Text,
-                    $Email,
-                    {
-                        Param($Match)
-                        $Value = $Match.Groups[1].Value
-                        if ($Microformat) {
-                            "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
-                        } else {
-                            "<a href=`"mailto:${Value}`">${Value}</a>"
-                        }
-                    },
-                    $Options
-                )
-            }
-            { -not ('ip' -in $Disable) } {
-                $Text = [Regex]::Replace(
-                    $Text,
-                    $IpAdress,
-                    {
-                        Param($Match)
-                        $Value = $Match.Groups[1].Value
-                        "<a class=`"ip`" href=`"${Value}`">${Value}</a>"
-                    },
-                    $Options
-                )
+        }
+        if ('all' -notin $Disable) {
+            switch ($True) {
+                { 'url' -notin $Disable } {
+                    $Text = [Regex]::Replace(
+                        $Text,
+                        $Url,
+                        {
+                            Param($Match)
+                            $Value = $Match.Groups[1].Value
+                            if ($Microformat) {
+                                "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
+                            } else {
+                                "<a href=`"${Value}`">${Value}</a>"
+                            }
+                        },
+                        $Options
+                    )
+                }
+                { 'date' -notin $Disable } {
+                    $Text = [Regex]::Replace(
+                        $Text,
+                        $Date,
+                        {
+                            Param($Match)
+                            $Value = $Match.Groups[1].value
+                            $Data = $Value | Test-Match -Date
+                            $IsoValue = [DateTime]"$($Data.Month)/$($Data.Day)/$($Data.Year)" | ConvertTo-Iso8601
+                            if ($Microformat) {
+                                "<time $($Attributes.Date) datetime=`"${IsoValue}`">${Value}</time>"
+                            } else {
+                                "<time datetime=`"${IsoValue}`">${Value}</time>"
+                            }
+                        },
+                        $Options
+                    )
+                }
+                { 'duration' -notin $Disable } {
+                    $Text = [Regex]::Replace(
+                        $Text,
+                        $Duration,
+                        {
+                            Param($Match)
+                            $Value = $Match.Groups[1].value
+                            $Data = $Value | Test-Match -Duration
+                            $Start = $Data.Start
+                            $End = $Data.End
+                            $Timezone = if ($Data.IsZulu) { ' data-timezone="Zulu"' } else { '' }
+                            if ($Microformat) {
+                                "<span $($Attributes.Duration)${Timezone}><time $($Attributes.Start) datetime=`"${Start}`">${Start}</time> - <time $($Attributes.End) datetime=`"${End}`">${End}</time></span>"
+                            } else {
+                                "<span class=`"duration`"${Timezone}><time datetime=`"${Start}`">${Start}</time> - <time datetime=`"${End}`">${End}</time></span>"
+                            }
+                        },
+                        $Options
+                    )
+                }
+                { 'email' -notin $Disable } {
+                    $Text = [Regex]::Replace(
+                        $Text,
+                        $Email,
+                        {
+                            Param($Match)
+                            $Value = $Match.Groups[1].Value
+                            if ($Microformat) {
+                                "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
+                            } else {
+                                "<a href=`"mailto:${Value}`">${Value}</a>"
+                            }
+                        },
+                        $Options
+                    )
+                }
+                { 'ip' -notin $Disable } {
+                    $Text = [Regex]::Replace(
+                        $Text,
+                        $IpAdress,
+                        {
+                            Param($Match)
+                            $Value = $Match.Groups[1].Value
+                            "<a class=`"ip`" href=`"${Value}`">${Value}</a>"
+                        },
+                        $Options
+                    )
+                }
             }
         }
         $Text

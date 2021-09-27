@@ -22,6 +22,7 @@ Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
         $Text | Add-Metadata -Keyword '[tT]he', 'fox' | Should -Be '<span class="keyword" data-keyword="The">The</span> quick brown <span class="keyword" data-keyword="fox">fox</span> jumped over <span class="keyword" data-keyword="the">the</span> gate'
         $Text = 'email = foo@BAR.com; url = 192.168.1.157; date = 7 September 2021;'
         $Text | Add-Metadata -Disable 'email' | Should -Be 'email = foo@BAR.com; url = <a class="ip" href="192.168.1.157">192.168.1.157</a>; date = <time datetime="2021-09-07T00:00:00.000Z">7 September 2021</time>;'
+        $Text | Add-Metadata -Disable 'all' | Should -Be $Text
     }
     It 'can add metadata to unstructured string that contains the duration, <Value>' -TestCases @(
         @{ Value = '1230Z - 1345'; Zulu = $True }
@@ -44,6 +45,14 @@ Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
     It 'can add metadata to an unstructured text file' {
         $Text = Get-Content (Join-Path $PSScriptRoot '\fixtures\NAV21181.txt') -Raw
         $Text | Add-Metadata | Should -Match '<a href="mailto:JAKE.T.WADSLEY.MIL@US.NAVY.MIL">JAKE.T.WADSLEY.MIL@US.NAVY.MIL</a>'
+    }
+    It 'can add abbreviations from a passed hashtable' {
+        $Text = 'Welcome to the USN!'
+        $Data = @{
+            'United States Navy' = '(u|U)SN'
+        }
+        $Text | Add-Metadata -Abbreviations $Data | Should -Be 'Welcome to the <abbr title="United States Navy">USN</abbr>!'
+        $Text | Add-Metadata -Keyword 'Welcome' -Abbreviations $Data | Should -Be '<span class="keyword" data-keyword="Welcome">Welcome</span> to the <abbr title="United States Navy">USN</abbr>!'
     }
 }
 Describe 'ConvertFrom-ByteArray' -Tag 'Local', 'Remote' {
