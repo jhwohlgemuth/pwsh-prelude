@@ -433,5 +433,22 @@ namespace GraphTests {
             var graph = Graph.Complete(N);
             Assert.True(graph.DegreeMatrix().IsDiagonal());
         }
+        [Fact]
+        public void Can_calculate_shortest_path_length_between_two_nodes() {
+            var graph = Graph.Complete(3);
+            var a = graph.Nodes[0];
+            var b = graph.Nodes[1];
+            var c = graph.Nodes[2];
+            Assert.Equal(1, graph.GetShortestPathLength(a, b));
+            Assert.Equal(1, graph.GetShortestPathLength(a, c));
+            Assert.Equal(1, graph.GetShortestPathLength(b, c));
+            graph = Graph.Ring(7);
+            a = graph.Nodes[0];
+            b = graph.Nodes[3];
+            c = graph.Nodes[6];
+            Assert.Equal(0, graph.GetShortestPathLength(a, a));
+            Assert.Equal(3, graph.GetShortestPathLength(a, b));
+            Assert.Equal(1, graph.GetShortestPathLength(a, c));
+        }
     }
 }

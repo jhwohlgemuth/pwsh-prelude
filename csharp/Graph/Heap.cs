@@ -5,8 +5,17 @@ using System.Collections.Generic;
 namespace Prelude {
     public class Item {
         public int Value;
+        public Node Node;
         public Item(int value = 0) {
             Value = value;
+        }
+        public Item(Node node) {
+            Value = 0;
+            Node = node;
+        }
+        public Item(Node node, int value) {
+            Value = value;
+            Node = node;
         }
         public bool Equals(Item other) {
             if (other == null)
@@ -65,7 +74,16 @@ namespace Prelude {
             Nodes = new List<Item> { };
         }
         public static Heap From(IEnumerable<Item> items) {
-            throw new NotImplementedException();
+            var heap = new Heap();
+            foreach (var item in items)
+                heap.Push(item);
+            return heap;
+        }
+        public static Heap From(IEnumerable<Node> nodes) {
+            var heap = new Heap();
+            foreach (var node in nodes)
+                heap.Push(new Item(node));
+            return heap;
         }
         public static Heap From(IEnumerable<int> values) {
             var heap = new Heap();

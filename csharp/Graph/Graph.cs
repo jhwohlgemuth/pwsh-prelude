@@ -285,6 +285,43 @@ namespace Prelude {
         /// <returns></returns>
         public Node GetNode(string label) => Nodes.Find(x => x.Label == label);
         /// <summary>
+        /// Calculate shortest path between two nodes of a graph
+        /// </summary>
+        /// <param name="start">Starting node</param>
+        /// <param name="end">Ending node</param>
+        /// <returns>List of nodes in shortest path from "start" to "end"</returns>
+        /// <remarks>This function uses Dijkstra's shortest path algorithm</remarks>
+        public List<Node> GetShortestPath(Node start, Node end) {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Calculate length of shortest path between two nodes of a graph
+        /// </summary>
+        /// <param name="start">Starting node</param>
+        /// <param name="end">Ending node</param>
+        /// <returns>Number value equal to sum of weights of every edge in shortest path</returns>
+        /// <remarks>This function uses Dijkstra's shortest path algorithm</remarks>
+        public int GetShortestPathLength(Node start, Node end) {
+            var heap = Heap.From(new List<Node> { start });
+            var visited = new HashSet<Node> { };
+            while (heap.Count > 0) {
+                var current = heap.Pop();
+                var cost = current.Value;
+                Node u = current.Node;
+                if (visited.Contains(u))
+                    continue;
+                if (u == end)
+                    return cost;
+                foreach (Node v in u.Neighbors) {
+                    if (visited.Contains(v))
+                        continue;
+                    var marginalCost = Convert.ToInt32(AdjacencyMatrix[u.Index][v.Index].Real);
+                    heap.Push(new Item(v, cost + marginalCost));
+                }
+            }
+            return -1;
+        }
+        /// <summary>
         /// Remove node from graph
         /// </summary>
         /// <param name="node">Node to remove</param>
