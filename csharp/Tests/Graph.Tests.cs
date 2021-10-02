@@ -449,6 +449,31 @@ namespace GraphTests {
             Assert.Equal(0, graph.GetShortestPathLength(a, a));
             Assert.Equal(3, graph.GetShortestPathLength(a, b));
             Assert.Equal(1, graph.GetShortestPathLength(a, c));
+            graph = new Graph();
+            a = new Node("a");
+            b = new Node("b");
+            c = new Node("c");
+            var d = new Node("d");
+            var e = new Node("e");
+            var f = new Node("f");
+            var g = new Node("g");
+            Edge ab = new Edge(a, b);
+            Edge bc = new Edge(b, c);
+            Edge be = new Edge(b, e);
+            Edge bg = new Edge(b, g);
+            Edge cd = new Edge(c, d);
+            Edge ce = new Edge(c, e);
+            Edge df = new Edge(d, f);
+            Edge gf = new Edge(g, f);
+            graph.Add(a, b, c, d, e, f, g);
+            graph.Add(ab, bc, be, bg, cd, ce, df, gf);
+            Assert.Equal(3, graph.GetShortestPathLength(a, f));
+            Assert.Equal(3, graph.GetShortestPathLength(f, a));
+            Assert.Equal(2, graph.GetShortestPathLength(e, a));
+            Assert.Equal(2, graph.GetShortestPathLength(d, g));
+            Assert.Equal(1, graph.GetShortestPathLength(c, e));
+            graph.Remove(g);
+            Assert.Equal(4, graph.GetShortestPathLength(a, f));
         }
     }
 }
