@@ -228,6 +228,30 @@ function Invoke-Check {
     $Result = if ($Fails -eq 0) { 'pass' } else { 'fail' }
     Write-Message $Result
 }
+function Invoke-Help {
+    [CmdletBinding()]
+    Param()
+    switch (Get-TaskList) {
+        benchmark {
+            Get-Help Invoke-Benchmark -Full
+        }
+        check {
+            Get-Help Invoke-Check -Full
+        }
+        lint {
+            Get-Help Invoke-Lint -Full
+        }
+        test {
+            Get-Help Invoke-Test -Full
+        }
+        build {
+            Get-Help Invoke-Build -Full
+        }
+        publish {
+            Get-Help Invoke-Publish -Full
+        }
+    }
+}
 function Invoke-Lint {
     <#
     .SYNOPSIS
@@ -289,6 +313,57 @@ function Invoke-Lint {
         Invoke-ScriptAnalyzer @Parameters
     }
     "`n" | Write-Output
+}
+function Invoke-Publish {
+    <#
+    .SYNOPSIS
+    Update version and publish module to PowerShell Gallery
+    .PARAMETER DryRun
+    Go through steps without actually making changes or publishing module
+    .PARAMETER Major
+    Designate major version bump (i.e. 1.1.1 -> 2.0.0)
+    .PARAMETER Minor
+    Designate minor version bump (i.e. 1.1.1 -> 1.2.0)
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Publish
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Publish -Major
+    .EXAMPLE
+    .\Invoke-Task.ps1 -Publish -Minor
+    .NOTES
+    When no version switch is used (-Major or -Minor), "build" version will be used (i.e. 1.1.1 -> 1.1.2)
+    #>
+    [CmdletBinding()]
+    Param(
+        [Alias('noop')]
+        [Switch] $DryRun,
+        [Switch] $Major,
+        [Switch] $Minor
+    )
+    $ModulePath = Join-Path $PSScriptRoot 'Prelude'
+    $ProjectManifestPath = Join-Path $ModulePath 'Prelude.psd1'
+    $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
+    $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
+    "${Prefix}==> $ValidateManifest" | Write-Output
+    "${Prefix}==> $ValidateApiKey" | Write-Output
+    $Increment = if ($Major) {
+        'Major'
+    } elseif ($Minor) {
+        'Minor'
+    } else {
+        'Build'
+    }
+    if (-not $DryRun) {
+        "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+        Update-Metadata $ProjectManifestPath -Increment $Increment
+        'Publishing module...' | Write-Output
+        Publish-Module -Path $ModulePath -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
+        "`n==> DONE`n" | Write-Output
+    } else {
+        "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+        "${Prefix}Publishing module..." | Write-Output
+        "${Prefix}==> DONE" | Write-Output
+    }
 }
 function Invoke-Test {
     <#
@@ -358,81 +433,6 @@ function Invoke-Test {
             throw $FailedMessage
         } else {
             Write-Message pass
-        }
-    }
-}
-function Invoke-Publish {
-    <#
-    .SYNOPSIS
-    Update version and publish module to PowerShell Gallery
-    .PARAMETER DryRun
-    Go through steps without actually making changes or publishing module
-    .PARAMETER Major
-    Designate major version bump (i.e. 1.1.1 -> 2.0.0)
-    .PARAMETER Minor
-    Designate minor version bump (i.e. 1.1.1 -> 1.2.0)
-    .EXAMPLE
-    .\Invoke-Task.ps1 -Publish
-    .EXAMPLE
-    .\Invoke-Task.ps1 -Publish -Major
-    .EXAMPLE
-    .\Invoke-Task.ps1 -Publish -Minor
-    .NOTES
-    When no version switch is used (-Major or -Minor), "build" version will be used (i.e. 1.1.1 -> 1.1.2)
-    #>
-    [CmdletBinding()]
-    Param(
-        [Alias('noop')]
-        [Switch] $DryRun,
-        [Switch] $Major,
-        [Switch] $Minor
-    )
-    $ModulePath = Join-Path $PSScriptRoot 'Prelude'
-    $ProjectManifestPath = Join-Path $ModulePath 'Prelude.psd1'
-    $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
-    $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
-    "${Prefix}==> $ValidateManifest" | Write-Output
-    "${Prefix}==> $ValidateApiKey" | Write-Output
-    $Increment = if ($Major) {
-        'Major'
-    } elseif ($Minor) {
-        'Minor'
-    } else {
-        'Build'
-    }
-    if (-not $DryRun) {
-        "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
-        Update-Metadata $ProjectManifestPath -Increment $Increment
-        'Publishing module...' | Write-Output
-        Publish-Module -Path $ModulePath -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
-        "`n==> DONE`n" | Write-Output
-    } else {
-        "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
-        "${Prefix}Publishing module..." | Write-Output
-        "${Prefix}==> DONE" | Write-Output
-    }
-}
-function Invoke-Help {
-    [CmdletBinding()]
-    Param()
-    switch (Get-TaskList) {
-        benchmark {
-            Get-Help Invoke-Benchmark -Full
-        }
-        check {
-            Get-Help Invoke-Check -Full
-        }
-        lint {
-            Get-Help Invoke-Lint -Full
-        }
-        test {
-            Get-Help Invoke-Test -Full
-        }
-        build {
-            Get-Help Invoke-Build -Full
-        }
-        publish {
-            Get-Help Invoke-Publish -Full
         }
     }
 }
