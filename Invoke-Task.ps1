@@ -153,23 +153,27 @@ function Invoke-Build {
         $SystemNumerics = "$([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory())\System.Numerics.dll"
         'Geodetic' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library
         }
         'Matrix' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -target:library -reference:$SystemNumerics -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:$SystemNumerics
         }
         'Node' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory
         }
-        'Edge' | ForEach-Object {
+        'Item' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Node.dll
+        }
+        'Edge', 'PriorityQueue' | ForEach-Object {
+            "==> Building $_ link library" | Write-Output
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -reference:Item.dll
         }
         'DirectedEdge', 'Graph' | ForEach-Object {
             "==> Building $_ link library" | Write-Output
-            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -lib:$OutputDirectory -reference:$SystemNumerics -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -target:library -optimize -nologo
+            & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:$SystemNumerics -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -reference:PriorityQueue.dll
         }
         Write-Message done
     } else {

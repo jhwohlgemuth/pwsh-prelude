@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -142,6 +143,23 @@ namespace GraphTests {
             Assert.Equal(new List<Complex> { 0, 1, 0 }, adjacencyMatrix.Rows[0]);
             Assert.Equal(new List<Complex> { 0, 0, 5 }, adjacencyMatrix.Rows[1]);
             Assert.Equal(new List<Complex> { 0, 0, 0 }, adjacencyMatrix.Rows[2]);
+        }
+        [Fact]
+        public void Can_get_edges() {
+            Graph graph = new();
+            Node a = new("a");
+            Node b = new("b");
+            Node c = new("c");
+            var w = 42;
+            Edge ab = new(a, b, w);
+            Edge bc = new(b, c);
+            graph.Add(a, b, c);
+            graph.Add(ab, bc);
+            Assert.Equal(ab, graph.GetEdge(a, b));
+            Assert.Equal(w, graph.GetEdge(a, b).Weight);
+            Assert.NotEqual(ab, graph.GetEdge(a, c));
+            Assert.Equal(ab, graph.GetEdge(a.Id, b.Id));
+            Assert.Equal(ab, graph.GetEdge(a.Label, b.Label));
         }
         [Fact]
         public void Can_get_nodes() {
@@ -453,18 +471,18 @@ namespace GraphTests {
             a = new Node("a");
             b = new Node("b");
             c = new Node("c");
-            var d = new Node("d");
-            var e = new Node("e");
-            var f = new Node("f");
-            var g = new Node("g");
-            Edge ab = new Edge(a, b);
-            Edge bc = new Edge(b, c);
-            Edge be = new Edge(b, e);
-            Edge bg = new Edge(b, g);
-            Edge cd = new Edge(c, d);
-            Edge ce = new Edge(c, e);
-            Edge df = new Edge(d, f);
-            Edge gf = new Edge(g, f);
+            Node d = new("d");
+            Node e = new("e");
+            Node f = new("f");
+            Node g = new("g");
+            Edge ab = new(a, b);
+            Edge bc = new(b, c);
+            Edge be = new(b, e);
+            Edge bg = new(b, g);
+            Edge cd = new(c, d);
+            Edge ce = new(c, e);
+            Edge df = new(d, f);
+            Edge gf = new(g, f);
             graph.Add(a, b, c, d, e, f, g);
             graph.Add(ab, bc, be, bg, cd, ce, df, gf);
             Assert.Equal(3, graph.GetShortestPathLength(a, f));
@@ -472,8 +490,46 @@ namespace GraphTests {
             Assert.Equal(2, graph.GetShortestPathLength(e, a));
             Assert.Equal(2, graph.GetShortestPathLength(d, g));
             Assert.Equal(1, graph.GetShortestPathLength(c, e));
+            Assert.Equal(3, graph.GetShortestPathLength("a", "f"));
+            Assert.Equal(3, graph.GetShortestPathLength("f", "a"));
+            Assert.Equal(2, graph.GetShortestPathLength("e", "a"));
+            Assert.Equal(2, graph.GetShortestPathLength("d", "g"));
+            Assert.Equal(1, graph.GetShortestPathLength("c", "e"));
             graph.Remove(g);
             Assert.Equal(4, graph.GetShortestPathLength(a, f));
+        }
+        [Fact]
+        public void Can_calculate_the_shortest_path_using_Dijkstra_algorithm() {
+            var graph = Graph.Complete(3);
+            Node x = graph.Nodes[0];
+            Node y = graph.Nodes[1];
+            Node z = graph.Nodes[2];
+            Assert.Equal(new List<Node> { x, y }, graph.GetShortestPath(x, y));
+            Assert.Equal(new List<Node> { x, z }, graph.GetShortestPath(x, z));
+            graph = new Graph();
+            Node a = new("a");
+            Node b = new("b");
+            Node c = new("c");
+            Node d = new("d");
+            Node e = new("e");
+            Node f = new("f");
+            Node g = new("g");
+            Edge ab = new(a, b);
+            Edge bc = new(b, c);
+            Edge be = new(b, e);
+            Edge bg = new(b, g);
+            Edge cd = new(c, d);
+            Edge ce = new(c, e);
+            Edge df = new(d, f);
+            Edge gf = new(g, f);
+            graph.Add(a, b, c, d, e, f, g);
+            graph.Add(ab, bc, be, bg, cd, ce, df, gf);
+            Assert.Equal(new List<Node> { a, b, g }, graph.GetShortestPath(a, g));
+            Assert.Equal(new List<Node> { e, b, g, f }, graph.GetShortestPath(e, f));
+            Assert.Equal(new List<Node> { a, b, g }, graph.GetShortestPath("a", "g"));
+            Assert.Equal(new List<Node> { e, b, g, f }, graph.GetShortestPath("e", "f"));
+            graph.Remove(g);
+            Assert.Equal(new List<Node> { e, c, d, f }, graph.GetShortestPath(e, f));
         }
     }
 }

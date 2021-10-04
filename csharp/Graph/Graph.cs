@@ -4,12 +4,13 @@ using static System.Linq.Enumerable;
 
 namespace Prelude {
     public class Graph {
-        public Guid Id;
+        public readonly Guid Id;
         public List<Node> Nodes = new List<Node> { };
         public List<Edge> Edges = new List<Edge> { };
+        private int[] _PathData = Array.Empty<int>();
+        private Node _PathSourceNode = new();
         private Matrix _AdjacencyMatrix;
         public Matrix AdjacencyMatrix => _AdjacencyMatrix;
-
         public float Density {
             get {
                 var multiplier = Edges.Exists(e => e.IsDirected) ? 1 : 2;
@@ -106,6 +107,11 @@ namespace Prelude {
             Add(nodes);
             Add(edges);
         }
+        private Graph ResetGraphData() {
+            _PathData = Array.Empty<int>();
+            _PathSourceNode = new();
+            return this;
+        }
         /// <summary>
         /// Add nodes and edges from an another graph object
         /// </summary>
@@ -118,8 +124,10 @@ namespace Prelude {
             return this;
         }
         private bool Add(Node node) {
-            if (!Contains(node))
+            if (!Contains(node)) {
                 Nodes.Add(node);
+                ResetGraphData();
+            }
             return Contains(node);
         }
         private bool Add(Edge edge) {
@@ -130,6 +138,7 @@ namespace Prelude {
                 source.Neighbors.Add(target);
                 target.Neighbors.Add(source);
                 UpdateAdjacencyMatrix();
+                ResetGraphData();
             }
             return Contains(edge);
         }
@@ -212,8 +221,10 @@ namespace Prelude {
             foreach (var edge in edges)
                 if (!Contains(edge))
                     Changed = Add(edge);
-            if (Changed)
+            if (Changed) {
                 UpdateAdjacencyMatrix();
+                ResetGraphData();
+            }
         }
         private void AddNodes(IEnumerable<Node> nodes) {
             bool Changed = false;
@@ -223,6 +234,7 @@ namespace Prelude {
             if (Changed) {
                 UpdateNodeIndexValues();
                 UpdateAdjacencyMatrix();
+                ResetGraphData();
             }
         }
         /// <summary>
@@ -233,7 +245,7 @@ namespace Prelude {
         public Graph Clear() {
             Nodes.Clear();
             Edges.Clear();
-            return this;
+            return ResetGraphData();
         }
         /// <summary>
         /// Check if the graph contains the passed node
@@ -267,6 +279,74 @@ namespace Prelude {
             return temp;
         }
         /// <summary>
+        /// Use Dijkstra shortest path algorithm to generate shortest path data
+        /// </summary>
+        /// <param name="source">Starting node</param>
+        /// <returns>Integer array of node indices</returns>
+        private int[] Dijkstra(Node source) {
+            var pathData = (new int[Nodes.Count]).Select(i => -1).ToArray();
+            var distance = new double[Nodes.Count];
+            distance[source.Index] = 0;
+            var q = new PriorityQueue();
+            q.Insert(0, source);
+            foreach (var u in Nodes) {
+                if (u != source) {
+                    pathData[u.Index] = -1;
+                    distance[u.Index] = double.MaxValue;
+                }
+            }
+            while (!q.IsEmpty()) {
+                var u = q.ExtractMinimum();
+                foreach (Node v in u.Neighbors) {
+                    var w = GetEdgeWeight(u, v);
+                    var updatedDistance = distance[u.Index] + w;
+                    if (distance[v.Index] > updatedDistance) {
+                        if (distance[v.Index] == double.MaxValue)
+                            q.Insert(updatedDistance, v);
+                        else
+                            q.DecreaseKey(v, updatedDistance);
+                        distance[v.Index] = updatedDistance;
+                        pathData[v.Index] = u.Index;
+                    }
+                }
+            }
+            return pathData;
+        }
+        /// <summary>
+        /// Get reference to edge with passed source and target nodes
+        /// </summary>
+        /// <param name="source">Source node</param>
+        /// <param name="target">Target node</param>
+        /// <returns>Edge</returns>
+        public Edge GetEdge(Node source, Node target) => Edges.Find(e => e.Source == source && e.Target == target);
+        /// <summary>
+        /// Get reference to edge with passed source and target node GUIDs
+        /// </summary>
+        /// <param name="sourceId">Source node GUID</param>
+        /// <param name="targetId">Target node GUID</param>
+        /// <returns>Edge</returns>
+        public Edge GetEdge(Guid sourceId, Guid targetId) => GetEdge(GetNode(sourceId), GetNode(targetId));
+        /// <summary>
+        /// Get reference to edge with passed source and target node string labels
+        /// </summary>
+        /// <param name="sourceLabel">Source node label</param>
+        /// <param name="targetLabel">Target node label</param>
+        /// <returns>Edge</returns>
+        public Edge GetEdge(string sourceLabel, string targetLabel) => GetEdge(GetNode(sourceLabel), GetNode(targetLabel));
+        /// <summary>
+        /// Get weight of edge given the associated edge's source and target nodes
+        /// </summary>
+        /// <param name="source">Source node</param>
+        /// <param name="target">Target node</param>
+        /// <returns>Weight of edge with associated source and target nodes</returns>
+        public double GetEdgeWeight(Node source, Node target) {
+            if (Contains(source) && Contains(target))
+                return AdjacencyMatrix[source.Index][target.Index].Real;
+            else
+                throw new ArgumentException("Graph does not contain source and/or target node");
+        }
+
+        /// <summary>
         /// Get reference to node using node object
         /// </summary>
         /// <param name="node">Node to get</param>
@@ -276,51 +356,72 @@ namespace Prelude {
         /// Get reference to node using node ID property
         /// </summary>
         /// <param name="id">ID to use to get node</param>
-        /// <returns></returns>
+        /// <returns>Node</returns>
         public Node GetNode(Guid id) => Nodes.Find(x => x.Id == id);
         /// <summary>
         /// Get reference to node using node label
         /// </summary>
         /// <param name="label">Label value to use to get node</param>
-        /// <returns></returns>
+        /// <returns>Node</returns>
         public Node GetNode(string label) => Nodes.Find(x => x.Label == label);
         /// <summary>
         /// Calculate shortest path between two nodes of a graph
         /// </summary>
-        /// <param name="start">Starting node</param>
-        /// <param name="end">Ending node</param>
-        /// <returns>List of nodes in shortest path from "start" to "end"</returns>
+        /// <param name="source">Starting node</param>
+        /// <param name="target">Ending node</param>
+        /// <param name="update">Whether or not to force re-calculate path data using Dijkstra()</param>
+        /// <returns>List of nodes</returns>
         /// <remarks>This function uses Dijkstra's shortest path algorithm</remarks>
-        public List<Node> GetShortestPath(Node start, Node end) {
-            throw new NotImplementedException();
+        public List<Node> GetShortestPath(Node source, Node target, bool update = false) {
+            if (update || (_PathSourceNode != source))
+                _PathData = Dijkstra(source);
+            var shortestPath = new List<Node> { };
+            var cost = 0.0;
+            var temp = target;
+            while (_PathData[temp.Index] != -1) {
+                shortestPath.Add(temp);
+                if (temp != source) {
+                    foreach (var v in temp.Neighbors) {
+                        if (v.Index == _PathData[temp.Index]) {
+                            cost += GetEdgeWeight(temp, v);
+                            break;
+                        }
+                    }
+                }
+                temp = Nodes[_PathData[temp.Index]];
+            }
+            shortestPath.Add(source);
+            shortestPath.Reverse();
+            return shortestPath;
+        }
+        /// <summary>
+        /// Calculate shortest path between two nodes of a graph
+        /// </summary>
+        /// <param name="source">String label of source node</param>
+        /// <param name="target">String label of target node</param>
+        /// <param name="update">Flag to force update of path data</param>
+        /// <returns>List of nodes</returns>
+        public List<Node> GetShortestPath(string source, string target, bool update = false) => GetShortestPath(GetNode(source), GetNode(target), update);
+        /// <summary>
+        /// Calculate length of shortest path between two nodes of a graph
+        /// </summary>
+        /// <param name="source">Source node</param>
+        /// <param name="target">Target node</param>
+        /// <returns>Number value equal to sum of weights of every edge in shortest path</returns>
+        public double GetShortestPathLength(Node source, Node target) {
+            var edge = GetEdge(source, target);
+            if (Contains(edge))
+                return 1;
+            else
+                return GetShortestPath(source, target).Count - 1;
         }
         /// <summary>
         /// Calculate length of shortest path between two nodes of a graph
         /// </summary>
-        /// <param name="start">Starting node</param>
-        /// <param name="end">Ending node</param>
+        /// <param name="source">String label of source node</param>
+        /// <param name="target">String label of target node</param>
         /// <returns>Number value equal to sum of weights of every edge in shortest path</returns>
-        /// <remarks>This function uses Dijkstra's shortest path algorithm</remarks>
-        public int GetShortestPathLength(Node start, Node end) {
-            var heap = Heap.From(new List<Node> { start });
-            var visited = new HashSet<Node> { };
-            while (heap.Count > 0) {
-                var current = heap.Pop();
-                var cost = current.Value;
-                Node u = current.Node;
-                if (visited.Contains(u))
-                    continue;
-                if (u == end)
-                    return cost;
-                foreach (Node v in u.Neighbors) {
-                    if (visited.Contains(v))
-                        continue;
-                    var marginalCost = Convert.ToInt32(AdjacencyMatrix[u.Index][v.Index].Real);
-                    heap.Push(new Item(v, cost + marginalCost));
-                }
-            }
-            return -1;
-        }
+        public double GetShortestPathLength(string source, string target) => GetShortestPathLength(GetNode(source), GetNode(target));
         /// <summary>
         /// Remove node from graph
         /// </summary>
@@ -332,6 +433,7 @@ namespace Prelude {
             Nodes.Remove(node);
             UpdateNodeIndexValues();
             UpdateAdjacencyMatrix();
+            ResetGraphData();
             return this;
         }
         /// <summary>
@@ -352,6 +454,7 @@ namespace Prelude {
             Nodes.Add(source);
             Nodes.Add(target);
             UpdateAdjacencyMatrix();
+            ResetGraphData();
             return this;
         }
         private void UpdateAdjacencyMatrix() {
