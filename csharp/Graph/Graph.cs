@@ -284,7 +284,7 @@ namespace Prelude {
         /// <param name="source">Starting node</param>
         /// <returns>Integer array of node indices</returns>
         private int[] Dijkstra(Node source) {
-            var pathData = (new int[Nodes.Count]).Select(i => -1).ToArray();
+            var pathData = Range(0, Nodes.Count).Select(i => -1).ToArray();
             var distance = new double[Nodes.Count];
             distance[source.Index] = 0;
             var q = new PriorityQueue();
