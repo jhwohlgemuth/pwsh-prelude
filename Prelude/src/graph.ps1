@@ -83,10 +83,10 @@
             $Tab = if ($Compress) { '' } else { '    ' }
             $Header = "<?xml version=`"1.0`" encoding=`"UTF-8`"?>${Break}"
             $Result = "${Header}<Graph>${Break}${Tab}<Edges>${Break}"
-            $Edges = $Graph.Edges | ForEach-Object {
-                $EdgeOpen = "<Edge id=`"$($_.Id)`" weight=`"$($_.Weight)`" directed=`"$($_.IsDirected.ToString().ToLower())`">${Break}"
-                $Source = "${Tab}${Tab}${Tab}<Node type=`"source`" id=`"$($_.Source.Id)`" label=`"$($_.Source.Label)`"/>"
-                $Target = "${Tab}${Tab}${Tab}<Node type=`"target`" id=`"$($_.Target.Id)`" label=`"$($_.Target.Label)`"/>"
+            $Edges = foreach ($Edge in $Graph.Edges) {
+                $EdgeOpen = "<Edge id=`"$($Edge.Id)`" weight=`"$($Edge.Weight)`" directed=`"$($Edge.IsDirected.ToString().ToLower())`">${Break}"
+                $Source = "${Tab}${Tab}${Tab}<Node type=`"source`" id=`"$($Edge.Source.Id)`" label=`"$($Edge.Source.Label)`"/>"
+                $Target = "${Tab}${Tab}${Tab}<Node type=`"target`" id=`"$($Edge.Target.Id)`" label=`"$($Edge.Target.Label)`"/>"
                 "${Tab}${Tab}${EdgeOpen}${Source}${Break}${Target}${Break}${Tab}${Tab}</Edge>"
             }
             $Result += ($Edges -join $Break)
@@ -98,7 +98,8 @@
             foreach ($Edge in $Graph.Edges) {
                 $Source = $Edge.Source
                 $Target = $Edge.Target
-                $Arrow = if ($Edge.IsDirected) { '-->' } else { '---' }
+                $Weight = $Edge.Weight
+                $Arrow = if ($Edge.IsDirected) { "-- $Weight -->" } else { "-- $Weight ---" }
                 $Result += "`t$($Source.Id)[$($Source.Label)] ${Arrow} $($Target.Id)[$($Target.Label)]`n"
             }
         }
@@ -164,16 +165,16 @@ function Import-GraphData {
         'MMD' {
             $IsNotSquareBracket = { Param($X) $X -ne '[' }
             $_, $Lines = (Get-Content -Path $FilePath) -split "`n" | Invoke-Method 'Trim' | Deny-Empty
-            $Data = $Lines | Invoke-Operator split ' ' | Invoke-Chunk -Size 3
+            $Data = $Lines | Invoke-Operator split '\s+' | Invoke-Chunk -Size 5
             foreach ($Item in $Data) {
                 $SourceLabel = if (($Item[0] -match '\[.*\]')) { $Matches[0] } else { 'source' }
-                $TargetLabel = if (($Item[1] -match '\[.*\]')) { $Matches[0] } else { 'target' }
+                $TargetLabel = if (($Item[4] -match '\[.*\]')) { $Matches[0] } else { 'target' }
                 $Source = [Node]::New(($Item[0] | Invoke-TakeWhile $IsNotSquareBracket), $SourceLabel)
-                $Target = [Node]::New(($Item[2] | Invoke-TakeWhile $IsNotSquareBracket), $TargetLabel)
+                $Target = [Node]::New(($Item[4] | Invoke-TakeWhile $IsNotSquareBracket), $TargetLabel)
                 $From = Get-Node -Graph $Graph -Node $Source
                 $To = Get-Node -Graph $Graph -Node $Target
-                $IsDirected = if ($Item[1] -eq '-->') { $True } else { $False }
-                $Edge = New-Edge -From $From -To $To -Weight 1 -Directed:$IsDirected
+                $IsDirected = $Item[3] -eq '-->'
+                $Edge = New-Edge -From $From -To $To -Weight $Item[2] -Directed:$IsDirected
                 $Graph.Add($From, $To).Add($Edge) | Out-Null
             }
         }

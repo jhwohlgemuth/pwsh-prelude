@@ -10,7 +10,7 @@ Describe 'Graph export helper functions' -Tag 'Local', 'Remote' {
             $B = [Node]::New('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'b')
             $C = [Node]::New('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c')
             $AB = New-Edge $A $B
-            $AC = New-Edge $A $C -Directed
+            $AC = New-Edge $A $C -Directed -Weight 42
             $BC = New-Edge $B $C
             $Edges = $AB, $BC, $AC
             $Graph = [Graph]::New($Edges)
@@ -33,7 +33,7 @@ Describe 'Graph export helper functions' -Tag 'Local', 'Remote' {
         $Graph.Edges | Should -HaveCount 3
     }
     It 'can export graph objects to CSV format strings' {
-        $Expected = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,True`n"
+        $Expected = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,42,True`n"
         $G | Export-GraphData -CSV -PassThru | Should -Be $Expected
         $G | Export-GraphData -Format 'CSV' -PassThru | Should -Be $Expected
     }
@@ -45,7 +45,7 @@ Describe 'Graph export helper functions' -Tag 'Local', 'Remote' {
         $Data.Graph.Edges.Edge | Should -HaveCount 3
     }
     It 'can export graph objects to mermaid format strings' {
-        $Expected = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
+        $Expected = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] -- 1 --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] -- 1 --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] -- 42 --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
         $G | Export-GraphData -Mermaid -PassThru | Should -Be $Expected
         $G | Export-GraphData -Format 'Mermaid' -PassThru | Should -Be $Expected
     }
@@ -57,8 +57,8 @@ Describe 'Graph import helper functions' -Tag 'Local', 'Remote' {
             $B = [Node]::New('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'b')
             $C = [Node]::New('cccccccc-cccc-cccc-cccc-cccccccccccc', 'c')
             $AB = New-Edge $A $B
-            $AC = New-Edge $A $C -Directed
-            $BC = New-Edge $B $C
+            $AC = New-Edge $A $C -Directed -Weight 42
+            $BC = New-Edge $B $C -Weight 5
             $Edges = $AB, $BC, $AC
             $Graph = [Graph]::New($Edges)
             $Graph
@@ -72,13 +72,14 @@ Describe 'Graph import helper functions' -Tag 'Local', 'Remote' {
         $Graph.Nodes.Count | Should -Be 3
         $Graph.Edges.Count | Should -Be 3
         $Graph.Edges.IsDirected | Should -Be $False, $False, $True
+        $Graph.Edges.Weight | Should -Be 1, 5, 42
         foreach ($Node in $Graph.Nodes) {
             $Node.Neighbors | Should -HaveCount 2
         }
     }
     It 'can import graph objects from CSV file' {
         $Path = Join-Path $TestDrive 'file.csv'
-        $Data = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,1,True`n"
+        $Data = "SourceId,SourceLabel,TargetId,TargetLabel,Weight,IsDirected`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,1,False`nbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb,b,cccccccc-cccc-cccc-cccc-cccccccccccc,c,5,False`naaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa,a,cccccccc-cccc-cccc-cccc-cccccccccccc,c,42,True`n"
         $Data | Out-File -FilePath $Path
     }
     It 'can import graph objects from JSON file' {
@@ -87,7 +88,7 @@ Describe 'Graph import helper functions' -Tag 'Local', 'Remote' {
     }
     It 'can import graph objects from Mermaid file' {
         $Path = Join-Path $TestDrive 'file.mmd'
-        $Data = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
+        $Data = "graph TD`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] --   1 --- bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b]`n`tbbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb[b] -- 5  --- cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n`taaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa[a] -- 42 --> cccccccc-cccc-cccc-cccc-cccccccccccc[c]`n"
         $Data | Out-File -FilePath $Path
     }
     It 'can import graph objects from XML file' {
