@@ -127,7 +127,10 @@ namespace Prelude {
             return sum;
         }
         public static Matrix operator +(Matrix left, Matrix right) => Add(left, right);
+        public static Matrix operator +(Matrix left, Complex right) => Add(left, Fill(left.Clone(), right));
+        public static Matrix operator +(Complex left, Matrix right) => Add(Fill(right.Clone(), left), right);
         public static Matrix operator -(Matrix minuend, Matrix subtrahend) => Add(minuend, Multiply(subtrahend, -1));
+        public static Matrix operator -(Matrix minuend, Complex subtrahend) => Add(minuend, Multiply(Fill(minuend.Clone(), subtrahend), -1));
         /// <summary>
         /// Calculate classical adjoint matrix (also known as adjugate) of a given matrix
         /// </summary>

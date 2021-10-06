@@ -423,6 +423,40 @@ namespace MatrixTests {
         }
         [Theory]
         [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public void Can_add_matrices_and_integers_with_operators(int N) {
+            var sum = new Matrix(N);
+            for (var i = 0; i < N; ++i) {
+                sum += 1;
+            }
+            var expected = new Complex[N];
+            Array.Fill(expected, N);
+            foreach (var Row in sum.Rows)
+                Assert.Equal(expected, Row);
+            sum = new Matrix(N);
+            for (var i = 0; i < N; ++i) {
+                sum = 1 + sum;
+            }
+            foreach (var Row in sum.Rows)
+                Assert.Equal(expected, Row);
+        }
+        [Theory]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        public void Can_subtract_integers_from_matrices_with_operators(int N) {
+            var sum = Matrix.Fill(new Matrix(N), N);
+            for (var i = 0; i < N; ++i) {
+                sum -= 1;
+            }
+            var expected = new Complex[N];
+            Array.Fill(expected, 0);
+            foreach (var Row in sum.Rows)
+                Assert.Equal(expected, Row);
+        }
+        [Theory]
+        [InlineData(2)]
         [InlineData(10)]
         [InlineData(16)]
         public void Can_subtract_matrices_with_operators(int N) {
