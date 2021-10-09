@@ -52,6 +52,7 @@ Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (most
 Things You Can Do With Prelude
 ------------------------------
 > Although `Prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
+
 - List all permutations of a word
 ```Powershell
 'cat' | Get-Permutation
@@ -64,6 +65,10 @@ Things You Can Do With Prelude
 $Abc = 'b' | insert -To 'ac' -At 2
 $Abc = 'abcd' | remove -Last
 ```
+- Create templates for easy repetitive string interpolation using handlebars syntax
+  <div align="center">
+      <a href="#"><img alt="Templates are easy and can be nested!" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/template.gif" alt="String interpolation templates" width="1280"/></a>
+  </div>
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
 ```Powershell
 $Sum = 1..100 | reduce { Param($A, $B) $A + $B }
@@ -320,6 +325,11 @@ Type Accelerators
   > **Note:** Full class name is `Prelude.Geodetic.Datum`
 - `[Matrix]`
   > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#4)</sup>
+
+  <div align="center">
+      <a href="#"><img alt="Matrix arithmetic is so easy!" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/matrix.gif" alt="Matrix math!" width="1280"/></a>
+  </div>
+
   ```PowerShell
   $A = [Matrix]::New(3)
   $A.Rows = 1..9
