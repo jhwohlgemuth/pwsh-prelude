@@ -1289,8 +1289,10 @@ function New-RegexString {
             'December'
         )
         $DD = '(0[1-9])|(1[0-9])|(2[0-9])|(3[0-1])'
+        $DD_alt = '(((\b[1-9])|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)\b)'
         $Day = '(1(st)?)|(2(nd)?)|(3(rd)?)|([4-9](th)?)'
         $MM = '(0(1|2|3|4|5|6|7|8|9))|(10)|(11)|(12)'
+        $MM_alt = '(((\b[1-9])|01|02|03|04|05|06|07|08|09|10|11|12)\b)'
         $MMM = $Month |
             ForEach-Object { $_.Substring(0, 3) } |
             Invoke-Reduce { Param($Str, $Mon) "$Str|$Mon|$($Mon.toUpper())" }
@@ -1314,14 +1316,14 @@ function New-RegexString {
             # DD Month YY
             # D Month YYYY
             # DD Month YYYY
-            "(?<day>(((\b[1-9])|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)\b))\s+(?<month>($Months))\s+(?<year>($YYYY))"
+            "(?<day>$DD_alt)\s+(?<month>($Months))\s+(?<year>($YYYY))"
             # MM.DD.YY
             # MM.DD.YYYY
             # MM/DD/YY
             # MM/DD/YYYY
             # MM-DD-YY
             # MM-DD-YYYY
-            "(?<month>$MM)[./-](?<day>$DD)[./-](?<year>$YYYY)"
+            "(?<month>$MM_alt)[./-](?<day>$DD)[./-](?<year>$YYYY)"
             # DD MM YYYY
             "(?<day>$DD) (?<month>$MM) (?<year>$YYYY)"
         ) -join '|'
