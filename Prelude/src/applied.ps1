@@ -97,8 +97,22 @@ function Get-Extremum {
                 [Array] $Values
             )
             if ($Values.Count -gt 0) {
-                $Type = Find-FirstTrueVariable 'Maximum', 'Minimum'
-                $Values | Measure-Object -Maximum:$Maximum -Minimum:$Minimum | ForEach-Object { $_.$Type }
+                if ($Values[0] | Test-Match -Date) {
+                    $Sorted = $Values | Sort-Object { [System.DateTime]::Parse($_) }
+                    $Parameters = if ($Minimum) {
+                        @{ First = 1 }
+                    } else {
+                        @{ Last = 1 }
+                    }
+                    $Sorted | Select-Object @Parameters
+                } else {
+                    $Type = Find-FirstTrueVariable 'Maximum', 'Minimum'
+                    $Parameters = @{
+                        Maximum = $Maximum
+                        Minimum = $Minimum
+                    }
+                    $Values | Measure-Object @Parameters | ForEach-Object { $_.$Type }
+                }
             }
         }
         Invoke-GetExtremum $InputObject
@@ -191,7 +205,7 @@ function Get-Maximum {
     )
     Begin {
         if ($Values.Count -gt 0) {
-            Get-Extremum -Maximum $Values
+            $Values | Get-Extremum -Maximum
         }
     }
     End {
@@ -314,7 +328,7 @@ function Get-Minimum {
     )
     Begin {
         if ($Values.Count -gt 0) {
-            Get-Extremum -Minimum $Values
+            $Values | Get-Extremum -Minimum
         }
     }
     End {

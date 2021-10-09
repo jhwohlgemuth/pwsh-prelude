@@ -902,6 +902,8 @@ Describe 'Test-Match (date)' -Tag 'Local', 'Remote' {
         @{ Value = '07.04.20' }
         @{ Value = '07.04.1776' }
         @{ Value = '07/04/1776' }
+        @{ Value = '9/24/2010' }
+        @{ Value = '12/24/2010' }
         @{ Value = '07-04-1776' }
         @{ Value = 'July 4th, 1776' }
         @{ Value = 'July 4, 1776' }
