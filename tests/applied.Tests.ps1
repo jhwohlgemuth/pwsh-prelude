@@ -34,6 +34,18 @@ Describe 'Get-Extremum' -Tag 'Local', 'Remote' {
         Get-Extremum -Min $Values | Should -Be $Min
         0, -1, 4, 2, 7, 2, 0 | Get-Extremum -Min | Should -Be -1
     }
+    It 'can return minimum or maximum value from array of date values' {
+        $Min = '10/11/1492'
+        $Max = '10/10/2021'
+        $DateStrings = '9/24/2010', $Max, '02/03/2018', $Min
+        $DateStrings | Get-Minimum | Should -Be $Min
+        $DateStrings | Get-Maximum | Should -Be $Max
+        $Min = [DateTime]'1492-10-11'
+        $Max = [DateTime]'2021-10-10'
+        $DateValues = $DateStrings | ForEach-Object { [DateTime]::Parse($_) }
+        $DateValues | Get-Minimum | Should -Be $Min
+        $DateValues | Get-Maximum | Should -Be $Max
+    }
     It 'Get-Maximum' {
         $Max = 5
         $Values = 1, 2, 2, 1, $Max, 2, 3
