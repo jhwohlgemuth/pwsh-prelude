@@ -237,6 +237,10 @@ Example #5
 ----------
 > Estimate the "Golden Ratio" using matrices and the Fibonacci Sequence
 
+<div align="center">
+    <a href="#"><img alt="Eigenvalues with matrices" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/eigenvalue.gif" alt="Eigenvalue with matrices" width="1280"/></a>
+</div>
+
 First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" title="\begin{matrix} F_{k + 2} = F_{k + 1} + F_{k}\\ F_{k + 1} = F_{k + 1} \end{matrix}" /></a>
