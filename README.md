@@ -1,4 +1,4 @@
-Powershell Prelude <sup>[[1]](#1)</sup>
+Powershell Prelude <sup>[1](#1)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
 [![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/pwsh-prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude)
@@ -30,7 +30,7 @@ What is Prelude?
 ----------------
 > Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better.
 
-PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[[5]](#5)</sup> the typical use cases. Use cases are varied and include:
+PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[5](#5)</sup> the typical use cases. Use cases are varied and include:
 - Linear algebra, graph theory, and statistics
 - Data shaping, analysis, and visualization
 - Local and remote automation
@@ -44,10 +44,10 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 So what, big deal, who cares?
 -----------------------------
 
-This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[[6]](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[[7]](#7)</sup> without system/administrator/root privileges.
+This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[6](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[7](#7)</sup> without system/administrator/root privileges.
 > For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
-Naturally, it has ***ZERO external dependencies***<sup>[[2]](#2)</sup> and (mostly) works on Linux<sup>[[3]](#3)</sup> ;)
+Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly) works on Linux<sup>[3](#3)</sup> ;)
 
 Things You Can Do With Prelude
 ------------------------------
@@ -75,7 +75,7 @@ $Sum = 1..100 | reduce -Add
 ```Powershell
 { whoami } | irc -ComputerNames PCNAME
 ```
-- Make your computer talk <sup>[[3]](#3)</sup>
+- Make your computer talk <sup>[3](#3)</sup>
 ```Powershell
 say 'Hello World'
 ```
@@ -198,7 +198,7 @@ Functions
   - `Get-SyllableCount`
   - `Get-Variance`
   - `Import-Excel`
-  - `Import-Html` <sup>[[3]](#3)</sup>
+  - `Import-Html` <sup>[3](#3)</sup>
   - `Import-Raw`
   - `Invoke-Chunk`
   - `Invoke-DropWhile`
@@ -208,7 +208,7 @@ Functions
   - `Invoke-Input`
   - `Invoke-InsertString`
   - `Invoke-ListenTo`
-  - `Invoke-ListenForWord` <sup>[[3]](#3)</sup>
+  - `Invoke-ListenForWord` <sup>[3](#3)</sup>
   - `Invoke-MatrixMap`
   - `Invoke-Menu`
   - `Invoke-Method`
@@ -225,7 +225,7 @@ Functions
   - `Invoke-Repeat`
   - `Invoke-RemoteCommand`
   - `Invoke-RunApplication`
-  - `Invoke-Speak` <sup>[[3]](#3)</sup>
+  - `Invoke-Speak` <sup>[3](#3)</sup>
   - `Invoke-TakeWhile`
   - `Invoke-Tap`
   - `Invoke-Unpack`
@@ -258,9 +258,9 @@ Functions
   - `Test-SymmetricMatrix`
   - `Test-Url`
   - `Update-HostsFile`
-  - `Use-Grammar` <sup>[[3]](#3)</sup>
-  - `Use-Speech` <sup>[[3]](#3)</sup>
-  - `Use-Web` <sup>[[3]](#3)</sup>
+  - `Use-Grammar` <sup>[3](#3)</sup>
+  - `Use-Speech` <sup>[3](#3)</sup>
+  - `Use-Web` <sup>[3](#3)</sup>
   - `Write-BarChart`
   - `Write-Color`
   - `Write-Label`
@@ -319,7 +319,7 @@ Type Accelerators
   ```
   > **Note:** Full class name is `Prelude.Geodetic.Datum`
 - `[Matrix]`
-  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#4)</sup>
+  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[4](#4)</sup>
   ```PowerShell
   $A = [Matrix]::New(3)
   $A.Rows = 1..9
