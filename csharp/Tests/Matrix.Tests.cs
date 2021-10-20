@@ -591,7 +591,7 @@ namespace MatrixTests {
         [Theory]
         [InlineData(1)]
         [InlineData(7)]
-        public void Can_multiply_matrix_by_scalar_constant(int k) {
+        public void Can_multiply_matrix_by_scalar(int k) {
             var sum = new Matrix(2);
             var identity = Matrix.Identity(2);
             for (var i = 0; i < k; ++i) {
@@ -599,6 +599,10 @@ namespace MatrixTests {
             }
             var A = Matrix.Identity(2);
             var product = A * k;
+            Assert.Equal(sum.Rows, product.Rows);
+            Assert.Equal(new Complex[] { k, 0 }, product[0]);
+            Assert.Equal(new Complex[] { 0, k }, product[1]);
+            product = k * A;
             Assert.Equal(sum.Rows, product.Rows);
             Assert.Equal(new Complex[] { k, 0 }, product[0]);
             Assert.Equal(new Complex[] { 0, k }, product[1]);
