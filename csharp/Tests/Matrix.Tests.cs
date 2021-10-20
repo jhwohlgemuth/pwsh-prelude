@@ -825,35 +825,27 @@ namespace MatrixTests {
             Assert.Equal(new List<Complex> { 0.5773502691896258, 0.5773502691896258 }, normalized[0]);
             Assert.Equal(new List<Complex> { 0.5773502691896258, 0 }, normalized[1]);
         }
-        //[Fact(Skip = "Does not support Complex numbers")]
-        //public void Can_calculate_dominant_eigenvector() {
-        //    var A = new Matrix(2);
-        //    double[,] rows = new double[,] {
-        //        { 1, 1 },
-        //        { 1, 0 }
-        //    };
-        //    foreach (var Index in A.Indexes()) {
-        //        int i = Index[0], j = Index[1];
-        //        A[i][j] = rows[i, j];
-        //    }
-        //    var eigenvector = A.Eigenvector();
-        //    Assert.Equal(0.8507, eigenvector[0][0], 4);
-        //    Assert.Equal(0.5257, eigenvector[1][0], 4);
-        //}
-        //[Fact(Skip = "Does not support Complex numbers")]
-        //public void Can_calculate_dominant_eigenvalue() {
-        //    var A = new Matrix(2);
-        //    double[,] rows = new double[,] {
-        //        { 1, 1 },
-        //        { 1, 0 }
-        //    };
-        //    foreach (var Index in A.Indexes()) {
-        //        int i = Index[0], j = Index[1];
-        //        A[i][j] = rows[i, j];
-        //    }
-        //    var eigenvalue = A.Eigenvalue();
-        //    Assert.Equal(1.618, eigenvalue, 3);
-        //}
+        [Fact]
+        public void Can_calculate_dominant_eigenvector_with_power_method() {
+            var A = new Matrix(2);
+            Helpers.Populate(A, new double[,] {
+                { 1, 1 },
+                { 1, 0 }
+            });
+            var eigenvector = A.Eigenvector();
+            Assert.Equal(0.8507, eigenvector[0][0].Real, 4);
+            Assert.Equal(0.5257, eigenvector[1][0].Real, 4);
+        }
+        [Fact]
+        public void Can_calculate_dominant_eigenvalue_with_power_method() {
+            var A = new Matrix(2);
+            Helpers.Populate(A, new double[,] {
+                { 1, 1 },
+                { 1, 0 }
+            });
+            var eigenvalue = A.Eigenvalue().Real;
+            Assert.Equal(1.618, eigenvalue, 3);
+        }
         [Fact]
         public void Can_map_function_over_matrix_values() {
             var A = new Matrix(2);
