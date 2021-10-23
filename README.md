@@ -330,7 +330,7 @@ Type Accelerators
   ```
   > **Note:** Full class name is `Prelude.Geodetic.Datum`
 - `[Matrix]`
-  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[[4]](#4)</sup>
+  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[4](#4)</sup>
 
   <div align="center">
       <a href="#"><img alt="Matrix arithmetic is so easy!" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/matrix.gif" alt="Matrix math!" width="1280"/></a>
