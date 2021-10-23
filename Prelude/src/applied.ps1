@@ -590,10 +590,15 @@ function Get-Softmax {
 function Get-Sum {
     <#
     .SYNOPSIS
-    Calculate sum of list of numbers
+    Calculate sum of list of numbers or count number of true values within a list
     .EXAMPLE
     1..100 | sum
+    # 5050
+    .EXAMPLE
+    $True, $False, $False, $False, $True | Get-Sum
+    # 2
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Weight', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('sum')]
     [OutputType([System.Numerics.Complex])]
@@ -605,44 +610,37 @@ function Get-Sum {
         [Array] $Weight
     )
     Begin {
-        if ($Values.Count -gt 0) {
-            if ($Weight.Count -eq $Values.Count) {
-                $Size = $Values.Count
-                $X = $Values | New-Matrix -Size 1, $Size
-                $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
-                $Values = ($X * $W).Values
-            }
-            $Sum = 0
-            foreach ($Value in $Values) {
-                $Sum += $Value
-            }
-            if ($Sum.Imaginary -eq 0) {
-                $Sum.Real
-            } else {
-                $Sum
+        function Get-Sum_ {
+            Param($Values)
+            if ($Values.Count -gt 0) {
+                switch ($Values[0].GetType().Name) {
+                    'Boolean' {
+                        ($Values | Where-Object { $_ }).Count
+                    }
+                    Default {
+                        if ($Weight.Count -eq $Values.Count) {
+                            $Size = $Values.Count
+                            $X = $Values | New-Matrix -Size 1, $Size
+                            $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
+                            $Values = ($X * $W).Values
+                        }
+                        $Sum = 0
+                        foreach ($Value in $Values) {
+                            $Sum += $Value
+                        }
+                        if ($Sum.Imaginary -eq 0) {
+                            $Sum.Real
+                        } else {
+                            $Sum
+                        }
+                    }
+                }
             }
         }
+        Get-Sum_ $Values
     }
     End {
-        if ($Input.Count -gt 0) {
-            if ($Weight.Count -eq $Input.Count) {
-                $Size = $Input.Count
-                $X = $Input | New-Matrix -Size 1, $Size
-                $W = $Weight | New-Matrix -Size $Size, $Size -Diagonal
-                $Values = ($X * $W).Values
-            } else {
-                $Values = $Input
-            }
-            $Sum = 0
-            foreach ($Value in $Values) {
-                $Sum += $Value
-            }
-            if ($Sum.Imaginary -eq 0) {
-                $Sum.Real
-            } else {
-                $Sum
-            }
-        }
+        Get-Sum_ $Input
     }
 }
 function Get-Variance {

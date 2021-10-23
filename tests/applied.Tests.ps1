@@ -210,6 +210,11 @@ Describe 'Get-Sum' -Tag 'Local', 'Remote' {
         1, 1, 1, 1, 1 | Get-Sum -Weight 1, 2, 3, 4, 5 | Should -Be 15
         Get-Sum -Values 1, 1, 1, 1, 1 -Weight 1, 2, 3, 4, 5 | Should -Be 15
     }
+    It 'can calculate the count of true values' {
+        $True, $True, $True, $True | Get-Sum | Should -Be 4
+        $True, $False, $False, $False, $True | Get-Sum | Should -Be 2
+        $False, $False, $False | Get-Sum | Should -Be 0
+    }
 }
 Describe 'Get-Variance / Get-Covariance' -Tag 'Local', 'Remote' {
     It 'can return variance for discrete uniform random variable' {
