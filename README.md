@@ -38,7 +38,7 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 - PowerShell meta-programming
 - **See the [examples folder](./examples) for detailed examples**
 
-> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, and then added all their favorite functions and aliases into a grab-bag module..."  
+> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module..."  
 *- Anonymous*
 
 So what, big deal, who cares?
@@ -150,7 +150,13 @@ Get-Location | Find-Duplicate
 'bookmarks.html' | Import-Html | Get-HtmlElement 'a' | prop 'href' | ? { -not (Test-Url $_) }
 ```
 
-### And much more! Check out the [functions](#Functions) and [aliases](#Aliases) sections below for details
+### **And then...**
+- Use complex values
+- Calculate matrix inverses
+- Solve linear systems
+- Calculate multiple matrix norms
+- Compute eignenvalues and eigenvectors
+- ...and more!
 
 Functions
 ---------
