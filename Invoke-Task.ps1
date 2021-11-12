@@ -466,6 +466,7 @@ switch (Get-TaskList) {
             WithCoverage = $WithCoverage
         }
         Invoke-Test @Parameters
+        Set-Location $PSScriptRoot
         if ($GenerateCoverageReport) {
             $SourceDirs = $SourceDirectory
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
