@@ -9,8 +9,10 @@
                         <CustomItem>
                             <ExpressionBinding>
                                 <ScriptBlock>
-                                    '' | Write-Color
-                                    "{{#cyan $($_.Size[0])}} x {{#cyan $($_.Size[1])}} Matrix" | Write-Title -Template -DarkGray -Indent 2
+                                    if (-not $Env:PreludeHideFormatHeaders) {
+                                        '' | Write-Color
+                                        "{{#cyan $($_.Size[0])}} x {{#cyan $($_.Size[1])}} Matrix" | Write-Title -Template -DarkGray -Indent 2
+                                    }
                                 </ScriptBlock>
                             </ExpressionBinding>
                         </CustomItem>

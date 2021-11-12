@@ -9,8 +9,10 @@
                         <CustomItem>
                             <ExpressionBinding>
                                 <ScriptBlock>
-                                    '' | Write-Color
-                                    "Graph with {{#cyan $($_.Nodes.Count) Nodes}} and {{#cyan $($_.Edges.Count) Edges}}" | Write-Title -Template -DarkGray -Indent 2
+                                    if (-not $Env:PreludeHideFormatHeaders) {
+                                        '' | Write-Color
+                                        "Graph with {{#cyan $($_.Nodes.Count) Nodes}} and {{#cyan $($_.Edges.Count) Edges}}" | Write-Title -Template -DarkGray -Indent 2
+                                    }
                                 </ScriptBlock>
                             </ExpressionBinding>
                         </CustomItem>
