@@ -182,7 +182,7 @@ function New-Matrix {
                 }
             }
         }
-        $M, $N = $Size
+        $M, $N = if ($Size.Count -eq 1) { $Size * 2 } else { $Size }
         $Matrix = New-Object 'Matrix' @($M, $N)
         $MatrixType = Find-FirstTrueVariable 'Custom', 'Diagonal', 'Identity', 'Unit'
         if ($Values.Count -gt 0) {

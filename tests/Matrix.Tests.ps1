@@ -94,6 +94,17 @@ Describe 'New-Matrix' -Tag 'Local', 'Remote' {
         $A[0].Real | Should -Be 1, 2, 3 -Because 'function accepts non-square sizes'
         $A[1].Real | Should -Be 4, 5, 6 -Because 'values array should be flattened'
     }
+    It 'will create a square matrix if passed only one dimension' {
+        $A = 1..4 | New-Matrix
+        $A.Size | Should -Be 2, 2
+        $A[0].Real | Should -Be 1, 2
+        $A[1].Real | Should -Be 3, 4
+        $A = 1..9 | New-Matrix 3
+        $A.Size | Should -Be 3, 3
+        $A[0].Real | Should -Be 1, 2, 3
+        $A[1].Real | Should -Be 4, 5, 6
+        $A[2].Real | Should -Be 7, 8, 9
+    }
     It 'can create diagonal matrices' {
         $A = 1..3 | New-Matrix 3, 3 -Diagonal
         $A.Size | Should -Be 3, 3
