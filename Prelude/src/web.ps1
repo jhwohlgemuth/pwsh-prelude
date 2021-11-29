@@ -490,7 +490,7 @@ function Get-HostsContent {
         }
     }
     $CommentLine = '^\s*#'
-    $HostLine = '^\s*(?<IPAddress>\S+)\s+(?<Hostname>\S+)(\s*|\s+#(?<Comment>.*))$'
+    $HostLine = '^\s*(?<IPAddress>[01-9\.\:]+)\s+(?<Hostname>[^#]+)(\s*|\s+#(?<Comment>.*))$'
     $HomeAddress = [Net.IPAddress]'127.0.0.1'
     $LineNumber = 0
     (Get-Content $Path -ErrorAction Stop) | ForEach-Object {
@@ -501,7 +501,7 @@ function Get-HostsContent {
                 LineNumber = $LineNumber
                 IPAddress = $IpAddress
                 IsValidIP = [Net.IPAddress]::TryParse($IPAddress, [Ref] $HomeAddress)
-                Hostname = $Matches['Hostname']
+                Hostname = $Matches['Hostname'].Trim()
                 Comment = $Comment.Trim()
             }
             $Result.PSObject.TypeNames.Insert(0, 'Hosts.Entry')

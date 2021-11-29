@@ -210,21 +210,30 @@ Describe 'ConvertTo-QueryString' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
-    It 'can get content of hosts file from path' {
-        $Content = Get-HostsContent (Join-Path $PSScriptRoot 'fixtures/hosts')
-        $Content.Count | Should -Be 3
-        $Content | ForEach-Object Hostname | Should -Be 'foo', 'bar', 'foo.bar.baz'
-        $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111', '127.0.0.1', '192.168.0.2'
-        $Content | ForEach-Object Comment | Should -Be '', 'some random comment', ''
-        $Content = (Join-Path $PSScriptRoot 'fixtures/hosts') | Get-HostsContent
-        $Content.Count | Should -Be 3
-        $Content | ForEach-Object Hostname | Should -Be 'foo', 'bar', 'foo.bar.baz'
-        $Content | ForEach-Object IPAddress | Should -Be '192.168.0.111', '127.0.0.1', '192.168.0.2'
-        $Content | ForEach-Object Comment | Should -Be '', 'some random comment', ''
-    }
-    It 'can add an entry to a hosts file' {
+    BeforeEach {
         $Path = Join-Path $TestDrive 'hosts'
         New-Item $Path
+    }
+    AfterEach {
+        $Path = Join-Path $TestDrive 'hosts'
+        Remove-Item $Path
+    }
+    It 'can get content of hosts file from path' {
+        $Hostnames = 'foo', 'bar', 'foo.bar.baz', 'foo bar baz', 'foo.bar.baz', 'foo bar baz'
+        $Adresses = '192.168.0.111', '127.0.0.1', '192.168.0.2', '192.168.0.3', '192.168.0.4', '192.168.0.5'
+        $Comments = '', 'some random comment', '', '', 'some comment', 'some other comment'
+        $Content = Get-HostsContent (Join-Path $PSScriptRoot 'fixtures/hosts')
+        $Content.Count | Should -Be 6
+        $Content | ForEach-Object Hostname | Should -Be $Hostnames
+        $Content | ForEach-Object IPAddress | Should -Be $Adresses
+        $Content | ForEach-Object Comment | Should -Be $Comments
+        $Content = (Join-Path $PSScriptRoot 'fixtures/hosts') | Get-HostsContent
+        $Content.Count | Should -Be 6
+        $Content | ForEach-Object Hostname | Should -Be $Hostnames
+        $Content | ForEach-Object IPAddress | Should -Be $Adresses
+        $Content | ForEach-Object Comment | Should -Be $Comments
+    }
+    It 'can add an entry to a hosts file' {
         $A = @{
             Hostname = 'home'
             IPAddress = '127.0.0.1'
@@ -279,12 +288,34 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
         $Content[1].IsValidIP | Should -Be $True
         $Content[1].Hostname | Should -Be $B.Hostname
         $Content[1].Comment | Should -Be $B.Comment
-        Remove-Item $Path
+    }
+    It 'can add multi-name item to hosts file' {
+        $NoComment = @{
+            Hostname = 'foo bar baz'
+            IPAddress = '127.0.0.1'
+        }
+        $WithComment = @{
+            Hostname = 'dev cdn web-client'
+            IPAddress = '127.0.0.2'
+            Comment = 'no place like it'
+        }
+        Update-HostsFile @NoComment -Path $Path
+        $Content = Get-HostsContent $Path
+        $Content.LineNumber | Should -Be 1
+        $Content.IPAddress | Should -Be $NoComment.IPAddress
+        $Content.IsValidIP | Should -Be $True
+        $Content.Hostname | Should -Be $NoComment.Hostname
+        $Content.Comment | Should -Be ''
+        Update-HostsFile @WithComment -Path $Path
+        $Content = (Get-HostsContent $Path)[1]
+        $Content.LineNumber | Should -Be 3
+        $Content.IPAddress | Should -Be $WithComment.IPAddress
+        $Content.IsValidIP | Should -Be $True
+        $Content.Hostname | Should -Be $WithComment.Hostname
+        $Content.Comment | Should -Be $WithComment.Comment
     }
     It 'supports WhatIf parameter' {
         Mock Write-Color {} -ModuleName 'Prelude'
-        $Path = Join-Path $TestDrive 'hosts'
-        New-Item $Path
         $A = @{
             Hostname = 'home'
             IPAddress = '127.0.0.1'
@@ -301,7 +332,6 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
         Update-HostsFile @A -Path $Path
         { Update-HostsFile @B -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
         { Update-HostsFile @C -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
-        Remove-Item $Path
     }
 }
 Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote' {

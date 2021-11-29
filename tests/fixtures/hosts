@@ -24,3 +24,8 @@
 127.0.0.1 bar #    some random comment
 # Added by Some Program
 192.168.0.2 foo.bar.baz
+   192.168.0.3 foo bar baz
+192.168.0.4 foo.bar.baz # some comment
+
+# I like to add spaces after the IP address and host name.
+192.168.0.5 foo bar baz #some other comment
