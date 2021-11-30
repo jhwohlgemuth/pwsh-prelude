@@ -470,7 +470,7 @@ switch (Get-TaskList) {
         if ($GenerateCoverageReport) {
             $SourceDirs = $SourceDirectory
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-            dotnet tool run reportgenerator -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
+            reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
             if ($Show) {
                 Invoke-Item ./coverage/index.htm
             }
