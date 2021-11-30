@@ -77,7 +77,7 @@ Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag '
         <a href="#">baz</a>
       </body>
     </html>' | ConvertFrom-Html
-        $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo', 'bar', 'baz'
+        $Html.all.tags('a') | ForEach-Object innerText | Should -Be 'foo', 'bar', 'baz'
     }
     It 'can import local HTML file' {
         $Path = Join-Path $TestDrive 'foo.html'
@@ -89,7 +89,7 @@ Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag '
       </body>
     </html>' | Out-File $Path
         $Html = Import-Html -Path $Path
-        $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'foo', 'bar', 'baz'
+        $Html.all.tags('a') | ForEach-Object innerText | Should -Be 'foo', 'bar', 'baz'
     }
     It 'can import more complex local HTML file' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
@@ -98,7 +98,7 @@ Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag '
         $Html.bgColor | Should -Be '#663399' # rebeccapurple
         $Html.styleSheets[0].href | Should -Be 'style.css'
         $Html.images[0].id | Should -Be 'foobar'
-        $Html.all.tags('a') | ForEach-Object textContent | Should -Be 'Kitsch 8-bit taxidermy', 'A', 'B', 'C'
+        $Html.all.tags('a') | ForEach-Object innerText | Should -Be 'Kitsch 8-bit taxidermy', 'A', 'B', 'C'
         $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'description'
         $Html.all.tags('meta') | ForEach-Object name | Should -Contain 'keywords'
     }
