@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 119
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 120
         }
         It 'should import aliases' {
             (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 61
@@ -59,6 +59,35 @@ Describe 'ConvertTo-Pair' -Tag 'Local', 'Remote' {
         $Pair = @{ a = 1; b = 2; c = 3 } | ConvertTo-Pair
         $Pair[0] | Sort-Object | Should -Be @('a', 'b', 'c')
         $Pair[1] | Sort-Object | Should -Be @(1, 2, 3)
+    }
+}
+Describe 'ConvertTo-String' {
+    It 'can convert strings to strings' -Tag 'Local', 'Remote' {
+        $Value = 'test value'
+        $Value | ConvertTo-String | Should -Be $Value
+        $Value = 'a', 'b', 'c'
+        $Value | ConvertTo-String | Should -Be $Value
+    }
+    It 'can convert string paths to string paths' -Tag 'Local', 'Remote', 'WindowsOnly' {
+        $Value = 'C:/'
+        $Value | ConvertTo-String | Should -Be 'C:\'
+    }
+    It 'can convert string paths to string paths' -Tag 'Local', 'Remote' {
+        $Path = (Get-Location).Path
+        (Get-Location) | ConvertTo-String | Should -Be $Path
+    }
+    It 'can convert string paths to string paths' -Tag 'Local', 'Remote' {
+        $Item = (Get-Item (Get-Location))
+        $Path = $Item.FullName
+        $Item | ConvertTo-String | Should -Be $Path
+    }
+    It 'will act as pass-thru for non-string values' -Tag 'Local', 'Remote' {
+        $Value = 1
+        $Value | ConvertTo-String | Should -Be $Value
+        $Value = @(1, 2, 3)
+        $Value | ConvertTo-String | Should -Be $Value
+        $Value = [PSCustomObject]@{ a = 1; b = 2; c = 3 }
+        $Value | ConvertTo-String | Should -Be $Value
     }
 }
 Describe 'Deny-Empty' -Tag 'Local', 'Remote' {

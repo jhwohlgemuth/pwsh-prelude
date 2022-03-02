@@ -180,6 +180,7 @@ Functions
   - `ConvertTo-PlainText`
   - `ConvertTo-QueryString`
   - `ConvertTo-Radian`
+  - `ConvertTo-String`
   - `Deny-Empty`
   - `Deny-Null`
   - `Deny-Value`

@@ -66,6 +66,40 @@ function ConvertTo-Pair {
         }
     }
 }
+function ConvertTo-String() {
+    <#
+    .SYNOPSIS
+    Converts directories and file information to strings.
+    Converts string paths to absolute string paths.
+    .EXAMPLE
+    (Get-Location) | ConvertTo-String"
+    # 'C:\full\path\to\current\directory'
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        $Value
+    )
+    Process {
+        $Type = $Value.GetType().Name
+        switch ($Type) {
+            'DirectoryInfo' {
+                $Value.FullName
+            }
+            'PathInfo' {
+                $Value.Path
+            }
+            Default {
+                if (Test-Path -Path $Value) {
+                    (Resolve-Path $Value).Path
+                } else {
+                    $Value
+                }
+            }
+        }
+    }
+}
 function Deny-Empty {
     <#
     .SYNOPSIS
