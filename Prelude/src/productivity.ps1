@@ -18,7 +18,7 @@ function ConvertTo-AbstractSyntaxTree {
     )
     Process {
         if ($File) {
-            $Path = (Resolve-Path $File).Path
+            $Path = Get-StringPath $File
         }
         if ($Path -and (Test-Path $Path)) {
             [System.Management.Automation.Language.Parser]::ParseFile($Path, [Ref]$Null, [Ref]$Null)
@@ -284,15 +284,49 @@ function Get-Screenshot {
             $DrawingGraphics.CopyFromScreen($Point, [System.Drawing.Point]::Empty, $Size)
             $DrawingGraphics.Dispose()
             if ($UseDifferentMonitor) {
-                $Fullname = Join-Path (Resolve-Path $Path) "$Name-$Monitor.bmp"
+                $Fullname = Join-Path (Get-StringPath $Path) "$Name-$Monitor.bmp"
                 "==> Saving screenshot of monitor #${Monitor} to $Fullname" | Write-Verbose
             } else {
-                $Fullname = Join-Path (Resolve-Path $Path) "$Name.bmp"
+                $Fullname = Join-Path (Get-StringPath $Path) "$Name.bmp"
                 "==> Saving screenshot of all monitors to $Fullname" | Write-Verbose
             }
             $Screenshot.Save($Fullname)
             $Screenshot.Dispose()
             $Fullname
+        }
+    }
+}
+function Get-StringPath() {
+    <#
+    .SYNOPSIS
+    Converts directories and file information to strings.
+    Converts string paths to absolute string paths.
+    .EXAMPLE
+    (Get-Location) | ConvertTo-String"
+    # 'C:\full\path\to\current\directory'
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        $Value
+    )
+    Process {
+        $Type = $Value.GetType().Name
+        switch ($Type) {
+            'DirectoryInfo' {
+                $Value.FullName
+            }
+            'PathInfo' {
+                $Value.Path
+            }
+            Default {
+                if (Test-Path -Path $Value) {
+                    (Resolve-Path $Value).Path
+                } else {
+                    $Value
+                }
+            }
         }
     }
 }
@@ -473,7 +507,7 @@ function Invoke-Pack {
                 [Parameter(Position = 0)]
                 [System.IO.FileInfo] $Item
             )
-            $Item.FullName.Replace($Root, '')
+            ($Item | Get-StringPath).Replace($Root, '')
         }
         function ConvertTo-ItemList {
             Param(
@@ -523,9 +557,9 @@ function Invoke-Pack {
             $CompressedOutputPath = Join-Path (Get-Location).Path "$Output.zip"
             Compress-Archive -Path $OutputPath -DestinationPath $CompressedOutputPath
             Remove-Item -Path $OutputPath
-            return Resolve-Path $CompressedOutputPath
+            return Get-StringPath $CompressedOutputPath
         }
-        Resolve-Path $OutputPath
+        Get-StringPath $OutputPath
     }
 }
 function Invoke-RemoteCommand {
@@ -883,7 +917,7 @@ function Remove-DirectoryForce {
         [String] $Path
     )
     Process {
-        $AbsolutePath = Resolve-Path $Path
+        $AbsolutePath = Get-StringPath $Path
         if ($PSCmdlet.ShouldProcess($AbsolutePath)) {
             "==> Deleting $AbsolutePath" | Write-Verbose
             Remove-Item -Path $AbsolutePath -Recurse -Force

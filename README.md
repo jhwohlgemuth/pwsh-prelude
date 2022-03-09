@@ -180,7 +180,6 @@ Functions
   - `ConvertTo-PlainText`
   - `ConvertTo-QueryString`
   - `ConvertTo-Radian`
-  - `ConvertTo-String`
   - `Deny-Empty`
   - `Deny-Null`
   - `Deny-Value`
@@ -207,6 +206,7 @@ Functions
   - `Get-Singular`
   - `Get-Softmax`
   - `Get-State`
+  - `Get-StringPath`
   - `Get-SyllableCount`
   - `Get-Variance`
   - `Import-Excel`

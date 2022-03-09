@@ -595,7 +595,7 @@ function Import-Excel {
         [Switch] $ShowProgress,
         [Switch] $Peek
     )
-    $FileName = Resolve-Path $Path
+    $FileName = Get-StringPath $Path
     $Excel = New-Object -ComObject 'Excel.Application'
     $Excel.Visible = $False
     if ($ShowProgress) {

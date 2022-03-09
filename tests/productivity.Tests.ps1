@@ -126,6 +126,35 @@ Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
         Remove-Item $Path
     }
 }
+Describe 'Get-StringPath' {
+    It 'can convert strings to strings' -Tag 'Local', 'Remote' {
+        $Value = 'test value'
+        $Value | Get-StringPath | Should -Be $Value
+        $Value = 'a', 'b', 'c'
+        $Value | Get-StringPath | Should -Be $Value
+    }
+    It 'can convert string paths to string paths' -Tag 'Local', 'Remote', 'WindowsOnly' {
+        $Value = 'C:/'
+        $Value | Get-StringPath | Should -Be 'C:\'
+    }
+    It 'can convert string paths to string paths' -Tag 'Local', 'Remote' {
+        $Path = (Get-Location).Path
+        (Get-Location) | Get-StringPath | Should -Be $Path
+    }
+    It 'can convert string paths to string paths' -Tag 'Local', 'Remote' {
+        $Item = (Get-Item (Get-Location))
+        $Path = $Item.FullName
+        $Item | Get-StringPath | Should -Be $Path
+    }
+    It 'will act as pass-thru for non-string values' -Tag 'Local', 'Remote' {
+        $Value = 1
+        $Value | Get-StringPath | Should -Be $Value
+        $Value = @(1, 2, 3)
+        $Value | Get-StringPath | Should -Be $Value
+        $Value = [PSCustomObject]@{ a = 1; b = 2; c = 3 }
+        $Value | Get-StringPath | Should -Be $Value
+    }
+}
 Describe 'Invoke-GoogleSearch' -Tag 'Local', 'Remote' {
     InModuleScope 'Prelude' {
         It 'can use Out-Browser to open web page' {

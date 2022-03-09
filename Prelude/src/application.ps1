@@ -313,7 +313,7 @@ function New-Template {
     }
     Process {
         if ($File) {
-            $Path = Resolve-Path $File
+            $Path = Get-StringPath $File
             $Template = Get-Content $Path -Raw
         }
         $TemplateScriptBlock = [ScriptBlock]::Create('$("' + [Regex]::Replace($Template, $Pattern, $Evaluator) + '" | Write-Output)')

@@ -772,7 +772,7 @@ function Out-Browser {
         } else {
             if ($IsFile) {
                 "==> Opening ${Content}..." | Write-Verbose
-                $Browser.Navigate("file:///$((Get-Item $Content).Fullname)")
+                $Browser.Navigate("file:///$(Get-Item $Content | Get-StringPath)")
             } elseif ($IsUri) {
                 "==> Navigating to ${Content}..." | Write-Verbose
                 $Browser.Navigate([Uri]$Content)
