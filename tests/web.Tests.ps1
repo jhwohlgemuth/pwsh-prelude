@@ -68,6 +68,29 @@ Describe 'ConvertFrom-ByteArray' -Tag 'Local', 'Remote' {
         ConvertFrom-ByteArray -Data $Expected | Should -Be $Expected
     }
 }
+Describe 'ConvertFrom-EpochDate' -Tag 'Local', 'Remote' {
+    It 'can convert an epoch date (in seconds) to a datetime' {
+        $Epoch = '1577836800'
+        $Expected = [DateTime]'1/1/20'
+        $Epoch | ConvertFrom-EpochDate | Should -Be $Expected
+        ConvertFrom-EpochDate $Epoch | Should -Be $Expected
+        $Expected = '1/1/20'
+        $Epoch | ConvertFrom-EpochDate -AsString | Should -Be $Expected
+        ConvertFrom-EpochDate -Value $Epoch -AsString | Should -Be $Expected
+    }
+    It 'can convert an epoch date (in milliseconds) to a datetime' {
+        $Epoch = '1577836800000'
+        $Expected = '1/1/20'
+        $Epoch | ConvertFrom-EpochDate -Milliseconds -AsString | Should -Be $Expected
+        ConvertFrom-EpochDate -Value $Epoch -Milliseconds -AsString | Should -Be $Expected
+    }
+    It 'can convert an epoch date (in microseconds) to a datetime' {
+        $Epoch = '1577836800000000'
+        $Expected = '1/1/20'
+        $Epoch | ConvertFrom-EpochDate -AsString -Microseconds | Should -Be $Expected
+        ConvertFrom-EpochDate -Value $Epoch -Microseconds -AsString | Should -Be $Expected
+    }
+}
 Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag 'Local', 'Remote' {
     It 'can convert HTML strings' {
         $Html = '<html>

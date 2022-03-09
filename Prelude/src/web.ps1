@@ -208,6 +208,46 @@ function ConvertFrom-ByteArray {
         Invoke-Convert $Input
     }
 }
+function ConvertFrom-EpochDate () {
+    <#
+    .SYNOPSIS
+    Converts epoch dates into datetime values
+    .PARAMETER Epoch
+    The epoch to use in conversion
+    (Default value is '01.01.1970')
+    .EXAMPLE
+    '1577836800' | ConvertFrom-EpochDate -AsString
+    # '1/1/20'
+    .EXAMPLE
+    '1577836800000000' | ConvertFrom-EpochDate -Microseconds -AsString
+    # '1/1/20'
+    #>
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    [OutputType([DateTime])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [BigInt] $Value,
+        [Switch] $Milliseconds,
+        [Switch] $Microseconds,
+        [Switch] $AsString,
+        [String] $Epoch = '01.01.1970',
+        [String] $Format = 'M/d/y'
+    )
+    $Units = if ($Milliseconds) {
+        1000
+    } elseif ($Microseconds) {
+        1000000
+    } else {
+        1
+    }
+    $Result = (Get-Date $Epoch) + ([System.TimeSpan]::fromseconds($Value / $Units))
+    if ($AsString) {
+        $Result.ToString($Format)
+    } else {
+        $Result
+    }
+}
 function ConvertFrom-Html {
     <#
     .SYNOPSIS

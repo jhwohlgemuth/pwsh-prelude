@@ -92,6 +92,7 @@
         'ConvertFrom-Html'
         'ConvertFrom-Pair'
         'ConvertFrom-QueryString'
+        'ConvertFrom-EpochDate'
         'ConvertTo-AbstractSyntaxTree'
         'ConvertTo-Degree'
         'ConvertTo-PowershellSyntax'

@@ -167,6 +167,7 @@ Functions
   
   - `Add-Metadata`
   - `ConvertFrom-ByteArray`
+  - `ConvertFrom-EpochDate`
   - `ConvertFrom-Html`
   - `ConvertFrom-Pair`
   - `ConvertFrom-QueryString`
