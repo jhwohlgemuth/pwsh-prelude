@@ -317,6 +317,9 @@ function Get-StringPath() {
             'DirectoryInfo' {
                 $Value.FullName
             }
+            'FileInfo' {
+                $Value.FullName
+            }
             'PathInfo' {
                 $Value.Path
             }
