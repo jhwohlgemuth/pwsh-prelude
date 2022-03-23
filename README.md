@@ -177,6 +177,7 @@ Functions
   - `ConvertTo-PowershellSyntax`
   - `ConvertTo-Iso8601`
   - `ConvertTo-JavaScript`
+  - `ConvertTo-OrderedDictionary`
   - `ConvertTo-Pair`
   - `ConvertTo-PlainText`
   - `ConvertTo-QueryString`
@@ -254,6 +255,8 @@ Functions
   - `New-File`
   - `New-Template`
   - `Open-Session`
+  - `Out-Browser`
+  - `Out-Tree`
   - `Remove-Character`
   - `Remove-DirectoryForce`
   - `Remove-Indent`
@@ -264,6 +267,7 @@ Functions
   - `Test-Command`
   - `Test-DiagonalMatrix`
   - `Test-Empty`
+  - `Test-Enumerable`
   - `Test-Equal`
   - `Test-Installed`
   - `Test-Matrix`
@@ -492,10 +496,7 @@ Credits
 > The following functions are not supported on Linux:
 - `Invoke-ListenForWord`
 - `Invoke-Speak`
-- `Install-SshServer`
 - `Import-Html`
-- `New-DailyShutdownJob`
-- `Remove-DailyShutdownJob`
 - `Use-Grammar`
 - `Use-Speech`
 - `Use-Web`

@@ -33,6 +33,45 @@
         Invoke-FromPair $Input
     }
 }
+function ConvertTo-OrderedDictionary {
+    <#
+    .SYNOPSIS
+    Converts a hashtable to an ordered hashtable.
+    Acts as passthru for odered dictionary inputs.
+    .EXAMPLE
+    @{ a = 1; b = 2; c = 3 } | ConvertTo-OrderedDictionary
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        $InputObject,
+        [Parameter(Mandatory = $False, Position = 1)]
+        [String] $Property = 'Key'
+    )
+    switch ($InputObject) {
+        { $_ -is [System.Collections.Specialized.OrderedDictionary] } {
+            $InputObject
+        }
+        { $_ -is [System.Collections.Hashtable] } {
+            $Result = [Ordered]@{}
+            foreach ($Item in ($InputObject.GetEnumerator() | Sort-Object -Property $Property)) {
+                $Key = $Item.Key
+                $Result.add($Key, $InputObject[$Key])
+            }
+            $Result
+        }
+        { $_ -is [System.Management.Automation.PSCustomObject] } {
+            $Result = [Ordered]@{}
+            foreach ($Item in $InputObject.PSObject.Properties) {
+                $Result.add($Item.Name, $Item.Value)
+            }
+            $Result
+        }
+        Default {
+            $InputObject
+        }
+    }
+}
 function ConvertTo-Pair {
     <#
     .SYNOPSIS
@@ -207,13 +246,6 @@ function Get-Property {
         [String] $Name
     )
     Begin {
-        function Test-ArrayLike {
-            Param(
-                $Value
-            )
-            $Type = $Value.GetType().Name
-            $Type -in 'Object[]', 'ArrayList'
-        }
         function Test-NumberLike {
             Param(
                 [String] $Value
@@ -228,7 +260,7 @@ function Get-Property {
                 [Parameter(Position = 1)]
                 [String] $Name
             )
-            if ((Test-ArrayLike $InputObject) -and (Test-NumberLike $Name)) {
+            if ((Test-Enumerable $InputObject) -and (Test-NumberLike $Name)) {
                 $InputObject[$Name]
             } else {
                 $InputObject.$Name
@@ -1499,6 +1531,55 @@ function Remove-Character {
             $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
         } else {
             $Value
+        }
+    }
+}
+function Test-Enumerable {
+    <#
+    .SYNOPSIS
+    Test if Value is enumerable, like a collection (arrays, objects, etc...)
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        $Value
+    )
+    Begin {
+        function Test-Enumerable_ {
+            Param(
+                [Parameter(Position = 0)]
+                $Value
+            )
+            $Type = $Value.GetType().Name
+            switch ($Type) {
+                'Object[]' {
+                    $True
+                }
+                'ArrayList' {
+                    $True
+                }
+                'Hashtable' {
+                    $True
+                }
+                'OrderedDictionary' {
+                    $True
+                }
+                'PSCustomObject' {
+                    $True
+                }
+                Default {
+                    $False
+                }
+            }
+        }
+        if ($PSBoundParameters.ContainsKey('Value')) {
+            Test-Enumerable_ -Value $Value
+        }
+    }
+    End {
+        if ($Input.Count -gt 0) {
+            Test-Enumerable_ -Value (Invoke-Flatten $Input)
         }
     }
 }

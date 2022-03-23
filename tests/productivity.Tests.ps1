@@ -351,6 +351,64 @@ Describe 'New-File (touch)' -Tag 'Local', 'Remote' {
         { New-File 'foo.txt' -WhatIf } | Should -Not -Throw
     }
 }
+Describe 'Out-Tree' -Tag 'Local', 'Remote' {
+    It 'can handle empty objects' {
+        $Expected = $Null
+        @() | Out-Tree | Should -Be $Expected
+    }
+    It 'can create tree for single level object, <Value>' {
+        $Expected = '├─ Foo
+├─ Bar
+└─ Baz
+'
+        @{
+            Foo = 1
+            Bar = 2
+            Baz = 3
+        } | Out-Tree | Should -Be $Expected
+    }
+    It 'can create tree for single level objects (input passed as parameter)' {
+        $Expected = '├─ Foo
+├─ Bar
+└─ Baz
+'
+        Out-Tree @{ Foo = 1; Bar = 2; Baz = 3 } | Should -Be $Expected
+    }
+    It 'can create tree for nested inputs' {
+        $Expected = '├─ Foo
+├─ Baz/
+│  ├─ Bar
+│  ├─ Baz
+│  └─ Boot/
+│     ├─ Bar
+│     ├─ Baz
+│     └─ Foo
+└─ Bar/
+   ├─ a
+   ├─ b
+   └─ c
+'
+        $InputObject = @{
+            Foo = 1
+            Baz = @{
+                Bar = 2
+                Baz = 3
+                Boot = @{
+                    Foo = 9
+                    Bar = 5
+                    Baz = 6
+                }
+            }
+            Bar = @{
+                a = 10
+                b = 20
+                c = 30
+            }
+        }
+        $InputObject | Out-Tree | Write-Color -Cyan
+        # $InputObject | Out-Tree | Should -Be $Expected
+    }
+}
 Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {
     It 'can remove a file' {
         New-File SomeFile

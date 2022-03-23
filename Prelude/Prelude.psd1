@@ -95,6 +95,7 @@
         'ConvertFrom-EpochDate'
         'ConvertTo-AbstractSyntaxTree'
         'ConvertTo-Degree'
+        'ConvertTo-OrderedDictionary'
         'ConvertTo-PowershellSyntax'
         'ConvertTo-Iso8601'
         'ConvertTo-JavaScript'
@@ -186,6 +187,7 @@
         'New-Template'
         'Open-Session'
         'Out-Browser'
+        'Out-Tree'
         'Remove-Character'
         'Remove-DirectoryForce'
         'Remove-Indent'
@@ -196,6 +198,7 @@
         'Test-Command'
         'Test-DiagonalMatrix'
         'Test-Empty'
+        'Test-Enumerable'
         'Test-Equal'
         'Test-Installed'
         'Test-Matrix'
@@ -214,7 +217,7 @@
     )
     PrivateData = @{
         PSData = @{
-            Tags = @('dev', 'helpers', 'git', 'docker', 'fp', 'cli', 'app', 'scrapp')
+            Tags = @('Windows', 'Linux', 'fp', 'functional programming', 'helpers')
             LicenseUri = 'https://github.com/jhwohlgemuth/pwsh-prelude/blob/master/LICENSE'
             ProjectUri = 'https://github.com/jhwohlgemuth/pwsh-prelude'
         }

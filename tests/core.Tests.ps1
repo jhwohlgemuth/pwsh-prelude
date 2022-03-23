@@ -6,7 +6,7 @@ Param()
 Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 121
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 124
         }
         It 'should import aliases' {
             (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 61
@@ -33,6 +33,50 @@ Describe 'ConvertFrom-Pair' -Tag 'Local', 'Remote' {
         $Result.a | Should -Be 1
         $Result.b | Should -Be 2
         $Result.c | Should -Be 3
+    }
+}
+Describe 'ConvertTo-OrderedHashtable' -Tag 'Local', 'Remote' {
+    It 'can return an ordered dictionary from (Ordered)Hashtable input' {
+        $Result = @{
+            a = 1
+            b = 2
+            c = 3
+        } | ConvertTo-OrderedDictionary
+        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Expected = [Ordered]@{
+            a = 1
+            b = 2
+            c = 3
+        }
+        $Expected | ConvertTo-OrderedDictionary | Should -Be $Expected
+    }
+    It 'can return an ordered dictionary from hashtable input' {
+        $Result = @{
+            a = 1
+            b = 2
+            c = 3
+        } | ConvertTo-OrderedDictionary
+        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Result = [Ordered]@{
+            a = 1
+            b = 2
+            c = 3
+        } | ConvertTo-OrderedDictionary
+        $Result.keys | Should -Be 'a', 'b', 'c'
+    }
+    It 'can return an ordered dictionary from PSCustomObject input' {
+        $Result = [PSCustomObject]@{
+            a = 1
+            b = 2
+            c = 3
+        } | ConvertTo-OrderedDictionary
+        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Result = [PSCustomObject]@{
+            c = 3
+            b = 2
+            a = 1
+        } | ConvertTo-OrderedDictionary
+        $Result.keys | Should -Be 'c', 'b', 'a'
     }
 }
 Describe 'ConvertTo-Pair' -Tag 'Local', 'Remote' {
@@ -753,6 +797,31 @@ Describe 'Remove-Character' -Tag 'Local', 'Remote' {
     }
     It 'can remove last character from a string' {
         'A' | Remove-Character -At 0 | Should -Be ''
+    }
+}
+Describe 'Test-Enumerable' -Tag 'Local', 'Remote' {
+    It 'will return $True for enumerable values like "<Value>"' -TestCases @(
+        @{ Value = @{} }
+        @{ Value = @( 'a' ) }
+        @{ Value = @( 1, 2, 3 ) }
+        @{ Value = @{ foo = 'bar' } }
+        @{ Value = @{ answer = 42 } }
+        @{ Value = @{ a = 1; b = 2; c = 3 } }
+        @{ Value = [Ordered]@{ a = 1; b = 2; c = 3 } }
+        @{ Value = [PSCustomObject]@{ a = 1; b = 2; c = 3 } }
+    ) {
+        # $Value | Test-Enumerable | Should -BeTrue
+        Test-Enumerable -Value $Value | Should -BeTrue
+        Test-Enumerable $Value | Should -BeTrue
+    }
+    It 'will return $False for non-enumerable values like "<Value>"' -TestCases @(
+        @{ Value = 42 }
+        @{ Value = 'a' }
+        @{ Value = 'just a string' }
+    ) {
+        $Value | Test-Enumerable | Should -BeFalse
+        Test-Enumerable -Value $Value | Should -BeFalse
+        Test-Enumerable $Value | Should -BeFalse
     }
 }
 Describe 'Test-Equal' -Tag 'Local', 'Remote' {

@@ -905,6 +905,80 @@ function Open-Session {
     }
     $Session
 }
+function Out-Tree {
+    <#
+    .SYNOPSIS
+    Output a tree of the input array
+    .EXAMPLE
+    @{ Foo = 1; Bar = 2; Baz = 3 } | Out-Tree
+    # Output:
+    ├─ Foo
+    ├─ Bar
+    └─ Baz
+    .EXAMPLE
+    @{ Foo = 1; Bar = 2; Baz = 3 } | Out-Tree -Property Key
+    # Output:
+    ├─ Bar
+    ├─ Baz
+    └─ Foo
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        $Items,
+        [String] $Prefix = '',
+        [String] $Property = 'Value'
+    )
+    Begin {
+        $Pipe = '│'
+        $Initial = ''
+        function Get-Content {
+            Param(
+                [Parameter(Position = 0)]
+                [String] $Value,
+                [Switch] $IsTerminal,
+                [Switch] $IsDirectory
+            )
+            $Branch = '├'
+            $EmHyphen = '─'
+            $TerminalBranch = '└'
+            $FolderMarker = if ($IsDirectory) { '/' } else { '' }
+            if ($IsTerminal) {
+                "${TerminalBranch}${EmHyphen} ${Value}${FolderMarker}`r`n"
+            } else {
+                "${Branch}${EmHyphen} ${Value}${FolderMarker}`r`n"
+            }
+        }
+        function Out-FolderTree {
+            Param(
+                [Parameter(Position = 0)]
+                $Items
+            )
+            if ($Items.Count -gt 0) {
+                $Ordered = $Items | ConvertTo-OrderedDictionary -Property $Property
+                $LastIndex = $Ordered.Count - 1
+                $Index = 0
+                foreach ($Value in $Ordered.Keys) {
+                    $IsTerminal = $Index -eq $LastIndex
+                    $IsEnumerableValue = Test-Enumerable $Ordered.$Value
+                    $Content = Get-Content $Value -IsTerminal:$IsTerminal -IsDirectory:$IsEnumerableValue
+                    $Initial += "${Prefix}${Content}"
+                    if ($IsEnumerableValue) {
+                        $Augment = if (-not $IsTerminal) { "${Pipe}  " } else { '   ' }
+                        $Initial += Out-Tree $Ordered.$Value -Prefix "${Prefix}${Augment}"
+                    }
+                    $Index += 1
+                }
+                $Initial
+            }
+        }
+        Out-FolderTree $Items
+    }
+    End {
+        Out-FolderTree $Input
+    }
+}
 function Remove-DirectoryForce {
     <#
     .SYNOPSIS
@@ -915,7 +989,7 @@ function Remove-DirectoryForce {
     [CmdletBinding(SupportsShouldProcess = $True)]
     [Alias('rf')]
     Param(
-        [Parameter(Mandatory = $True, Position = $True, ValueFromPipeline = $True)]
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
         [String] $Path
     )
