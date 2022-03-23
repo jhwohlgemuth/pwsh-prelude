@@ -952,7 +952,7 @@ function Out-Tree {
                 "${Branch}${EmHyphen} ${Value}${FolderMarker}`r`n"
             }
         }
-        function Out-FolderTree {
+        function Out-TreeStructure {
             Param(
                 [Parameter(Position = 0)]
                 $Items
@@ -975,10 +975,10 @@ function Out-Tree {
                 $Initial
             }
         }
-        Out-FolderTree $Items
+        Out-TreeStructure $Items
     }
     End {
-        Out-FolderTree $Input
+        Out-TreeStructure $Input
     }
 }
 function Remove-DirectoryForce {

@@ -408,6 +408,9 @@ Describe 'Out-Tree' -Tag 'Local', 'Remote' {
         # $InputObject | Out-Tree | Write-Color -Cyan
         $InputObject | Out-Tree | Should -Be $Expected
     }
+    It 'can output tree structure from Get-ChildItem results' {
+        (Get-ChildItem).GetEnumerator() | Out-Tree | Write-Color -Cyan
+    }
 }
 Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {
     It 'can remove a file' {
