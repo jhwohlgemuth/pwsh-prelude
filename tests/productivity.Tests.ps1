@@ -405,8 +405,8 @@ Describe 'Out-Tree' -Tag 'Local', 'Remote' {
                 c = 30
             }
         }
-        $InputObject | Out-Tree | Write-Color -Cyan
-        # $InputObject | Out-Tree | Should -Be $Expected
+        # $InputObject | Out-Tree | Write-Color -Cyan
+        $InputObject | Out-Tree | Should -Be $Expected
     }
 }
 Describe 'Remove-DirectoryForce (rf)' -Tag 'Local', 'Remote' {

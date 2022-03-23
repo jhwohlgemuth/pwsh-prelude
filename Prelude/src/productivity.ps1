@@ -922,6 +922,8 @@ function Out-Tree {
     ├─ Baz
     └─ Foo
     #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Prefix')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Property')]
     [CmdletBinding()]
     [OutputType([String])]
     Param(
