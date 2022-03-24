@@ -1,4 +1,64 @@
 ﻿
+function ConvertFrom-FolderStructure {
+    <#
+    .SYNOPSIS
+    Convert Get-ChildItem output to nested hashtable
+    .PARAMETER IncludeHidden
+    Include hidden files (adds -Force to Get-ChildItem calls)
+    .PARAMETER RemoveExtensions
+    Do not include file extensions in output key names (use BaseName instead of Name)
+    .EXAMPLE
+    $Data = ConvertFrom-FolderStructure
+    .EXAMPLE
+    $Data = 'some/directory' | ConvertFrom-FolderStructure -RemoveExtensions
+    .EXAMPLE
+    ConvertFrom-FolderStructure -IncludeHidden | Out-Tree
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'IncludeHidden')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'RemoveExtensions')]
+    [CmdletBinding()]
+    [OutputType([Object])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [ValidateScript({ (Test-Path $_) })]
+        [String] $Path = (Get-Location).Path,
+        [Switch] $IncludeHidden,
+        [Switch] $RemoveExtensions
+    )
+    Begin {
+        function Test-Branch {
+            Param(
+                [Parameter(Mandatory = $True, Position = 0)]
+                $Value
+            )
+            $Value.GetType().Name -eq 'DirectoryInfo'
+        }
+        function Invoke-Iterate {
+            Param(
+                [Parameter(Mandatory = $True, Position = 0)]
+                [String] $Path
+            )
+            $Output = @{}
+            $Parameters = @{
+                IncludeHidden = $IncludeHidden
+                RemoveExtensions = $RemoveExtensions
+            }
+            $Items = Get-ChildItem $Path -Force:$IncludeHidden
+            foreach($Item in $Items) {
+                $Attribute = if ($RemoveExtensions) { 'BaseName' } else { 'Name' }
+                $Output[$Item.$Attribute] = if (Test-Branch $Item) {
+                    $Item | Get-StringPath | ConvertFrom-FolderStructure @Parameters
+                } else {
+                    $Item.Name
+                }
+            }
+            $Output
+        }
+    }
+    Process {
+        Invoke-Iterate $Path
+    }
+} 
 function ConvertTo-AbstractSyntaxTree {
     <#
     .SYNOPSIS
@@ -296,7 +356,7 @@ function Get-Screenshot {
         }
     }
 }
-function Get-StringPath() {
+function Get-StringPath {
     <#
     .SYNOPSIS
     Converts directories and file information to strings.
@@ -325,7 +385,7 @@ function Get-StringPath() {
             }
             Default {
                 if (Test-Path -Path $Value) {
-                    (Resolve-Path $Value).Path
+                    (Resolve-Path -Path $Value).Path
                 } else {
                     $Value
                 }
@@ -935,7 +995,7 @@ function Out-Tree {
     Begin {
         $Pipe = '│'
         $Initial = ''
-        function Get-Content {
+        function Get-LineContent {
             Param(
                 [Parameter(Position = 0)]
                 [String] $Value,
@@ -964,7 +1024,7 @@ function Out-Tree {
                 foreach ($Value in $Ordered.Keys) {
                     $IsTerminal = $Index -eq $LastIndex
                     $IsEnumerableValue = Test-Enumerable $Ordered.$Value
-                    $Content = Get-Content $Value -IsTerminal:$IsTerminal -IsDirectory:$IsEnumerableValue
+                    $Content = Get-LineContent $Value -IsTerminal:$IsTerminal -IsDirectory:$IsEnumerableValue
                     $Initial += "${Prefix}${Content}"
                     if ($IsEnumerableValue) {
                         $Augment = if (-not $IsTerminal) { "${Pipe}  " } else { '   ' }

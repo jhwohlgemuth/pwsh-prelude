@@ -169,6 +169,7 @@ Functions
   - `ConvertFrom-ByteArray`
   - `ConvertFrom-EpochDate`
   - `ConvertFrom-Html`
+  - `ConvertFrom-FolderStructure`
   - `ConvertFrom-Pair`
   - `ConvertFrom-QueryString`
   - `ConvertTo-AbstractSyntaxTree`

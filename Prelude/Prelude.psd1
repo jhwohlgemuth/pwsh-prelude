@@ -89,10 +89,11 @@
     FunctionsToExport = @(
         'Add-Metadata'
         'ConvertFrom-ByteArray'
+        'ConvertFrom-EpochDate'
+        'ConvertFrom-FolderStructure'
         'ConvertFrom-Html'
         'ConvertFrom-Pair'
         'ConvertFrom-QueryString'
-        'ConvertFrom-EpochDate'
         'ConvertTo-AbstractSyntaxTree'
         'ConvertTo-Degree'
         'ConvertTo-OrderedDictionary'
