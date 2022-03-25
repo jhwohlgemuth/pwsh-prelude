@@ -6,6 +6,54 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
+Describe 'ConvertFrom-FolderStructure' {
+    BeforeAll {
+        Set-Location $TestDrive
+        New-Item (Join-Path $TestDrive 'A.txt') -ItemType 'file'
+        New-Item (Join-Path $TestDrive 'B.txt') -ItemType 'file'
+        New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
+        $D = New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
+        New-Item (Join-Path $D 'E.txt') -ItemType 'file'
+        Set-Location (Join-Path $TestDrive 'D')
+        New-Item (Join-Path $TestDrive 'D/F.txt') -ItemType 'file'
+        New-Item (Join-Path $TestDrive 'D/G.txt') -ItemType 'file'
+        New-Item (Join-Path $TestDrive 'D/H.txt') -ItemType 'file'
+        $I = New-Item (Join-Path $TestDrive 'D/I') -ItemType 'directory'
+        New-Item (Join-Path $I 'J.txt') -ItemType 'file'
+    }
+    AfterAll {
+        Set-Location $PSScriptRoot
+        Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
+    }
+    It 'can convert a folder structure to a nested hashtable' {
+        $Expected = '├─ A.txt
+├─ B.txt
+├─ C.txt
+└─ D/
+   ├─ E.txt
+   ├─ F.txt
+   ├─ G.txt
+   ├─ H.txt
+   └─ I/
+      └─ J.txt
+'
+        $TestDrive | ConvertFrom-FolderStructure | Out-Tree | Should -Be $Expected
+    }
+    It 'can convert a folder structure to a nested hashtable (no extensions)' {
+        $Expected = '├─ A
+├─ B
+├─ C
+└─ D/
+   ├─ E
+   ├─ F
+   ├─ G
+   ├─ H
+   └─ I/
+      └─ J
+'
+        $TestDrive | ConvertFrom-FolderStructure -RemoveExtensions | Out-Tree | Should -Be $Expected
+    }
+}
 Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local', 'Remote' {
     It 'can convert the content of a file to AST' {
         $Path = Join-Path $TestDrive 'test.ps1'
