@@ -1,5 +1,4 @@
-﻿
-function ConvertFrom-FolderStructure {
+﻿function ConvertFrom-FolderStructure {
     <#
     .SYNOPSIS
     Convert Get-ChildItem output to nested hashtable
@@ -44,7 +43,7 @@ function ConvertFrom-FolderStructure {
                 RemoveExtensions = $RemoveExtensions
             }
             $Items = Get-ChildItem $Path -Force:$IncludeHidden
-            foreach($Item in $Items) {
+            foreach ($Item in $Items) {
                 $Attribute = if ($RemoveExtensions) { 'BaseName' } else { 'Name' }
                 $Output[$Item.$Attribute] = if (Test-Branch $Item) {
                     $Item | Get-StringPath | ConvertFrom-FolderStructure @Parameters
@@ -58,7 +57,7 @@ function ConvertFrom-FolderStructure {
     Process {
         Invoke-Iterate $Path
     }
-} 
+}
 function ConvertTo-AbstractSyntaxTree {
     <#
     .SYNOPSIS
