@@ -24,7 +24,7 @@ function Add-TypeData {
     if (Test-Path $Path) {
         Add-Type -Path $Path
     } else {
-        "==> Failed to load ${Name} type accelerators" | Write-Warning
+        "==> [ERROR] Failed to load ${Name} type accelerators" | Write-Warning
     }
 }
 $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
@@ -66,3 +66,8 @@ Import source files
 #>
 $SourceFiles = Join-Path $PSScriptRoot 'src'
 Get-ChildItem -Path $SourceFiles -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
+<#
+Import Prelude "Plus" files
+#>
+$PlusFiles = Join-Path $PSScriptRoot 'Plus'
+Get-ChildItem -Path $PlusFiles -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
