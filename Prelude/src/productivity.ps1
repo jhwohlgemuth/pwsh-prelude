@@ -917,7 +917,9 @@ function Out-Tree {
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Items,
         [String] $Prefix = '',
-        [String] $Property = 'Value'
+        [String] $Property = 'Value',
+        [Int] $Level = 1,
+        [Int] $Limit = 100
     )
     Begin {
         $Pipe = '│'
@@ -953,9 +955,9 @@ function Out-Tree {
                     $IsEnumerableValue = Test-Enumerable $Ordered.$Value
                     $Content = Get-LineContent $Value -IsTerminal:$IsTerminal -IsDirectory:$IsEnumerableValue
                     $Initial += "${Prefix}${Content}"
-                    if ($IsEnumerableValue) {
+                    if ($IsEnumerableValue -and ($Level -lt $Limit)) {
                         $Augment = if (-not $IsTerminal) { "${Pipe}  " } else { '   ' }
-                        $Initial += Out-Tree $Ordered.$Value -Prefix "${Prefix}${Augment}"
+                        $Initial += Out-Tree $Ordered.$Value -Prefix "${Prefix}${Augment}" -Level ($Level + 1) -Limit $Limit
                     }
                     $Index += 1
                 }

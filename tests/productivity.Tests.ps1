@@ -26,7 +26,7 @@ Describe 'ConvertFrom-FolderStructure' {
         Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
     }
     It 'can convert a folder structure to a nested hashtable' {
-        $Expected = '├─ A.txt
+        $TestDrive | ConvertFrom-FolderStructure | Out-Tree | Should -Be '├─ A.txt
 ├─ B.txt
 ├─ C.txt
 └─ D/
@@ -37,10 +37,9 @@ Describe 'ConvertFrom-FolderStructure' {
    └─ I/
       └─ J.txt
 '
-        $TestDrive | ConvertFrom-FolderStructure | Out-Tree | Should -Be $Expected
     }
     It 'can convert a folder structure to a nested hashtable (no extensions)' {
-        $Expected = '├─ A
+        $TestDrive | ConvertFrom-FolderStructure -RemoveExtensions | Out-Tree | Should -Be '├─ A
 ├─ B
 ├─ C
 └─ D/
@@ -51,7 +50,34 @@ Describe 'ConvertFrom-FolderStructure' {
    └─ I/
       └─ J
 '
-        $TestDrive | ConvertFrom-FolderStructure -RemoveExtensions | Out-Tree | Should -Be $Expected
+    }
+    It 'can limit number of tree levels' {
+        $TestDrive | ConvertFrom-FolderStructure | Out-Tree -Limit 1 | Should -Be '├─ A.txt
+├─ B.txt
+├─ C.txt
+└─ D/
+'
+        $TestDrive | ConvertFrom-FolderStructure | Out-Tree -Limit 2 | Should -Be '├─ A.txt
+├─ B.txt
+├─ C.txt
+└─ D/
+   ├─ E.txt
+   ├─ F.txt
+   ├─ G.txt
+   ├─ H.txt
+   └─ I/
+'
+        $TestDrive | ConvertFrom-FolderStructure | Out-Tree -Limit 3 | Should -Be '├─ A.txt
+├─ B.txt
+├─ C.txt
+└─ D/
+   ├─ E.txt
+   ├─ F.txt
+   ├─ G.txt
+   ├─ H.txt
+   └─ I/
+      └─ J.txt
+'
     }
 }
 Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local', 'Remote' {
