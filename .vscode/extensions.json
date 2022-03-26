@@ -23,6 +23,7 @@
         "oderwat.indent-rainbow",
         "rafamel.subtle-brackets",
         "redhat.vscode-xml",
+        "ryanluker.vscode-coverage-gutters",
         "TylerLeonhardt.vscode-pester-test-adapter",
         "wmaurer.change-case"
     ],
