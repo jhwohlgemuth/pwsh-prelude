@@ -412,7 +412,7 @@ function Invoke-Test {
     }
     if (-not ($Skip -contains 'powershell')) {
         $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
-        $Configuration = [PesterConfiguration]@{
+        $Configuration = New-PesterConfiguration -Hashtable @{
             Run = @{ PassThru = $True }
             Filter = @{ ExcludeTag = $Exclude }
             Debug = @{ ShowNavigationMarkers = $True; WriteVSCodeMarker = $True }
