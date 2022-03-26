@@ -438,3 +438,9 @@ Describe 'Test-Url' -Tag 'Local', 'Remote' {
         'https://ifhtisSiteEverExistsIwillQuitTheInter.net' | Test-Url -Code | Should -Be '404'
     }
 }
+Describe 'Use-Web' -Tag 'Local', 'Remote' {
+    It 'can load web browser types' {
+        Use-Web -Browser | Should -BeNullOrEmpty
+        Use-Web -Browser -PassThru | Should -BeTrue
+    }
+}
