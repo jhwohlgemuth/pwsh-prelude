@@ -9,4 +9,4 @@ if ($Platform -eq 'windows') {
 }
 Install-Module -Force -Scope CurrentUser -Name PSScriptAnalyzer
 Install-Module -Force -Scope CurrentUser -Name BuildHelpers
-Install-Module -Force -Scope CurrentUser -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4
+Install-Module -Force -Scope CurrentUser -Name Pester -SkipPublisherCheck -RequiredVersion 5.3.1
