@@ -505,7 +505,7 @@ function Invoke-Pack {
                 [Array] $Values
             )
             foreach ($Value in $Values) {
-                $Item = Get-Item -Path $Value.FullName
+                $Item = Get-Item -Path ($Value | Get-StringPath)
                 switch ($Item.GetType().Name) {
                     'DirectoryInfo' {
                         Get-ChildItem -Path $Item -File -Recurse -Force
