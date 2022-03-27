@@ -661,7 +661,10 @@ function Invoke-WebRequestBasicAuth {
     }
     @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put -RequestParameters $Parameters
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Get')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Post')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Put')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Delete')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
     [CmdletBinding(DefaultParameterSetName = 'token')]
@@ -761,7 +764,8 @@ function Out-Browser {
     }
     '<h1 contenteditable="true">Type Here</h1>' | Out-Browser -OnClose $OnClose | Out-Null
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'OnShown')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'OnComplete')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]

@@ -337,7 +337,6 @@ function Invoke-Menu {
     )
     Begin {
         function Invoke-MenuDraw {
-            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
             Param(
                 [Array] $VisibleItems,
                 [Int] $Position,
@@ -547,11 +546,11 @@ function Write-BarChart {
     .PARAMETER ShowValues
     Whether or not to show data values to right of each bar
     .EXAMPLE
-    @{red = 55; white = 30; blue = 200} | Write-BarChart -WithColor -ShowValues
+    @{ red = 55; white = 30; blue = 200 } | Write-BarChart -WithColor -ShowValues
     .EXAMPLE
     # Can be used with Write-Title to create goo looking reports in the terminal
     Write-Title 'Colors'
-    @{red = 55; white = 30; blue = 200} | Write-BarChart -Alternate -ShowValues
+    @{ red = 55; white = 30; blue = 200 } | Write-BarChart -Alternate -ShowValues
     Write-Color ''
     .EXAMPLE
     # Easily display a bar chart of files using Invoke-Reduce
@@ -566,7 +565,10 @@ function Write-BarChart {
     # or with zip
     @('red', 'white', 'blue'), @(55, 30, 200) | zip | Write-BarChart
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Width')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'ShowValues')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Alternate')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'WithColor')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -664,8 +666,24 @@ function Write-Color {
     .EXAMPLE
     '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = 'World' } | Write-Color
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Black')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Blue')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkBlue')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkGreen')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkCyan')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkCyan')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkGray')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkRed')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkMagenta')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'DarkYellow')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Cyan')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Gray')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Green')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Red')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Magenta')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Yellow')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'White')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AvoidUsingWriteHost')]
     [CmdletBinding()]
     [OutputType([Void])]
     [OutputType([String])]

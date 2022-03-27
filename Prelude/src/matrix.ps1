@@ -140,7 +140,10 @@ function New-Matrix {
     .EXAMPLE
     $Matrix = 1..9 | matrix 3,3
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Diagonal')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Identity')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Unit')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Custom')]
     [CmdletBinding()]
     [Alias('matrix')]
     [OutputType([Matrix])]

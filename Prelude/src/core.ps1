@@ -346,7 +346,7 @@ function Invoke-DropWhile {
     )
     Begin {
         function Invoke-DropWhile_ {
-            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate', Scope = 'Function')]
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Predicate')]
             Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject,
@@ -618,7 +618,8 @@ function Invoke-Once {
 
     Functions returned by Invoke-Once can accept arguments
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Times')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0)]
@@ -640,7 +641,7 @@ function Invoke-Operator {
     @(1,2,3),@(4,5,6),@(7,8,9) | op join ''
     # returns '123','456','789'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression')]
     [CmdletBinding()]
     [Alias('op')]
     Param(
@@ -849,7 +850,7 @@ function Invoke-PropertyTransform {
     }
     (Import-Csv -Path '.\contracts.csv') | Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer | Format-Table
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Transform')]
     [CmdletBinding()]
     [Alias('transform')]
     Param(
@@ -862,6 +863,7 @@ function Invoke-PropertyTransform {
     )
     Begin {
         function New-PropertyExpression {
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Name')]
             Param(
                 [Parameter(Mandatory = $True)]
                 [String] $Name,
@@ -918,7 +920,12 @@ function Invoke-Reduce {
 
     Combining directory contents into single object and visualize with Write-BarChart - in a single line!
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Identity')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Add')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Multiply')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Every')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Some')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'FIleInfo')]
     [CmdletBinding()]
     [Alias('reduce')]
     Param(

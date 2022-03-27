@@ -166,7 +166,9 @@ function Get-LogisticSigmoid {
     .PARAMETER Derivative
     Switch parameter to determine which function to use, f(x) or f'(x) = f(x) * f(-x)
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'GrowthRate')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Midpoint')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'MaximumValue')]
     [CmdletBinding()]
     [Alias('sigmoid')]
     [OutputType([Double])]
@@ -370,7 +372,10 @@ function Get-Permutation {
     'hello' | permute -Choose 2 -Unique -Words
     # 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Offset')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Choose')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Unique')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Words')]
     [CmdletBinding()]
     [Alias('permute')]
     Param(
@@ -598,7 +603,7 @@ function Get-Sum {
     $True, $False, $False, $False, $True | Get-Sum
     # 2
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Weight', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Weight')]
     [CmdletBinding()]
     [Alias('sum')]
     [OutputType([System.Numerics.Complex])]

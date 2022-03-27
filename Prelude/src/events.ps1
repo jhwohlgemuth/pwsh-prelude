@@ -68,7 +68,7 @@ function Invoke-ListenTo {
 
     Execute code when you exit the powershell terminal
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars')]
     [CmdletBinding(DefaultParameterSetName = 'custom')]
     [Alias('on', 'listenTo')]
     Param(
