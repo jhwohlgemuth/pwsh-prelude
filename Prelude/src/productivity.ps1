@@ -13,8 +13,7 @@
     .EXAMPLE
     ConvertFrom-FolderStructure -IncludeHidden | Out-Tree
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'IncludeHidden')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'RemoveExtensions')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([Object])]
     Param(
@@ -439,9 +438,8 @@ function Invoke-ListenForWord {
     Invoke-Listen -Triggers 'hello','quit' -Actions { say 'Welcome' | Out-Null; $True }, { say 'Goodbye' | Out-Null; $False }
     An action will stop listening when it returns a "falsy" value like $True or $Null. Conversely, returning "truthy" values will continue the listening loop.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Actions')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Threshhold')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Continue')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('listenFor')]
     Param(
@@ -479,7 +477,7 @@ function Invoke-Pack {
     .EXAMPLE
     ls some/folder | pack
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Root')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('pack')]
     [OutputType([String])]
@@ -577,9 +575,9 @@ function Invoke-RemoteCommand {
     .EXAMPLE
     { Get-Process } | irc -Name Mario -Parameters @{ HideComputerName = $True }
     #>
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
     [CmdletBinding(DefaultParameterSetName = 'scriptblock')]
     [Alias('irc')]
     Param(
@@ -855,9 +853,9 @@ function Open-Session {
     # $Sessions will point to an array of sessions for ServerA and ServerB and can be used to make new sessions:
     Enter-PSSession -Session $Sessions[1]
     #>
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -910,10 +908,7 @@ function Out-Tree {
     ├─ Baz
     └─ Foo
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Prefix')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Property')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Level')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Limit')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([String])]
     Param(
@@ -1006,11 +1001,7 @@ function Rename-FileExtension {
     'foo.bar' | Rename-FileExtension -To 'baz'
     # new name of file will be 'foo.baz'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'TXT')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'JPG')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'PNG')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'GIF')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'MD')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
     Param(
@@ -1114,7 +1105,7 @@ function Test-Command {
     $OriginalPreference = $ErrorActionPreference
     $ErrorActionPreference = 'stop'
     try {
-        if (Get-Command $Name) {
+        if (Get-Command -Name $Name) {
             "==> '$Name' is an available command" | Write-Verbose
             $Result = $True
         }

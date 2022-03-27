@@ -5,6 +5,7 @@
 Param(
     [Switch] $Lint,
     [Switch] $Test,
+    [Switch] $Detailed,
     [Switch] $WithCoverage,
     [Switch] $GenerateCoverageReport,
     [Switch] $Show,
@@ -200,13 +201,13 @@ function Invoke-Check {
     $VisualStudioRoot = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering"
     $Results = @()
     $Fails = 0
-    if ((Get-Command 'dotnet')) {
+    if ((Get-Command -Name 'dotnet')) {
         $Results += '[+] dotnet command is available!'
     } else {
         $Results += '[-] Failed to find dotnet command...'
         $Fails++
     }
-    if ((Get-Command 'reportgenerator.exe')) {
+    if ((Get-Command -Name 'reportgenerator.exe')) {
         $Results += '[+] reportgenerator command is available!'
     } else {
         $Results += '[-] Failed to find reportgenerator command...'
@@ -292,7 +293,7 @@ function Invoke-Lint {
                 dotnet tool run dotnet-format $Path --verbosity detailed
             }
         }
-        if ((Get-Command 'dotnet')) {
+        if ((Get-Command -Name 'dotnet')) {
             'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
                 & $Format -Name $_
             }
@@ -302,7 +303,18 @@ function Invoke-Lint {
     }
     if (-not ($Skip -contains 'powershell')) {
         $Parameters = @{
-            Path = $PSScriptRoot
+            # Path = $PSScriptRoot
+            Path = Join-Path $PSScriptRoot 'Prelude/src'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/applied.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/application.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/core.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/data.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/events.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/graph.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/matrix.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/productivity.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/user-interface.ps1'
+            # Path = Join-Path $PSScriptRoot 'Prelude/src/web.ps1'
             Settings = 'PSScriptAnalyzerSettings.psd1'
             Fix = (-not $DryRun)
             EnableExit = $CI
@@ -425,6 +437,9 @@ function Invoke-Test {
         if ($WithCoverage) {
             $Configuration.CodeCoverage = @{ Enabled = $True; Path = $Files }
             $Configuration.TestResult = @{ Enabled = $False }
+        }
+        if ($Detailed) {
+            $Configuration.Output.Verbosity = 'Detailed'
         }
         "==> Executing PowerShell tests on $BuildSystem" | Write-Output
         $Result = Invoke-Pester -Configuration $Configuration

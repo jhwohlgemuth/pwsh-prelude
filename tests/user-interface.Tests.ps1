@@ -6,7 +6,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
-Describe -Skip 'Write-Color' -Tag 'Local', 'Remote' {
+Describe 'Write-Color' -Tag 'Local', 'Remote' {
     BeforeAll {
         It 'should write nothing when passed an empty string' {
             Mock Write-Host {} -ModuleName Prelude
@@ -34,7 +34,7 @@ Describe -Skip 'Write-Color' -Tag 'Local', 'Remote' {
         Should -Invoke Write-Host -Exactly 11 -ModuleName Prelude
     }
 }
-Describe -Skip 'Write-Label' -Tag 'Local', 'Remote' {
+Describe 'Write-Label' -Tag 'Local', 'Remote' {
     It 'uses Write-Color to write label text' {
         $Expected = 'Hello World'
         $Filter = { ($Text -eq "${Expected} ") -and ($Color -eq 'Magenta') }
@@ -50,7 +50,7 @@ Describe -Skip 'Write-Label' -Tag 'Local', 'Remote' {
         Should -Invoke Write-Color -Exactly 1 -ModuleName Prelude
     }
 }
-Describe -Skip 'Write-Title' -Tag 'Local', 'Remote' {
+Describe 'Write-Title' -Tag 'Local', 'Remote' {
     It 'provides pass-thru parameter' {
         Mock Write-Host {} -ModuleName Prelude
         $Expected = 'This is a test string'
@@ -69,7 +69,7 @@ Describe -Skip 'Write-Title' -Tag 'Local', 'Remote' {
         Should -Invoke Write-Color -Exactly 3 -ModuleName Prelude
     }
 }
-Describe -Skip 'Write-BarChart' -Tag 'Local', 'Remote' {
+Describe 'Write-BarChart' -Tag 'Local', 'Remote' {
     It 'creates horizontal bar charts' {
         Mock Write-Color {} -ModuleName Prelude
         @{ red = 55; white = 30; blue = 200 } | Write-BarChart -WithColor -ShowValues

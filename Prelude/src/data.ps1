@@ -580,8 +580,8 @@ function Import-Excel {
     .PARAMETER Peek
     Return first row of data only. Useful for quickly identifying the shape of the data without importing the entire file.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'EmptyValue')]
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
