@@ -1,4 +1,18 @@
-﻿function ConvertFrom-FolderStructure {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function', Target = 'Invoke-RemoteCommand')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function', Target = 'Open-Session')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-RemoteCommand')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Open-Session')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertFrom-FolderStructure')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-ListenForWord')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Pack')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Tree')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Rename-FileExtension')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = 'Invoke-ListenForWord')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function', Target = 'Invoke-RemoteCommand')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function', Target = 'Open-Session')]
+Param()
+
+function ConvertFrom-FolderStructure {
     <#
     .SYNOPSIS
     Convert Get-ChildItem output to nested hashtable
@@ -13,7 +27,6 @@
     .EXAMPLE
     ConvertFrom-FolderStructure -IncludeHidden | Out-Tree
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([Object])]
     Param(
@@ -438,8 +451,6 @@ function Invoke-ListenForWord {
     Invoke-Listen -Triggers 'hello','quit' -Actions { say 'Welcome' | Out-Null; $True }, { say 'Goodbye' | Out-Null; $False }
     An action will stop listening when it returns a "falsy" value like $True or $Null. Conversely, returning "truthy" values will continue the listening loop.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('listenFor')]
     Param(
@@ -477,7 +488,6 @@ function Invoke-Pack {
     .EXAMPLE
     ls some/folder | pack
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('pack')]
     [OutputType([String])]
@@ -575,9 +585,6 @@ function Invoke-RemoteCommand {
     .EXAMPLE
     { Get-Process } | irc -Name Mario -Parameters @{ HideComputerName = $True }
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
     [CmdletBinding(DefaultParameterSetName = 'scriptblock')]
     [Alias('irc')]
     Param(
@@ -592,7 +599,7 @@ function Invoke-RemoteCommand {
         [String[]] $ComputerName,
         [Parameter(ParameterSetName = 'scriptblock')]
         [Parameter(ParameterSetName = 'file')]
-        [String] $Password,
+        [SecureString] $Password,
         [Parameter(ParameterSetName = 'scriptblock')]
         [Parameter(ParameterSetName = 'file')]
         [PSObject] $Credential,
@@ -853,14 +860,11 @@ function Open-Session {
     # $Sessions will point to an array of sessions for ServerA and ServerB and can be used to make new sessions:
     Enter-PSSession -Session $Sessions[1]
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String[]] $ComputerNames,
-        [String] $Password,
+        [SecureString] $Password,
         [PSObject] $Credential,
         [Switch] $NoEnter
     )
@@ -908,7 +912,6 @@ function Out-Tree {
     ├─ Baz
     └─ Foo
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([String])]
     Param(
@@ -1001,7 +1004,6 @@ function Rename-FileExtension {
     'foo.bar' | Rename-FileExtension -To 'baz'
     # new name of file will be 'foo.baz'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
     Param(

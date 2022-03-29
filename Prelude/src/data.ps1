@@ -580,8 +580,6 @@ function Import-Excel {
     .PARAMETER Peek
     Return first row of data only. Useful for quickly identifying the shape of the data without importing the entire file.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
@@ -589,7 +587,7 @@ function Import-Excel {
         [String] $Path,
         [String] $WorksheetName,
         [Array] $ColumnHeaders,
-        [String] $Password,
+        [SecureString] $Password,
         [Switch] $FirstRowHeaders,
         [String] $EmptyValue = 'EMPTY',
         [Switch] $ShowProgress,

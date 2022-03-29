@@ -1,4 +1,11 @@
-﻿class Options {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Add-Metadata')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Browser')]
+Param()
+
+class Options {
     [String[]] GetProperties() {
         return $this | Get-Member -MemberType Properties | Select-Object -ExpandProperty Name
     }
@@ -28,7 +35,6 @@ function Add-Metadata {
     .EXAMPLE
     'My email is foo@bar.com' | ConvertTo-Html
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Text,
@@ -661,12 +667,6 @@ function Invoke-WebRequestBasicAuth {
     }
     @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put -RequestParameters $Parameters
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Get')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Post')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Put')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Delete')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
     [CmdletBinding(DefaultParameterSetName = 'token')]
     [Alias('basicauth')]
     Param(
@@ -764,8 +764,6 @@ function Out-Browser {
     }
     '<h1 contenteditable="true">Type Here</h1>' | Out-Browser -OnClose $OnClose | Out-Null
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'OnShown')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'OnComplete')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]

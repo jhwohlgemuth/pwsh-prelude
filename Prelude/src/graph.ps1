@@ -1,4 +1,8 @@
-﻿function Export-GraphData {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Export-GraphData')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Graph')]
+Param()
+
+function Export-GraphData {
     <#
     .SYNOPSIS
     Export graph data to an XML file or a JSON file.
@@ -19,7 +23,6 @@
     # Supports passing format as string paramter
     $Graph | Export-GraphData -Format 'XML'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -244,7 +247,6 @@ function New-Graph {
     .EXAMPLE
     $K4 = New-Graph -Complete -N 4
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding(DefaultParameterSetName = 'custom')]
     [OutputType([Graph])]
     Param(

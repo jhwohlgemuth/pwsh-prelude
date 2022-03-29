@@ -1,4 +1,4 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '', Scope = 'Function')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
 Param(
     [String] $GroupName
 )

@@ -1,4 +1,12 @@
-﻿function ConvertTo-Degree {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Extremum')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-LogisticSigmoid')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Mean')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Permutation')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Sum')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = 'Find-LargestMoveable')]
+Param()
+
+function ConvertTo-Degree {
     <#
     .SYNOPSIS
     Convert radians to degrees
@@ -79,7 +87,6 @@ function Get-Extremum {
     $Minimum = 1,2,3,4,5 | Get-Extremum -Min
     # 1
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -165,7 +172,6 @@ function Get-LogisticSigmoid {
     .PARAMETER Derivative
     Switch parameter to determine which function to use, f(x) or f'(x) = f(x) * f(-x)
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('sigmoid')]
     [OutputType([Double])]
@@ -229,7 +235,6 @@ function Get-Mean {
     .EXAMPLE
     1..10 | mean -Quadratic
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('mean')]
     [OutputType([System.Double])]
@@ -366,7 +371,6 @@ function Get-Permutation {
     'hello' | permute -Choose 2 -Unique -Words
     # 'he','hl','hl','ho','el','el','eo','ll','lo','lo'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('permute')]
     Param(
@@ -435,7 +439,6 @@ function Get-Permutation {
             $IsMoveable
         }
         function Find-LargestMoveable {
-            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function')]
             Param(
                 [Parameter(Position = 0)]
                 [Array] $Work,
@@ -594,7 +597,6 @@ function Get-Sum {
     $True, $False, $False, $False, $True | Get-Sum
     # 2
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('sum')]
     [OutputType([System.Numerics.Complex])]

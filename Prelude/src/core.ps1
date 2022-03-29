@@ -1,4 +1,19 @@
-﻿function ConvertFrom-Pair {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'Invoke-Operator')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Deny-Value')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Find-FirstIndex')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Value')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-DropWhile_')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Once')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-PropertyTransform')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Reduce')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Zip')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-ZipWith')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Join-StringsWithGrammar')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-PropertyExpression')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-RegexString')]
+Param()
+
+function ConvertFrom-Pair {
     <#
     .SYNOPSIS
     Creates an object from an array of keys and an array of values. Key/Value pairs with higher index take precedence.
@@ -167,7 +182,6 @@ function Deny-Value {
     'a','b','a','a' | Deny-Value -Value 'b'
     # returns 'a','a','a'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True, Position = 1)]
@@ -207,7 +221,6 @@ function Find-FirstIndex {
     1,1,1,2,1,1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
     # Returns 3
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [OutputType([Int])]
     Param(
@@ -346,7 +359,6 @@ function Invoke-DropWhile {
     )
     Begin {
         function Invoke-DropWhile_ {
-            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
             Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject,
@@ -618,7 +630,6 @@ function Invoke-Once {
 
     Functions returned by Invoke-Once can accept arguments
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, Position = 0)]
@@ -640,7 +651,6 @@ function Invoke-Operator {
     @(1,2,3),@(4,5,6),@(7,8,9) | op join ''
     # returns '123','456','789'
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('op')]
     Param(
@@ -849,7 +859,6 @@ function Invoke-PropertyTransform {
     }
     (Import-Csv -Path '.\contracts.csv') | Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer | Format-Table
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('transform')]
     Param(
@@ -862,7 +871,6 @@ function Invoke-PropertyTransform {
     )
     Begin {
         function New-PropertyExpression {
-            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
             Param(
                 [Parameter(Mandatory = $True)]
                 [String] $Name,
@@ -919,12 +927,6 @@ function Invoke-Reduce {
 
     Combining directory contents into single object and visualize with Write-BarChart - in a single line!
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Identity')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Add')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Multiply')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Every')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Some')]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'FIleInfo')]
     [CmdletBinding()]
     [Alias('reduce')]
     Param(
@@ -1156,7 +1158,6 @@ function Invoke-Zip {
     @(3,3,3),@(2,2),@(1) | Invoke-Zip -EmptyValue 0
     # Returns @(3,2,1),@(3,2,0),@(3,0,0)
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'EmptyValue')]
     [CmdletBinding()]
     [Alias('zip')]
     Param(
@@ -1206,7 +1207,6 @@ function Invoke-ZipWith {
     @(1,1),@(2,2) | Invoke-ZipWith { Param($a,$b) $a + $b }
     # Returns @(3,3)
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Iteratee')]
     [CmdletBinding()]
     [Alias('zipWith')]
     Param(
@@ -1239,7 +1239,6 @@ function Join-StringsWithGrammar {
     Join-StringsWithGrammar @('a', 'b', 'c')
     Returns "a, b, and c"
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Delimiter')]
     [CmdletBinding()]
     [OutputType([String])]
     Param(
@@ -1293,7 +1292,6 @@ function New-RegexString {
     # Regular expression that matches "foo", "bar", OR "baz"
     'foo', 'bar', 'baz' | New-RegularExpression
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('re')]
     [OutputType([String])]
@@ -1771,7 +1769,6 @@ function Test-Match {
         } else {
             $Results = ([Regex]$Re).Matches($Value)
             function Get-Value {
-                [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
                 Param(
                     [String] $Name
                 )

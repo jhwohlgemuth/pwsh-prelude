@@ -1,11 +1,15 @@
-﻿class ApplicationState {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-Template')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertTo-PowershellSyntax')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Remove-Indent')]
+Param()
+
+class ApplicationState {
     [String] $Id = (New-Guid)
     [Bool] $Continue = $True
     [String] $Name = 'Application Name'
     $Data
 }
 function ConvertTo-PowershellSyntax {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [OutputType([String])]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -257,7 +261,6 @@ function New-Template {
 
     Add comments to templates using {{- ... }} syntax
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('tpl')]
     [OutputType([String])]
@@ -362,7 +365,6 @@ function Remove-Indent {
     Remove indentation of multi-line (or single line) strings
     ==> Good for removing spaces added to template strings because of alignment with code.
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]

@@ -303,18 +303,27 @@ function Invoke-Lint {
     }
     if (-not ($Skip -contains 'powershell')) {
         $Parameters = @{
-            # Path = $PSScriptRoot
-            Path = Join-Path $PSScriptRoot 'Prelude/src'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/applied.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/application.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/core.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/data.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/events.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/graph.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/matrix.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/productivity.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/user-interface.ps1'
-            # Path = Join-Path $PSScriptRoot 'Prelude/src/web.ps1'
+            Path = @(
+                # $PSScriptRoot
+                'Prelude/src'
+                # 'Prelude/src/applied.ps1'
+                # 'Prelude/src/application.ps1'
+                # 'Prelude/src/core.ps1'
+                # 'Prelude/src/data.ps1'
+                # 'Prelude/src/events.ps1'
+                # 'Prelude/src/graph.ps1'
+                # 'Prelude/src/matrix.ps1'
+                # 'Prelude/src/productivity.ps1'
+                # 'Prelude/src/user-interface.ps1'
+                # 'Prelude/src/web.ps1'
+                # 'tests'
+                # 'tests/_setup.ps1'
+                # 'tests/application.Tests.ps1'
+                # 'tests/applied.Tests.ps1'
+                # 'tests/core.Tests.ps1'
+                # 'tests/data.Tests.ps1'
+                # 'tests/events.Tests.ps1'
+            ) | ForEach-Object { Join-Path $PSScriptRoot $_ } | Select-Object -First 1
             Settings = 'PSScriptAnalyzerSettings.psd1'
             Fix = (-not $DryRun)
             EnableExit = $CI

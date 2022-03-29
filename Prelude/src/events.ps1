@@ -1,4 +1,7 @@
-﻿function Invoke-FireEvent {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function', Target = 'Invoke-ListenTo')]
+Param()
+
+function Invoke-FireEvent {
     <#
     .SYNOPSIS
     Create event
@@ -68,7 +71,6 @@ function Invoke-ListenTo {
 
     Execute code when you exit the powershell terminal
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function')]
     [CmdletBinding(DefaultParameterSetName = 'custom')]
     [Alias('on', 'listenTo')]
     Param(

@@ -1,4 +1,7 @@
-﻿function Format-ComplexValue {
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Matrix')]
+Param()
+
+function Format-ComplexValue {
     <#
     .SYNOPSIS
     Utility method for rendering readable output for complex numbers
@@ -140,7 +143,6 @@ function New-Matrix {
     .EXAMPLE
     $Matrix = 1..9 | matrix 3,3
     #>
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     [CmdletBinding()]
     [Alias('matrix')]
     [OutputType([Matrix])]
