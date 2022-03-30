@@ -303,7 +303,7 @@ function Invoke-Lint {
         }
     }
     if (-not ($Skip -contains 'powershell')) {
-        $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion 5.0.4
+        $PesterData = Import-Module -Name Pester -PassThru -RequiredVersion 5.0.4
         $PSScriptAnalyzerData = Import-Module -Name PSScriptAnalyzer -PassThru -MinimumVersion 1.20.0
         $SourcePath = $PSScriptRoot
         $Parameters = @{
@@ -492,7 +492,7 @@ switch (Get-TaskList) {
         if ($GenerateCoverageReport) {
             $SourceDirs = $SourceDirectory
             $ReportTypes = 'Html;HtmlSummary;HtmlChart'
-            reportgenerator.exe -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
+            dotnet reportgenerator -reports:'**/coverage.xml' -targetdir:coverage -sourcedirs:$SourceDirs -historydir:.history -reporttypes:$ReportTypes
             if ($Show) {
                 Invoke-Item ./coverage/index.htm
             }
