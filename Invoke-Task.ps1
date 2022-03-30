@@ -1,6 +1,7 @@
 ﻿#Requires -Modules BuildHelpers,pester,PSScriptAnalyzer
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('AdvancedFunctionHelpContent', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
 [CmdletBinding()]
 Param(
     [Switch] $Lint,
@@ -302,35 +303,20 @@ function Invoke-Lint {
         }
     }
     if (-not ($Skip -contains 'powershell')) {
+        $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion 5.0.4
+        $PSScriptAnalyzerData = Import-Module -Name PSScriptAnalyzer -PassThru -MinimumVersion 1.20.0
+        $SourcePath = $PSScriptRoot
         $Parameters = @{
-            Path = @(
-                # $PSScriptRoot
-                'Prelude/src'
-                # 'Prelude/src/applied.ps1'
-                # 'Prelude/src/application.ps1'
-                # 'Prelude/src/core.ps1'
-                # 'Prelude/src/data.ps1'
-                # 'Prelude/src/events.ps1'
-                # 'Prelude/src/graph.ps1'
-                # 'Prelude/src/matrix.ps1'
-                # 'Prelude/src/productivity.ps1'
-                # 'Prelude/src/user-interface.ps1'
-                # 'Prelude/src/web.ps1'
-                # 'tests'
-                # 'tests/_setup.ps1'
-                # 'tests/application.Tests.ps1'
-                # 'tests/applied.Tests.ps1'
-                # 'tests/core.Tests.ps1'
-                # 'tests/data.Tests.ps1'
-                # 'tests/events.Tests.ps1'
-            ) | ForEach-Object { Join-Path $PSScriptRoot $_ } | Select-Object -First 1
+            Path = $SourcePath
             Settings = 'PSScriptAnalyzerSettings.psd1'
             Fix = (-not $DryRun)
             EnableExit = $CI
             ReportSummary = $True
             Recurse = $True
         }
-        "`n==> Linting PowerShell code" | Write-Output
+        "`n==> [INFO] Linting PowerShell code (Path = ${SourcePath})" | Write-Output
+        "==> [INFO] Using Pester v$($PesterData.Version.ToString())" | Write-Output
+        "==> [INFO] Using PSScriptAnalyzer v$($PSScriptAnalyzerData.Version.ToString())`n" | Write-Output
         Invoke-ScriptAnalyzer @Parameters
     }
     "`n" | Write-Output
@@ -432,11 +418,19 @@ function Invoke-Test {
         "`n`n" | Write-Output
     }
     if (-not ($Skip -contains 'powershell')) {
-        $Files = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
-        $Configuration = New-PesterConfiguration -Hashtable @{
+        $PesterData = Import-Module -Name Pester -PassThru -RequiredVersion 5.3.1
+        $Parameters = @{
             Run = @{ PassThru = $True }
             Filter = @{ ExcludeTag = $Exclude }
-            Debug = @{ ShowNavigationMarkers = $True; WriteVSCodeMarker = $True }
+            Debug = @{
+                ShowNavigationMarkers = $True
+                WriteVSCodeMarker = $True
+            }
+        }
+        $Configuration = if ($PesterData.Version.Minor -ge 2) {
+            New-PesterConfiguration -Hashtable $Parameters
+        } else {
+            [PesterConfiguration]$Parameters
         }
         if ($Filter) {
             $Configuration.Filter.FullName = $Filter
@@ -444,13 +438,17 @@ function Invoke-Test {
             $Configuration.Filter.Tag = $Tags
         }
         if ($WithCoverage) {
-            $Configuration.CodeCoverage = @{ Enabled = $True; Path = $Files }
+            $Configuration.CodeCoverage = @{
+                Enabled = $True
+                Path = (Get-ChildItem (Join-Path $PSScriptRoot $SourceDirectory) -Recurse -Include '*.ps1').FullName
+            }
             $Configuration.TestResult = @{ Enabled = $False }
         }
         if ($Detailed) {
             $Configuration.Output.Verbosity = 'Detailed'
         }
-        "==> Executing PowerShell tests on $BuildSystem" | Write-Output
+        "`n==> [INFO] Executing PowerShell tests on $BuildSystem" | Write-Output
+        "==> [INFO] Using Pester v$($PesterData.Version.ToString())`n" | Write-Output
         $Result = Invoke-Pester -Configuration $Configuration
         if ($Result.FailedCount -gt 0) {
             $FailedMessage = "==> FAILED - $($Result.FailedCount) PowerShell test(s) failed"

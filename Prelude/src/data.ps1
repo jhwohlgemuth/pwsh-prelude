@@ -1,4 +1,7 @@
-﻿# Nouns with the same singular and plural forms
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextforPassword', '', Scope = 'Function', Target = 'Import-Excel')]
+Param()
+
+# Nouns with the same singular and plural forms
 $SameSingularPlural = @(
     'accommodation'
     'advice'
@@ -587,7 +590,7 @@ function Import-Excel {
         [String] $Path,
         [String] $WorksheetName,
         [Array] $ColumnHeaders,
-        [SecureString] $Password,
+        [String] $Password,
         [Switch] $FirstRowHeaders,
         [String] $EmptyValue = 'EMPTY',
         [Switch] $ShowProgress,
