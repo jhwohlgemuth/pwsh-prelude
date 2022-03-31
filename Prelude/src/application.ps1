@@ -45,6 +45,22 @@ function Get-State {
     "==> Loading state from $Path" | Write-Verbose
     Import-Clixml -Path $Path
 }
+function Invoke-FireEvent {
+    <#
+    .SYNOPSIS
+    Create event
+    .EXAMPLE
+    'eventName' | Invoke-FireEvent
+    #>
+    [CmdletBinding()]
+    [Alias('trigger')]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [String] $Name,
+        [PSObject] $Data
+    )
+    New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
+}
 function Invoke-RunApplication {
     <#
     .SYNOPSIS
@@ -156,6 +172,44 @@ function Invoke-RunApplication {
         'application:' | Invoke-StopListen
     }
     $State.Id
+}
+function Invoke-StopListen {
+    <#
+    .SYNOPSIS
+    Remove event subscriber(s)
+    .EXAMPLE
+    $Callback | on 'SomeEvent'
+    'SomeEvent' | Invoke-StopListen
+
+    Remove events using the event "source identifier" (Name)
+    .EXAMPLE
+    $Callback | on -Name 'Namespace:foo'
+    $Callback | on -Name 'Namespace:bar'
+    'Namespace:' | Invoke-StopListen
+
+    Remove multiple events using an event namespace
+    .EXAMPLE
+    $Listener = $Callback | on 'SomeEvent'
+    Invoke-StopListen -EventData $Listener
+
+    Selectively remove a single event by passing its event data
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(ValueFromPipeline = $True)]
+        [String] $Name,
+        [PSObject] $EventData
+    )
+    if ($EventData) {
+        Unregister-Event -SubscriptionId $EventData.Id
+    } else {
+        if ($Name) {
+            $Events = Get-EventSubscriber | Where-Object { $_.SourceIdentifier -match "^$Name" }
+        } else {
+            $Events = Get-EventSubscriber
+        }
+        $Events | ForEach-Object { Unregister-Event -SubscriptionId $_.SubscriptionId }
+    }
 }
 function New-ApplicationTemplate {
     <#

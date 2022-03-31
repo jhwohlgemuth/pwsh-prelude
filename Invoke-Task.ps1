@@ -303,18 +303,17 @@ function Invoke-Lint {
         }
     }
     if (-not ($Skip -contains 'powershell')) {
-        $PesterData = Import-Module -Name Pester -PassThru -RequiredVersion 5.0.4
+        $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion 5.0.4
         $PSScriptAnalyzerData = Import-Module -Name PSScriptAnalyzer -PassThru -MinimumVersion 1.20.0
-        $SourcePath = $PSScriptRoot
         $Parameters = @{
-            Path = $SourcePath
+            Path = $PSScriptRoot
             Settings = 'PSScriptAnalyzerSettings.psd1'
             Fix = (-not $DryRun)
             EnableExit = $CI
             ReportSummary = $True
             Recurse = $True
         }
-        "`n==> [INFO] Linting PowerShell code (Path = ${SourcePath})" | Write-Output
+        "`n==> [INFO] Linting PowerShell code (Path = $($Parameters.Path))" | Write-Output
         "==> [INFO] Using Pester v$($PesterData.Version.ToString())" | Write-Output
         "==> [INFO] Using PSScriptAnalyzer v$($PSScriptAnalyzerData.Version.ToString())`n" | Write-Output
         Invoke-ScriptAnalyzer @Parameters

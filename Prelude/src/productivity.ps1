@@ -1,15 +1,7 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function', Target = 'Invoke-RemoteCommand')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope = 'Function', Target = 'Open-Session')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-RemoteCommand')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Open-Session')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertFrom-FolderStructure')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-ListenForWord')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertFrom-FolderStructure')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Pack')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Tree')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Rename-FileExtension')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = 'Invoke-ListenForWord')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function', Target = 'Invoke-RemoteCommand')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUsePSCredentialType', '', Scope = 'Function', Target = 'Open-Session')]
 Param()
 
 function ConvertFrom-FolderStructure {
@@ -122,38 +114,6 @@ function ConvertTo-PlainText {
         $PlainText
     }
 }
-function Enable-Remoting {
-    <#
-    .SYNOPSIS
-    Function to enable Powershell remoting for workgroup computer
-    .PARAMETER TrustedHosts
-    Comma-separated list of trusted host names
-    example: 'RED,WHITE,BLUE'
-    .EXAMPLE
-    Enable-Remoting
-    .EXAMPLE
-    Enable-Remoting -TrustedHosts 'MARIO,LUIGI'
-    #>
-    [CmdletBinding()]
-    Param(
-        [String] $TrustedHosts = '*',
-        [Switch] $PassThru
-    )
-    if (Test-Admin) {
-        Write-Verbose '==> Making network private'
-        Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
-        $Path = 'WSMan:\localhost\Client\TrustedHosts'
-        Write-Verbose '==> Enabling Powershell remoting'
-        Enable-PSRemoting -Force -SkipNetworkProfileCheck
-        Write-Verbose '==> Updated trusted hosts'
-        Set-Item $Path -Value $TrustedHosts -Force
-        if ($PassThru) {
-            return Get-Item $Path
-        }
-    } else {
-        Write-Error '==> Enable-Remoting requires Administrator privileges'
-    }
-}
 function Find-Duplicate {
     <#
     .SYNOPSIS
@@ -216,28 +176,6 @@ function Find-FirstTrueVariable {
         } else {
             $VariableNames[$DefaultIndex]
         }
-    }
-}
-function Get-DefaultBrowser {
-    <#
-    .SYNOPSIS
-    Get string name of user-selected default browser
-    #>
-    [CmdletBinding()]
-    [OutputType([String])]
-    Param()
-    $Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html\UserChoice\'
-    $Abbreviation = if (Test-Path -Path $Path) {
-        (Get-ItemProperty -Path $Path).ProgId.Substring(0, 2).ToUpper()
-    } else {
-        ''
-    }
-    switch ($Abbreviation) {
-        'FI' { 'Firefox' }
-        'IE' { 'IE' }
-        'CH' { 'Chrome' }
-        'OP' { 'Opera' }
-        Default { 'Unknown' }
     }
 }
 function Get-ParameterList {
@@ -439,46 +377,6 @@ function Invoke-GoogleSearch {
         }
     }
 }
-function Invoke-ListenForWord {
-    <#
-    .SYNOPSIS
-    Start loop that listens for trigger words and execute passed functions when recognized
-    .DESCRIPTION
-    This function uses the Windows Speech Recognition. For best results, you should first improve speech recognition via Speech Recognition Voice Training.
-    .EXAMPLE
-    Invoke-Listen -Triggers 'hello' -Actions { Write-Color 'Welcome' -Green }
-    .EXAMPLE
-    Invoke-Listen -Triggers 'hello','quit' -Actions { say 'Welcome' | Out-Null; $True }, { say 'Goodbye' | Out-Null; $False }
-    An action will stop listening when it returns a "falsy" value like $True or $Null. Conversely, returning "truthy" values will continue the listening loop.
-    #>
-    [CmdletBinding()]
-    [Alias('listenFor')]
-    Param(
-        [Parameter(Mandatory = $True)]
-        [String[]] $Triggers,
-        [ScriptBlock[]] $Actions,
-        [Double] $Threshhold = 0.85
-    )
-    Use-Speech
-    $Engine = Use-Grammar -Words $Triggers
-    $Continue = $True;
-    Write-Color 'Listening for trigger words...' -Cyan
-    while ($Continue) {
-        $Recognizer = $Engine.Recognize();
-        $Confidence = $Recognizer.Confidence;
-        $Text = $Recognizer.text;
-        if ($Text.Length -gt 0) {
-            Write-Verbose "==> Heard `"$Text`""
-        }
-        $Index = 0
-        $Triggers | ForEach-Object {
-            if ($Text -match $_ -and [Double]$Confidence -gt $Threshhold) {
-                $Continue = & $Actions[$Index]
-            }
-            $Index++
-        }
-    }
-}
 function Invoke-Pack {
     <#
     .SYNOPSIS
@@ -560,74 +458,6 @@ function Invoke-Pack {
         }
         Get-StringPath $OutputPath
     }
-}
-function Invoke-RemoteCommand {
-    <#
-    .SYNOPSIS
-    Lightweight wrapper function for Invoke-Command that simplifies the interface and allows for using a string password directly
-    .PARAMETER Parameters
-    Object to pass parameters to underlying Invoke-Command call (ex: -Parameters @{ HideComputerName = $True })
-    .EXAMPLE
-    Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456 { whoami }
-    .EXAMPLE
-    { whoami } | Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456
-    .EXAMPLE
-    # This will open a prompt for you to input your password
-    { whoami } | Invoke-RemoteCommand -ComputerNames PCNAME
-    .EXAMPLE
-    # Use the "irc" alias and execute commands on multiple computers!
-    { whoami } | irc -ComputerNames Larry,Moe,Curly
-    .EXAMPLE
-    Get-Credential | Export-CliXml -Path .\crendential.xml
-    { whoami } | Invoke-RemoteCommand -Credential (Import-Clixml -Path .\credential.xml) -ComputerNames PCNAME -Verbose
-    .EXAMPLE
-    irc '.\path\to\script.ps1'
-    .EXAMPLE
-    { Get-Process } | irc -Name Mario -Parameters @{ HideComputerName = $True }
-    #>
-    [CmdletBinding(DefaultParameterSetName = 'scriptblock')]
-    [Alias('irc')]
-    Param(
-        [Parameter(ParameterSetName = 'scriptblock', Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [ScriptBlock] $ScriptBlock,
-        [Parameter(ParameterSetName = 'file', Mandatory = $True, Position = 0)]
-        [ValidateScript( { Test-Path $_ })]
-        [String] $FilePath,
-        [Parameter(ParameterSetName = 'scriptblock', Mandatory = $True)]
-        [Parameter(ParameterSetName = 'file', Mandatory = $True)]
-        [Alias('Name')]
-        [String[]] $ComputerName,
-        [Parameter(ParameterSetName = 'scriptblock')]
-        [Parameter(ParameterSetName = 'file')]
-        [SecureString] $Password,
-        [Parameter(ParameterSetName = 'scriptblock')]
-        [Parameter(ParameterSetName = 'file')]
-        [PSObject] $Credential,
-        [Parameter(ParameterSetName = 'scriptblock')]
-        [Parameter(ParameterSetName = 'file')]
-        [Switch] $AsJob,
-        [Parameter(ParameterSetName = 'scriptblock')]
-        [Parameter(ParameterSetName = 'file')]
-        [PSObject] $Parameters = @{}
-    )
-    $User = whoami
-    if ($Credential) {
-        '==> Using -Credential for authentication' | Write-Verbose
-        $Cred = $Credential
-    } elseif ($Password) {
-        "==> Creating credential for $User using -Password" | Write-Verbose
-        $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-        $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
-    } else {
-        $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerName)" -User $User
-    }
-    "==> Running command on $(Join-StringsWithGrammar $ComputerName)" | Write-Verbose
-    $Execute = if ($FilePath) {
-        @{ FilePath = $FilePath }
-    } else {
-        @{ ScriptBlock = $ScriptBlock }
-    }
-    Invoke-Command -ComputerName $ComputerName -Credential $Cred -AsJob:$AsJob @Execute @Parameters
 }
 function Invoke-Speak {
     <#
@@ -843,58 +673,6 @@ function New-File {
         $Result
     }
 }
-function Open-Session {
-    <#
-    .SYNOPSIS
-    Create interactive session with remote computer
-    .PARAMETER NoEnter
-    Create session(s) but do not enter a session
-    .EXAMPLE
-    Open-Session -ComputerNames PCNAME -Password 123456
-    .EXAMPLE
-    # This will open a prompt for you to input your password
-    Open-Session -ComputerNames PCNAME
-    .EXAMPLE
-    $Sessions = Open-Session -ComputerNames ServerA,ServerB
-    # This will open a password prompt and then display an interactive console menu to select ServerA or ServerB.
-    # $Sessions will point to an array of sessions for ServerA and ServerB and can be used to make new sessions:
-    Enter-PSSession -Session $Sessions[1]
-    #>
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [String[]] $ComputerNames,
-        [SecureString] $Password,
-        [PSObject] $Credential,
-        [Switch] $NoEnter
-    )
-    $User = whoami
-    if ($Credential) {
-        Write-Verbose '==> Using -Credential for authentication'
-        $Cred = $Credential
-    } elseif ($Password) {
-        Write-Verbose "==> Creating credential for $User using -Password"
-        $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
-        $Cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $Pass
-    } else {
-        $Cred = Get-Credential -Message "Please provide password to access $(Join-StringsWithGrammar $ComputerNames)" -User $User
-    }
-    Write-Verbose "==> Creating session on $(Join-StringsWithGrammar $ComputerNames)"
-    $Session = New-PSSession -ComputerName $ComputerNames -Credential $Cred
-    Write-Verbose '==> Entering session'
-    if (-not $NoEnter) {
-        if ($Session.Length -eq 1) {
-            Enter-PSSession -Session $Session
-        } else {
-            Write-Label '{{#green Enter session?}}' -NewLine
-            $Index = Invoke-Menu -Items $ComputerNames -ReturnIndex
-            if ($Null -ne $Index) {
-                Enter-PSSession -Session $Session[$Index]
-            }
-        }
-    }
-    $Session
-}
 function Out-Tree {
     <#
     .SYNOPSIS
@@ -1035,43 +813,6 @@ function Rename-FileExtension {
         }
     }
 }
-function Take {
-    <#
-    .SYNOPSIS
-    Powershell equivalent of oh-my-zsh take function
-    .DESCRIPTION
-    Using take will create a new directory and then enter the driectory
-    .EXAMPLE
-    take <folder name>
-    #>
-    [CmdletBinding(SupportsShouldProcess = $True)]
-    Param(
-        [Parameter(Mandatory = $True)]
-        [String] $Name
-    )
-    $Path = Join-Path (Get-Location) $Name
-    if (Test-Path $Path) {
-        "==> $Path exists" | Write-Verbose
-        if ($PSCmdlet.ShouldProcess($Path)) {
-            "==> Entering $Path" | Write-Verbose
-            Set-Location $Path
-        } else {
-            "==> Would have entered $Path" | Write-Color -DarkGray
-        }
-    } else {
-        if ($PSCmdlet.ShouldProcess($Path)) {
-            "==> Creating $Path" | Write-Verbose
-            mkdir $Path
-            if (Test-Path $Path) {
-                Write-Verbose "==> Entering $Path"
-                Set-Location $Path
-            }
-        } else {
-            "==> Would have created and entered $Path" | Write-Color -DarkGray
-        }
-    }
-    Write-Verbose "==> pwd is $(Get-Location)"
-}
 function Test-Admin {
     <#
     .SYNOPSIS
@@ -1154,29 +895,6 @@ function Test-Installed {
     } else {
         $False
     }
-}
-function Use-Grammar {
-    <#
-    .SYNOPSIS
-    Create speech recognition engine, load grammars for words, and return the engine
-    #>
-    [CmdletBinding()]
-    [OutputType([System.Speech.Recognition.SpeechRecognitionEngine])]
-    Param(
-        [Parameter(Mandatory = $True)]
-        [String[]] $Words
-    )
-    Write-Verbose '==> Creating Speech Recognition Engine'
-    $Engine = New-Object 'System.Speech.Recognition.SpeechRecognitionEngine';
-    $Engine.InitialSilenceTimeout = 15
-    $Engine.SetInputToDefaultAudioDevice();
-    foreach ($Word in $Words) {
-        "==> Loading grammar for $Word" | Write-Verbose
-        $Grammar = New-Object 'System.Speech.Recognition.GrammarBuilder';
-        $Grammar.Append($Word)
-        $Engine.LoadGrammar($Grammar)
-    }
-    $Engine
 }
 function Use-Speech {
     <#
