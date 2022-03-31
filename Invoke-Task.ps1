@@ -13,6 +13,11 @@ Param(
     [Switch] $CI,
     [Switch] $Build,
     [Switch] $BuildOnly,
+    [ValidateSet('2022', '2019')]
+    [String] $Version = '2022',
+    [String] $Offering = 'Community',
+    [ValidateSet('x64', 'x86')]
+    [String] $Architecture = 'x64',
     [Switch] $Check,
     [Switch] $Publish,
     [Switch] $Major,
@@ -32,6 +37,11 @@ Param(
 )
 $Prefix = if ($DryRun) { '[DRYRUN] ' } else { '' }
 $SourceDirectory = Join-Path 'Prelude' 'src'
+$VisualStudioData = @{
+    Version = $Version
+    Offering = $Offering
+    Architecture = $Architecture
+}
 if ([String]::IsNullOrEmpty($Exclude)) {
     switch ($Platform) {
         'linux' {
@@ -72,7 +82,20 @@ function Write-Message {
             ░  ░ ░      ░  ░'
         }
     }
-    $Message | Write-Output
+    "${Message}`n" | Write-Output
+}
+function Get-VisualStudioRoot {
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [ValidateSet('2022', '2019')]
+        [String] $Version = '2022',
+        [String] $Offering = 'Community',
+        [ValidateSet('x64', 'x86')]
+        [String] $Architecture = 'x64'
+    )
+    $ProgramFilesPostfix = if ($Architecture -eq 'x86') { ' (x86)' } else { '' }
+    "C:\Program Files${ProgramFilesPostfix}\Microsoft Visual Studio\${Version}\${Offering}"
 }
 function Get-TaskList {
     [CmdletBinding()]
@@ -121,8 +144,8 @@ function Invoke-Benchmark {
     #>
     [CmdletBinding()]
     Param()
-    '==> Running C# Benchmarks' | Write-Output
-    $ProjectPath = "$PSScriptRoot/csharp/Performance/Performance.csproj"
+    '==> [INFO] Running C# Benchmarks' | Write-Output
+    $ProjectPath = "${PSScriptRoot}/csharp/Performance/Performance.csproj"
     dotnet run --project $ProjectPath --configuration 'Release'
 }
 function Invoke-Build {
@@ -138,48 +161,57 @@ function Invoke-Build {
     #>
     [CmdletBinding()]
     Param(
-        [String] $Version = '2019',
-        [String] $Offering = 'Community'
+        [ValidateSet('2022', '2019')]
+        [String] $Version = '2022',
+        [String] $Offering = 'Community',
+        [ValidateSet('x64', 'x86')]
+        [String] $Architecture = 'x64'
     )
-    $ToolsDirectory = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering\Common7\Tools"
-    $CompilerPath = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering\MSBuild\Current\Bin\Roslyn\csc.exe"
+    $VisualStudioData = @{
+        Version = $Version
+        Offering = $Offering
+        Architecture = $Architecture
+    }
+    $VisualStudioRoot = Get-VisualStudioRoot @VisualStudioData
+    $ToolsDirectory = "${VisualStudioRoot}\Common7\Tools"
+    $CompilerPath = "${VisualStudioRoot}\MSBuild\Current\Bin\Roslyn\csc.exe"
     if ((Test-Path $ToolsDirectory)) {
-        '==> Setting environment variables' | Write-Output
+        '==> [INFO] Setting environment variables' | Write-Output
         & (Join-Path $ToolsDirectory 'VsDevCmd.bat') -no_logo
     } else {
-        'Could not find VsDevCmd.bat which is needed to set environment variables' | Write-Error
+        '==> [ERROR] Could not find VsDevCmd.bat which is needed to set environment variables' | Write-Error
     }
     if ((Test-Path $CompilerPath)) {
-        $CsharpDirectory = "$PSScriptRoot/csharp"
-        $OutputDirectory = "$PSScriptRoot/Prelude/bin"
+        $CsharpDirectory = "${PSScriptRoot}/csharp"
+        $OutputDirectory = "${PSScriptRoot}/Prelude/bin"
         $SystemNumerics = "$([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory())\System.Numerics.dll"
         'Geodetic' | ForEach-Object {
-            "==> Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library
         }
         'Matrix' | ForEach-Object {
-            "==> Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:$SystemNumerics
         }
         'Node' | ForEach-Object {
-            "==> Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory
         }
         'Item' | ForEach-Object {
-            "==> Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Node.dll
         }
         'Edge', 'PriorityQueue' | ForEach-Object {
-            "==> Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -reference:Item.dll
         }
         'DirectedEdge', 'Graph' | ForEach-Object {
-            "==> Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Output
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:$SystemNumerics -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -reference:PriorityQueue.dll
         }
         Write-Message done
     } else {
-        'Could not find C# compiler (csc.exe)' | Write-Error
+        '==> [ERROR] Could not find C# compiler (csc.exe)' | Write-Error
     }
 }
 function Invoke-Check {
@@ -187,8 +219,7 @@ function Invoke-Check {
     .SYNOPSIS
     Run series of checks to determine if environment supports Prelude development.
     .DESCRIPTION
-    Checks are run against Visual Studio 2019 Community Edition by default. Checks can be performed against other versions and offering using the -Version and -Offering parameters, respectively.
-    > Note: VS2019 Community Edition is the ONLY version currently support by the Prelude project.
+    Checks are run against Visual Studio 2022 Community Edition by default. Checks can be performed against other versions and offering using the -Version and -Offering parameters, respectively.
     .EXAMPLE
     .\Invoke-Task.ps1 -Check
     .NOTES
@@ -196,20 +227,36 @@ function Invoke-Check {
     #>
     [CmdletBinding()]
     Param(
-        [String] $Version = '2019',
-        [String] $Offering = 'Community'
+        [ValidateSet('2022', '2019')]
+        [String] $Version = '2022',
+        [String] $Offering = 'Community',
+        [ValidateSet('x64', 'x86')]
+        [String] $Architecture = 'x64'
     )
-    $VisualStudioRoot = "C:\Program Files (x86)\Microsoft Visual Studio\$Version\$Offering"
+    $VisualStudioData = @{
+        Version = $Version
+        Offering = $Offering
+        Architecture = $Architecture
+    }
+    $VisualStudioRoot = Get-VisualStudioRoot @VisualStudioData
     $Results = @()
     $Fails = 0
-    if ((Get-Command -Name 'dotnet')) {
+    "`n==> [INFO] Checking build requirements" | Write-Output
+    "==> [INFO] VS Studio Version: ${Version}" | Write-Output
+    "==> [INFO] Offering: ${Offering}" | Write-Output
+    "==> [INFO] Architecture: ${Architecture}`n" | Write-Output
+    if ((Get-Command -Name 'dotnet' -ErrorAction Ignore)) {
         $Results += '[+] dotnet command is available!'
     } else {
         $Results += '[-] Failed to find dotnet command...'
         $Fails++
     }
-    if ((Get-Command -Name 'reportgenerator.exe')) {
-        $Results += '[+] reportgenerator command is available!'
+    $ToolName = 'reportgenerator'
+    $DotnetToolInstalled = (((dotnet tool list) -match $ToolName) -split '\s+') -contains $ToolName
+    if ((Get-Command -Name "${ToolName}.exe" -ErrorAction Ignore)) {
+        $Results += "[+] `"${ToolName}.exe`" command is available!"
+    } elseIf ($DotnetToolInstalled) {
+        $Results += "[+] `"dotnet ${ToolName}`" command is available!"
     } else {
         $Results += '[-] Failed to find reportgenerator command...'
         $Fails++
@@ -282,7 +329,7 @@ function Invoke-Lint {
         [String[]] $Skip
     )
     if (-not ($Skip -contains 'dotnet')) {
-        "==> Formatting C# code`n" | Write-Output
+        "==> [INFO] Formatting C# code`n" | Write-Output
         $Format = {
             Param(
                 [String] $Name
@@ -294,12 +341,12 @@ function Invoke-Lint {
                 dotnet tool run dotnet-format $Path --verbosity detailed
             }
         }
-        if ((Get-Command -Name 'dotnet')) {
+        if ((Get-Command -Name 'dotnet' -ErrorAction Ignore)) {
             'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
                 & $Format -Name $_
             }
         } else {
-            'Global dotnet-format tool is required. Please run "./Invoke-Setup.ps1"' | Write-Error
+            '==> [ERROR] Global dotnet-format tool is required. Please run "./Invoke-Setup.ps1"' | Write-Error
         }
     }
     if (-not ($Skip -contains 'powershell')) {
@@ -360,9 +407,9 @@ function Invoke-Publish {
         'Build'
     }
     if (-not $DryRun) {
-        "Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+        "==> [INFO] Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
         Update-Metadata $ProjectManifestPath -Increment $Increment
-        'Publishing module...' | Write-Output
+        '==> [INFO] Publishing module...' | Write-Output
         Publish-Module -Path $ModulePath -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
         "`n==> DONE`n" | Write-Output
     } else {
@@ -408,7 +455,7 @@ function Invoke-Test {
     $BuildSystem = if ($Env:PreludeBuildSystem -eq 'Unknown') { 'Local Computer' } else { $Env:PreludeBuildSystem }
     if (-not ($Skip -contains 'dotnet')) {
         $ProjectPath = "$PSScriptRoot/csharp/Tests/Tests.csproj"
-        "==> Executing C# tests on $BuildSystem" | Write-Output
+        "==> [INFO] Executing C# tests on $BuildSystem" | Write-Output
         if ($WithCoverage) {
             dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
         } else {
@@ -467,7 +514,7 @@ switch (Get-TaskList) {
         Break
     }
     check {
-        Invoke-Check
+        Invoke-Check @VisualStudioData
         Break
     }
     lint {
@@ -503,7 +550,7 @@ switch (Get-TaskList) {
             Invoke-Test -Skip 'powershell'
         }
         if ($LASTEXITCODE -eq 0) {
-            Invoke-Build
+            Invoke-Build @VisualStudioData
         } else {
             Write-Message -Text fail
             break
