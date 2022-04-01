@@ -53,49 +53,73 @@ if ([String]::IsNullOrEmpty($Exclude)) {
     }
 }
 function Write-Message {
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String] $Text,
+        [Switch] $Success,
+        [Switch] $Fail
+    )
+    if ($Success -and (-not $Fail)) {
+        '[+] ' | Write-Host -ForegroundColor Green -NoNewline
+        $Text | Write-Host
+    } elseif ($Fail) {
+        '[-] ' | Write-Host -ForegroundColor Red -NoNewline
+        $Text | Write-Host
+    } else {
+        $Text | Write-Host -ForegroundColor DarkGray
+    }
+}
+function Write-Result {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $True, Position = 0)]
+        [Parameter(Position = 0)]
         [ValidateSet('done', 'pass', 'fail')]
-        [String] $Text
+        [String] $Result = 'done'
     )
-    $Message = switch ($Text) {
+    $Color = switch ($Result) {
+        'done' { 'Gray' }
+        'pass' { 'Green' }
+        'fail' { 'Red' }
+    }
+    $Message = switch ($Result) {
         pass {
-            '
-██████╗  █████╗ ███████╗███████╗
-██╔══██╗██╔══██╗██╔════╝██╔════╝
-██████╔╝███████║███████╗███████╗
-██╔═══╝ ██╔══██║╚════██║╚════██║
-██║     ██║  ██║███████║███████║
-╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝'
+            @(
+                '██████╗  █████╗ ███████╗███████╗'
+                '██╔══██╗██╔══██╗██╔════╝██╔════╝'
+                '██████╔╝███████║███████╗███████╗'
+                '██╔═══╝ ██╔══██║╚════██║╚════██║'
+                '██║     ██║  ██║███████║███████║'
+                '╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝'
+            )
         }
         fail {
-            '
-  █████▒▄▄▄       ██▓ ██▓
-▓██   ▒▒████▄    ▓██▒▓██▒
-▒████ ░▒██  ▀█▄  ▒██▒▒██░
-░▓█▒  ░░██▄▄▄▄██ ░██░▒██░
-░▒█░    ▓█   ▓██▒░██░░██████▒
-▒ ░    ▒▒   ▓▒█░░▓  ░ ▒░▓  ░
-░       ▒   ▒▒ ░ ▒ ░░ ░ ▒  ░
-░ ░     ░   ▒    ▒ ░  ░ ░
-            ░  ░ ░      ░  ░'
+            @(
+                '  █████▒▄▄▄       ██▓ ██▓    '
+                '▓██   ▒▒████▄    ▓██▒▓██▒    '
+                '▒████ ░▒██  ▀█▄  ▒██▒▒██░    '
+                '░▓█▒  ░░██▄▄▄▄██ ░██░▒██░    '
+                '░▒█░    ▓█   ▓██▒░██░░██████▒'
+                '▒ ░    ▒▒   ▓▒█░░▓  ░ ▒░▓  ░ '
+                '░       ▒   ▒▒ ░ ▒ ░░ ░ ▒  ░ '
+                '░ ░     ░   ▒    ▒ ░  ░ ░    '
+                '            ░  ░ ░      ░  ░ '
+            )
+        }
+        done {
+            @(
+                '██████   ██████  ███    ██ ███████ '
+                '██   ██ ██    ██ ████   ██ ██      '
+                '██   ██ ██    ██ ██ ██  ██ █████   '
+                '██   ██ ██    ██ ██  ██ ██ ██      '
+                '██████   ██████  ██   ████ ███████ '
+            )
         }
     }
-    "${Message}`n" | Write-Output
-}
-function Get-VisualStudioRoot {
-    [CmdletBinding()]
-    [OutputType([String])]
-    Param(
-        [ValidateSet('2022', '2019')]
-        [String] $Version = '2022',
-        [String] $Offering = 'Community',
-        [ValidateSet('x64', 'x86')]
-        [String] $Architecture = 'x64'
-    )
-    $ProgramFilesPostfix = if ($Architecture -eq 'x86') { ' (x86)' } else { '' }
-    "C:\Program Files${ProgramFilesPostfix}\Microsoft Visual Studio\${Version}\${Offering}"
+    '' | Write-Host
+    $Message | ForEach-Object {
+        $_ | Write-Host -ForegroundColor $Color
+    }
+    '' | Write-Host
 }
 function Get-TaskList {
     [CmdletBinding()]
@@ -133,6 +157,19 @@ function Get-TaskList {
     }
     $Tasks
 }
+function Get-VisualStudioRoot {
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [ValidateSet('2022', '2019')]
+        [String] $Version = '2022',
+        [String] $Offering = 'Community',
+        [ValidateSet('x64', 'x86')]
+        [String] $Architecture = 'x64'
+    )
+    $ProgramFilesPostfix = if ($Architecture -eq 'x86') { ' (x86)' } else { '' }
+    "C:\Program Files${ProgramFilesPostfix}\Microsoft Visual Studio\${Version}\${Offering}"
+}
 function Invoke-Benchmark {
     <#
     .SYNOPSIS
@@ -144,7 +181,7 @@ function Invoke-Benchmark {
     #>
     [CmdletBinding()]
     Param()
-    '==> [INFO] Running C# Benchmarks' | Write-Output
+    '==> [INFO] Running C# Benchmarks' | Write-Message
     $ProjectPath = "${PSScriptRoot}/csharp/Performance/Performance.csproj"
     dotnet run --project $ProjectPath --configuration 'Release'
 }
@@ -176,7 +213,7 @@ function Invoke-Build {
     $ToolsDirectory = "${VisualStudioRoot}\Common7\Tools"
     $CompilerPath = "${VisualStudioRoot}\MSBuild\Current\Bin\Roslyn\csc.exe"
     if ((Test-Path $ToolsDirectory)) {
-        '==> [INFO] Setting environment variables' | Write-Output
+        '==> [INFO] Setting environment variables' | Write-Message
         & (Join-Path $ToolsDirectory 'VsDevCmd.bat') -no_logo
     } else {
         '==> [ERROR] Could not find VsDevCmd.bat which is needed to set environment variables' | Write-Error
@@ -186,30 +223,30 @@ function Invoke-Build {
         $OutputDirectory = "${PSScriptRoot}/Prelude/bin"
         $SystemNumerics = "$([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory())\System.Numerics.dll"
         'Geodetic' | ForEach-Object {
-            "==> [INFO] Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library
         }
         'Matrix' | ForEach-Object {
-            "==> [INFO] Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:$SystemNumerics
         }
         'Node' | ForEach-Object {
-            "==> [INFO] Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory
         }
         'Item' | ForEach-Object {
-            "==> [INFO] Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Node.dll
         }
         'Edge', 'PriorityQueue' | ForEach-Object {
-            "==> [INFO] Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Matrix.dll -reference:Node.dll -reference:Item.dll
         }
         'DirectedEdge', 'Graph' | ForEach-Object {
-            "==> [INFO] Building $_ link library" | Write-Output
+            "==> [INFO] Building $_ link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/Graph/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:$SystemNumerics -reference:Matrix.dll -reference:Node.dll -reference:Edge.dll -reference:PriorityQueue.dll
         }
-        Write-Message done
+        Write-Result done
     } else {
         '==> [ERROR] Could not find C# compiler (csc.exe)' | Write-Error
     }
@@ -239,43 +276,41 @@ function Invoke-Check {
         Architecture = $Architecture
     }
     $VisualStudioRoot = Get-VisualStudioRoot @VisualStudioData
-    $Results = @()
     $Fails = 0
-    "`n==> [INFO] Checking build requirements" | Write-Output
-    "==> [INFO] VS Studio Version: ${Version}" | Write-Output
-    "==> [INFO] Offering: ${Offering}" | Write-Output
-    "==> [INFO] Architecture: ${Architecture}`n" | Write-Output
+    "`n==> [INFO] Checking build requirements" | Write-Message
+    "==> [INFO] VS Studio Version: ${Version}" | Write-Message
+    "==> [INFO] Offering: ${Offering}" | Write-Message
+    "==> [INFO] Architecture: ${Architecture}`n" | Write-Message
     if ((Get-Command -Name 'dotnet' -ErrorAction Ignore)) {
-        $Results += '[+] dotnet command is available!'
+        'dotnet command is available!' | Write-Message -Success
     } else {
-        $Results += '[-] Failed to find dotnet command...'
+        'Failed to find dotnet command...' | Write-Message -Fail
         $Fails++
     }
     $ToolName = 'reportgenerator'
     $DotnetToolInstalled = (((dotnet tool list) -match $ToolName) -split '\s+') -contains $ToolName
     if ((Get-Command -Name "${ToolName}.exe" -ErrorAction Ignore)) {
-        $Results += "[+] `"${ToolName}.exe`" command is available!"
+        "`"${ToolName}.exe`" command is available!" | Write-Message -Success
     } elseIf ($DotnetToolInstalled) {
-        $Results += "[+] `"dotnet ${ToolName}`" command is available!"
+        "`"dotnet ${ToolName}`" command is available!" | Write-Message -Success
     } else {
-        $Results += '[-] Failed to find reportgenerator command...'
+        "Failed to find ${ToolName} command..." | Write-Message -Fail
         $Fails++
     }
     if ((Test-Path "$VisualStudioRoot\Common7\Tools\VsDevCmd.bat")) {
-        $Results += '[+] Successfully found VsDevCmd.bat!'
+        'Successfully found VsDevCmd.bat!' | Write-Message -Success
     } else {
-        $Results += '[-] Failed to find necessary BAT file...'
+        'Failed to find necessary BAT file...' | Write-Message -Fail
         $Fails++
     }
     if ((Test-Path "$VisualStudioRoot\MSBuild\Current\Bin\Roslyn\csc.exe")) {
-        $Results += '[+] Successfully found csc.exe!'
+        'Successfully found csc.exe!' | Write-Message -Success
     } else {
-        $Results += '[-] Failed to find C# compiler...'
+        'Failed to find C# compiler...' | Write-Message -Fail
         $Fails++
     }
-    $Results | ForEach-Object { $_ | Write-Output }
     $Result = if ($Fails -eq 0) { 'pass' } else { 'fail' }
-    Write-Message $Result
+    Write-Result $Result
 }
 function Invoke-Help {
     [CmdletBinding()]
@@ -329,7 +364,7 @@ function Invoke-Lint {
         [String[]] $Skip
     )
     if (-not ($Skip -contains 'dotnet')) {
-        "==> [INFO] Formatting C# code`n" | Write-Output
+        "==> [INFO] Formatting C# code`n" | Write-Message
         $Format = {
             Param(
                 [String] $Name
@@ -360,12 +395,12 @@ function Invoke-Lint {
             ReportSummary = $True
             Recurse = $True
         }
-        "`n==> [INFO] Linting PowerShell code (Path = $($Parameters.Path))" | Write-Output
-        "==> [INFO] Using Pester v$($PesterData.Version.ToString())" | Write-Output
-        "==> [INFO] Using PSScriptAnalyzer v$($PSScriptAnalyzerData.Version.ToString())`n" | Write-Output
+        "`n==> [INFO] Linting PowerShell code (Path = $($Parameters.Path))" | Write-Message
+        "==> [INFO] Using Pester v$($PesterData.Version.ToString())" | Write-Message
+        "==> [INFO] Using PSScriptAnalyzer v$($PSScriptAnalyzerData.Version.ToString())`n" | Write-Message
         Invoke-ScriptAnalyzer @Parameters
     }
-    "`n" | Write-Output
+    "`n" | Write-Host
 }
 function Invoke-Publish {
     <#
@@ -397,8 +432,8 @@ function Invoke-Publish {
     $ProjectManifestPath = Join-Path $ModulePath 'Prelude.psd1'
     $ValidateManifest = if (Test-ModuleManifest -Path $ProjectManifestPath) { 'Manifest is Valid' } else { 'Manifest is NOT Valid' }
     $ValidateApiKey = if ((Write-Output $Env:NUGET_API_KEY).Length -eq 46) { 'API Key is Valid' } else { 'API Key is NOT Valid' }
-    "${Prefix}==> $ValidateManifest" | Write-Output
-    "${Prefix}==> $ValidateApiKey" | Write-Output
+    "${Prefix}==> $ValidateManifest" | Write-Message
+    "${Prefix}==> $ValidateApiKey" | Write-Message
     $Increment = if ($Major) {
         'Major'
     } elseif ($Minor) {
@@ -407,15 +442,15 @@ function Invoke-Publish {
         'Build'
     }
     if (-not $DryRun) {
-        "==> [INFO] Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
+        "==> [INFO] Updating Module $(${Increment}.ToUpper()) Version..." | Write-Message
         Update-Metadata $ProjectManifestPath -Increment $Increment
-        '==> [INFO] Publishing module...' | Write-Output
+        '==> [INFO] Publishing module...' | Write-Message
         Publish-Module -Path $ModulePath -NuGetApiKey $Env:NUGET_API_KEY -SkipAutomaticTags -Verbose
-        "`n==> DONE`n" | Write-Output
+        "`n==> DONE`n" | Write-Message
     } else {
-        "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Output
-        "${Prefix}Publishing module..." | Write-Output
-        "${Prefix}==> DONE" | Write-Output
+        "${Prefix}Updating Module $(${Increment}.ToUpper()) Version..." | Write-Message
+        "${Prefix}Publishing module..." | Write-Message
+        "${Prefix}==> DONE" | Write-Message
     }
 }
 function Invoke-Test {
@@ -455,7 +490,7 @@ function Invoke-Test {
     $BuildSystem = if ($Env:PreludeBuildSystem -eq 'Unknown') { 'Local Computer' } else { $Env:PreludeBuildSystem }
     if (-not ($Skip -contains 'dotnet')) {
         $ProjectPath = "$PSScriptRoot/csharp/Tests/Tests.csproj"
-        "==> [INFO] Executing C# tests on $BuildSystem" | Write-Output
+        "==> [INFO] Executing C# tests on $BuildSystem" | Write-Message
         if ($WithCoverage) {
             dotnet test $ProjectPath /p:CollectCoverage=true /p:CoverletOutput=coverage.xml /p:CoverletOutputFormat=opencover
         } else {
@@ -493,14 +528,14 @@ function Invoke-Test {
         if ($Detailed) {
             $Configuration.Output.Verbosity = 'Detailed'
         }
-        "`n==> [INFO] Executing PowerShell tests on $BuildSystem" | Write-Output
-        "==> [INFO] Using Pester v$($PesterData.Version.ToString())`n" | Write-Output
+        "`n==> [INFO] Executing PowerShell tests on $BuildSystem" | Write-Message
+        "==> [INFO] Using Pester v$($PesterData.Version.ToString())`n" | Write-Message
         $Result = Invoke-Pester -Configuration $Configuration
         if ($Result.FailedCount -gt 0) {
             $FailedMessage = "==> FAILED - $($Result.FailedCount) PowerShell test(s) failed"
             throw $FailedMessage
         } else {
-            Write-Message pass
+            Write-Result pass
         }
     }
 }
@@ -552,7 +587,7 @@ switch (Get-TaskList) {
         if ($LASTEXITCODE -eq 0) {
             Invoke-Build @VisualStudioData
         } else {
-            Write-Message -Text fail
+            Write-Result fail
             break
         }
     }
