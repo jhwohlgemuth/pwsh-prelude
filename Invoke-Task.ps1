@@ -6,6 +6,9 @@
 Param(
     [Switch] $Lint,
     [Switch] $Test,
+    [Switch] $Mutate,
+    [ValidateSet('Geodetic', 'Graph', 'Matrix')]
+    [String] $Project,
     [Switch] $Detailed,
     [Switch] $WithCoverage,
     [Switch] $GenerateCoverageReport,
@@ -130,6 +133,7 @@ function Get-TaskList {
         check
         lint
         test
+        mutate
         build
         publish
     }
@@ -148,6 +152,9 @@ function Get-TaskList {
     }
     if ($Test) {
         $Tasks += [Task]'test'
+    }
+    if ($Mutate) {
+        $Tasks += [Task]'mutate'
     }
     if ($Build) {
         $Tasks += [Task]'build'
@@ -287,15 +294,17 @@ function Invoke-Check {
         'Failed to find dotnet command...' | Write-Message -Fail
         $Fails++
     }
-    $ToolName = 'reportgenerator'
-    $DotnetToolInstalled = (((dotnet tool list) -match $ToolName) -split '\s+') -contains $ToolName
-    if ((Get-Command -Name "${ToolName}.exe" -ErrorAction Ignore)) {
-        "`"${ToolName}.exe`" command is available!" | Write-Message -Success
-    } elseIf ($DotnetToolInstalled) {
-        "`"dotnet ${ToolName}`" command is available!" | Write-Message -Success
-    } else {
-        "Failed to find ${ToolName} command..." | Write-Message -Fail
-        $Fails++
+    $ToolList = dotnet tool list
+    @('reportgenerator', 'dotnet-stryker') | ForEach-Object {
+        $ToolName = $_
+        $DotnetToolInstalled = (($ToolList -match $ToolName) -split '\s+') -contains $ToolName
+        $CommandName = $ToolName -replace 'dotnet-', ''
+        if ($DotnetToolInstalled) {
+            "`"dotnet ${CommandName}`" command is available!" | Write-Message -Success
+        } else {
+            "Failed to find ${CommandName} command..." | Write-Message -Fail
+            $Fails++
+        }
     }
     if ((Test-Path "$VisualStudioRoot\Common7\Tools\VsDevCmd.bat")) {
         'Successfully found VsDevCmd.bat!' | Write-Message -Success
@@ -401,6 +410,27 @@ function Invoke-Lint {
         Invoke-ScriptAnalyzer @Parameters
     }
     "`n" | Write-Host
+}
+function Invoke-Mutate {
+    <#
+    .SYNOPSIS
+    Execute Stryker mutation tests
+    #>
+    [CmdletBinding()]
+    Param(
+        [ValidateSet('Geodetic', 'Graph', 'Matrix')]
+        [String] $Project,
+        [String] $Configuration = 'stryker-config.json'
+    )
+    $Path = Join-Path $PSScriptRoot $Configuration
+    "`n==> [INFO] Running Stryker mutation tests on ${Project}" | Write-Message
+    "==> [INFO] Using Stryker configuration file at ${Path}`n" | Write-Message
+    $FileName = switch ($Project) {
+        'Geodetic' { 'Geodetic.csproj' }
+        'Graph' { 'Graph.csproj' }
+        'Matrix' { 'Matrix.csproj' }
+    }
+    dotnet stryker --config-file $Path --project $FileName --open-report
 }
 function Invoke-Publish {
     <#
@@ -579,10 +609,18 @@ switch (Get-TaskList) {
             }
         }
     }
+    mutate {
+        $Parameters = @{
+            Project = $Project
+        }
+        Invoke-Mutate @Parameters
+        Break
+    }
     build {
         if (-not $BuildOnly) {
-            Invoke-Lint -Skip 'powershell'
-            Invoke-Test -Skip 'powershell'
+            $Parameters = @{ Skip = 'powershell' }
+            Invoke-Lint @Parameters
+            Invoke-Test @Parameters
         }
         if ($LASTEXITCODE -eq 0) {
             Invoke-Build @VisualStudioData

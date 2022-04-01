@@ -1,0 +1,12 @@
+{
+    "stryker-config": {
+        "project": "Matrix.csproj",
+        "test-projects": [
+            "./csharp/Tests/Tests.csproj"
+        ],
+        "reporters": [
+            "html",
+            "progress"
+        ]
+    }
+}
