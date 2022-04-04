@@ -72,6 +72,20 @@ namespace CoordinateTests {
             Assert.Equal(expected, latlon.ToString());
         }
         [Fact]
+        public void Can_create_coordinate_at_origin_by_default() {
+            var coordinate = new Coordinate();
+            Assert.Equal(0, coordinate.Latitude);
+            Assert.Equal(0, coordinate.Longitude);
+            Assert.Equal(0, coordinate.Height);
+        }
+        [Fact]
+        public void Can_throw_an_exception_for_null_comparisons() {
+            var a = new Coordinate(89, 123);
+            var ex = Assert.Throws<ArgumentException>(() => a.CompareTo(null));
+            var message = "Parameter is not a Coordinate";
+            Assert.Equal(message, ex.Message);
+        }
+        [Fact]
         public void Can_be_compared_in_various_contexts() {
             var a = new Coordinate(41.25, -96);
             var b = new Coordinate(89, 123);
@@ -83,6 +97,8 @@ namespace CoordinateTests {
             Assert.False(Equals(null, a));
             Assert.False(Equals(a, null));
             Assert.True(Equals(null, null));
+            Assert.Equal(0, a.CompareTo(a));
+            Assert.Equal(1, a.CompareTo(b));
 #pragma warning disable CS1718 // Comparison made to same variable
             Assert.True(a == a);
             Assert.False(a != a);
