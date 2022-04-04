@@ -170,6 +170,20 @@ namespace MatrixTests {
             Assert.Equal(I, Matrix.Pow(I, k.Get));
         }
         [Fact]
+        public void Can_generate_matrix_index_pairs() {
+            var A = new Matrix(2);
+            var pairs = A.Indexes();
+            Assert.Equal(new List<int> { 0, 0 }, pairs[0]);
+            Assert.Equal(new List<int> { 0, 1 }, pairs[1]);
+            Assert.Equal(new List<int> { 1, 0 }, pairs[2]);
+            Assert.Equal(new List<int> { 1, 1 }, pairs[3]);
+            var pairsWithOffset = A.Indexes(3);
+            Assert.Equal(new List<int> { 3, 3 }, pairsWithOffset[0]);
+            Assert.Equal(new List<int> { 3, 4 }, pairsWithOffset[1]);
+            Assert.Equal(new List<int> { 4, 3 }, pairsWithOffset[2]);
+            Assert.Equal(new List<int> { 4, 4 }, pairsWithOffset[3]);
+        }
+        [Fact]
         public void Can_get_and_set_elements_via_direct_interface() {
             var A = new Matrix(3);
             Helpers.Populate(A, new double[,] {
@@ -586,7 +600,9 @@ namespace MatrixTests {
             Assert.Equal(new Complex[] { 8, 8 }, result[0]);
             Assert.Equal(new Complex[] { 8, 8 }, result[1]);
             var B = Matrix.Unit(2, 4);
-            Assert.Throws<ArgumentException>(() => Matrix.Pow(B, 2));
+            var message = "Matrix exponentiation only supports square matrices";
+            var ex = Assert.Throws<ArgumentException>(() => Matrix.Pow(B, 2));
+            Assert.Equal(ex.Message, message);
         }
         [Theory]
         [InlineData(1)]
@@ -751,6 +767,17 @@ namespace MatrixTests {
             Assert.Equal(new Complex[] { 3, 4 }, B[1]);
         }
         [Fact]
+        public void Can_fill_matrices_with_different_values() {
+            int Value = 42;
+            var A = Matrix.Fill(new Matrix(2), Value);
+            Assert.Equal(new Complex[] { Value, Value }, A[0]);
+            Assert.Equal(new Complex[] { Value, Value }, A[1]);
+            Complex NewValue = 7;
+            var B = Matrix.Fill(A, NewValue);
+            Assert.Equal(new Complex[] { NewValue, NewValue }, B[0]);
+            Assert.Equal(new Complex[] { NewValue, NewValue }, B[1]);
+        }
+        [Fact]
         public void Can_coerce_arbitrarily_small_values_to_zero() {
             var A = Matrix.Fill(new Matrix(1, 2), 1E-14);
             var B = Matrix.Fill(new Matrix(1, 2), 1E-15);
@@ -839,6 +866,17 @@ namespace MatrixTests {
             var eigenvector = A.Eigenvector();
             Assert.Equal(0.8507, eigenvector[0][0].Real, 4);
             Assert.Equal(0.5257, eigenvector[1][0].Real, 4);
+        }
+        [Fact]
+        public void Can_throw_exception_when_eigenvector_does_not_converge() {
+            var A = new Matrix(2);
+            Helpers.Populate(A, new double[,] {
+                { 1, 1 },
+                { 1, 0 }
+            });
+            var ex = Assert.Throws<Exception>(() => A.Eigenvector(1));
+            var message = "Eigenvector algorithm failed to converge";
+            Assert.Equal(message, ex.Message);
         }
         [Fact]
         public void Can_calculate_dominant_eigenvalue_with_power_method() {
