@@ -585,9 +585,12 @@ Describe 'Rename-FileExtension' -Tag 'Local', 'Remote' {
         Remove-Item (Join-Path $TestDrive 'foo.bar')
     }
 }
-Describe 'Test-Admin' -Tag 'Local', 'Remote' {
-    It 'can test if a user is an administrator' {
+Describe 'Test-Admin' {
+    It 'can test if a user is an administrator' -Tag 'Local' {
         Test-Admin | Should -Be $False
+    }
+    It 'can test if a user is an administrator (with privileges)' -Tag 'Remote' {
+        Test-Admin | Should -Be $True
     }
 }
 Describe 'Test-Command' -Tag 'Local', 'Remote' {
