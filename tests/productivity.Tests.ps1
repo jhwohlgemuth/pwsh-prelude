@@ -425,7 +425,7 @@ Describe 'New-File (touch)' -Tag 'Local', 'Remote' {
         { New-File 'foo.txt' -WhatIf } | Should -Not -Throw
     }
 }
-Describe 'Out-Tree' -Tag 'Local', 'Remote' {
+Describe 'Out-Tree' -Tag 'Local' {
     It 'can handle empty objects' {
         $Expected = $Null
         @() | Out-Tree | Should -Be $Expected
@@ -585,12 +585,9 @@ Describe 'Rename-FileExtension' -Tag 'Local', 'Remote' {
         Remove-Item (Join-Path $TestDrive 'foo.bar')
     }
 }
-Describe 'Test-Admin' {
-    It 'can test if a user is an administrator' -Tag 'Local' {
+Describe 'Test-Admin' -Tag 'Local' {
+    It 'can test if a user is an administrator' {
         Test-Admin | Should -Be $False
-    }
-    It 'can test if a user is an administrator (with privileges)' -Tag 'Remote' {
-        Test-Admin | Should -Be $True
     }
 }
 Describe 'Test-Command' -Tag 'Local', 'Remote' {
