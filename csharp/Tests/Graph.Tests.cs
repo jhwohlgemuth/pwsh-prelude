@@ -1,5 +1,4 @@
 using Xunit;
-using Xunit.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -27,12 +26,15 @@ namespace GraphTests {
             var graph = Graph.Complete(N);
             Assert.Equal(N, graph.Nodes.Count);
             Assert.Equal(N * (N - 1) / 2, graph.Edges.Count);
+            Assert.Equal("node-0", graph.Nodes[0].Label);
             foreach (var node in graph.Nodes)
                 Assert.Equal(N - 1, node.Neighbors.Count);
         }
         [Fact]
         public void Complete_graph_requires_at_least_two_nodes() {
-            Assert.Throws<ArgumentException>(() => Graph.Complete(1));
+            var message = "Complete graph requires at least two nodes";
+            var ex = Assert.Throws<ArgumentException>(() => Graph.Complete(1));
+            Assert.Equal(message, ex.Message);
         }
         [Fact]
         public void Graph_creators_update_adjacency_matrix() {
@@ -60,12 +62,15 @@ namespace GraphTests {
             var graph = Graph.Ring(N);
             Assert.Equal(N, graph.Nodes.Count);
             Assert.Equal(N, graph.Edges.Count);
+            Assert.Equal("node-0", graph.Nodes[0].Label);
             foreach (var node in graph.Nodes)
                 Assert.Equal(2, node.Neighbors.Count);
         }
         [Fact]
         public void Ring_graph_requires_at_least_two_nodes() {
-            Assert.Throws<ArgumentException>(() => Graph.Ring(1));
+            var message = "Ring graph requires at least two nodes";
+            var ex = Assert.Throws<ArgumentException>(() => Graph.Ring(1));
+            Assert.Equal(message, ex.Message);
         }
         [Fact]
         public void Can_be_created_from_edges() {
@@ -160,6 +165,23 @@ namespace GraphTests {
             Assert.NotEqual(ab, graph.GetEdge(a, c));
             Assert.Equal(ab, graph.GetEdge(a.Id, b.Id));
             Assert.Equal(ab, graph.GetEdge(a.Label, b.Label));
+        }
+        [Fact]
+        public void Can_get_edge_weight() {
+            Graph graph = new();
+            Node a = new("a");
+            Node b = new("b");
+            Node c = new("c");
+            Node d = new("d");
+            var w = 42;
+            Edge ab = new(a, b, w);
+            Edge bc = new(b, c);
+            graph.Add(a, b, c);
+            graph.Add(ab, bc);
+            Assert.Equal(w, graph.GetEdgeWeight(a, b));
+            var message = "Graph does not contain source and/or target node";
+            var ex = Assert.Throws<ArgumentException>(() => graph.GetEdgeWeight(a, d));
+            Assert.Equal(message, ex.Message);
         }
         [Fact]
         public void Can_get_nodes() {
@@ -337,8 +359,8 @@ namespace GraphTests {
             Assert.Equal(3, fromGraph.Edges.Count);
             var addGraph = new Graph();
             addGraph.Add(graph);
-            Assert.Equal(3, fromGraph.Nodes.Count);
-            Assert.Equal(3, fromGraph.Edges.Count);
+            Assert.Equal(3, addGraph.Nodes.Count);
+            Assert.Equal(3, addGraph.Edges.Count);
         }
         [Fact]
         public void Can_update_node_neighbors_when_edges_are_added() {

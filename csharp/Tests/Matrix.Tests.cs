@@ -602,7 +602,7 @@ namespace MatrixTests {
             var B = Matrix.Unit(2, 4);
             var message = "Matrix exponentiation only supports square matrices";
             var ex = Assert.Throws<ArgumentException>(() => Matrix.Pow(B, 2));
-            Assert.Equal(ex.Message, message);
+            Assert.Equal(message, ex.Message);
         }
         [Theory]
         [InlineData(1)]

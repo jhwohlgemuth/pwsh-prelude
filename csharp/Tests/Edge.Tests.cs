@@ -48,6 +48,9 @@ namespace EdgeTests {
             Assert.Contains(bc, values);
             values = new List<Edge> { ab, bc, null };
             Assert.Throws<InvalidOperationException>(() => values.Sort());
+            var message = "Parameter is not an Edge";
+            var ex = Assert.Throws<ArgumentException>(() => ab.CompareTo(null));
+            Assert.Equal(message, ex.Message);
         }
         [Fact]
         public void Can_create_clones() {
