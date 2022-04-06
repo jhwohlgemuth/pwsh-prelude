@@ -121,6 +121,7 @@ Visual Studio Code Configuration
 **General Development**
 - Install [VSCode](https://code.visualstudio.com/)
 - Install [PowerShell VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell)
+  > **Note**: When you open the `pwsh-prelude` project in VS Code, it will suggest you install [some extensions](../.vscode/extensions.json)...they are all really handy and highly recommended 🤓
 
 **Linux Development within Docker Container**
 - [Follow the instructions of this article](https://code.visualstudio.com/docs/remote/containers)
@@ -159,15 +160,15 @@ Project Standards
   - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#4)</sup>
     ```Powershell
     # Example
-    @{ foo = "bar" }
+    @{ foo = 'bar' }
     ```
   - Semi-colons should be followed by a single space <sup>[[4]](#4)</sup>
     ```Powershell
     # Examples
-    @{ a = "a"; b = "b"; c = "c" }
-    [PSCustomObject]@{ a = "a"; b = "b"; c = "c" }
+    @{ a = 'a'; b = 'b'; c = 'c' }
+    [PSCustomObject]@{ a = 'a'; b = 'b'; c = 'c' }
     ```
-  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = "bar"`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[4]](#4)</sup>
+  - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = 'bar'`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[4]](#4)</sup>
   - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[4]](#4)</sup>
     ```Powershell
     if ($Condition) {
