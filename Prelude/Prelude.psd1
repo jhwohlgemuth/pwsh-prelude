@@ -219,7 +219,7 @@
     )
     PrivateData = @{
         PSData = @{
-            Tags = @('Windows', 'Linux', 'fp', 'functional programming', 'helpers', 'matrix', 'graphs', 'linear algebra', 'statistics', 'applied', 'UI')
+            Tags = @('Windows', 'Linux', 'FunctionalProgramming', 'Helpers', 'Matrix', 'Graphs', 'LinearAlgebra', 'Statistics', 'Math', 'UI/UX', 'Productivity')
             LicenseUri = 'https://github.com/jhwohlgemuth/pwsh-prelude/blob/master/LICENSE'
             ProjectUri = 'https://github.com/jhwohlgemuth/pwsh-prelude'
         }
