@@ -7,19 +7,19 @@ namespace EdgeTests {
     public class UnitTests {
         [Fact]
         public void Will_be_assigned_Id_automatically() {
-            Node a = new Node();
-            Node b = new Node();
-            Edge e = new Edge(a, b);
+            Node a = new();
+            Node b = new();
+            Edge e = new(a, b);
             Assert.Equal(36, e.Id.ToString().Length);
         }
         [Fact]
         public void Can_be_compared() {
-            Node a = new Node();
-            Node b = new Node();
-            Node c = new Node();
-            Edge ab = new Edge(a, b);
-            Edge bc = new Edge(b, c);
-            Edge ac = new Edge(a, c);
+            Node a = new();
+            Node b = new();
+            Node c = new();
+            Edge ab = new(a, b);
+            Edge bc = new(b, c);
+            Edge ac = new(a, c);
             Assert.Equal(ab, ab);
             Assert.NotEqual(ab, bc);
             Assert.Equal(ab, new Edge(a, b));
@@ -54,9 +54,9 @@ namespace EdgeTests {
         }
         [Fact]
         public void Can_create_clones() {
-            var a = new Node("A");
-            var b = new Node("B");
-            var ab = new Edge(a, b);
+            Node a = new("A");
+            Node b = new("B");
+            Edge ab = new(a, b);
             var clone = ab.Clone();
             Assert.Equal(ab.Source, clone.Source);
             Assert.Equal(ab.Target, clone.Target);
@@ -65,14 +65,29 @@ namespace EdgeTests {
         }
         [Fact]
         public void Can_create_edge_with_nodes_reversed() {
-            var a = new Node("A");
-            var b = new Node("B");
-            var ab = new Edge(a, b);
+            Node a = new("A");
+            Node b = new("B");
+            Edge ab = new(a, b);
             var reversed = ab.Reverse();
             Assert.Equal(ab.Source, reversed.Target);
             Assert.Equal(ab.Target, reversed.Source);
             Assert.NotEqual(ab, reversed);
             Assert.NotEqual(ab.Id, reversed.Id);
+        }
+        [Fact]
+        public void Can_be_directed() {
+            Node a = new("A");
+            Node b = new("B");
+            DirectedEdge ab = new(a, b);
+            Node x = new("x");
+            Node y = new("y");
+            Edge xy = new(x, y);
+            Assert.True(ab.IsDirected);
+            Assert.Equal(a, ab.Source);
+            Assert.Equal(b, ab.Target);
+            Assert.False(xy.IsDirected);
+            Assert.Equal(x, xy.Source);
+            Assert.Equal(y, xy.Target);
         }
     }
 }

@@ -7,10 +7,10 @@ namespace NodeTests {
     public class UnitTests {
         [Fact]
         public void Can_be_assigned_a_label() {
-            Node n = new Node();
+            Node n = new();
             Assert.Equal(36, n.Id.ToString().Length);
             Assert.Equal("node", n.Label);
-            Node m = new Node("test");
+            Node m = new("test");
             Assert.Equal(36, m.Id.ToString().Length);
             Assert.Equal("test", m.Label);
         }
@@ -35,7 +35,7 @@ namespace NodeTests {
         }
         [Fact]
         public void Can_be_assigned_Id_automatically() {
-            var n = new Node();
+            Node n = new();
             Assert.Equal(36, n.Id.ToString().Length);
         }
         [Theory]
@@ -44,15 +44,15 @@ namespace NodeTests {
         [InlineData("baz")]
         public void Can_set_node_label_text(string text) {
             var id = "7a402e3c-827a-40e2-a69d-d83248f62a74";
-            var a = new Node(id);
+            Node a = new(id);
             a.SetLabel(text);
             Assert.Equal(text, a.Label);
         }
         [Fact]
         public void Nodes_can_be_compared() {
-            Node a = new Node();
-            Node b = new Node();
-            Node c = new Node();
+            Node a = new();
+            Node b = new();
+            Node c = new();
             Assert.Equal(a, a);
             Assert.NotEqual(a, b);
             Assert.NotEqual(b, a);
@@ -81,15 +81,24 @@ namespace NodeTests {
             Assert.Contains(a, values);
             values = new List<Node> { a, b, null };
             Assert.Throws<InvalidOperationException>(() => values.Sort());
+            var message = "Parameter is not a Node";
+            var ex = Assert.Throws<ArgumentException>(() => a.CompareTo(null));
+            Assert.Equal(message, ex.Message);
         }
         [Theory]
         [InlineData("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")]
         [InlineData("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "cccccccc-cccc-cccc-cccc-cccccccccccc")]
         public void Can_sort_nodes_by_identifiers(string left, string right) {
-            Node a = new Node(left, "left");
-            Node b = new Node(right, "right");
+            Node a = new(left, "left");
+            Node b = new(right, "right");
             Assert.True(a < b);
             Assert.False(a > b);
+        }
+        [Fact]
+        public void Must_have_a_valid_id_when_also_passing_a_label() {
+            var message = "Node ID must have valid GUID format";
+            var ex = Assert.Throws<ArgumentException>(() => new Node("not a valid GUID", "label"));
+            Assert.Equal(message, ex.Message);
         }
     }
 }

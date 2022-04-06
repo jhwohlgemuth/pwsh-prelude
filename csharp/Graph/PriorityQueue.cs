@@ -62,9 +62,7 @@ namespace Prelude {
         public void Swap(int i, int j) {
             Position[Items[i].Node] = j;
             Position[Items[j].Node] = i;
-            var temp = Items[i];
-            Items[i] = Items[j];
-            Items[j] = temp;
+            (Items[j], Items[i]) = (Items[i], Items[j]);
         }
     }
 }
