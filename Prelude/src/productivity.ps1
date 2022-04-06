@@ -677,6 +677,9 @@ function Out-Tree {
     <#
     .SYNOPSIS
     Output a tree of the input array
+    .PARAMETER Limit
+    Limit the depth of the tree
+    Caution: Performance will be affected by excessive file depth
     .EXAMPLE
     @{ Foo = 1; Bar = 2; Baz = 3 } | Out-Tree
     # Output:
@@ -698,7 +701,7 @@ function Out-Tree {
         [String] $Prefix = '',
         [String] $Property = 'Value',
         [Int] $Level = 1,
-        [Int] $Limit = 100
+        [Int] $Limit = 3
     )
     Begin {
         $Pipe = '│'

@@ -144,6 +144,10 @@ screenshot
 ```Powershell
 Get-Location | Find-Duplicate
 ```
+- Print out file/folder structure of a directory (like `tree`)
+```Powershell
+ConvertFrom-FolderStructure | Out-Tree
+```
 
 - Identify bad links using your browser bookmarks export
 ```Powershell
