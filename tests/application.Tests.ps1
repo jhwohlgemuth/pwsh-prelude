@@ -200,7 +200,7 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
             'Hello {{ name }}' | New-Template -Data $Data -DefaultValues @{ name = 'Default' } | Should -Be 'Hello Not Default'
         }
     }
-    It 'can accept template from a file' {
+    It 'can accept template from a file' -Tag 'WindowsOnly' {
         $Data = @{ location = 'World'; type = 'file' }
         $Path = Join-Path $TestDrive 'test.ps1'
         New-Item $Path

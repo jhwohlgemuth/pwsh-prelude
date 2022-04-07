@@ -184,7 +184,7 @@ Describe 'Get-Permutation' -Tag 'Local', 'Remote' {
         'hello' | Get-Permutation -Choose 3 -Unique -Words | Should -Be 'hel', 'hel', 'heo', 'hll', 'hlo', 'hlo', 'ell', 'elo', 'elo', 'llo'
     }
 }
-Describe 'Get-Softmax' -Tag 'Local', 'Remote' {
+Describe 'Get-Softmax' -Tag 'Local', 'Remote', 'WindowsOnly' {
     It 'can handle input from pipe' {
         $Expected = '0.00216569646006109', '0.00588697333334214', '0.118243020252665', '0.873704309953932'
         -1, 0, 3, 5 | Get-Softmax | ForEach-Object { $_.ToString() } | Should -Be $Expected
