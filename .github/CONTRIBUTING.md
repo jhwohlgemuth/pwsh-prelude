@@ -139,7 +139,7 @@ Project Standards
   | Platform | Status |
   | :------: | ------ |
   | Windows  | [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master)    |
-  | Linux    | [![Buddy pipeline status](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257/badge.svg?token=fda3da4664f6ba92e480e43a4a15c2427c040ee0c0691bd43e891c32e51aff31 "Linux")](https://app.buddy.works/wohlgemuth-technology-foundation/pwsh-prelude/pipelines/pipeline/299257)    |
+  | Linux    | [![Buddy pipeline](https://app.buddy.works/wohlgemuth-technology-foundation-1/pwsh-prelude/pipelines/pipeline/384748/badge.svg?token=2a532402d113bdd8584c9b563b3ed46b8ae4947b8fac56a4489a3b5c4cd4fa70 "buddy pipeline")](https://app.buddy.works/wohlgemuth-technology-foundation-1/pwsh-prelude/pipelines/pipeline/384748)    |
 
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
 - Although this project has many rules <sup>[[3]](#3)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
