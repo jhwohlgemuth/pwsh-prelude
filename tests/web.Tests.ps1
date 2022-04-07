@@ -7,7 +7,7 @@ $HtmlFileSupported = try {
     $False
 }
 
-Describe 'Add-Metadata' -Tag 'Local', 'Remote' {
+Describe 'Add-Metadata' -Tag 'Local', 'Remote', 'WindowsOnly' {
     It 'can add metadata to an unstructured string' {
         $Text = '[25 12 2022] On 25 Dec 2021, I changed my email listed on my website, https://resume.jasonwohlgemuth.com, from FOO.BAR@baz.com to foo@bar.com.'
         $Result = '[<time datetime="2022-12-25T00:00:00.000Z">25 12 2022</time>] On <time datetime="2021-12-25T00:00:00.000Z">25 Dec 2021</time>, I changed my email listed on my website, <a href="https://resume.jasonwohlgemuth.com">https://resume.jasonwohlgemuth.com</a>, from <a href="mailto:FOO.BAR@baz.com">FOO.BAR@baz.com</a> to <a href="mailto:foo@bar.com">foo@bar.com</a>.'

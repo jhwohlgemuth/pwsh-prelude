@@ -3,7 +3,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
 
-Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote' {
+Describe 'Powershell Prelude Module' -Tag 'Local', 'Remote', 'WindowsOnly' {
     Context 'meta validation' {
         It 'should import exports' {
             (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 125

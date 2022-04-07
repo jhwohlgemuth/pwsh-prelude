@@ -208,6 +208,14 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         New-Template -File $Path -Data $Data | Should -Be "Hello World from a file`r`n"
         New-Template -File $Path -Data $Data -PassThru | Should -Be "Hello {{ location }} from a {{ type }}`r`n"
     }
+    It 'can accept template from a file' -Tag 'LinuxOnly' {
+        $Data = @{ location = 'World'; type = 'file' }
+        $Path = Join-Path $TestDrive 'test.ps1'
+        New-Item $Path
+        'Hello {{ location }} from a {{ type }}' | Set-Content $Path
+        New-Template -File $Path -Data $Data | Should -Be "Hello World from a file`n"
+        New-Template -File $Path -Data $Data -PassThru | Should -Be "Hello {{ location }} from a {{ type }}`n"
+    }
     It 'can support multiple template functions at once' {
         $Function:Div = '<div>{{ text }}</div>' | New-Template -DefaultValues @{ text = 'default' }
         $Function:Span = '<span>{{ text }}</span>' | New-Template -DefaultValues @{ text = 'default' }
