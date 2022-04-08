@@ -3,6 +3,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Mean')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Permutation')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Sum')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Imputation')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = 'Find-LargestMoveable')]
 Param()
 
@@ -671,5 +672,61 @@ function Get-Variance {
             $Squared = $Values | ForEach-Object { [Math]::Pow($_, 2) }
             (Get-Mean $Squared) - [Math]::Pow((Get-Mean $Values), 2)
         }
+    }
+}
+function Invoke-Imputation {
+    <#
+    .SYNOPSIS
+    Impute missing values in a data set.
+    .DESCRIPTION
+    Performs "unit imputation" on set of values, replacing $Null or empty string values with a substitue value, -With.
+    .PARAMETER With
+    Value to replace null and empty values With
+    .PARAMETER Limit
+    Limit the number of values to be imputed
+    .EXAMPLE
+    1, $Null, 3, $Null, 5 | Invoke-Imputation -With 42
+    # 1, 42, 3, 42, 5
+    .EXAMPLE
+    1, $Null, 3, $Null, 5 | Invoke-Imputation -With 42 -Limit 1
+    # 1, 42, 3, $Null, 5
+    #>
+    [CmdletBinding()]
+    [Alias('impute')]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [AllowNull()]
+        [Array] $Values,
+        [Parameter(Position = 1)]
+        [Alias('Substitute')]
+        $With = 0,
+        [Int] $Limit
+    )
+    Begin {
+        function Invoke-Impute {
+            Param(
+                [Parameter(Position = 0)]
+                [AllowNull()]
+                [Array] $Values
+            )
+            if ($Values.Count -gt 0) {
+                $Result = @()
+                $Count = 0
+                foreach ($Value in $Values) {
+                    $WithinLimit = (($Limit -gt 0) -and ($Count -lt $Limit)) -or ($Limit -eq 0)
+                    if ($WithinLimit -and [String]::IsNullOrEmpty($Value)) {
+                        $Result += $With
+                        $Count += 1
+                    } else {
+                        $Result += $Value
+                    }
+                }
+                $Result
+            }
+        }
+        Invoke-Impute $Values
+    }
+    End {
+        Invoke-Impute $Input
     }
 }

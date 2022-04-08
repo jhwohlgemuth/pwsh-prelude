@@ -224,6 +224,7 @@ Functions
   - `Invoke-Flatten`
   - `Invoke-FireEvent`
   - `Invoke-GoogleSearch`
+  - `Invoke-Imputation`
   - `Invoke-Input`
   - `Invoke-InsertString`
   - `Invoke-ListenTo`

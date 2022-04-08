@@ -237,3 +237,30 @@ Describe 'Get-Variance / Get-Covariance' -Tag 'Local', 'Remote' {
         $X, $Y | Get-Covariance | Should -Be (Get-Covariance $Y, $X)
     }
 }
+Describe 'Invoke-Imputation' -Tag 'Local', 'Remote' {
+    It 'can impute missing values' {
+        1, $Null, 3, $Null, 5 | Invoke-Imputation | Should -Be @(1, 0, 3, 0, 5)
+        1, $Null, 3, $Null, 5 | Invoke-Imputation -With 42 | Should -Be @(1, 42, 3, 42, 5)
+        1, $Null, 3, $Null, $Null | Invoke-Imputation | Should -Be @(1, 0, 3, 0, 0)
+        1, $Null, 3, $Null, $Null | Invoke-Imputation -Limit 1 | Should -Be @(1, 0, 3, $Null, $Null)
+        $Null, $Null, $Null | Invoke-Imputation -Limit 1 | Should -Be @(0, $Null, $Null)
+        $Null, $Null, $Null | Invoke-Imputation -With 42 | Should -Be @(42, 42, 42)
+        Invoke-Imputation @(1, $Null, 3, $Null, 5) | Should -Be @(1, 0, 3, 0, 5)
+        Invoke-Imputation @(1, $Null, 3, $Null, 5) -With 42 | Should -Be @(1, 42, 3, 42, 5)
+        Invoke-Imputation @(1, $Null, 3, $Null, $Null) | Should -Be @(1, 0, 3, 0, 0)
+        Invoke-Imputation @(1, $Null, 3, $Null, $Null) -Limit 1 | Should -Be @(1, 0, 3, $Null, $Null)
+        Invoke-Imputation @($Null, $Null, $Null) -Limit 1 | Should -Be @(0, $Null, $Null)
+        Invoke-Imputation @($Null, $Null, $Null) -With 42 | Should -Be @(42, 42, 42)
+    }
+    It 'can impute missing string values' {
+        'foo', 'bar', $Null | Invoke-Imputation -With 'baz' | Should -Be @('foo', 'bar', 'baz')
+        'foo', 'bar', '' | Invoke-Imputation -With 'baz' | Should -Be @('foo', 'bar', 'baz')
+    }
+    It 'can pass-thru values that need no imputation' {
+        $Expected = @(1, 2, 3, 4, 5)
+        1..5 | Invoke-Imputation | Should -Be $Expected
+        1..5 | Invoke-Imputation -With 'sub' -Limit 3 | Should -Be $Expected
+        Invoke-Imputation (1..5) 'sub' | Should -Be $Expected
+        Invoke-Imputation (1..5) -With 'sub' -Limit 2 | Should -Be $Expected
+    }
+}
