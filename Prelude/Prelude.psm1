@@ -1,11 +1,4 @@
 ﻿<#
-██████╗░░█████╗░░██╗░░░░░░░██╗███████╗██████╗░░██████╗██╗░░██╗███████╗██╗░░░░░██╗░░░░░
-██╔══██╗██╔══██╗░██║░░██╗░░██║██╔════╝██╔══██╗██╔════╝██║░░██║██╔════╝██║░░░░░██║░░░░░
-██████╔╝██║░░██║░╚██╗████╗██╔╝█████╗░░██████╔╝╚█████╗░███████║█████╗░░██║░░░░░██║░░░░░
-██╔═══╝░██║░░██║░░████╔═████║░██╔══╝░░██╔══██╗░╚═══██╗██╔══██║██╔══╝░░██║░░░░░██║░░░░░
-██║░░░░░╚█████╔╝░░╚██╔╝░╚██╔╝░███████╗██║░░██║██████╔╝██║░░██║███████╗███████╗███████╗
-╚═╝░░░░░░╚════╝░░░░╚═╝░░░╚═╝░░╚══════╝╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝╚══════╝╚══════╝╚══════╝
-
 ██████╗░██████╗░███████╗██╗░░░░░██╗░░░██╗██████╗░███████╗
 ██╔══██╗██╔══██╗██╔════╝██║░░░░░██║░░░██║██╔══██╗██╔════╝
 ██████╔╝██████╔╝█████╗░░██║░░░░░██║░░░██║██║░░██║█████╗░░
@@ -13,11 +6,9 @@
 ██║░░░░░██║░░██║███████╗███████╗╚██████╔╝██████╔╝███████╗
 ╚═╝░░░░░╚═╝░░╚═╝╚══════╝╚══════╝░╚═════╝░╚═════╝░╚══════╝
 #>
-<#
-Import link libraries and create type accelarators
-#>
 function Add-TypeData {
     Param(
+        [Parameter(Mandatory = $True, Position = 0)]
         [String] $Name
     )
     $Path = Join-Path $PSScriptRoot "bin/${Name}.dll"
@@ -27,52 +18,31 @@ function Add-TypeData {
         "==> [ERROR] Failed to load ${Name} type accelerators" | Write-Warning
     }
 }
+<#
+Import link libraries and create type accelarators
+#>
 $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.TypeAccelerators')
 if (-not ('Complex' -as [Type])) {
     $Accelerators::Add('Complex', 'System.Numerics.Complex')
 }
-$Name = 'Matrix'
-if (-not ("Prelude.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.${Name}")
+'Matrix', 'Node', 'Edge', 'DirectedEdge', 'Graph' | ForEach-Object {
+    if (-not ("Prelude.${_}" -as [Type])) {
+        Add-TypeData $_
+        $Accelerators::Add($_, "Prelude.${_}")
+    }
 }
-$Name = 'Node'
-if (-not ("Prelude.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.${Name}")
-}
-$Name = 'Edge'
-if (-not ("Prelude.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.${Name}")
-}
-$Name = 'DirectedEdge'
-if (-not ("Prelude.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.${Name}")
-}
-$Name = 'Graph'
-if (-not ("Prelude.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.${Name}")
-}
-$Name = 'Coordinate'
-if (-not ("Prelude.Geodetic.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.Geodetic.${Name}")
-}
-$Name = 'Datum'
-if (-not ("Prelude.Geodetic.${Name}" -as [Type])) {
-    Add-TypeData -Name $Name
-    $Accelerators::Add($Name, "Prelude.Geodetic.${Name}")
+'Datum', 'Coordinate' | ForEach-Object {
+    if (-not ("Prelude.Geodetic.${_}" -as [Type])) {
+        Add-TypeData $_
+        $Accelerators::Add($_, "Prelude.Geodetic.${_}")
+    }
 }
 <#
 Import source files
 #>
-$SourceFiles = Join-Path $PSScriptRoot 'src'
-Get-ChildItem -Path $SourceFiles -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
-<#
-Import Prelude "Plus" files
-#>
-$PlusFiles = Join-Path $PSScriptRoot 'Plus'
-Get-ChildItem -Path $PlusFiles -Recurse -Include *.ps1 | Sort-Object | ForEach-Object { . $_.FullName }
+'src', 'Plus' | ForEach-Object {
+    $SourceFiles = Join-Path $PSScriptRoot $_
+    Get-ChildItem -Path $SourceFiles -Recurse -Include *.ps1 |
+        Sort-Object |
+        ForEach-Object { . $_.FullName }
+}
