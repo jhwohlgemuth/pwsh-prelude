@@ -5,8 +5,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "<Pending>", Scope = "type", Target = "~N:Prelude.Geodetic")]
-[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "<Pending>", Scope = "namespace", Target = "~N:Prelude.Geodetic")]
-[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1500:Braces for multi-line statements should not share line", Justification = "<Pending>", Scope = "namespace", Target = "~N:Prelude.Geodetic")]
-[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "<Pending>", Scope = "type", Target = "~T:Prelude.Geodetic.Datum")]
-[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1500:Braces for multi-line statements should not share line", Justification = "<Pending>", Scope = "type", Target = "~T:Prelude.Geodetic.Datum")]
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1600:Elements should be documented", Justification = "Too much work and not worth the effort", Scope = "namespace", Target = "~N:Prelude.Geodetic")]
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1500:Braces for multi-line statements should not share line", Justification = "1TBS is my favorite", Scope = "namespace", Target = "~N:Prelude.Geodetic")]
