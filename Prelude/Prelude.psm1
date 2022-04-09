@@ -31,40 +31,40 @@ $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.Type
 if (-not ('Complex' -as [Type])) {
     $Accelerators::Add('Complex', 'System.Numerics.Complex')
 }
-if (-not ('Prelude.Matrix' -as [Type])) {
-    $Name = 'Matrix'
+$Name = 'Matrix'
+if (-not ("Prelude.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.Matrix')
+    $Accelerators::Add($Name, "Prelude.${Name}")
 }
-if (-not ('Prelude.Geodetic.Coordinate' -as [Type])) {
-    $Name = 'Coordinate'
+$Name = 'Node'
+if (-not ("Prelude.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.Geodetic.Coordinate')
+    $Accelerators::Add($Name, "Prelude.${Name}")
 }
-if (-not ('Prelude.Geodetic.Datum' -as [Type])) {
-    $Name = 'Datum'
+$Name = 'Edge'
+if (-not ("Prelude.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.Geodetic.Datum')
+    $Accelerators::Add($Name, "Prelude.${Name}")
 }
-if (-not ('Prelude.Node' -as [Type])) {
-    $Name = 'Node'
+$Name = 'DirectedEdge'
+if (-not ("Prelude.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.Node')
+    $Accelerators::Add($Name, "Prelude.${Name}")
 }
-if (-not ('Prelude.Edge' -as [Type])) {
-    $Name = 'Edge'
+$Name = 'Graph'
+if (-not ("Prelude.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.Edge')
+    $Accelerators::Add($Name, "Prelude.${Name}")
 }
-if (-not ('Prelude.DirectedEdge' -as [Type])) {
-    $Name = 'DirectedEdge'
+$Name = 'Coordinate'
+if (-not ("Prelude.Geodetic.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.DirectedEdge')
+    $Accelerators::Add($Name, "Prelude.Geodetic.${Name}")
 }
-if (-not ('Prelude.Graph' -as [Type])) {
-    $Name = 'Graph'
+$Name = 'Datum'
+if (-not ("Prelude.Geodetic.${Name}" -as [Type])) {
     Add-TypeData -Name $Name
-    $Accelerators::Add($Name, 'Prelude.Graph')
+    $Accelerators::Add($Name, "Prelude.Geodetic.${Name}")
 }
 <#
 Import source files
