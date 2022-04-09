@@ -36,10 +36,15 @@ if (-not ('Prelude.Matrix' -as [Type])) {
     Add-TypeData -Name $Name
     $Accelerators::Add($Name, 'Prelude.Matrix')
 }
-if (-not ('Prelude.Geodetic' -as [Type])) {
-    Add-TypeData -Name 'Geodetic'
-    $Accelerators::Add('Coordinate', 'Prelude.Geodetic.Coordinate')
-    $Accelerators::Add('Datum', 'Prelude.Geodetic.Datum')
+if (-not ('Prelude.Geodetic.Coordinate' -as [Type])) {
+    $Name = 'Coordinate'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.Geodetic.Coordinate')
+}
+if (-not ('Prelude.Geodetic.Datum' -as [Type])) {
+    $Name = 'Datum'
+    Add-TypeData -Name $Name
+    $Accelerators::Add($Name, 'Prelude.Geodetic.Datum')
 }
 if (-not ('Prelude.Node' -as [Type])) {
     $Name = 'Node'
