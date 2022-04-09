@@ -106,7 +106,9 @@ namespace CoordinateTests {
             Assert.False(a == b);
             Assert.True(a != b);
             Assert.True(a != null);
+#pragma warning disable SA1131 // Use readable conditions
             Assert.True(null != a);
+#pragma warning restore SA1131 // Use readable conditions
             var values = new List<Coordinate> { a, b };
             values.Sort();
             Assert.Contains(a, values);

@@ -229,9 +229,13 @@ function Invoke-Build {
         $CsharpDirectory = "${PSScriptRoot}/csharp"
         $OutputDirectory = "${PSScriptRoot}/Prelude/bin"
         $SystemNumerics = "$([System.Runtime.InteropServices.RuntimeEnvironment]::GetRuntimeDirectory())\System.Numerics.dll"
-        'Geodetic' | ForEach-Object {
+        'Datum' | ForEach-Object {
             "==> [INFO] Building $_ link library" | Write-Message
-            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library
+            & $CompilerPath "$CsharpDirectory/Geodetic/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library
+        }
+        'Coordinate' | ForEach-Object {
+            "==> [INFO] Building $_ link library" | Write-Message
+            & $CompilerPath "$CsharpDirectory/Geodetic/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -lib:$OutputDirectory -reference:Datum.dll
         }
         'Matrix' | ForEach-Object {
             "==> [INFO] Building $_ link library" | Write-Message
