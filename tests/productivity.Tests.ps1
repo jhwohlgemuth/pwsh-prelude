@@ -6,7 +6,7 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'productivity'
 
-Describe 'ConvertFrom-FolderStructure' {
+Describe 'ConvertFrom-FolderStructure' -Tag 'Local', 'Remote' {
     BeforeAll {
         Set-Location $TestDrive
         New-Item (Join-Path $TestDrive 'A.txt') -ItemType 'file'
