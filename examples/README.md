@@ -117,10 +117,11 @@ With the knowledge that we possess a non-singular matrix, we proceed with the si
 
 ```PowerShell
 # create the X and Y matrices
-$X0 = matrix $Data.Count,1 -Unit
-$X1 = $Data.Date
+$Shape = $Data.Count, 1
+$X0 = New-Matrix -Unit $Shape
+$X1 = $Data.Date | New-Matrix $Shape
 $X = $X0.Augment($X1)
-$Y = $Data.Capacity | matrix $Data.Count, 1
+$Y = $Data.Capacity | New-Matrix $Shape
 # fit the linear model with matrices
 $B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
 ```
@@ -129,8 +130,8 @@ Now we can figure out when the line crosses zero to determine when our laptop wi
 
 ```PowerShell
 # since Y = (B1 * X) + B0, when y = 0 we know X = -B0 / B1
-$XIntercept = -1 * $B[0, 0] / $B[0, 1]
-$BatteryDeathDate = [DateTime]::FromFileTime($XIntercept)
+$XIntercept = -1 * $B[0] / $B[1]
+$BatteryDeathDate = [DateTime]::FromFileTime($XIntercept.Real)
 ```
 
 > 🤓 The data in my battery report indicates that my Microsoft Surface Pro 6 battery may die sometime in 2028
@@ -143,7 +144,7 @@ and the associated code,
 
 ```PowerShell
 $SSE = ($Y.Transpose() * $Y) - ($B.Transpose() * $X.Transpose() * $Y)
-$Var = $SSE / ($Data.Count - 2)
+$Var = $SSE / ($Shape[0] - 2)
 ```
 
 ------

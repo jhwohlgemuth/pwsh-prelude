@@ -145,6 +145,31 @@ $Determinant = $X.Det()
 $Inverse = $X.Inverse()
 ```
 
+Simple linear regression (with [SciKit-Learn](https://scikit-learn.org/stable/index.html))
+--------------------------------------------
+
+**Numpy** and **SciKit-Learn**
+```python
+import numpy as np
+from sklearn.linear_model import LinearRegression
+x = np.array([5, 15, 25, 35, 45, 55]).reshape((-1, 1))
+y = np.array([5, 20, 14, 32, 22, 38])
+model = LinearRegression().fit(x, y)
+print('Intercept:', model.intercept_)
+print('Slope:', model.coef_)
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+$X0 = matrix -Unit 6,1
+$X1 = 5, 15, 25, 35, 45, 55 | matrix 6,1
+$X = $X0.Augment($X1)
+$Y = 5, 20, 14, 32, 22, 38 | matrix 6,1
+$B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
+"Intercept: $($B[0].Real)" | Write-Color -Green
+"Slope: $($B[1].Real)" | Write-Color -Green
+```
+
 JavaScript vs Prelude
 =====================
 
