@@ -1,73 +1,117 @@
-﻿using System;
+﻿// <copyright file="Edge.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace Prelude {
+    using System;
+
+    /// <summary>
+    /// Directed edge for use within a <see cref="Graph"/>.
+    /// </summary>
     public class Edge : IComparable<Edge> {
-        public Guid Id;
-        public Node Source;
-        public Node Target;
-        public double Weight = 1;
-        public virtual bool IsDirected {
-            get {
-                return false;
-            }
-        }
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="Edge"/> class.
         /// </summary>
-        /// <param name="source">For directed edge, the direction is from this node</param>
-        /// <param name="target">For directed edge, the direction is to this node</param>
-        /// <param name="weight">Node weight</param>
+        /// <param name="source">For a directed edge, the direction is from the node.</param>
+        /// <param name="target">For a directed edge, the direction is to the node.</param>
+        /// <param name="weight">Node weight.</param>
         public Edge(Node source, Node target, double weight = 1) {
             Id = Guid.NewGuid();
             Source = source;
             Target = target;
             Weight = weight;
         }
-        public bool Equals(Edge other) {
-            if (other == null)
-                return false;
-            return other.Source == Source && other.Target == Target && other.Weight == Weight && other.IsDirected == IsDirected;
-        }
+
         /// <summary>
-        /// Determines if two edges are equal
+        /// Gets or sets the unique identifier of the edge.
         /// </summary>
-        /// <param name="obj"></param>
-        /// <seealso cref="operator=="/>
-        /// <seealso cref="operator!="/>
-        /// <seealso cref="GetHashCode"/>
-        public override bool Equals(object obj) {
-            Edge a = obj as Edge;
-            return Equals(a);
+        public Guid Id {
+            get;
+            set;
         }
-        public override int GetHashCode() => Id.GetHashCode();
+
+        /// <summary>
+        /// Gets or sets the source node.
+        /// </summary>
+        public Node Source {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the target node.
+        /// </summary>
+        public Node Target {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the weight of the edge.
+        /// </summary>
+        public double Weight {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the edge is directed or not.
+        /// </summary>
+        public virtual bool IsDirected {
+            get {
+                return false;
+            }
+        }
+
         public static bool operator ==(Edge left, Edge right) {
             if ((left is null) || (right is null))
                 return Equals(left, right);
             return left.Equals(right);
         }
+
         public static bool operator !=(Edge left, Edge right) {
             if ((left is null) || (right is null))
                 return !Equals(left, right);
-            return !(left.Equals(right));
+            return !left.Equals(right);
         }
+
         /// <summary>
-        /// Return clone of calling edge
+        /// Method for comparing an edge with another edge.
         /// </summary>
-        /// <returns>Edge</returns>
-        public Edge Clone() => new Edge(Source, Target, Weight);
+        /// <param name="other">Edge to compare with.</param>
+        /// <returns>True if equal, false otherwise.</returns>
+        public bool Equals(Edge other) {
+            if (other == null)
+                return false;
+            return other.Source == Source && other.Target == Target && other.Weight == Weight && other.IsDirected == IsDirected;
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj) {
+            Edge a = obj as Edge;
+            return Equals(a);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => Id.GetHashCode();
+
         /// <summary>
-        /// Check if an edge contains a node (source or target)
+        /// Create an edge clone.
         /// </summary>
-        /// <param name="node">Node to check for</param>
-        /// <returns></returns>
+        /// <returns>Edge clone.</returns>
+        public Edge Clone() => new(Source, Target, Weight);
+
+        /// <summary>
+        /// Check if an edge contains a node (source or target).
+        /// </summary>
+        /// <param name="node">Node to check for.</param>
+        /// <returns>True if the edge contains the node, false otherwise.</returns>
         public bool Contains(Node node) {
             return Source == node || Target == node;
         }
-        /// <summary>
-        /// Allows edges to be ordered within lists
-        /// </summary>
-        /// <param name="other">Edge to compare with</param>
-        /// <returns>zero (equal) or 1 (not equal)</returns>
+
+        /// <inheritdoc/>
         public int CompareTo(Edge other) {
             if (other != null) {
                 var sameSource = Source == other.Source;
@@ -81,10 +125,11 @@ namespace Prelude {
                 throw new ArgumentException("Parameter is not an Edge");
             }
         }
+
         /// <summary>
-        /// Return new edge with source and target nodes swapped
+        /// Return new edge with source and target nodes swapped.
         /// </summary>
-        /// <returns>Edge</returns>
-        public Edge Reverse() => new Edge(Target, Source, Weight);
+        /// <returns>Edge with swapped nodes.</returns>
+        public Edge Reverse() => new(Target, Source, Weight);
     }
 }
