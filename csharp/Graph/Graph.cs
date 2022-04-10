@@ -13,7 +13,7 @@ namespace Prelude {
     /// </summary>
     public class Graph {
         private int[] pathData = Array.Empty<int>();
-        private Node pathSourceNode = new ();
+        private Node pathSourceNode = new();
         private Matrix adjacencyMatrix;
 
         /// <summary>
