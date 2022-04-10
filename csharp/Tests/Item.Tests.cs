@@ -1,9 +1,12 @@
-﻿using Xunit;
-using System;
-using System.Collections.Generic;
-using Prelude;
+﻿// <copyright file="Item.Tests.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace ItemTests {
+    using Prelude;
+    using Xunit;
+
     public class UnitTests {
         [Fact]
         public void Can_be_created_from_a_double() {
@@ -14,6 +17,7 @@ namespace ItemTests {
             Assert.Equal(defaultValue, x.Value);
             Assert.Equal(value, y.Value);
         }
+
         [Fact]
         public void Can_be_created_from_a_node_and_value() {
             var defaultValue = 0;
@@ -26,6 +30,7 @@ namespace ItemTests {
             Assert.Equal(value, y.Value);
             Assert.Equal(a, y.Node);
         }
+
         [Fact]
         public void Can_be_compared_in_various_contexts() {
             var a = new Item(42);
@@ -47,7 +52,9 @@ namespace ItemTests {
             Assert.False(a == b);
             Assert.True(a != b);
             Assert.True(a != null);
+#pragma warning disable SA1131 // Use readable conditions
             Assert.True(null != a);
+#pragma warning restore SA1131 // Use readable conditions
             Assert.Equal(a.GetHashCode(), a.GetHashCode());
             Assert.True(a < b);
             Assert.True(a <= b);

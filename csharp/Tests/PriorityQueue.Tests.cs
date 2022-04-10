@@ -1,7 +1,12 @@
-﻿using Xunit;
-using Prelude;
+﻿// <copyright file="PriorityQueue.Tests.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace PriorityQueueTests {
+    using Prelude;
+    using Xunit;
+
     public class UnitTests {
         [Fact]
         public void Can_be_created_with_no_arguments() {
@@ -9,6 +14,7 @@ namespace PriorityQueueTests {
             Assert.Equal(0, q.CurrentSize);
             Assert.True(q.IsEmpty());
         }
+
         [Fact]
         public void Can_add_items() {
             var q = new PriorityQueue();
@@ -19,6 +25,7 @@ namespace PriorityQueueTests {
             q.Insert(2, v);
             Assert.Equal(2, q.CurrentSize);
         }
+
         [Fact]
         public void Can_swap_items() {
             var q = new PriorityQueue();

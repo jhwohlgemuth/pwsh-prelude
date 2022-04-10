@@ -1,41 +1,49 @@
-using Xunit;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Prelude;
+// <copyright file="Graph.Tests.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace GraphTests {
+    using System;
+    using System.Collections.Generic;
+    using System.Numerics;
+    using Prelude;
+    using Xunit;
+
     public class UnitTests {
         [Theory]
         [InlineData(2, 3)]
         [InlineData(4, 6)]
         [InlineData(7, 5)]
         [InlineData(1, 1)]
-        public void Can_create_Bipartite_graph(int M, int N) {
-            var graph = Graph.Bipartite(M, N);
-            Assert.Equal(M + N, graph.Nodes.Count);
-            Assert.Equal(M * N, graph.Edges.Count);
+        public void Can_create_Bipartite_graph(int m, int n) {
+            var graph = Graph.Bipartite(m, n);
+            Assert.Equal(m + n, graph.Nodes.Count);
+            Assert.Equal(m * n, graph.Edges.Count);
         }
+
         [Theory]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
         [InlineData(6)]
         [InlineData(13)]
-        public void Can_create_complete_graph(int N) {
-            var graph = Graph.Complete(N);
-            Assert.Equal(N, graph.Nodes.Count);
-            Assert.Equal(N * (N - 1) / 2, graph.Edges.Count);
+        public void Can_create_complete_graph(int n) {
+            var graph = Graph.Complete(n);
+            Assert.Equal(n, graph.Nodes.Count);
+            Assert.Equal(n * (n - 1) / 2, graph.Edges.Count);
             Assert.Equal("node-0", graph.Nodes[0].Label);
             foreach (var node in graph.Nodes)
-                Assert.Equal(N - 1, node.Neighbors.Count);
+                Assert.Equal(n - 1, node.Neighbors.Count);
         }
+
         [Fact]
         public void Complete_graph_requires_at_least_two_nodes() {
             var message = "Complete graph requires at least two nodes";
             var ex = Assert.Throws<ArgumentException>(() => Graph.Complete(1));
             Assert.Equal(message, ex.Message);
         }
+
         [Fact]
         public void Graph_creators_update_adjacency_matrix() {
             var bipartite = Graph.Bipartite(1, 2);
@@ -52,26 +60,29 @@ namespace GraphTests {
             Assert.Equal(new Complex[] { 0, 1, 0, 1 }, ring.AdjacencyMatrix[2]);
             Assert.Equal(new Complex[] { 1, 0, 1, 0 }, ring.AdjacencyMatrix[3]);
         }
+
         [Theory]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(4)]
         [InlineData(6)]
         [InlineData(13)]
-        public void Can_create_ring_graph(int N) {
-            var graph = Graph.Ring(N);
-            Assert.Equal(N, graph.Nodes.Count);
-            Assert.Equal(N, graph.Edges.Count);
+        public void Can_create_ring_graph(int n) {
+            var graph = Graph.Ring(n);
+            Assert.Equal(n, graph.Nodes.Count);
+            Assert.Equal(n, graph.Edges.Count);
             Assert.Equal("node-0", graph.Nodes[0].Label);
             foreach (var node in graph.Nodes)
                 Assert.Equal(2, node.Neighbors.Count);
         }
+
         [Fact]
         public void Ring_graph_requires_at_least_two_nodes() {
             var message = "Ring graph requires at least two nodes";
             var ex = Assert.Throws<ArgumentException>(() => Graph.Ring(1));
             Assert.Equal(message, ex.Message);
         }
+
         [Fact]
         public void Can_be_created_from_edges() {
             var a = new Node("a");
@@ -90,6 +101,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.GetNode(b).Neighbors.Count);
             Assert.Single(graph.GetNode(c).Neighbors);
         }
+
         [Fact]
         public void Will_be_assigned_Id_automatically() {
             var graph = new Graph();
@@ -106,6 +118,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Nodes.Count);
             Assert.Equal(2, graph.Edges.Count);
         }
+
         [Fact]
         public void Can_be_passed_nodes_and_edges_at_creation() {
             var a = new Node();
@@ -119,6 +132,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Nodes.Count);
             Assert.Equal(2, graph.Edges.Count);
         }
+
         [Fact]
         public void Can_maintain_matrix_representation_with_undirected_edges() {
             var a = new Node();
@@ -134,6 +148,7 @@ namespace GraphTests {
             Assert.Equal(new List<Complex> { 2, 0, 1 }, adjacencyMatrix.Rows[1]);
             Assert.Equal(new List<Complex> { 0, 1, 0 }, adjacencyMatrix.Rows[2]);
         }
+
         [Fact]
         public void Can_maintain_matrix_representation_with_directed_edges() {
             var a = new Node();
@@ -149,6 +164,7 @@ namespace GraphTests {
             Assert.Equal(new List<Complex> { 0, 0, 5 }, adjacencyMatrix.Rows[1]);
             Assert.Equal(new List<Complex> { 0, 0, 0 }, adjacencyMatrix.Rows[2]);
         }
+
         [Fact]
         public void Can_get_edges() {
             Graph graph = new();
@@ -166,6 +182,7 @@ namespace GraphTests {
             Assert.Equal(ab, graph.GetEdge(a.Id, b.Id));
             Assert.Equal(ab, graph.GetEdge(a.Label, b.Label));
         }
+
         [Fact]
         public void Can_get_edge_weight() {
             Graph graph = new();
@@ -183,6 +200,7 @@ namespace GraphTests {
             var ex = Assert.Throws<ArgumentException>(() => graph.GetEdgeWeight(a, d));
             Assert.Equal(message, ex.Message);
         }
+
         [Fact]
         public void Can_get_nodes() {
             var graph = new Graph();
@@ -192,6 +210,7 @@ namespace GraphTests {
             Assert.Equal(a, graph.GetNode(a.Id));
             Assert.Equal(a, graph.GetNode("a"));
         }
+
         [Fact]
         public void Can_add_nodes_one_at_a_time() {
             var graph = new Graph();
@@ -205,6 +224,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Equal(1, graph.Nodes[1].Index);
         }
+
         [Fact]
         public void Has_density_property_for_undirected_graphs() {
             var graph = new Graph();
@@ -222,6 +242,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Edges.Count);
             Assert.Equal(1, graph.Density);
         }
+
         [Fact]
         public void Has_density_property_for_directed_graphs() {
             var graph = new Graph();
@@ -239,6 +260,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Edges.Count);
             Assert.Equal(0.5, graph.Density);
         }
+
         [Fact]
         public void Will_only_add_unique_nodes() {
             var label = "unique";
@@ -254,6 +276,7 @@ namespace GraphTests {
             graph.Add(b);
             Assert.Equal(2, graph.Nodes.Count);
         }
+
         [Fact]
         public void Can_add_array_of_nodes() {
             var graph = new Graph();
@@ -264,12 +287,13 @@ namespace GraphTests {
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Equal(1, graph.Nodes[1].Index);
             graph = new Graph();
-            var NodeArray = new Node[] { a, b };
+            var nodeArray = new Node[] { a, b };
             Assert.Empty(graph.Nodes);
-            graph.Add(NodeArray);
+            graph.Add(nodeArray);
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Equal(1, graph.Nodes[1].Index);
         }
+
         [Fact]
         public void Can_add_list_of_nodes() {
             var graph = new Graph();
@@ -278,11 +302,12 @@ namespace GraphTests {
             Assert.Empty(graph.Nodes);
             graph = new Graph();
             Assert.Empty(graph.Nodes);
-            var NodeList = new List<Node> { a, b };
-            graph.Add(NodeList);
+            var nodeList = new List<Node> { a, b };
+            graph.Add(nodeList);
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Equal(1, graph.Nodes[1].Index);
         }
+
         [Fact]
         public void Can_add_edges_one_at_a_time() {
             var graph = new Graph();
@@ -297,6 +322,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Single(graph.Edges);
         }
+
         [Fact]
         public void Will_only_add_unique_edges() {
             var valid = "a";
@@ -314,6 +340,7 @@ namespace GraphTests {
             Assert.Single(graph.Edges);
             Assert.Equal(valid, graph.Edges[0].Source.Label);
         }
+
         [Fact]
         public void Can_add_array_of_edges() {
             var graph = new Graph();
@@ -329,6 +356,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Nodes.Count);
             Assert.Equal(3, graph.Edges.Count);
         }
+
         [Fact]
         public void Can_add_list_of_edges() {
             var graph = new Graph();
@@ -344,6 +372,7 @@ namespace GraphTests {
             Assert.Equal(3, graph.Nodes.Count);
             Assert.Equal(3, graph.Edges.Count);
         }
+
         [Fact]
         public void Can_add_nodes_and_edges_from_graphs() {
             var graph = new Graph();
@@ -362,6 +391,7 @@ namespace GraphTests {
             Assert.Equal(3, addGraph.Nodes.Count);
             Assert.Equal(3, addGraph.Edges.Count);
         }
+
         [Fact]
         public void Can_update_node_neighbors_when_edges_are_added() {
             var a = new Node();
@@ -377,6 +407,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.GetNode(b).Neighbors.Count);
             Assert.Single(graph.GetNode(c).Neighbors);
         }
+
         [Fact]
         public void Can_update_node_neighbors_at_creation() {
             var a = new Node();
@@ -393,6 +424,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.GetNode(b).Neighbors.Count);
             Assert.Single(graph.GetNode(c).Neighbors);
         }
+
         [Fact]
         public void Can_clear_nodes_and_edges() {
             var graph = new Graph();
@@ -409,6 +441,7 @@ namespace GraphTests {
             Assert.Empty(graph.Nodes);
             Assert.Empty(graph.Edges);
         }
+
         [Fact]
         public void Can_remove_nodes_one_at_a_time() {
             var graph = new Graph();
@@ -427,6 +460,7 @@ namespace GraphTests {
             Assert.Equal(2, graph.Nodes.Count);
             Assert.Single(graph.Edges);
         }
+
         [Fact]
         public void Can_remove_edges_one_at_a_time() {
             var graph = new Graph();
@@ -447,15 +481,17 @@ namespace GraphTests {
             Assert.Equal(1, graph.GetNode(b).Degree);
             Assert.Equal(1, graph.GetNode(c).Degree);
         }
+
         [Theory]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(5)]
         [InlineData(10)]
-        public void Can_calculate_degree_distribution(int N) {
-            var graph = Graph.Complete(N);
-            Assert.Equal(new Dictionary<int, int> { { N - 1, N } }, graph.DegreeDistribution());
+        public void Can_calculate_degree_distribution(int n) {
+            var graph = Graph.Complete(n);
+            Assert.Equal(new Dictionary<int, int> { { n - 1, n } }, graph.DegreeDistribution());
         }
+
         [Fact]
         public void Can_calculate_degree_matrix() {
             var graph = Graph.Complete(3);
@@ -464,15 +500,17 @@ namespace GraphTests {
             Assert.Equal(new Complex[] { 0, 2, 0 }, d[1]);
             Assert.Equal(new Complex[] { 0, 0, 2 }, d[2]);
         }
+
         [Theory]
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(5)]
         [InlineData(10)]
-        public void Degree_matrix_is_diagonal(int N) {
-            var graph = Graph.Complete(N);
+        public void Degree_matrix_is_diagonal(int n) {
+            var graph = Graph.Complete(n);
             Assert.True(graph.DegreeMatrix().IsDiagonal());
         }
+
         [Fact]
         public void Can_calculate_shortest_path_length_between_two_nodes() {
             var graph = Graph.Complete(3);
@@ -520,6 +558,7 @@ namespace GraphTests {
             graph.Remove(g);
             Assert.Equal(4, graph.GetShortestPathLength(a, f));
         }
+
         [Fact]
         public void Can_calculate_the_shortest_path_using_Dijkstra_algorithm() {
             var graph = Graph.Complete(3);

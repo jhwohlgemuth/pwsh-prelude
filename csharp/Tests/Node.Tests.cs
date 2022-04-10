@@ -1,9 +1,14 @@
-﻿using Xunit;
-using Prelude;
-using System;
-using System.Collections.Generic;
+﻿// <copyright file="Node.Tests.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace NodeTests {
+    using System;
+    using System.Collections.Generic;
+    using Prelude;
+    using Xunit;
+
     public class UnitTests {
         [Fact]
         public void Can_be_assigned_a_label() {
@@ -14,6 +19,7 @@ namespace NodeTests {
             Assert.Equal(36, m.Id.ToString().Length);
             Assert.Equal("test", m.Label);
         }
+
         [Theory]
         [InlineData("7a402e3c-827a-40e2-a69d-d83248f62a74", "Not valid")]
         [InlineData("7a402e3c-827a-40e2-a69d-d83248f62a74", "Also not valid")]
@@ -22,6 +28,7 @@ namespace NodeTests {
             Assert.True(Node.IsValidIdentifier(valid));
             Assert.False(Node.IsValidIdentifier(invalid));
         }
+
         [Fact]
         public void Can_be_assigned_a_valid_Id() {
             var valid = Guid.NewGuid();
@@ -33,11 +40,13 @@ namespace NodeTests {
             Assert.Equal(id, b.Id.ToString());
             Assert.Throws<ArgumentException>(() => new Node(invalid, "invalid node"));
         }
+
         [Fact]
         public void Can_be_assigned_Id_automatically() {
             Node n = new();
             Assert.Equal(36, n.Id.ToString().Length);
         }
+
         [Theory]
         [InlineData("foo")]
         [InlineData("bar")]
@@ -48,6 +57,7 @@ namespace NodeTests {
             a.SetLabel(text);
             Assert.Equal(text, a.Label);
         }
+
         [Fact]
         public void Nodes_can_be_compared() {
             Node a = new();
@@ -75,7 +85,9 @@ namespace NodeTests {
             Assert.True(a != b);
             Assert.True(a != c);
             Assert.True(a != null);
+#pragma warning disable SA1131 // Use readable conditions
             Assert.True(null != a);
+#pragma warning restore SA1131 // Use readable conditions
             var values = new List<Node> { a, b, c };
             values.Sort();
             Assert.Contains(a, values);
@@ -85,6 +97,7 @@ namespace NodeTests {
             var ex = Assert.Throws<ArgumentException>(() => a.CompareTo(null));
             Assert.Equal(message, ex.Message);
         }
+
         [Theory]
         [InlineData("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")]
         [InlineData("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "cccccccc-cccc-cccc-cccc-cccccccccccc")]
@@ -94,6 +107,7 @@ namespace NodeTests {
             Assert.True(a < b);
             Assert.False(a > b);
         }
+
         [Fact]
         public void Must_have_a_valid_id_when_also_passing_a_label() {
             var message = "Node ID must have valid GUID format";

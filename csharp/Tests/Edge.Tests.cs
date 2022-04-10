@@ -1,9 +1,14 @@
-using Xunit;
-using System;
-using System.Collections.Generic;
-using Prelude;
+// <copyright file="Edge.Tests.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace EdgeTests {
+    using System;
+    using System.Collections.Generic;
+    using Prelude;
+    using Xunit;
+
     public class UnitTests {
         [Fact]
         public void Will_be_assigned_Id_automatically() {
@@ -12,6 +17,7 @@ namespace EdgeTests {
             Edge e = new(a, b);
             Assert.Equal(36, e.Id.ToString().Length);
         }
+
         [Fact]
         public void Can_be_compared() {
             Node a = new();
@@ -42,7 +48,9 @@ namespace EdgeTests {
             Assert.True(ab != bc);
             Assert.True(ab != ac);
             Assert.True(ab != null);
+#pragma warning disable SA1131 // Use readable conditions
             Assert.True(null != ab);
+#pragma warning restore SA1131 // Use readable conditions
             var values = new List<Edge> { ab, bc, ac };
             values.Sort();
             Assert.Contains(bc, values);
@@ -52,6 +60,7 @@ namespace EdgeTests {
             var ex = Assert.Throws<ArgumentException>(() => ab.CompareTo(null));
             Assert.Equal(message, ex.Message);
         }
+
         [Fact]
         public void Can_create_clones() {
             Node a = new("A");
@@ -63,6 +72,7 @@ namespace EdgeTests {
             Assert.Equal(ab, clone);
             Assert.NotEqual(ab.Id, clone.Id);
         }
+
         [Fact]
         public void Can_create_edge_with_nodes_reversed() {
             Node a = new("A");
@@ -74,6 +84,7 @@ namespace EdgeTests {
             Assert.NotEqual(ab, reversed);
             Assert.NotEqual(ab.Id, reversed.Id);
         }
+
         [Fact]
         public void Can_be_directed() {
             Node a = new("A");

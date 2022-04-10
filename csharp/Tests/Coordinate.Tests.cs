@@ -1,18 +1,24 @@
-using Xunit;
-using System;
-using System.Collections.Generic;
-using Prelude.Geodetic;
+// <copyright file="Coordinate.Tests.cs" company="Jason Wohlgemuth">
+// Copyright (c) 2022 Jason Wohlgemuth. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
 
 namespace CoordinateTests {
+    using System;
+    using System.Collections.Generic;
+    using Prelude.Geodetic;
+    using Xunit;
+
     public class UnitTests {
         [Theory]
         [InlineData(0, 0, "N", "E")]
         [InlineData(37, -111, "N", "W")]
         [InlineData(-41.25, 96.4, "S", "E")]
-        public void Can_assign_cardinal_directions(double lat, double lon, string NS, string EW) {
-            var A = new Coordinate(lat, lon);
-            Assert.Equal(new string[] { NS, EW }, A.Hemisphere);
+        public void Can_assign_cardinal_directions(double lat, double lon, string northSouth, string eastWest) {
+            var a = new Coordinate(lat, lon);
+            Assert.Equal(new string[] { northSouth, eastWest }, a.Hemisphere);
         }
+
         [Theory]
         [InlineData(41.25, 96.0, 0, -501980.22547, 4776022.81393, 4183337.2134)]
         [InlineData(41.25, 96.0, 1000, -502058.81413, 4776770.53508, 4183996.55921)]
@@ -29,6 +35,7 @@ namespace CoordinateTests {
             Assert.Equal(y, cartesian[1], 5);
             Assert.Equal(z, cartesian[2], 5);
         }
+
         [Theory]
         [InlineData(-501980.22547, 4776022.81393, 4183337.2134, 41.25, 96, 0)]
         [InlineData(-502058.81413, 4776770.53508, 4183996.55921, 41.25, 96, 1000)]
@@ -40,6 +47,7 @@ namespace CoordinateTests {
             Assert.Equal(lon, geodetic[1], 2);
             Assert.Equal(height, geodetic[2], 2);
         }
+
         [Theory]
         [InlineData(-501980.22547, 4776022.81393, 4183337.2134, 41.25, 96, 0)]
         [InlineData(-502058.81413, 4776770.53508, 4183996.55921, 41.25, 96, 1000)]
@@ -51,6 +59,7 @@ namespace CoordinateTests {
             Assert.Equal(lon, a.Longitude, 2);
             Assert.Equal(height, a.Height, 2);
         }
+
         [Theory]
         [InlineData(32.7157, 32, 42, 56.52)]
         [InlineData(96, 96, 0, 0)]
@@ -62,6 +71,7 @@ namespace CoordinateTests {
             Assert.Equal(minutes, sexagesimal[1]);
             Assert.Equal(seconds, sexagesimal[2]);
         }
+
         [Theory]
         [InlineData(0, 0, 0, "0°0'0\"N 0°0'0\"E")]
         [InlineData(42.62, -123, 10, "42°37'12\"N 123°0'0\"W")]
@@ -71,6 +81,7 @@ namespace CoordinateTests {
             var latlon = new Coordinate(lat, lon, height);
             Assert.Equal(expected, latlon.ToString());
         }
+
         [Fact]
         public void Can_create_coordinate_at_origin_by_default() {
             var coordinate = new Coordinate();
@@ -78,6 +89,7 @@ namespace CoordinateTests {
             Assert.Equal(0, coordinate.Longitude);
             Assert.Equal(0, coordinate.Height);
         }
+
         [Fact]
         public void Can_throw_an_exception_for_null_comparisons() {
             var a = new Coordinate(89, 123);
@@ -85,6 +97,7 @@ namespace CoordinateTests {
             var message = "Parameter is not a Coordinate";
             Assert.Equal(message, ex.Message);
         }
+
         [Fact]
         public void Can_be_compared_in_various_contexts() {
             var a = new Coordinate(41.25, -96);
@@ -116,6 +129,7 @@ namespace CoordinateTests {
             Assert.Throws<InvalidOperationException>(() => values.Sort());
             Assert.Equal(a.GetHashCode(), a.GetHashCode());
         }
+
         [Fact]
         public void Can_caluculate_earth_radius_at_given_latitude() {
             Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(90));
@@ -130,6 +144,7 @@ namespace CoordinateTests {
             coordinate = new Coordinate(-90, 0);
             Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(coordinate));
         }
+
         [Fact]
         public void Can_calculate_Haversine_distance() {
             var a = new Coordinate();
@@ -142,6 +157,7 @@ namespace CoordinateTests {
             Assert.Equal(2097705.740066118, sandiego - omaha);
             Assert.Equal(2097705.740066118, Coordinate.HaversineDistance(omaha, sandiego));
         }
+
         [Fact]
         public void Can_compare_coordinates() {
             var a = new Coordinate(42, -96);
