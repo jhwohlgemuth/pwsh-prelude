@@ -148,7 +148,7 @@ $Inverse = $X.Inverse()
 Simple linear regression (with [SciKit-Learn](https://scikit-learn.org/stable/index.html))
 --------------------------------------------
 
-**Numpy** and **SciKit-Learn**
+**NumPy** and **SciKit-Learn**
 ```python
 import numpy as np
 from sklearn.linear_model import LinearRegression
