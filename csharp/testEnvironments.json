@@ -12,6 +12,11 @@
             "remoteUri": "ssh://jason@veda:22"
         },
         {
+            "name": "Docker (jhwohlgemuth/env)",
+            "type": "docker",
+            "dockerImage": "jhwohlgemuth/env:latest"
+        },
+        {
             "name": "Docker (jhwohlgemuth/notebook)",
             "type": "docker",
             "dockerImage": "jhwohlgemuth/notebook:latest"
