@@ -133,7 +133,7 @@ namespace CoordinateTests {
         [Fact]
         public void Can_caluculate_earth_radius_at_given_latitude() {
             Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(90));
-            Assert.Equal(6367489.543863465, Coordinate.GetEarthRadius(45));
+            Assert.Equal(6367489.5438635, Coordinate.GetEarthRadius(45), 7);
             Assert.Equal(6374777.820875008, Coordinate.GetEarthRadius(23.437055555555556));
             Assert.Equal(Datum.SemiMajorAxis, Coordinate.GetEarthRadius());
             Assert.Equal(Datum.SemiMinorAxis, Coordinate.GetEarthRadius(-90));

@@ -1,0 +1,20 @@
+{
+    "version": "1",
+    "environments": [
+        {
+            "name": "WSL (Ubuntu)",
+            "type": "wsl",
+            "wslDistribution": "Ubuntu"
+        },
+        {
+            "name": "SSH (VEDA)",
+            "type": "ssh",
+            "remoteUri": "ssh://jason@veda:22"
+        },
+        {
+            "name": "Docker (jhwohlgemuth/notebook)",
+            "type": "docker",
+            "dockerImage": "jhwohlgemuth/notebook:latest"
+        }
+    ]
+}
