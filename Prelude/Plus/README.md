@@ -10,13 +10,16 @@ Prelude Plus
 - [`Get-DefaultBrowser`](#get-defaultbrowser)
 - [`Get-GithubOAuthToken`](#get-githuboauthtoken)
 - [`Get-Screenshot`](#get-screenshot)
+- [`Install-SshServer`](#install-sshserver)
 - [`Invoke-ListenForWord`](#invoke-listenforword)
 - [`Invoke-ListenTo`](#invoke-listento)
 - [`Invoke-NewDirectoryAndEnter`](#invoke-newdirectoryandenter)
 - [`Invoke-Normalize`](#invoke-normalize)
 - [`Invoke-RemoteCommand`](#invoke-remotecommand)
 - [`Measure-Readability`](#measure-readability)
+- [`New-DailyShutdownJob`](#new-dailyshutdownjob)
 - [`Open-Session`](#open-session)
+- [`Remove-DailyShutdownJob`](#remove-dailyshutdownjob)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -38,6 +41,10 @@ Prelude Plus
 ----------------
 > This function triggers Windows security since it is similar to [PowerShell Empire code](https://github.com/EmpireProject/Empire/blob/08cbd274bef78243d7a8ed6443b8364acd1fc48b/data/module_source/collection/Get-Screenshot.ps1). As a standalone cmdlet, if `Get-Screenshot` is blocked by Windows security, the impace will be isolated from the rest of the Prelude module.
 
+`Install-SshServer`
+------------------
+- **Description**: Install OpenSSH server on a Windows PC.
+
 `Invoke-ListenForWord`
 ----------------------
 - **Description**: Uses Windows speech recognition and listens for a certain word.  Can be used to trigger subsequent scripts.
@@ -47,7 +54,6 @@ Prelude Plus
 -----------------
 - **Description**: Basically a wrapper for Register-EngineEvent.
 - **Aliases**: `on`, `listenTo`
-
 
 `Invoke-NewDirectoryAndEnter`
 -----------------------------
@@ -63,12 +69,18 @@ Prelude Plus
 - **Description**: Wrapper for invoking commands on remote machines.
 - **Aliases**: `irc`
 
-
 `Measure-Readability`
 ---------------------
 - **Description**: Measure readability of input text.  See `help Measure-Readability` for details.
+
+`New-DailyShutdownJob`
+------------------------
+- **Description**: Add daily shutdown job on a Windows PC.
 
 `Open-Session`
 --------------
 - **Description**: Create interactive session with remote machine.
 
+`Remove-DailyShutdownJob`
+------------------------
+- **Description**: Remove daily shutdown job created using [`New-DailyShutdownJob`](#new-dailyshutdownjob).
