@@ -456,7 +456,7 @@ $Add = { Param($a,$b) $a + $b }
 @(1,2,3).Reduce($Add, 0) # 6
 
 ```
-> For the full list of functions, read through the `ps1xml` files in [`./types`](./types)
+> For the full list of functions, read through the `ps1xml` files in the [types directory](./Prelude/types).
 
 Contributing
 ------------
