@@ -17,6 +17,15 @@ install:
 build_script:
   - ps: ./Invoke-Task.ps1 -Lint -CI
 
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu
+
+  test_script:
+  - ps: ./Invoke-Task.ps1 -Test -Tags 'Remote' -Platform 'linux' -WithCoverage
+
 test_script:
   - ps: ./Invoke-Task.ps1 -Test -Tags 'Remote' -Platform 'windows' -WithCoverage
 
