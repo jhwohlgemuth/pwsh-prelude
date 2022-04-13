@@ -364,7 +364,7 @@ Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote
         ($Html | Get-HtmlElement '#foo').innerText | Should -Be 'foo'
         ($Html | Get-HtmlElement '.foo').innerText | Should -Be 'bar'
     }
-    It 'can get elements from HTML string' {
+    It 'can get elements from HTML object' {
         $Html = '<html><div id="foo">foo</div><div class="foo">bar</div></html>' | ConvertFrom-Html
         ($Html | Get-HtmlElement 'div').innerText | Should -Be 'foo', 'bar'
         ($Html | Get-HtmlElement '#foo').innerText | Should -Be 'foo'
