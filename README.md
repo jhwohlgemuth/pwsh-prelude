@@ -267,6 +267,7 @@ Functions
   - `Remove-DirectoryForce`
   - `Remove-Indent`
   - `Rename-FileExtension`
+  - `Save-File`
   - `Save-State`
   - `Take`
   - `Test-Admin`

@@ -196,6 +196,7 @@
         'Remove-DirectoryForce'
         'Remove-Indent'
         'Rename-FileExtension'
+        'Save-File'
         'Save-State'
         'Invoke-NewDirectoryAndEnter'
         'Test-Admin'

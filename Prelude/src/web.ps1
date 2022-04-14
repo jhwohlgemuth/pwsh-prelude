@@ -572,44 +572,59 @@ function Invoke-WebRequestBasicAuth {
     Data (Body) payload for HTTP request. Will only function with PUT and POST requests.
     ==> Analogous to the '-d' cURL flag
     ==> Data object will be converted to JSON string
+    .PARAMETER Session
+    Name for custom web session variable.
+    This cmdlet will try to remember the session variable, by default.  Use -DisableSession to disable this behavior.
+    See https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2#example-2-use-a-stateful-web-service
+    .PARAMETER Download
+    Download content at URI.
     .PARAMETER WebRequestParameters
     Object for passing parameters to underlying invocation of Invoke-WebRequest
+    Note: "Custom" is an alias for this parameter
     .EXAMPLE
     # Authenticate a GET request with a token
     $Uri = 'https://api.github.com/notifications'
     $Query = @{ per_page = 100; page = 1 }
-    $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
-    $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
+    $Response = Invoke-WebRequestBasicAuth $Uri -Token $Token -Query $Query -ParseContent
+    $Response | Format-Table -AutoSize
     .EXAMPLE
     # Use basic authentication with a username and password
     $Uri = 'https://api.github.com/notifications'
     $Query = @{ per_page = 100; page = 1 }
-    $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri -Query $Query
-    $Request.Content | ConvertFrom-Json | Format-Table -AutoSize
+    $Response = Invoke-WebRequestBasicAuth $Uri -Username $Username -Password $Token -Query $Query -ParseContent
+    $Response | Format-Table -AutoSize
     .EXAMPLE
     # Execute a PUT request with a data payload
     $Uri = 'https://api.github.com/notifications'
-    @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put
+    @{ last_read_at = '' } | BasicAuth $Uri -Put -Token $Token
     .EXAMPLE
     $Uri = 'https://api.github.com/notifications'
     $Parameters = @{
         SkipCertificateChecks = $True
     }
-    @{ last_read_at = '' } | BasicAuth $Token -Uri $Uri -Put -RequestParameters $Parameters
+    @{ last_read_at = '' } | BasicAuth $Uri -Put -Token $Token -Custom $Parameters
+    .EXAMPLE
+    # Download and parse an API JSON response (can also parse HTML and CSV content)
+    $Uri = 'https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Galaxy-Eyes%20Photon%20Dragon
+    $Response = BasicAuth -Uri $Uri -ParseContent
     #>
-    [CmdletBinding(DefaultParameterSetName = 'token')]
+    [CmdletBinding(DefaultParameterSetName = 'none')]
     [Alias('basicauth')]
     Param(
-        [Parameter(ParameterSetName = 'basic', Position = 0)]
+        [Parameter(ParameterSetName = 'basic')]
         [String] $Username,
         [Parameter(ParameterSetName = 'basic')]
         [String] $Password,
-        [Parameter(ParameterSetName = 'token', Position = 0)]
+        [Parameter(ParameterSetName = 'token')]
         [String] $Token,
-        [Parameter(Mandatory = $True)]
+        [PSObject] $Headers = @{},
+        [String] $Session = 'PreludeBasicAuthSession',
+        [Switch] $DisableSession,
+        [Parameter(Mandatory = $True, Position = 0)]
         [UriBuilder] $Uri,
         [PSObject] $Query = @{},
         [Switch] $UrlEncode,
+        [Switch] $Download,
         [Switch] $ParseContent,
         [Alias('OTP')]
         [String] $TwoFactorAuthentication = 'none',
@@ -619,17 +634,17 @@ function Invoke-WebRequestBasicAuth {
         [Switch] $Delete,
         [Parameter(ValueFromPipeline = $True)]
         [PSObject] $Data = @{},
+        [Alias('Custom')]
         [PSObject] $WebRequestParameters = @{}
     )
     Process {
-        $Authorization = if ($Token.Length -gt 0) {
-            "Bearer $Token"
-        } else {
-            $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
-            "Basic $Credential"
-        }
-        $Headers = @{
-            Authorization = $Authorization
+        if ($PSBoundParameters.ContainsKey('Password') -or $PSBoundParameters.ContainsKey('Token')) {
+            $Headers.Authorization = if ($Token.Length -gt 0) {
+                "Bearer $Token"
+            } else {
+                $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
+                "Basic $Credential"
+            }
         }
         switch ($TwoFactorAuthentication) {
             'github' {
@@ -653,12 +668,48 @@ function Invoke-WebRequestBasicAuth {
         "==> Method: $($Parameters.Method)" | Write-Verbose
         "==> URI: $($Parameters.Uri)" | Write-Verbose
         if ($Method -in 'Post', 'Put') {
-            $Parameters.Body = $Data | ConvertTo-Json
-            "==> Data: $($Data | ConvertTo-Json)" | Write-Verbose
+            $Body = $Data | ConvertTo-Json
+            $Parameters.Body = $Body
+            "==> Data: ${Body}" | Write-Verbose
         }
-        $Request = Invoke-WebRequest @Parameters @WebRequestParameters
+        if (-not $DisableSession) {
+            $WebSession = Get-Variable -Name $Session -ValueOnly -ErrorAction Ignore
+            if ($WebSession -is [Microsoft.PowerShell.Commands.WebRequestSession]) {
+                $Parameters.WebSession = $WebSession
+            } else {
+                $Parameters.SessionVariable = $Session
+            }
+        }
+        $Request = Invoke-WebRequest @Parameters @WebRequestParameters -UseBasicParsing
         if ($ParseContent) {
-            $Request.Content | ConvertFrom-Json
+            $Content = $Request.Content
+            $Type = $Request.Headers.'Content-Type'
+            switch -Regex ($Type) {
+                '^text\/csv' {
+                    $Content | ConvertFrom-Csv
+                }
+                '^text\/html' {
+                    $Content | ConvertFrom-Html
+                }
+                '^application\/xhtml[+]xml' {
+                    $Content | ConvertFrom-Html
+                }
+                '^application\/json' {
+                    $Content | ConvertFrom-Json
+                }
+                '^text\/(plain|css|javascript)' {
+                    "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
+                    $Content
+                }
+                '^(image|video|font|audio|model)\/' {
+                    "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
+                    $Content
+                }
+                Default {
+                    "==> [WARN] Unable to resolve type, ${Type}" | Write-Warning
+                    $Content
+                }
+            }
         } else {
             $Request
         }
@@ -763,6 +814,23 @@ function Out-Browser {
                 }
             }
         }
+    }
+}
+function Save-File {
+    <#
+    .SYNOPSIS
+    Download and save a file from a local or remote location.
+    #>
+    [CmdletBinding(SupportsShouldProcess = $True)]
+    Param(
+        [String] $Uri,
+        [String] $Destination = (Get-Location).Path
+    )
+    $Filename = $Uri
+    if ($PSCmdlet.ShouldProcess($Filename)) {
+        '==> [INFO] Saving image to $Path' | Write-Verbose
+        $Client = New-Object System.Net.WebClient
+        $Client.DownloadFile($Uri, (Join-Path $Destination $Filename))
     }
 }
 function Test-Url {

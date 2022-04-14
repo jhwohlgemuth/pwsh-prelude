@@ -376,8 +376,13 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
         $Token = 'token'
         $Uri = 'https://example.com/'
-        $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri
-        $Values = $Request[1, 3, 5] | Sort-Object
+        $Request = Invoke-WebRequestBasicAuth $Uri -Token $Token
+        $Values = $Request[1, 3, 7] | Sort-Object
+        $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
+        $Values | Should -Contain 'Get'
+        $Values | Should -Contain $Uri
+        $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token
+        $Values = $Request[1, 3, 7] | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
         $Values | Should -Contain $Uri
@@ -387,7 +392,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Username = 'user'
         $Token = 'token'
         $Uri = 'https://example.com/'
-        $Request = Invoke-WebRequestBasicAuth $Username -Password $Token -Uri $Uri
+        $Request = Invoke-WebRequestBasicAuth $Uri -Username $Username -Password $Token -DisableSession
         $Values = $Request[1, 3, 5] | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be 'Basic dXNlcjp0b2tlbg==' }
         $Values | Should -Contain 'Get'
@@ -398,7 +403,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Query = @{ foo = 'bar' }
-        $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query
+        $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token -Query $Query -DisableSession
         $Values = $Request[1, 3, 5] | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
@@ -409,7 +414,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Query = @{ answer = 42 }
-        $Request = Invoke-WebRequestBasicAuth $Token -Uri $Uri -Query $Query -UrlEncode
+        $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token -Query $Query -UrlEncode -DisableSession
         $Values = $Request[1, 3, 5] | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
@@ -420,12 +425,106 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Data = @{ answer = 42 }
-        $Request = Invoke-WebRequestBasicAuth $Token -Put -Uri $Uri -Data $Data
+        $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token -Put -Data $Data -DisableSession
         $Values = $Request[1, 3, 5, 7] | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Put'
         $Values | Should -Contain $Uri
         $Values | Should -Contain (ConvertTo-Json $Data)
+    }
+    It 'can parse HTML (<Type>) content' -TestCases @(
+        @{ Type = 'text/html' },
+        @{ Type = 'text/html; charset=UTF-8' },
+        @{ Type = 'application/xhtml+xml' }
+    ) {
+        $Uri = 'https://example.com/'
+        $Content = '<html><div id="foo">foo</div><div class="foo">bar</div></html>'
+        $Response = @{
+            Headers = @{
+                'Content-Type' = $Type
+            }
+            Content = $Content
+        }
+        Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
+        $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
+        $Result | Should -BeOfType mshtml.HTMLDocumentClass
+    }
+    It 'can parse JSON (<Type>) content' -TestCases @(
+        @{ Type = 'application/json' },
+        @{ Type = 'application/json; charset=UTF-8' }
+    ) {
+        $Uri = 'https://example.com/'
+        $Content = '{"foo": "bar"}'
+        $Response = @{
+            Headers = @{
+                'Content-Type' = $Type
+            }
+            Content = $Content
+        }
+        Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
+        $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
+        $Result.foo | Should -Be 'bar'
+    }
+    It 'can parse CSV (<Type>) content' -TestCases @(
+        @{ Type = 'text/csv' },
+        @{ Type = 'text/csv; charset=UTF-8' }
+    ) {
+        $Uri = 'https://example.com/'
+        $Content = "name, level`nGoku, 9001"
+        $Response = @{
+            Headers = @{
+                'Content-Type' = $Type
+            }
+            Content = $Content
+        }
+        Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
+        $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
+        $Result.name | Should -Be 'Goku'
+    }
+    It 'will not parse <Type> content' -TestCases @(
+        @{ Type = 'text/plain' },
+        @{ Type = 'text/css' },
+        @{ Type = 'text/javascript' },
+        @{ Type = 'audio/webm' },
+        @{ Type = 'image/png' },
+        @{ Type = 'video/javascript' },
+        @{ Type = 'model/vrml' }
+    ) {
+        Mock Write-Verbose { } -ModuleName 'Prelude'
+        $Uri = 'https://example.com/'
+        $Content = 'This will not be parsed'
+        $Response = @{
+            Headers = @{
+                'Content-Type' = $Type
+            }
+            Content = $Content
+        }
+        Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
+        $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
+        $Result | Should -Be $Content
+        Should -Invoke Write-Verbose -Exactly 5 -ModuleName 'Prelude'
+    }
+    It 'will not parse content with unknown content-type, <Type>' -TestCases @(
+        @{ Type = 'not real content-type' }
+    ) {
+        Mock Write-Warning { } -ModuleName 'Prelude'
+        $Uri = 'https://example.com/'
+        $Content = 'This will not be parsed'
+        $Response = @{
+            Headers = @{
+                'Content-Type' = $Type
+            }
+            Content = $Content
+        }
+        Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
+        $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
+        $Result | Should -Be $Content
+        Should -Invoke Write-Warning -Exactly 1 -ModuleName 'Prelude'
+    }
+}
+Describe 'Save-File' -Tag 'Local', 'Remote' {
+    It 'can save a file from a remote web address' {
+        $True | Should -BeTrue
     }
 }
 Describe 'Test-Url' -Tag 'Local', 'Remote' {
