@@ -436,13 +436,13 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Values | Should -Contain $Uri
         $Values | Should -Contain (ConvertTo-Json $Data)
     }
-    It -Skip:(-not $HtmlFileSupported) 'can parse HTML (<Type>) content' -TestCases @(
+    It 'can parse HTML (<Type>) content' -TestCases @(
         @{ Type = 'text/html' },
         @{ Type = 'text/html; charset=UTF-8' },
         @{ Type = 'application/xhtml+xml' }
     ) {
         $Uri = 'https://example.com/'
-        $Content = '<html><div id="foo">foo</div><div class="foo">bar</div></html>'
+        $Content = '<html><a href="#">Foo</a><a href="#">Bar</a></html>'
         $Response = @{
             Headers = @{
                 'Content-Type' = $Type
@@ -451,7 +451,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         }
         Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
         $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
-        $Result | Should -BeOfType mshtml.HTMLDocumentClass
+        $Result.links | Get-Property 'innerHTML' | Should -Be 'Foo', 'Bar'
     }
     It 'can parse JSON (<Type>) content' -TestCases @(
         @{ Type = 'application/json' },
