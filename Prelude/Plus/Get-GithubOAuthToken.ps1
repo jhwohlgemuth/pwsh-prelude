@@ -8,13 +8,14 @@ function Get-GithubOAuthToken {
     Before using this function, you must:
         1. Create an OAuth app on Github.com
         2. Record app "Client ID" (passed as -ClientID)
-        3. Opt-in to "Device Authorization Flow" beta feature
+        3. Opt-in to "Device Authorization Flow" beta feature via the "Enable Device Flow" checkbox on the OAuth app settings page
     This function will attempt to open a browser and will require the user to login to his/her Github account to authorize access.
     The one-time device code will be copied to the clipboard for ease of use.
     > Note: For basic authentication scenarios, please use Invoke-WebRequestBasicAuth
     .EXAMPLE
     $Token = Get-GithubOAuthToken -ClientId $ClientId -Scope 'notifications'
-    $Request = BasicAuth $Token -Uri 'https://api.github.com/notifications'
+    $Uri = 'https://api.github.com/notifications'
+    $Request = BasicAuth $Uri -Token $Token
     #>
     [CmdletBinding()]
     Param(

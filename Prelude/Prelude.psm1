@@ -45,4 +45,4 @@ Import source files
     Get-ChildItem -Path $SourceFiles -Recurse -Include *.ps1 |
         Sort-Object |
         ForEach-Object { . $_.FullName }
-}
+    }

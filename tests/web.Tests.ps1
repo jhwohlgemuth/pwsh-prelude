@@ -372,6 +372,10 @@ Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote
     }
 }
 Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
+    It 'will not do anything when passed -WhatIf' {
+        $Uri = 'https://example.com/'
+        $Request = Invoke-WebRequestBasicAuth $Uri -ParseContent -WhatIf
+    }
     It 'can make a simple request' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
         $Token = 'token'
@@ -432,7 +436,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Values | Should -Contain $Uri
         $Values | Should -Contain (ConvertTo-Json $Data)
     }
-    It 'can parse HTML (<Type>) content' -TestCases @(
+    It -Skip:(-not $HtmlFileSupported) 'can parse HTML (<Type>) content' -TestCases @(
         @{ Type = 'text/html' },
         @{ Type = 'text/html; charset=UTF-8' },
         @{ Type = 'application/xhtml+xml' }

@@ -605,10 +605,10 @@ function Invoke-WebRequestBasicAuth {
     @{ last_read_at = '' } | BasicAuth $Uri -Put -Token $Token -Custom $Parameters
     .EXAMPLE
     # Download and parse an API JSON response (can also parse HTML and CSV content)
-    $Uri = 'https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Galaxy-Eyes%20Photon%20Dragon
-    $Response = BasicAuth -Uri $Uri -ParseContent
+    $Uri = 'https://db.ygoprodeck.com/api/v7/cardinfo.php
+    basicauth $Uri -Query @{ name = 'Galaxy-Eyes Photon Dragon' } -ParseContent
     #>
-    [CmdletBinding(DefaultParameterSetName = 'none')]
+    [CmdletBinding(DefaultParameterSetName = 'none', SupportsShouldProcess = $True)]
     [Alias('basicauth')]
     Param(
         [Parameter(ParameterSetName = 'basic')]
@@ -625,6 +625,8 @@ function Invoke-WebRequestBasicAuth {
         [PSObject] $Query = @{},
         [Switch] $UrlEncode,
         [Switch] $Download,
+        [ValidateScript( { Test-Path $_ })]
+        [String] $Folder = (Get-Location).Path,
         [Switch] $ParseContent,
         [Alias('OTP')]
         [String] $TwoFactorAuthentication = 'none',
@@ -648,10 +650,14 @@ function Invoke-WebRequestBasicAuth {
         }
         switch ($TwoFactorAuthentication) {
             'github' {
-                'GitHub 2FA' | Write-Title -Green
-                $Code = 'Code:' | Invoke-Input -Number -Indent 4
-                $Headers.Accept = 'application/vnd.github.v3+json'
-                $Headers['x-github-otp'] = $Code
+                if ($PSCmdlet.ShouldProcess('GitHub 2FA')) {
+                    'GitHub 2FA' | Write-Title -Green
+                    $Code = 'Code:' | Invoke-Input -Number -Indent 4
+                    $Headers.Accept = 'application/vnd.github.v3+json'
+                    $Headers['x-github-otp'] = $Code
+                } else {
+                    '==> [DRYRUN] Would have set Accept and x-github-otp headers' | Write-Color -DarkGray
+                }
             }
             Default {
                 # Do nothing
@@ -664,13 +670,13 @@ function Invoke-WebRequestBasicAuth {
             Method = $Method
             Uri = $Uri.Uri
         }
-        "==> Headers: $($Parameters.Headers | ConvertTo-Json)" | Write-Verbose
-        "==> Method: $($Parameters.Method)" | Write-Verbose
-        "==> URI: $($Parameters.Uri)" | Write-Verbose
+        "==> [INFO] Headers: $($Parameters.Headers | ConvertTo-Json)" | Write-Verbose
+        "==> [INFO] Method: $($Parameters.Method)" | Write-Verbose
+        "==> [INFO] URI: $($Parameters.Uri)" | Write-Verbose
         if ($Method -in 'Post', 'Put') {
             $Body = $Data | ConvertTo-Json
             $Parameters.Body = $Body
-            "==> Data: ${Body}" | Write-Verbose
+            "==> [INFO] Data: ${Body}" | Write-Verbose
         }
         if (-not $DisableSession) {
             $WebSession = Get-Variable -Name $Session -ValueOnly -ErrorAction Ignore
@@ -680,38 +686,64 @@ function Invoke-WebRequestBasicAuth {
                 $Parameters.SessionVariable = $Session
             }
         }
-        $Request = Invoke-WebRequest @Parameters @WebRequestParameters -UseBasicParsing
+        if ($Download) {
+            $Parameters.OutFile = Join-Path $Folder (Split-Path $Uri.Path -Leaf)
+        }
+        if ($PSCmdlet.ShouldProcess('Invoke-WebRequest')) {
+            $Request = Invoke-WebRequest @Parameters @WebRequestParameters -UseBasicParsing
+        } else {
+            '==> [DRYRUN] Would have called Invoke-WebRequest with the parameters:' | Write-Color -DarkGray
+            $Parameters, $WebRequestParameters | Invoke-ObjectMerge | ConvertTo-Json | Write-Color -DarkGray
+            # $WebRequestParameters | Invoke-ObjectMerge | ConvertTo-Json | Write-Color -DarkGray
+        }
         if ($ParseContent) {
-            $Content = $Request.Content
-            $Type = $Request.Headers.'Content-Type'
-            switch -Regex ($Type) {
-                '^text\/csv' {
-                    $Content | ConvertFrom-Csv
+            if ($PSCmdlet.ShouldProcess('Parsed content')) {
+                $Content = $Request.Content
+                $Type = $Request.Headers.'Content-Type'
+                $Content = switch -Regex ($Type) {
+                    '^text\/csv' {
+                        $Content | ConvertFrom-Csv
+                    }
+                    '^text\/html' {
+                        $Content | ConvertFrom-Html
+                    }
+                    '^application\/xhtml[+]xml' {
+                        $Content | ConvertFrom-Html
+                    }
+                    '^application\/json' {
+                        $Content | ConvertFrom-Json
+                    }
+                    '^text\/(plain|css|javascript)' {
+                        "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
+                        $Content
+                    }
+                    '^(image|video|font|audio|model)\/' {
+                        "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
+                        $Content
+                    }
+                    Default {
+                        "==> [WARN] Unable to resolve type, ${Type}" | Write-Warning
+                        $Content
+                    }
                 }
-                '^text\/html' {
-                    $Content | ConvertFrom-Html
-                }
-                '^application\/xhtml[+]xml' {
-                    $Content | ConvertFrom-Html
-                }
-                '^application\/json' {
-                    $Content | ConvertFrom-Json
-                }
-                '^text\/(plain|css|javascript)' {
-                    "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
+                if ($Download) {
+                    $Parameters = @{
+                        Encoding = 'default'
+                        FilePath = Join-Path $Folder (Split-Path $Uri.Path -Leaf)
+                    }
+                    $Content | Out-File @Parameters | Out-Null
+                } else {
                     $Content
                 }
-                '^(image|video|font|audio|model)\/' {
-                    "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
-                    $Content
-                }
-                Default {
-                    "==> [WARN] Unable to resolve type, ${Type}" | Write-Warning
-                    $Content
-                }
+            } else {
+                '==> [DRYRUN] Would have parsed response content' | Write-Color -DarkGray
             }
         } else {
-            $Request
+            if ($PSCmdlet.ShouldProcess('Invoke-WebRequest')) {
+                $Request
+            } else {
+                '==> [DRYRUN] Would have returned response' | Write-Color -DarkGray
+            }
         }
     }
 }
