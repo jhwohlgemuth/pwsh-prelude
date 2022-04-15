@@ -372,7 +372,7 @@ Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote
     }
 }
 Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
-    It 'will not do anything when passed -WhatIf' {
+    It -Skip 'will not do anything when passed -WhatIf' {
         $Uri = 'https://example.com/'
         $Request = Invoke-WebRequestBasicAuth $Uri -ParseContent -WhatIf
     }
