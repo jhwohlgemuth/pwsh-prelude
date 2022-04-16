@@ -372,9 +372,11 @@ Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote
     }
 }
 Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
-    It -Skip 'will not do anything when passed -WhatIf' {
+    It 'will not do anything when passed -WhatIf' {
+        Mock Write-Color {} -ModuleName 'Prelude'
         $Uri = 'https://example.com/'
-        $Request = Invoke-WebRequestBasicAuth $Uri -ParseContent -WhatIf
+        Invoke-WebRequestBasicAuth $Uri -ParseContent -WhatIf
+        Should -Invoke Write-Color -Exactly 6 -ModuleName 'Prelude'
     }
     It 'can make a simple request' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
@@ -506,7 +508,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
         $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
         $Result | Should -Be $Content
-        Should -Invoke Write-Verbose -Exactly 5 -ModuleName 'Prelude'
+        Should -Invoke Write-Verbose -Exactly 2 -ModuleName 'Prelude'
     }
     It 'will not parse content with unknown content-type, <Type>' -TestCases @(
         @{ Type = 'not real content-type' }
@@ -524,6 +526,15 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
         $Result | Should -Be $Content
         Should -Invoke Write-Warning -Exactly 1 -ModuleName 'Prelude'
+    }
+    It 'can download web assets' {
+        Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'
+        $File = 'thing.png'
+        $Uri = "https://example.com/${File}"
+        $Request = Invoke-WebRequestBasicAuth $Uri -Download -Folder $TestDrive
+        $Request[5] | Should -Be $Uri
+        $Request[7] | Should -Be 'Get'
+        $Request[11] | Should -Be (Join-Path $TestDrive $File)
     }
 }
 Describe 'Save-File' -Tag 'Local', 'Remote' {

@@ -113,7 +113,7 @@ function Get-Extremum {
                     }
                     $Sorted | Select-Object @Parameters
                 } else {
-                    $Type = Find-FirstTrueVariable 'Maximum', 'Minimum'
+                    $Type = if ($Maximum) { 'Maximum' } else { 'Minimum' }
                     $Parameters = @{
                         Maximum = $Maximum
                         Minimum = $Minimum

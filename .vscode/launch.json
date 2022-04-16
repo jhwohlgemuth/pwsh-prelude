@@ -31,51 +31,18 @@
         },
         {
             "type": "PowerShell",
-            "request": "launch",
-            "name": "PowerShell Launch DebugTest.ps1",
-            "script": "${workspaceRoot}/DebugTest.ps1",
-            "args": ["-Count 55 -DelayMilliseconds 250"],
-            "cwd": "${workspaceRoot}"
-        },
-        {
-            "type": "PowerShell",
-            "request": "launch",
-            "name": "PowerShell Interactive Session",
-            "cwd": "${workspaceRoot}"
-        },
-        {
-            "type": "PowerShell",
-            "request": "launch",
-            "name": "PowerShell Pester Tests",
-            "script": "Invoke-Pester",
-            "args": [],
-            "cwd": "${workspaceRoot}"
-        },
-        {
-            "type": "PowerShell",
             "request": "attach",
             "name": "PowerShell Attach to Host Process",
             "processId": "${command:PickPSHostProcess}",
             "runspaceId": 1
         },
         {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
+            "type": "PowerShell",
             "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/csharp/Tests/bin/Debug/net6.0/Tests.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/csharp/Tests",
-            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
+            "name": "Pester Tests",
+            "script": "Invoke-Pester",
+            "args": ["-FullNameFilter", "*Invoke-WebRequestBasicAuth*"],
+            "cwd": "${workspaceRoot}"
         }
     ]
 }

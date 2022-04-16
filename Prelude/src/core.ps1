@@ -226,13 +226,34 @@ function Find-FirstIndex {
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Values,
-        [ScriptBlock] $Predicate = { $Args[0] -eq $True }
+        [ScriptBlock] $Predicate = { $Args[0] -eq $True },
+        [Int] $DefaultIndex = -1
     )
-    End {
-        if ($Input.Length -gt 0) {
-            $Values = $Input
+    Begin {
+        function Find-FirstIndex_ {
+            Param(
+                [Parameter(Position = 0)]
+                [Array] $Values
+            )
+            if ($Values.Count -gt 0) {
+                $Results = New-Object 'System.Collections.ArrayList'
+                foreach ($Value in $Values) {
+                    if (& $Predicate $Value) {
+                        $Index = [Array]::IndexOf($Values, $Value)
+                        [Void]$Results.Add($Index)
+                    }
+                }
+                if ($Results.Count -gt 0) {
+                    $Results | Select-Object -First 1
+                } else {
+                    $DefaultIndex
+                }
+            }
         }
-        $Values | ForEach-Object { if (& $Predicate $_) { [Array]::IndexOf($Values, $_) } } | Select-Object -First 1
+        Find-FirstIndex_ $Values
+    }
+    End {
+        Find-FirstIndex_ $Input
     }
 }
 function Get-Property {
@@ -414,7 +435,7 @@ function Invoke-Flatten {
             if ($Values.Count -gt 0) {
                 $MaxCount = $Values | ForEach-Object { $_.Count } | Get-Maximum
                 if ($MaxCount -gt 1) {
-                    Invoke-Flat ($Values | ForEach-Object { $_ } | Where-Object { $_ -ne $Null })
+                    Invoke-Flat ($Values | ForEach-Object { $_ } | Where-Object { $Null -ne $_ })
                 } else {
                     $Values
                 }
@@ -953,43 +974,47 @@ function Invoke-Reduce {
                 [Parameter(Position = 2)]
                 $InitialValue
             )
-            if ($FileInfo) {
-                $InitialValue = @{}
-            }
-            if ($Null -eq $InitialValue) {
-                $InitialValue = $Items | Select-Object -First 1
-                $Items = $Items[1..($Items.Count - 1)]
-            }
-            $Index = 0
-            $Result = $InitialValue
-            $Callback = switch ((Find-FirstTrueVariable 'Identity', 'Add', 'Multiply', 'Every', 'Some', 'FileInfo')) {
-                'Identity' { $Callback }
-                'Add' { { Param($A, $B) $A + $B } }
-                'Multiply' { { Param($A, $B) $A * $B } }
-                'Every' { { Param($A, $B) $A -and $B } }
-                'Some' { { Param($A, $B) $A -or $B } }
-                'FileInfo' { { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length } }
-                Default { $Callback }
-            }
-            foreach ($Item in $Items) {
-                $ShouldSaveResult = ([Array], [Bool], [System.Numerics.Complex], [Int], [String] | ForEach-Object { $InitialValue -is $_ }) -contains $True
-                if ($ShouldSaveResult) {
-                    $Result = & $Callback $Result $Item $Index $Items
-                } else {
-                    & $Callback $Result $Item $Index $Items
+            if ($Items.Count -gt 0) {
+                if ($FileInfo) {
+                    $InitialValue = @{}
                 }
-                $Index++
+                if ($Null -eq $InitialValue) {
+                    $InitialValue = $Items | Select-Object -First 1
+                    $Items = $Items[1..($Items.Count - 1)]
+                }
+                $Index = 0
+                $Result = $InitialValue
+                $Callback = if ($Identity) {
+                    $Callback
+                } elseif ($Add) {
+                    { Param($A, $B) $A + $B }
+                } elseif ($Multiply) {
+                    { Param($A, $B) $A * $B }
+                } elseif ($Every) {
+                    { Param($A, $B) $A -and $B }
+                } elseif ($Some) {
+                    { Param($A, $B) $A -or $B }
+                } elseif ($FileInfo) {
+                    { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
+                } else {
+                    $Callback
+                }
+                foreach ($Item in $Items) {
+                    $ShouldSaveResult = ([Array], [Bool], [System.Numerics.Complex], [Int], [String] | ForEach-Object { $InitialValue -is $_ }) -contains $True
+                    if ($ShouldSaveResult) {
+                        $Result = & $Callback $Result $Item $Index $Items
+                    } else {
+                        & $Callback $Result $Item $Index $Items
+                    }
+                    $Index++
+                }
+                $Result
             }
-            $Result
         }
-        if ($Items.Count -gt 0) {
-            Invoke-Reduce_ -Items $Items -Callback $Callback -InitialValue $InitialValue
-        }
+        Invoke-Reduce_ -Items $Items -Callback $Callback -InitialValue $InitialValue
     }
     End {
-        if ($Input.Count -gt 0) {
-            Invoke-Reduce_ -Items $Input -Callback $Callback -InitialValue $InitialValue
-        }
+        Invoke-Reduce_ -Items $Input -Callback $Callback -InitialValue $InitialValue
     }
 }
 function Invoke-Repeat {

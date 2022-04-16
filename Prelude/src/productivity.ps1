@@ -168,7 +168,7 @@ function Find-FirstTrueVariable {
         $DefaultValue = $Null
     )
     $Index = $VariableNames | Get-Variable -ValueOnly | Find-FirstIndex
-    if ($Index -is [Int]) {
+    if ($Index -ge 0) {
         $VariableNames[$Index]
     } else {
         if ($Null -ne $DefaultValue) {

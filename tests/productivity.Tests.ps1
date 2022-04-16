@@ -146,6 +146,11 @@ Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local'
     }
 }
 Describe 'Find-FirstTrueVariable' -Tag 'Local', 'Remote' {
+    AfterEach {
+        Remove-Variable -Name 'foo' -Scope 'Global'
+        Remove-Variable -Name 'bar' -Scope 'Global'
+        Remove-Variable -Name 'baz' -Scope 'Global'
+    }
     It 'should support default value' {
         $Global:foo = $False
         $Global:bar = $True

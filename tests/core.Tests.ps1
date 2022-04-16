@@ -142,7 +142,7 @@ Describe 'Find-FirstIndex' -Tag 'Local', 'Remote' {
     It 'can determine index of first item that satisfies passed predicate' {
         $Arr = 0, 0, 0, 0, 2, 0, 0
         $Predicate = { $Args[0] -eq 2 }
-        Find-FirstIndex -Values $Arr | Should -Be $Null
+        Find-FirstIndex -Values $Arr | Should -Be -1
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
         $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
         Find-FirstIndex -Values 2, 0, 0, 0, 2, 0, 0 -Predicate $Predicate | Should -Be 0
