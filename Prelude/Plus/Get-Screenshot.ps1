@@ -1,7 +1,7 @@
 function Get-Screenshot {
     <#
     .SYNOPSIS
-    Create screenshot
+    Create screenshot.  Save as a file or copy to the clipboard.
     .DESCRIPTION
     Create screenshot of one or all monitors. The screenshot is saved as a BITMAP (bmp) file.
 
@@ -37,6 +37,21 @@ function Get-Screenshot {
         [Int] $Monitor = 0,
         [Switch] $Clipboard
     )
+    Begin {
+        function Get-ScreenDimension {
+            Param()
+            $VideoController = Get-CimInstance -Query 'SELECT VideoModeDescription FROM Win32_VideoController'
+            $Description = $VideoController.VideoModeDescription
+            $Regex = '(?<ScreenWidth>^\d+) x (?<ScreenHeight>\d+) x .*$'
+            $Description | Select-Object -First 1 | ForEach-Object {
+                $_ -match $Regex | Out-Null
+                @{
+                    Width = [Int]$Matches.ScreenWidth
+                    Height = [Int]$Matches.ScreenHeight
+                }
+            } | Sort-Object 'Width'
+        }
+    }
     Process {
         if ($IsLinux -is [Bool] -and $IsLinux) {
             '==> Get-Screenshot is only supported on Windows platform' | Write-Color -Red
@@ -44,10 +59,7 @@ function Get-Screenshot {
             [Void][System.Reflection.Assembly]::LoadWithPartialName('System.Drawing')
             [Void][System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
             $ScreenBounds = [Windows.Forms.SystemInformation]::VirtualScreen
-            $VideoController = Get-CimInstance -Query 'SELECT VideoModeDescription FROM Win32_VideoController'
-            if ($VideoController.VideoModeDescription -and $VideoController.VideoModeDescription -match '(?<ScreenWidth>^\d+) x (?<ScreenHeight>\d+) x .*$') {
-                $ScreenWidth = [Int]$Matches['ScreenWidth']
-            }
+            $ScreenWidth = (Get-ScreenDimension).Width
             $UseDifferentMonitor = $ScreenWidth -and ($Monitor -gt 0)
             $Width = if ($UseDifferentMonitor) { $ScreenWidth } else { $ScreenBounds.Width }
             $Height = $ScreenBounds.Height
