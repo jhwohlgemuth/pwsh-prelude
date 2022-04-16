@@ -138,8 +138,8 @@ Project Standards
 
   | Platform | Status |
   | :------: | ------ |
-  | Windows  | [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master)    |
-  | Linux    | [![Buddy pipeline](https://app.buddy.works/wohlgemuth-technology-foundation-1/pwsh-prelude/pipelines/pipeline/384748/badge.svg?token=2a532402d113bdd8584c9b563b3ed46b8ae4947b8fac56a4489a3b5c4cd4fa70 "buddy pipeline")](https://app.buddy.works/wohlgemuth-technology-foundation-1/pwsh-prelude/pipelines/pipeline/384748)    |
+  | Windows  | [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Windows")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master) |
+  | Linux    | [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/i0rl050w9b972uh4/branch/master?svg=true "Linux")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude/branch/master) |
 
 - Exceptions to any of these standards should be supported by strong reasoning and sufficient effort
 - Although this project has many rules <sup>[[3]](#3)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
