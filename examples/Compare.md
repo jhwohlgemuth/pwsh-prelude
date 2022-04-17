@@ -1,11 +1,29 @@
 Comparison Examples
 ===================
-- [Python vs Prelude](#python-vs-prelude)
-- [Pandas vs Prelude](#pandas-vs-prelude)
-- [NumPy vs Prelude](#numpy-vs-prelude)
-- [JavaScript vs Prelude](#javascript-vs-prelude)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-Python vs Prelude
+
+- [Python vs. Prelude](#python-vs-prelude)
+  - [Read a CSV file](#read-a-csv-file)
+  - [Read a JSON file](#read-a-json-file)
+- [Pandas vs. Prelude](#pandas-vs-prelude)
+  - [Rename column names](#rename-column-names)
+- [NumPy vs. Prelude](#numpy-vs-prelude)
+  - [Create an matrix from a range of numbers](#create-an-matrix-from-a-range-of-numbers)
+  - [Calculate dot product of two matrices](#calculate-dot-product-of-two-matrices)
+  - [Calculate matrix determinant or inverse](#calculate-matrix-determinant-or-inverse)
+  - [Simple linear regression (with SciKit-Learn)](#simple-linear-regression-with-scikit-learn)
+- [JavaScript vs. Prelude](#javascript-vs-prelude)
+  - [Find the length of the longest word in a list](#find-the-length-of-the-longest-word-in-a-list)
+  - [Partition an array](#partition-an-array)
+  - [Chunk an array into smaller arrays](#chunk-an-array-into-smaller-arrays)
+  - [Zip two arrays into a single array](#zip-two-arrays-into-a-single-array)
+  - [Unzip an array into two arrays](#unzip-an-array-into-two-arrays)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+Python vs. Prelude
 =================
 
 Read a CSV file
@@ -27,7 +45,7 @@ with open('data.csv') as csv_file:
     for row in csv_reader:
          print(row[0])
 ```
-**Prelude (PowerShell)**
+**Prelude**
 ```PowerShell
 Get-Content 'data.csv' | ConvertFrom-Csv | ForEach-Object { $_.foo }
 ```
@@ -56,7 +74,7 @@ Import-Module 'Prelude'
 Get-Content 'data.json' | ConvertFrom-Json | prop 'PowerLevel'
 ```
 
-Pandas vs Prelude
+Pandas vs. Prelude
 =================
 
 Rename column names
@@ -170,7 +188,7 @@ $B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
 "Slope: $($B[1].Real)" | Write-Color -Green
 ```
 
-JavaScript vs Prelude
+JavaScript vs. Prelude
 =====================
 
 Find the length of the longest word in a list

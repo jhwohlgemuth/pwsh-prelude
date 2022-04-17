@@ -1,14 +1,14 @@
 Powershell Prelude <sup>[1](#1)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
-[![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/pwsh-prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/pwsh-prelude)
+[![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/Prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/Prelude)
 [![Code Coverage](https://img.shields.io/codecov/c/github/jhwohlgemuth/pwsh-prelude/master?style=for-the-badge&token=3NMKOGN0Q8&logo=codecov "Codecov Code Coverage")](https://codecov.io/gh/jhwohlgemuth/pwsh-prelude/)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/Prelude?label=version&style=for-the-badge&logo=powershell "PowerShell Gallery Version")](https://www.powershellgallery.com/packages/Prelude)
 [![Code Size](https://img.shields.io/github/languages/code-size/jhwohlgemuth/pwsh-prelude.svg?style=for-the-badge)](#quick-start)
 > A "standard" library for PowerShell inspired by the preludes of [Haskell](https://hackage.haskell.org/package/base-4.7.0.2/docs/Prelude.html), [ReasonML](https://reazen.github.io/relude/#/), [Rust](https://doc.rust-lang.org/std/prelude/index.html), [Purescript](https://pursuit.purescript.org/packages/purescript-prelude), [Elm](https://github.com/elm/core), [Scala cats/scalaz](https://github.com/fosskers/scalaz-and-cats), and [others](https://lodash.com/docs). It provides useful helpers, functions, utilities, wrappers, [type accelerators](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_type_accelerators?view=powershell-7.1), and aliases for things you might find yourself wanting to do on a somewhat regular basis - from meta-programming to linear algebra.
 
-Quick Start
------------
+Getting Started
+---------------
 
 1. Open PowerShell prompt (or [Windows Terminal app](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab))
 
