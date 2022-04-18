@@ -984,20 +984,43 @@ function Invoke-Reduce {
                 }
                 $Index = 0
                 $Result = $InitialValue
-                $Callback = if ($Identity) {
-                    $Callback
-                } elseif ($Add) {
-                    { Param($A, $B) $A + $B }
-                } elseif ($Multiply) {
-                    { Param($A, $B) $A * $B }
-                } elseif ($Every) {
-                    { Param($A, $B) $A -and $B }
-                } elseif ($Some) {
-                    { Param($A, $B) $A -or $B }
-                } elseif ($FileInfo) {
-                    { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
-                } else {
-                    $Callback
+                $Callback = switch ($True) {
+                    { $_ -eq $Identity } {
+                        $Callback
+                    }
+                    { $_ -eq $Add } {
+                        {
+                            Param($A, $B)
+                            $A + $B
+                        }
+                    }
+                    { $_ -eq $Multiply } {
+                        {
+                            Param($A, $B)
+                            $A * $B
+                        }
+                    }
+                    { $_ -eq $Every } {
+                        {
+                            Param($A, $B)
+                            $A -and $B
+                        }
+                    }
+                    { $_ -eq $Some } {
+                        {
+                            Param($A, $B)
+                            $A -or $B
+                        }
+                    }
+                    { $_ -eq $FileInfo } {
+                        {
+                            Param($Acc, $Item)
+                            $Acc[$Item.Name] = $Item.Length
+                        }
+                    }
+                    Default {
+                        $Callback
+                    }
                 }
                 foreach ($Item in $Items) {
                     $ShouldSaveResult = ([Array], [Bool], [System.Numerics.Complex], [Int], [String] | ForEach-Object { $InitialValue -is $_ }) -contains $True

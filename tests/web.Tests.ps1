@@ -538,8 +538,26 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
     }
 }
 Describe 'Save-File' -Tag 'Local', 'Remote' {
+    BeforeAll {
+        Set-Location -Path $TestDrive
+    }
+    AfterAll {
+        Set-Location $PSScriptRoot
+    }
     It 'can save a file from a remote web address' {
-        $True | Should -BeTrue
+        Mock Start-BitsTransfer {}
+        $Uri = 'https://example.com/'
+        $File = 'a.txt'
+        $Job = $Uri | Save-File $File
+        (Get-ChildItem $TestDrive).Name | Should -Be $File
+        $Job = $Uri | Save-File $File
+        (Get-ChildItem $TestDrive).Name | Should -HaveCount 2
+    }
+    It 'can asynchronously save a file from a remote web address' {
+        $Uri = 'https://example.com/'
+        $File = 'b.txt'
+        $Job = $Uri | Save-File $File -Asynchronous -PassThru
+        $Job.DisplayName | Should -Be 'PreludeBitsJob'
     }
 }
 Describe 'Test-Url' -Tag 'Local', 'Remote' {

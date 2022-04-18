@@ -590,10 +590,14 @@ Describe 'Invoke-Reduce' -Tag 'Local', 'Remote' {
         Invoke-Reduce -Items 1, 2, 3 $Callback 0 | Should -Be 9
     }
     It 'can combine FileInfo objects' {
-        $Result = Get-ChildItem -File './Prelude' | Invoke-Reduce -FileInfo
-        $Result.Keys | Should -Contain 'Prelude.psm1'
-        $Result.Keys | Should -Contain 'Prelude.psd1'
+        Set-Location $TestDrive
+        New-Item (Join-Path $TestDrive 'A.txt') -ItemType 'file'
+        New-Item (Join-Path $TestDrive 'B.txt') -ItemType 'file'
+        New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
+        $Result = Get-ChildItem -File $TestDrive | Invoke-Reduce -FileInfo
+        $Result.Keys | Should -Be 'A.txt', 'B.txt', 'C.txt'
         $Result.Values | ForEach-Object { $_ | Should -BeOfType [Long] }
+        Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
     }
 }
 

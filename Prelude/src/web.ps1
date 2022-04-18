@@ -872,17 +872,104 @@ function Save-File {
     <#
     .SYNOPSIS
     Download and save a file from a local or remote location.
+    .PARAMETER SleepInterval
+    Initial number of seconds to wait before checking if BitsTransfer job is complete.
+    .PARAMETER CustomParameters
+    Parameters to pass to Start-BitsTransfer.
+    .EXAMPLE
+    'https://storage.googleapis.com/ygoprodeck.com/pics/93717133.jpg' | Save-File 'dragon.jpg'
+    .EXAMPLE
+    'https://storage.googleapis.com/ygoprodeck.com/pics/93717133.jpg' | Save-File 'dragon.jpg' -Asynchronous -Priority 'High'
     #>
-    [CmdletBinding(SupportsShouldProcess = $True)]
+    [CmdletBinding(DefaultParameterSetName = 'normal', SupportsShouldProcess = $True)]
     Param(
-        [String] $Uri,
-        [String] $Destination = (Get-Location).Path
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [UriBuilder] $Uri,
+        [ValidateScript( { Test-Path $_ })]
+        [String] $Destination = (Get-Location).Path,
+        [Parameter(Position = 0)]
+        [String] $Name,
+        [Parameter(ParameterSetName = 'asynchronous')]
+        [Switch] $Asynchronous,
+        [Parameter(ParameterSetName = 'asynchronous')]
+        [Switch] $PassThru,
+        [ValidateSet('Foreground', 'High', 'Normal', 'Low')]
+        [String] $Priority = 'Foreground',
+        [Parameter(ParameterSetName = 'asynchronous')]
+        [Int] $SleepInterval = 1,
+        [PSObject] $CustomParameters = @{}
     )
-    $Filename = $Uri
-    if ($PSCmdlet.ShouldProcess($Filename)) {
-        '==> [INFO] Saving image to $Path' | Write-Verbose
-        $Client = New-Object System.Net.WebClient
-        $Client.DownloadFile($Uri, (Join-Path $Destination $Filename))
+    Begin {
+        function Format-FileVersion {
+            Param(
+                [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+                [String] $Name
+            )
+            $Elapsed = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+            $Extension = [System.IO.Path]::GetExtension($Name)
+            $Filename = $Name.Substring(0, $Name.Length - $Extension.Length)
+            "${Filename}-${Elapsed}${Extension}"
+        }
+        $CanUseBitsTransfer = Get-Command -Name 'Start-BitsTransfer' -ErrorAction Ignore
+        $Client = if ($CanUseBitsTransfer) {
+            $Null
+        } else {
+            New-Object 'System.Net.WebClient'
+        }
+    }
+    Process {
+        $Name = if ($Name) { $Name } else { Split-Path $Uri.Path -Leaf }
+        $Path = Join-Path $Destination $Name
+        if (Test-Path -Path $Path) {
+            $Name = $Name | Format-FileVersion
+            $Path = Join-Path $Destination $Name
+        }
+        if ($Client) {
+            if ($PSCmdlet.ShouldProcess($Path)) {
+                "==> [INFO] Saving file to ${Path} using WebClient..." | Write-Verbose
+                if ($Asynchronous) {
+                    $Client.DownloadFileAsync($Uri, $Path)
+                } else {
+                    $Client.DownloadFile($Uri, $Path)
+                }
+            }
+        } elseif ($CanUseBitsTransfer) {
+            $Parameters = @{
+                Asynchronous = $Asynchronous
+                Destination = $Path
+                DisplayName = 'PreludeBitsJob'
+                Priority = $Priority
+                Source = $Uri.Uri
+                TransferType = 'Download'
+            }
+            $Job = Start-BitsTransfer @Parameters @CustomParameters
+            if ($Asynchronous) {
+                '==> [INFO] Finishing BitsTransfer job...' | Write-Verbose
+                if ($PassThru) {
+                    return $Job
+                } else {
+                    while (($Job.JobState -eq 'Transferring') -or ($Job.JobState -eq 'Connecting')) {
+                        "==> [INFO] BitsTransfer status: $($Job.JobState)" | Write-Verbose
+                        Start-Sleep -Seconds $SleepInterval
+                        $SleepInterval += 1
+                    }
+                    switch ($Job.JobState) {
+                        'Transferred' {
+                            Complete-BitsTransfer -BitsJob $Job
+                            "==> [INFO] BitsTransfer Job, $($Job.JobId), complete." | Write-Verbose
+                        }
+                        'Error' {
+                            "==> [ERROR] BitsTransfer Job, $($Job.JobId), failed." | Write-Error
+                            $Job | Format-List
+                        }
+                        Default {
+                            # Do nothing
+                        }
+                    }
+                }
+            }
+            "==> [INFO] Saved file to ${Path} using BitsTransfer." | Write-Verbose
+        }
     }
 }
 function Test-Url {
