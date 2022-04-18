@@ -548,9 +548,9 @@ Describe 'Save-File' -Tag 'Local', 'Remote' {
         Mock Start-BitsTransfer {}
         $Uri = 'https://example.com/'
         $File = 'a.txt'
-        $Job = $Uri | Save-File $File
+        $Uri | Save-File $File
         (Get-ChildItem $TestDrive).Name | Should -Be $File
-        $Job = $Uri | Save-File $File
+        $Uri | Save-File $File
         (Get-ChildItem $TestDrive).Name | Should -HaveCount 2
     }
     It 'can asynchronously save a file from a remote web address' {
