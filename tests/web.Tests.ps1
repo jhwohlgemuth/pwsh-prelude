@@ -553,9 +553,28 @@ Describe 'Save-File' -Tag 'Local', 'Remote' {
         $Uri | Save-File $File
         (Get-ChildItem $TestDrive).Name | Should -HaveCount 2
     }
+    It -Skip 'can save files from a remote web address' {
+        Mock Start-BitsTransfer {}
+        $Uri = @(
+            'https://example.com/foo.txt'
+            'https://example.com/bar.txt'
+            'https://example.com/baz.txt'
+        )
+        $Uri | Save-File
+        (Get-ChildItem $TestDrive).Name | Should -Be 'foo.txt', 'bar.txt', 'baz.txt'
+    }
     It 'can asynchronously save a file from a remote web address' {
         $Uri = 'https://example.com/'
         $File = 'b.txt'
+        $Job = $Uri | Save-File $File -Asynchronous -PassThru
+        $Job.DisplayName | Should -Be 'PreludeBitsJob'
+    }
+    It -Skip 'can asynchronously save multiple files from a remote web address' {
+        $Uri = @(
+            'https://example.com/foo.txt'
+            'https://example.com/bar.txt'
+            'https://example.com/baz.txt'
+        )
         $Job = $Uri | Save-File $File -Asynchronous -PassThru
         $Job.DisplayName | Should -Be 'PreludeBitsJob'
     }

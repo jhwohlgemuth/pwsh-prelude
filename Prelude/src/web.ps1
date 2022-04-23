@@ -874,6 +874,9 @@ function Save-File {
     Download and save a file from a local or remote location.
     .PARAMETER SleepInterval
     Initial number of seconds to wait before checking if BitsTransfer job is complete.
+    .PARAMETER WebClient
+    Use .NET Web Client class instead of BitsTransfer.
+    See https://docs.microsoft.com/en-us/dotnet/api/system.net.webclient
     .PARAMETER CustomParameters
     Parameters to pass to Start-BitsTransfer.
     .EXAMPLE
@@ -897,6 +900,7 @@ function Save-File {
         [String] $Priority = 'Foreground',
         [Parameter(ParameterSetName = 'asynchronous')]
         [Int] $SleepInterval = 1,
+        [Switch] $WebClient,
         [PSObject] $CustomParameters = @{}
     )
     Begin {
@@ -911,9 +915,11 @@ function Save-File {
             "${Filename}-${Elapsed}${Extension}"
         }
         $CanUseBitsTransfer = Test-Command 'Start-BitsTransfer'
-        $Client = if ($CanUseBitsTransfer) {
+        $Client = if ($CanUseBitsTransfer -and (-not $WebClient)) {
+            '==> [INFO] Using Start-BitsTransfer' | Write-Verbose
             $Null
         } else {
+            '==> [INFO] Using .NET Web Client class' | Write-Verbose
             New-Object 'System.Net.WebClient'
         }
     }
@@ -944,22 +950,24 @@ function Save-File {
             }
             $Job = Start-BitsTransfer @Parameters @CustomParameters
             if ($Asynchronous) {
-                '==> [INFO] Finishing BitsTransfer job...' | Write-Verbose
+                $Id = $Job.JobId
+                $State = $Job.JobState
+                "==> [INFO] Finishing BitsTransfer job [${Id}]..." | Write-Verbose
                 if ($PassThru) {
                     return $Job
                 } else {
-                    while (($Job.JobState -eq 'Transferring') -or ($Job.JobState -eq 'Connecting')) {
-                        "==> [INFO] BitsTransfer status: $($Job.JobState)" | Write-Verbose
+                    while (($State -eq 'Transferring') -or ($State -eq 'Connecting')) {
+                        "==> [INFO] BitsTransfer status [${Id}]: ${State}" | Write-Verbose
                         Start-Sleep -Seconds $SleepInterval
                         $SleepInterval += 1
                     }
-                    switch ($Job.JobState) {
+                    switch ($State) {
                         'Transferred' {
                             Complete-BitsTransfer -BitsJob $Job
-                            "==> [INFO] BitsTransfer Job, $($Job.JobId), complete." | Write-Verbose
+                            "==> [INFO] BitsTransfer Job [${Id}], complete." | Write-Verbose
                         }
                         'Error' {
-                            "==> [ERROR] BitsTransfer Job, $($Job.JobId), failed." | Write-Error
+                            "==> [ERROR] BitsTransfer Job [${Id}], failed." | Write-Error
                             $Job | Format-List
                         }
                         Default {
