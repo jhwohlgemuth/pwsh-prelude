@@ -910,7 +910,7 @@ function Save-File {
             $Filename = $Name.Substring(0, $Name.Length - $Extension.Length)
             "${Filename}-${Elapsed}${Extension}"
         }
-        $CanUseBitsTransfer = Get-Command -Name 'Start-BitsTransfer' -ErrorAction Ignore
+        $CanUseBitsTransfer = Test-Command 'Start-BitsTransfer'
         $Client = if ($CanUseBitsTransfer) {
             $Null
         } else {
