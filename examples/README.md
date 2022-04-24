@@ -34,7 +34,7 @@ $Query = @{ per_page = 100 }
 
 # Get the first page of notification (max 100)
 $Uri = "https://api.github.com/notifications"
-$Data = basicauth $Token -Uri $Uri -Query $Query | prop Content | ConvertFrom-Json
+$Data = basicauth $Uri -Token $Token -Query $Query | prop Content | ConvertFrom-Json
 
 # Print the notification titles
 $Data | prop 'subject.title'
@@ -47,7 +47,7 @@ You can also make changes like marking notifications as read using `Invoke-WebRe
 ```PowerShell
 # Send request to mark ALL notifications as "read"
 $Uri = "https://api.github.com/notifications"
-@{ last_read_at = '' } | basicauth $Token -Uri $Uri -Put
+@{ last_read_at = '' } | basicauth $Uri -Token $Token -Put
 ```
 
 ------
