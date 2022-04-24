@@ -256,7 +256,7 @@ Functions
   - `Join-StringsWithGrammar`
   - `Measure-Performance`
   - `Measure-Readability`
-  - `New-ApplicationTemplate`
+  - `New-TerminalApplicationTemplate`
   - `New-ComplexValue`
   - `New-File`
   - `New-Template`

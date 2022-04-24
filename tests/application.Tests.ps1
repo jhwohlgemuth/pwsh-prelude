@@ -168,15 +168,6 @@ Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
         $Script:Count | Should -Be 2
     }
 }
-Describe 'New-ApplicationTemplate' -Tag 'Local', 'Remote' {
-    It 'can interpolate values into template string' {
-        New-ApplicationTemplate | Should -Match '#Requires -Modules Prelude'
-        New-ApplicationTemplate | Should -Match '\$Init = {'
-        New-ApplicationTemplate | Should -Match '{{#green My-App}}'
-        New-ApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
-        New-ApplicationTemplate | Should -Not -Match '  \$State = {'
-    }
-}
 Describe 'New-Template' -Tag 'Local', 'Remote' {
     Context 'when passed an empty object' {
         $Script:Expected = '<div>Hello </div>'
@@ -277,6 +268,15 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         $Function:Render = $Template | New-Template
         Render -Data $Data | Should -Be 'Hello Jason'
         Render -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
+    }
+}
+Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
+    It 'can interpolate values into template string' {
+        New-TerminalApplicationTemplate | Should -Match '#Requires -Modules Prelude'
+        New-TerminalApplicationTemplate | Should -Match '\$Init = {'
+        New-TerminalApplicationTemplate | Should -Match '{{#green My-App}}'
+        New-TerminalApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
+        New-TerminalApplicationTemplate | Should -Not -Match '  \$State = {'
     }
 }
 Describe 'Remove-Indent' -Tag 'Local', 'Remote' {

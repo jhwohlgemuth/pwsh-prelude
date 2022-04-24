@@ -93,7 +93,7 @@ function Invoke-RunApplication {
     .EXAMPLE
     # Make a simple app with state
     # Note: State is passed to Init, Loop, ShouldContinue, and BeforeNext
-    New-ApplicationTemplate -Save
+    New-TerminalApplicationTemplate -Save
     .EXAMPLE
     # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
     { say 'Hello' } | on 'application:init'
@@ -211,12 +211,12 @@ function Invoke-StopListen {
         $Events | ForEach-Object { Unregister-Event -SubscriptionId $_.SubscriptionId }
     }
 }
-function New-ApplicationTemplate {
+function New-TerminalApplicationTemplate {
     <#
     .SYNOPSIS
     Return boilerplate string of a "scrapp" ("script" + "app")
     .EXAMPLE
-    New-ApplicationTemplate | Out-File 'my-app.ps1'
+    New-TerminalApplicationTemplate | Out-File 'my-app.ps1'
     #>
     [CmdletBinding()]
     Param()

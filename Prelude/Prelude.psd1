@@ -181,7 +181,7 @@
         'Join-StringsWithGrammar'
         'Measure-Performance'
         'Measure-Readability'
-        'New-ApplicationTemplate'
+        'New-TerminalApplicationTemplate'
         'New-ComplexValue'
         'New-Edge'
         'New-File'
