@@ -3,12 +3,12 @@
     <Type>
         <Name>System.String</Name>
         <Members>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this -Words
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>ToMoney</Name>
                 <Script>
