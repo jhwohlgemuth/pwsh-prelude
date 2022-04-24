@@ -8,9 +8,9 @@ function Invoke-ListenTo {
     .PARAMETER Path
     Path to file or folder that will be watched for changes
     .PARAMETER Exit
-    Set event source identifier to Powershell.Exiting
+    Set event source identifier to PowerShell.Exiting
     .PARAMETER Idle
-    Set event source identifier to Powershell.OnIdle.
+    Set event source identifier to PowerShell.OnIdle.
     Warning: It is not advised to write to console in callback of -Idle listeners.
     .EXAMPLE
     { Write-Color 'Event triggered' -Red } | on 'SomeEvent'
@@ -127,7 +127,7 @@ function Invoke-ListenTo {
         $UpdateValue | Invoke-ListenTo -Idle | Out-Null
         $Action | Invoke-ListenTo $Global:__VariableChangeEventLabel | Out-Null
     } else {
-        # custom and Powershell engine events
+        # custom and PowerShell engine events
         if ($Exit) {
             $SourceIdentifier = ([System.Management.Automation.PsEngineEvent]::Exiting)
         } elseif ($Idle) {

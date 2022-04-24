@@ -99,7 +99,7 @@
         'ConvertTo-AbstractSyntaxTree'
         'ConvertTo-Degree'
         'ConvertTo-OrderedDictionary'
-        'ConvertTo-PowershellSyntax'
+        'ConvertTo-PowerShellSyntax'
         'ConvertTo-Iso8601'
         'ConvertTo-JavaScript'
         'ConvertTo-Pair'

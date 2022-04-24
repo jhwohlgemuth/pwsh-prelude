@@ -1,4 +1,4 @@
-Powershell Prelude <sup>[1](#1)</sup>
+PowerShell Prelude <sup>[1](#1)</sup>
 ==================
 [![CodeFactor](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude/badge?style=for-the-badge "Code Quality")](https://www.codefactor.io/repository/github/jhwohlgemuth/pwsh-prelude)
 [![AppVeyor branch](https://img.shields.io/appveyor/build/jhwohlgemuth/Prelude/master?logo=appveyor&style=for-the-badge "Appveyor Build Status")](https://ci.appveyor.com/project/jhwohlgemuth/Prelude)
@@ -13,14 +13,14 @@ Getting Started
 1. Open PowerShell prompt (or [Windows Terminal app](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab))
 
 2. Install Prelude module via [PowerShell Gallery](https://www.powershellgallery.com/)
-```Powershell
+```PowerShell
 Install-Module -Name Prelude -Scope CurrentUser
 ```
 
 2. **[ALTERNATIVE]** Download this repo and save the [./Prelude](./Prelude) folder to your modules directory. You can list your module directories by executing `$Env:PSModulePath -split ';'` in your PowerShell terminal. Choose one that suits your needs and permissions.
 
 3. Import Prelude into current context
-```Powershell
+```PowerShell
 Import-Module -Name Prelude
 ```
 
@@ -38,7 +38,7 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 - PowerShell meta-programming
 - **See the [examples folder](./examples) for detailed examples**
 
-> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some Powershell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module..."  
+> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some PowerShell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module..."  
 *- Anonymous*
 
 So what, big deal, who cares?
@@ -54,14 +54,14 @@ Things You Can Do With Prelude
 > Although `Prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
 
 - List all permutations of a word
-```Powershell
+```PowerShell
 'cat' | Get-Permutation
 
 # or use the "method" format, and make a list
 'cat'.Permutation | Join-StringsWithGrammar # "cat, cta, tca, tac, atc, and act"
 ```
 - Perform various operations on strings
-```Powershell
+```PowerShell
 $Abc = 'b' | insert -To 'ac' -At 2
 $Abc = 'abcd' | remove -Last
 ```
@@ -70,26 +70,26 @@ $Abc = 'abcd' | remove -Last
       <a href="#"><img alt="Templates are easy and can be nested!" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/template.gif" alt="String interpolation templates" width="1280"/></a>
   </div>
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
-```Powershell
+```PowerShell
 $Sum = 1..100 | reduce { Param($A, $B) $A + $B }
 
 # or with the -Add switch
 $Sum = 1..100 | reduce -Add
 ```
 - Execute code on a remote computer
-```Powershell
+```PowerShell
 { whoami } | irc -ComputerNames PCNAME
 ```
 - Make your computer talk <sup>[3](#3)</sup>
-```Powershell
+```PowerShell
 say 'Hello World'
 ```
 - Make a remote computer talk
-```Powershell
+```PowerShell
 { say 'Hello World' } | irc -ComputerNames PCNAME
 ```
 - Use events to communicate within your script/app
-```Powershell
+```PowerShell
 { 'Event triggered' | Write-Color -Red } | on 'SomeEvent'
 
 # You can even listen to variables!!!
@@ -106,7 +106,7 @@ $Callback | listenTo 'Boot' -Variable
 $Boot = 43
 ```
 - Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
-```Powershell
+```PowerShell
 'Example' | Write-Title
 $Fullname = input 'Full Name?' -Indent 4
 $Username = input 'Username?' -MaxLength 10 -Indent 4
@@ -117,7 +117,7 @@ $Word = input 'Favorite Saiya-jin?' -Autocomplete -Indent 4 -Choices @('Goku','G
 $Choice = menu @('one'; 'two'; 'three') -Indent 4
 ```
 - Visualize file sizes in a directory with one line of code!
-```Powershell
+```PowerShell
 Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 ```
 
@@ -130,27 +130,27 @@ Be More Productive
 touch somefile.txt
 ```
 - Create a new directory and then enter it
-```Powershell
+```PowerShell
 take ~/path/to/some/folder
 ```
 - Save screenshots
-```Powershell
+```PowerShell
 # ...all monitors
 screenshot
 #...or just one
 2 | screenshot
 ```
 - Find duplicate files (based on hash of content)
-```Powershell
+```PowerShell
 Get-Location | Find-Duplicate
 ```
 - Print out file/folder structure of a directory (like `tree`)
-```Powershell
+```PowerShell
 ConvertFrom-FolderStructure | Out-Tree
 ```
 
 - Identify bad links using your browser bookmarks export
-```Powershell
+```PowerShell
 'bookmarks.html' | Import-Html | Get-HtmlElement 'a' | prop 'href' | ? { -not (Test-Url $_) }
 ```
 
@@ -179,7 +179,7 @@ Functions
   - `ConvertTo-AbstractSyntaxTree`
   - `ConvertTo-Degree`
   - `ConvertTo-Html`
-  - `ConvertTo-PowershellSyntax`
+  - `ConvertTo-PowerShellSyntax`
   - `ConvertTo-Iso8601`
   - `ConvertTo-JavaScript`
   - `ConvertTo-OrderedDictionary`
@@ -296,7 +296,7 @@ Aliases
 -------
 > Use `Get-Alias <Name>` to see alias details. **Example**: `Get-Alias dra`
 
-```Powershell
+```PowerShell
 # View all Prelude aliases
 Get-Alias | Where-Object { $_.Source -eq 'Prelude' }
 ```
@@ -442,7 +442,7 @@ Type Extensions
 Prelude uses type extensions to provide method versions of most core functions. This may be useful in some situations (or if you just don't feel like using pipelines...)
 
 **Examples**
-```Powershell
+```PowerShell
 # Factorials
 (4).Factorial # 24
 
@@ -466,7 +466,7 @@ Have an idea? Want to help implement a fix? Check out the [contributing guide](.
 Credits
 -------
 - [Microsoft](https://www.microsoft.com)
-  - [Powershell](https://github.com/powershell/powershell) (d'uh)
+  - [PowerShell](https://github.com/powershell/powershell) (d'uh)
   - [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal)
   - [VS Code](https://code.visualstudio.com/) - *the editor I use for writing PowerShell*
   - [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - *the editor I use for writing C#*
@@ -492,7 +492,7 @@ Credits
 
 [1]
 ---
-> This module is ***NOT*** an "official" Microsoft Powershell prelude module
+> This module is ***NOT*** an "official" Microsoft PowerShell prelude module
 
 [2]
 ---

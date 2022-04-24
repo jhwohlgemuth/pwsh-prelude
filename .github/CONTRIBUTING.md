@@ -59,7 +59,7 @@ The Prelude project contains C# code that is added to the module as dynamic link
 
 Project Setup <sup>[[1]](#1)</sup>
 =============
-> Friends don't let friends use Powershell without [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab). Please follow [these instructions](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal) to customize your terminal and achieve new levels of epic productivity — *"I can't believe it's not Linux!"* ™
+> Friends don't let friends use PowerShell without [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab). Please follow [these instructions](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal) to customize your terminal and achieve new levels of epic productivity — *"I can't believe it's not Linux!"* ™
 
 Prelude uses a build script for PowerShell development tasks and `dotnet` for C# tasks.
 
@@ -70,7 +70,7 @@ PowerShell Workflow Tasks
 - [BuildHelpers](https://github.com/RamblingCookieMonster/BuildHelpers/) is required for dev tasks
 - [Pester](https://pester.dev/) is required to run PowerShell tests
 - [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) is required to lint PowerShell code
-```Powershell
+```PowerShell
 dotnet tool restore
 Install-Module -Force -Scope CurrentUser -Name BuildHelpers
 Install-Module -Force -Scope CurrentUser -Name Pester -SkipPublisherCheck -RequiredVersion 5.0.4
@@ -129,7 +129,7 @@ Visual Studio Code Configuration
 Project Standards
 =================
 - New functions should be added to the file most closely related to the intended purpose of the new function, in alphabetical order.
-- Running `.\Invoke-Task.ps1 -Lint` should not return any issues (this includes naming functions using Powershell "approved" verbs)
+- Running `.\Invoke-Task.ps1 -Lint` should not return any issues (this includes naming functions using PowerShell "approved" verbs)
 - Tests should have no failures when run locally
   > **Windows:** `.\Invoke-Task.ps1 -Test -Tags Local`
   
@@ -145,7 +145,7 @@ Project Standards
 - Although this project has many rules <sup>[[3]](#3)</sup>, running `./Invoke-Task.ps1 -Lint` should automatically enforce most of them. In any case, here are some standards to keep in mind:
   - Use four-spaces for indentation <sup>[[4]](#4)</sup>
   - Variables should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Foo`, `$MyEvent`, etc...)
-  - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see Powershell's `Get-Verb` cmdlet)
+  - Function names should be of the form, `Verb-SomeThing`, where `Verb` is an "approved" verb (see PowerShell's `Get-Verb` cmdlet)
   - Types and type accelators should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `[String]`, `[Int]`, etc...).
   - Operators should be ***lowercase*** (**ex**: `-eq`, `-not`, `-match`, etc...) <sup>[[4]](#4)</sup>
   - [Variable scopes](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7) should be [***PascalCase***](https://techterms.com/definition/pascalcase) (**ex**: `$Script:`, `$Env:`, `$Global:`, etc...)
@@ -153,24 +153,24 @@ Project Standards
   - Use single quotes unless double quotes are required (**ex**: variable interpolation, [special characters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7), etc...) <sup>[[4]](#4)</sup>
   - Single space after higher-order functions like `ForEach-Object` and `Where-Object` <sup>[[4]](#4)</sup>
   - Single-line scriptblocks should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#4)</sup>
-    ```Powershell
+    ```PowerShell
     # Example
     Get-ChildItem -File | ForEach-Object { $_.FullName }
     ```
   - Hashtables (and custom objects) should have a single space after the opening bracket and before the closing bracket <sup>[[4]](#4)</sup>
-    ```Powershell
+    ```PowerShell
     # Example
     @{ foo = 'bar' }
     ```
   - Semi-colons should be followed by a single space <sup>[[4]](#4)</sup>
-    ```Powershell
+    ```PowerShell
     # Examples
     @{ a = 'a'; b = 'b'; c = 'c' }
     [PSCustomObject]@{ a = 'a'; b = 'b'; c = 'c' }
     ```
   - Comparison operators (like `=`) should have a single space before and after, except for values in `[Parameter(...)]` decorator (**ex**: `$Foo = 'bar'`, `[Parameter(Mandatory=$true, Position=0)]`) <sup>[[4]](#4)</sup>
   - Use the ["One True Brace Style" (1TBS)](https://en.wikipedia.org/wiki/Indentation_style#Variant:_1TBS_(OTBS)) <sup>[[4]](#4)</sup>
-    ```Powershell
+    ```PowerShell
     if ($Condition) {
         # code code code
     } else {
@@ -182,7 +182,7 @@ Project Standards
     ```
   - Prefer pipelines and avoid un-necessary variable declarations.
   - Use `DarkGray` when using `Write-Color` within "WhatIf" blocks.
-    ```Powershell
+    ```PowerShell
     if ($PSCmdlet.ShouldProcess($Path)) {
         # code code code
     } else {

@@ -2,7 +2,7 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "name": "Powershell Prelude",
+    "name": "PowerShell Prelude",
     "extensions": [
         "2gua.rainbow-brackets",
         "akamud.vscode-theme-onedark",

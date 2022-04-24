@@ -637,7 +637,7 @@ function Measure-Performance {
 function New-File {
     <#
     .SYNOPSIS
-    Powershell equivalent of linux "touch" command (includes "touch" alias)
+    PowerShell equivalent of linux "touch" command (includes "touch" alias)
     .EXAMPLE
     New-File <file name>
     .EXAMPLE
@@ -755,7 +755,7 @@ function Out-Tree {
 function Remove-DirectoryForce {
     <#
     .SYNOPSIS
-    Powershell equivalent of linux "rm -frd"
+    PowerShell equivalent of linux "rm -frd"
     .EXAMPLE
     rf <folder name>
     #>

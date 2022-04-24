@@ -98,7 +98,7 @@ Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local', 'Remote' {
 }
 Describe 'ConvertTo-PlainText' -Tag 'Local', 'Remote' {
     It 'can convert secure strings to plain text strings' {
-        $Message = 'Powershell is awesome'
+        $Message = 'PowerShell is awesome'
         $Secure = $Message | ConvertTo-SecureString -AsPlainText -Force
         $Secure.ToString() | Should -Be 'System.Security.SecureString'
         $Secure | ConvertTo-PlainText | Should -Be $Message

@@ -29,38 +29,38 @@ Describe 'Application State' -Tag 'Local', 'Remote' {
         (Test-Path $Path) | Should -BeFalse
     }
 }
-Describe 'ConvertTo-PowershellSyntax' -Tag 'Local', 'Remote' {
+Describe 'ConvertTo-PowerShellSyntax' -Tag 'Local', 'Remote' {
     It 'can act as pass-thru for normal strings' {
         $Expected = 'normal string with not mustache templates'
-        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
+        $Expected | ConvertTo-PowerShellSyntax | Should -Be $Expected
     }
     It 'can convert strings with single mustache template' {
         $InputString = 'Hello {{ world }}'
         $Expected = 'Hello $($Data.world)'
-        $InputString | ConvertTo-PowershellSyntax | Should -Be $Expected
+        $InputString | ConvertTo-PowerShellSyntax | Should -Be $Expected
     }
     It 'can convert strings with multiple mustache templates without regard to spaces' {
         $Expected = '$($Data.hello) $($Data.world)'
-        '{{ hello }} {{ world }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-        '{{ hello }} {{ world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-        '{{hello }} {{world}}' | ConvertTo-PowershellSyntax | Should -Be $Expected
+        '{{ hello }} {{ world }}' | ConvertTo-PowerShellSyntax | Should -Be $Expected
+        '{{ hello }} {{ world}}' | ConvertTo-PowerShellSyntax | Should -Be $Expected
+        '{{hello }} {{world}}' | ConvertTo-PowerShellSyntax | Should -Be $Expected
     }
     It 'will not convert mustache helper templates' {
         $Expected = 'The sky is {{#blue blue }}'
-        $Expected | ConvertTo-PowershellSyntax | Should -Be $Expected
+        $Expected | ConvertTo-PowerShellSyntax | Should -Be $Expected
         $Expected = '{{#red greet }}, my name $($Data.foo) $($Data.foo) is $($Data.name)'
-        '{{#red greet }}, my name {{foo }} {{foo}} is {{ name }}' | ConvertTo-PowershellSyntax | Should -Be $Expected
-        '{{#red Red}} {{#blue Blue}}' | ConvertTo-PowershellSyntax | Should -Be '{{#red Red}} {{#blue Blue}}'
+        '{{#red greet }}, my name {{foo }} {{foo}} is {{ name }}' | ConvertTo-PowerShellSyntax | Should -Be $Expected
+        '{{#red Red}} {{#blue Blue}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#red Red}} {{#blue Blue}}'
     }
     It 'supports template variables within mustache helper templates' {
-        '{{#green Hello}} {{#red {{ name }}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name)}}'
-        '{{#green Hello}} {{#red {{ name }} }}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name) }}'
-        '{{#green Hello}} {{#red {{ foo }}{{ bar }}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
-        '{{#green Hello}} {{#red {{foo}}{{bar}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
-        '{{#green Hello}} {{#red {{ a }} b {{ c }} }}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) }}'
-        '{{#green Hello}} {{#red {{a}}b{{c}}}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)}}'
-        '{{#green Hello}} {{#red {{ a }} b {{ c }} d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) d}}'
-        '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowershellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
+        '{{#green Hello}} {{#red {{ name }}}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name)}}'
+        '{{#green Hello}} {{#red {{ name }} }}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.name) }}'
+        '{{#green Hello}} {{#red {{ foo }}{{ bar }}}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
+        '{{#green Hello}} {{#red {{foo}}{{bar}}}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.foo)$($Data.bar)}}'
+        '{{#green Hello}} {{#red {{ a }} b {{ c }} }}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) }}'
+        '{{#green Hello}} {{#red {{a}}b{{c}}}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)}}'
+        '{{#green Hello}} {{#red {{ a }} b {{ c }} d}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a) b $($Data.c) d}}'
+        '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
     }
 }
 Describe -Skip 'Invoke-ListenTo' -Tag 'Local', 'Remote' {

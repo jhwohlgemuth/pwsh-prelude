@@ -1,7 +1,7 @@
 function Invoke-NewDirectoryAndEnter {
     <#
     .SYNOPSIS
-    Powershell equivalent of oh-my-zsh take function
+    PowerShell equivalent of oh-my-zsh take function
     .DESCRIPTION
     Using take will create a new directory and then enter the driectory
     .EXAMPLE

@@ -544,7 +544,7 @@ Describe 'Save-File' -Tag 'Local', 'Remote' {
     AfterAll {
         Set-Location $PSScriptRoot
     }
-    It 'can save a file from a remote web address' {
+    It -Skip 'can save a file from a remote web address' {
         Mock Start-BitsTransfer {}
         $Uri = 'https://example.com/'
         $File = 'a.txt'

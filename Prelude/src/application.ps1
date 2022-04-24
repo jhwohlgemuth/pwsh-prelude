@@ -1,5 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-Template')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertTo-PowershellSyntax')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertTo-PowerShellSyntax')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Remove-Indent')]
 Param()
 
@@ -9,7 +9,7 @@ class ApplicationState {
     [String] $Name = 'Application Name'
     $Data
 }
-function ConvertTo-PowershellSyntax {
+function ConvertTo-PowerShellSyntax {
     [OutputType([String])]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
@@ -64,7 +64,7 @@ function Invoke-FireEvent {
 function Invoke-RunApplication {
     <#
     .SYNOPSIS
-    Entry point for Powershell CLI application
+    Entry point for PowerShell CLI application
     .PARAMETER Init
     Function to initialize application, executed when application is started.
     .PARAMETER Loop
@@ -356,11 +356,11 @@ function New-Template {
                     $Block = [ScriptBlock]::Create('$($(' + $Variable + ') | Write-Output)')
                     $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
                     try {
-                        $Powershell = [Powershell]::Create()
-                        $Powershell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $Block).Invoke()
+                        $PowerShell = [PowerShell]::Create()
+                        $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $Block).Invoke()
                     } finally {
-                        if ($Powershell) {
-                            $Powershell.Dispose()
+                        if ($PowerShell) {
+                            $PowerShell.Dispose()
                         }
                     }
                 }
@@ -381,11 +381,11 @@ function New-Template {
             }
             $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
             try {
-                $Powershell = [Powershell]::Create()
-                $Powershell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
+                $PowerShell = [PowerShell]::Create()
+                $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
             } finally {
-                if ($Powershell) {
-                    $Powershell.Dispose()
+                if ($PowerShell) {
+                    $PowerShell.Dispose()
                 }
             }
         } else {
@@ -402,11 +402,11 @@ function New-Template {
                 }
                 $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
                 try {
-                    $Powershell = [Powershell]::Create()
-                    $Powershell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
+                    $PowerShell = [PowerShell]::Create()
+                    $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
                 } finally {
-                    if ($Powershell) {
-                        $Powershell.Dispose()
+                    if ($PowerShell) {
+                        $PowerShell.Dispose()
                     }
                 }
             }.GetNewClosure()
