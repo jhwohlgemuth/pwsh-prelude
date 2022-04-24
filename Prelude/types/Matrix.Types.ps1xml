@@ -15,12 +15,12 @@
                     [Prelude.Matrix]::Adj($this)
                 </Script>
             </ScriptMethod>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Columns</Name>
-                <GetScriptBlock>
+                <Script>
                     [Prelude.Matrix]::Transpose($this).Rows
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>Det</Name>
                 <Script>

@@ -12,12 +12,12 @@
                 $this | Invoke-DropWhile $Predicate
                 </Script>
             </ScriptMethod>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>FindFirstIndex</Name>
                 <Script>
@@ -27,12 +27,12 @@
                 Find-FirstIndex $this -Predicate $Predicate
                 </Script>
             </ScriptMethod>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Flatten</Name>
-                <GetScriptBlock>
+                <Script>
                     Invoke-Flatten $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>Partition</Name>
                 <Script>
@@ -75,12 +75,12 @@
                 $this | Invoke-DropWhile $Predicate
                 </Script>
             </ScriptMethod>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>FindFirstIndex</Name>
                 <Script>
@@ -90,12 +90,12 @@
                 Find-FirstIndex $this -Predicate $Predicate
                 </Script>
             </ScriptMethod>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Flatten</Name>
-                <GetScriptBlock>
+                <Script>
                     Invoke-Flatten $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>Partition</Name>
                 <Script>

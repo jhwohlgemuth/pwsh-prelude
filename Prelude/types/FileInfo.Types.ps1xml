@@ -3,30 +3,30 @@
     <Type>
         <Name>System.IO.FileInfo</Name>
         <Members>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>SHA512</Name>
-                <GetScriptBlock>
+                <Script>
                     (Get-FileHash $this.FullName -Algorithm 'SHA512').Hash
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>SHA256</Name>
-                <GetScriptBlock>
+                <Script>
                     (Get-FileHash $this.FullName -Algorithm 'SHA256').Hash
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>SHA1</Name>
-                <GetScriptBlock>
+                <Script>
                     (Get-FileHash $this.FullName -Algorithm 'SHA1').Hash
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>MD5</Name>
-                <GetScriptBlock>
+                <Script>
                     (Get-FileHash $this.FullName -Algorithm 'MD5').Hash
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
         </Members>
     </Type>
 </Types>

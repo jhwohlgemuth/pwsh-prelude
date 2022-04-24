@@ -3,18 +3,18 @@
     <Type>
         <Name>System.Int16</Name>
         <Members>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Factorial</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Factorial $this
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>ToMoney</Name>
                 <Script>
@@ -26,18 +26,18 @@
     <Type>
         <Name>System.Int32</Name>
         <Members>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Factorial</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Factorial $this
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>ToMoney</Name>
                 <Script>
@@ -49,18 +49,18 @@
     <Type>
         <Name>System.Int64</Name>
         <Members>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Factorial</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Factorial $this
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>ToMoney</Name>
                 <Script>
@@ -72,18 +72,18 @@
     <Type>
         <Name>System.Double</Name>
         <Members>
-            <ScriptProperty>
+            <ScriptMethod>
                 <Name>Factorial</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Factorial $this
-                </GetScriptBlock>
-            </ScriptProperty>
-            <ScriptProperty>
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>Permutations</Name>
-                <GetScriptBlock>
+                <Script>
                     Get-Permutation $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
             <ScriptMethod>
                 <Name>ToMoney</Name>
                 <Script>

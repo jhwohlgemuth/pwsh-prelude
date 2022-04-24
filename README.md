@@ -58,7 +58,7 @@ Things You Can Do With Prelude
 'cat' | Get-Permutation
 
 # or use the "method" format, and make a list
-'cat'.Permutation | Join-StringsWithGrammar # "cat, cta, tca, tac, atc, and act"
+'cat'.Permutations() | Join-StringsWithGrammar # "cat, cta, tca, tac, atc, and act"
 ```
 - Perform various operations on strings
 ```PowerShell
@@ -444,13 +444,13 @@ Prelude uses type extensions to provide method versions of most core functions. 
 **Examples**
 ```PowerShell
 # Factorials
-(4).Factorial # 24
+(4).Factorial() # 24
 
 # Permutations as a property (similar property for numbers and arrays)
-'cat'.Permutations # 'cat','cta','tca','tac','atc','act'
+'cat'.Permutations() # 'cat','cta','tca','tac','atc','act'
 
 # Flatten an array
-@(1,@(2,3,@(4,5))).Flatten # 1,2,3,4,5
+@(1,@(2,3,@(4,5))).Flatten() # 1,2,3,4,5
 
 # Reduce an array just like you would in other languages like JavaScript
 $Add = { Param($a,$b) $a + $b }

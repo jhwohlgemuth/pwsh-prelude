@@ -20,12 +20,12 @@
     <Type>
         <Name>System.Security.SecureString</Name>
         <Members>
-            <ScriptProperty>
-                <Name>PlainText</Name>
-                <GetScriptBlock>
+            <ScriptMethod>
+                <Name>ToPlainText</Name>
+                <Script>
                     ConvertTo-PlainText $this
-                </GetScriptBlock>
-            </ScriptProperty>
+                </Script>
+            </ScriptMethod>
         </Members>
     </Type>
 </Types>
