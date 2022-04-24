@@ -630,7 +630,7 @@ function Write-BarChart {
         } else {
             switch ($InputObject.GetType().Name) {
                 'Matrix' {
-                    $Columns = $InputObject.Columns
+                    $Columns = $InputObject.Columns()
                     $LongestName = $Columns[0].Real | Sort-Object { $_.ToString().Length } -Descending | Select-Object -First 1
                     $LargestValue = $Columns[1].Real | Get-Maximum
                     $InputObject.Rows | Sort-Object { $_[1].Real } | ForEach-Object {
