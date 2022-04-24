@@ -544,7 +544,7 @@ Describe 'Save-File' -Tag 'Local', 'Remote' {
     AfterAll {
         Set-Location $PSScriptRoot
     }
-    It -Skip 'can save a file from a remote web address' {
+    It 'can save a file from a remote web address' {
         Mock Start-BitsTransfer {}
         $Uri = 'https://example.com/'
         $File = 'a.txt'
@@ -563,7 +563,7 @@ Describe 'Save-File' -Tag 'Local', 'Remote' {
         $Uri | Save-File
         (Get-ChildItem $TestDrive).Name | Sort-Object | Should -Be 'bar.txt', 'baz.txt', 'foo.txt'
     }
-    It -Skip 'can asynchronously save a file from a remote web address' {
+    It 'can asynchronously save a file from a remote web address' {
         $Uri = 'https://example.com/'
         $File = 'b.txt'
         $Job = $Uri | Save-File $File -Asynchronous -PassThru
