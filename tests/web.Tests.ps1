@@ -376,7 +376,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         Mock Write-Color {} -ModuleName 'Prelude'
         $Uri = 'https://example.com/'
         Invoke-WebRequestBasicAuth $Uri -ParseContent -WhatIf
-        Should -Invoke Write-Color -Exactly 6 -ModuleName 'Prelude'
+        Should -Invoke Write-Color -Exactly 3 -ModuleName 'Prelude'
     }
     It 'can make a simple request' {
         Mock Invoke-WebRequest { $Args } -ModuleName 'Prelude'

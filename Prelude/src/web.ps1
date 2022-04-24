@@ -674,22 +674,6 @@ function Invoke-WebRequestBasicAuth {
                 }
             }
         }
-        function Write-ObjectData {
-            Param(
-                [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-                $Object
-            )
-            foreach ($Pair in $Object.GetEnumerator()) {
-                $Key = $Pair.Key
-                $Value = $Pair.Value
-                $Value = if ($Value -is [Hashtable]) {
-                    $Value | ConvertTo-Json -Compress
-                } else {
-                    $Value
-                }
-                "     ${Key}: ${Value}," | Write-Color -DarkGray
-            }
-        }
     }
     Process {
         if ($PSBoundParameters.ContainsKey('Password') -or $PSBoundParameters.ContainsKey('Token')) {
@@ -741,7 +725,7 @@ function Invoke-WebRequestBasicAuth {
             $Request = Invoke-WebRequest @Parameters @WebRequestParameters -UseBasicParsing
         } else {
             '==> [DRYRUN] Would have called Invoke-WebRequest with the parameters:' | Write-Color -DarkGray
-            $Parameters, $WebRequestParameters | Invoke-ObjectMerge | Write-ObjectData
+            $Parameters, $WebRequestParameters | Invoke-ObjectMerge | ConvertTo-Json | Write-Color -DarkGray
         }
         if ($ParseContent) {
             if ($PSCmdlet.ShouldProcess('Parse content')) {
