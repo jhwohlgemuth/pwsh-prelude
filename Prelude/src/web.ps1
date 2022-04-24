@@ -891,7 +891,7 @@ function Save-File {
         [ValidateScript( { Test-Path $_ })]
         [String] $Destination = (Get-Location).Path,
         [Parameter(Position = 0)]
-        [String] $Name,
+        [String[]] $Filename,
         [Parameter(ParameterSetName = 'asynchronous')]
         [Switch] $Asynchronous,
         [Parameter(ParameterSetName = 'asynchronous')]
@@ -914,6 +914,15 @@ function Save-File {
             $Filename = $Name.Substring(0, $Name.Length - $Extension.Length)
             "${Filename}-${Elapsed}${Extension}"
         }
+        function Test-JobComplete {
+            Param(
+                [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+                $BitsJob
+            )
+            $State = $BitsJob.JobState
+            ($State -ne 'Transferring') -and ($State -ne 'Connecting')
+        }
+        $Count = 0
         $CanUseBitsTransfer = Test-Command 'Start-BitsTransfer'
         $Client = if ($CanUseBitsTransfer -and (-not $WebClient)) {
             '==> [INFO] Using Start-BitsTransfer' | Write-Verbose
@@ -924,7 +933,7 @@ function Save-File {
         }
     }
     Process {
-        $Name = if ($Name) { $Name } else { Split-Path $Uri.Path -Leaf }
+        $Name = if ($Filename.Count -gt 0) { $Filename[$Count] } else { Split-Path $Uri.Path -Leaf }
         $Path = Join-Path $Destination $Name
         if (Test-Path -Path $Path) {
             $Name = $Name | Format-FileVersion
@@ -951,17 +960,17 @@ function Save-File {
             $Job = Start-BitsTransfer @Parameters @CustomParameters
             if ($Asynchronous) {
                 $Id = $Job.JobId
-                $State = $Job.JobState
                 "==> [INFO] Finishing BitsTransfer job [${Id}]..." | Write-Verbose
                 if ($PassThru) {
                     return $Job
                 } else {
-                    while (($State -eq 'Transferring') -or ($State -eq 'Connecting')) {
-                        "==> [INFO] BitsTransfer status [${Id}]: ${State}" | Write-Verbose
-                        Start-Sleep -Seconds $SleepInterval
-                        $SleepInterval += 1
+                    $Seconds = $SleepInterval
+                    while (-not (Test-JobComplete $Job)) {
+                        "==> [INFO] BitsTransfer status [${Id}]: $($Job.JobState)" | Write-Verbose
+                        Start-Sleep -Seconds $Seconds
+                        $Seconds += 1
                     }
-                    switch ($State) {
+                    switch ($Job.JobState) {
                         'Transferred' {
                             Complete-BitsTransfer -BitsJob $Job
                             "==> [INFO] BitsTransfer Job [${Id}], complete." | Write-Verbose
@@ -978,6 +987,7 @@ function Save-File {
             }
             "==> [INFO] Saved file to ${Path} using BitsTransfer." | Write-Verbose
         }
+        $Count += 1
     }
 }
 function Test-Url {
