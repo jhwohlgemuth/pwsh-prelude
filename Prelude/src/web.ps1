@@ -925,12 +925,12 @@ function Save-File {
         }
         if ($Client) {
             if ($PSCmdlet.ShouldProcess($Path)) {
-                "==> [INFO] Saving file to ${Path} using WebClient..." | Write-Verbose
                 if ($Asynchronous) {
                     $Client.DownloadFileAsync($Uri, $Path)
                 } else {
                     $Client.DownloadFile($Uri, $Path)
                 }
+                "==> [INFO] Saved file to ${Path} using WebClient." | Write-Verbose
             }
         } elseif ($CanUseBitsTransfer) {
             $Parameters = @{

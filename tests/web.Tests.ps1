@@ -537,7 +537,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Request[11] | Should -Be (Join-Path $TestDrive $File)
     }
 }
-Describe 'Save-File' -Tag 'Local', 'Remote' {
+Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
     BeforeAll {
         Set-Location -Path $TestDrive
     }
