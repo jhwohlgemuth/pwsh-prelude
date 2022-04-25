@@ -4,16 +4,19 @@ Comparison Examples
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [`curl` vs Prelude](#curl-vs-prelude)
+  - [POST JSON data with cURL](#post-json-data-with-curl)
+  - [Set authorization header for request](#set-authorization-header-for-request)
 - [Python vs. Prelude](#python-vs-prelude)
   - [Read a CSV file](#read-a-csv-file)
   - [Read a JSON file](#read-a-json-file)
-- [Pandas vs. Prelude](#pandas-vs-prelude)
-  - [Rename column names](#rename-column-names)
 - [NumPy vs. Prelude](#numpy-vs-prelude)
   - [Create an matrix from a range of numbers](#create-an-matrix-from-a-range-of-numbers)
   - [Calculate dot product of two matrices](#calculate-dot-product-of-two-matrices)
   - [Calculate matrix determinant or inverse](#calculate-matrix-determinant-or-inverse)
   - [Simple linear regression (with SciKit-Learn)](#simple-linear-regression-with-scikit-learn)
+- [Pandas vs. Prelude](#pandas-vs-prelude)
+  - [Rename column names](#rename-column-names)
 - [JavaScript vs. Prelude](#javascript-vs-prelude)
   - [Find the length of the longest word in a list](#find-the-length-of-the-longest-word-in-a-list)
   - [Partition an array](#partition-an-array)
@@ -22,6 +25,39 @@ Comparison Examples
   - [Unzip an array into two arrays](#unzip-an-array-into-two-arrays)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+`curl` vs Prelude
+===============
+> Works on Windows **and** Linux
+
+POST JSON data with cURL
+------------------------
+
+**curl**
+```shell
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"answer": 42}' \
+  https://example.com
+```
+
+**Prelude**
+```PowerShell
+@{ answer = 42 } | basicauth 'https://example.com' -Post -Header @{ 'Content-Type' = 'application/json' }
+```
+
+Set authorization header for request
+------------------------------------
+
+**curl**
+```shell
+curl -H "Authorization: OAuth ACCESS_TOKEN" https://example.com
+```
+
+**Prelude**
+```PowerShell
+basicauth 'https://example.com' -Token 'ACCESS_TOKEN'
+```
 
 Python vs. Prelude
 =================
@@ -72,41 +108,6 @@ with open('data.json', 'r') as myfile:
 ```PowerShell
 Import-Module 'Prelude'
 Get-Content 'data.json' | ConvertFrom-Json | prop 'PowerLevel'
-```
-
-Pandas vs. Prelude
-=================
-
-Rename column names
--------------------
-
-**data.csv**
-```csv
-foo,bar
-blue,small
-red,medium
-green,large
-```
-
-**Pandas**
-```python
-import pandas as pd
-data = pd.read_csv("data.csv")
-col_map = {
-    "foo": "color",
-    "bar": "size"
-}
-data = data.rename(columns=col_map)
-```
-**Prelude**
-```PowerShell
-Import-Module 'Prelude'
-$Data = Get-Content 'data.csv' | ConvertFrom-Csv
-$Lookup = @{
-    color = 'foo'
-    size = 'bar'
-}
-$Data = $Data | transform $Lookup
 ```
 
 NumPy vs. Prelude
@@ -186,6 +187,41 @@ $Y = 5, 20, 14, 32, 22, 38 | matrix 6,1
 $B = ($X.Transpose() * $X).Inverse() * ($X.Transpose() * $Y)
 "Intercept: $($B[0].Real)" | Write-Color -Green
 "Slope: $($B[1].Real)" | Write-Color -Green
+```
+
+Pandas vs. Prelude
+=================
+
+Rename column names
+-------------------
+
+**data.csv**
+```csv
+foo,bar
+blue,small
+red,medium
+green,large
+```
+
+**Pandas**
+```python
+import pandas as pd
+data = pd.read_csv("data.csv")
+col_map = {
+    "foo": "color",
+    "bar": "size"
+}
+data = data.rename(columns=col_map)
+```
+**Prelude**
+```PowerShell
+Import-Module 'Prelude'
+$Data = Get-Content 'data.csv' | ConvertFrom-Csv
+$Lookup = @{
+    color = 'foo'
+    size = 'bar'
+}
+$Data = $Data | transform $Lookup
 ```
 
 JavaScript vs. Prelude

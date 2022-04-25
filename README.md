@@ -28,7 +28,7 @@ Import-Module -Name Prelude
 
 What is Prelude?
 ----------------
-> Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better.
+> Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better.  If you are already familiar with another language (like Python or JavaScript), you can look at these [comparisons of Prelude to other popular languages, libraries, and tools](./examples/Compare.md).
 
 PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[5](#5)</sup> the typical use cases. Use cases are varied and include:
 - Linear algebra, graph theory, and statistics
