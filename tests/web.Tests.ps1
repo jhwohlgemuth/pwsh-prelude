@@ -537,14 +537,15 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Request[11] | Should -Be (Join-Path $TestDrive $File)
     }
 }
-Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
+Describe -Skip 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
     BeforeAll {
-        Set-Location -Path $TestDrive
+        Set-Location $TestDrive
     }
     AfterAll {
         Set-Location $PSScriptRoot
     }
     It 'can save a file from a remote web address' {
+        Get-ChildItem $TestDrive -File | Remove-Item
         Mock Start-BitsTransfer {}
         $Uri = 'https://example.com/'
         $File = 'a.txt'
@@ -553,30 +554,29 @@ Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Uri | Save-File $File
         (Get-ChildItem $TestDrive).Name | Should -HaveCount 2
     }
-    It -Skip 'can save files from a remote web address' {
-        Mock Start-BitsTransfer {}
-        $Uri = @(
-            'https://example.com/foo.txt'
-            'https://example.com/bar.txt'
-            'https://example.com/baz.txt'
-        )
-        $Uri | Save-File
+    It 'can save files from a remote web address' {
+        Get-ChildItem $TestDrive -File | Remove-Item
+        Mock Start-BitsTransfer { $Args }
+        $Uri = 'https://example.com'
+        $Names = 'foo.txt', 'bar.txt', 'baz.txt'
+        $Job = $Uri, $Uri, $Uri | Save-File $Names
+        $Job | Write-Color -Cyan
         (Get-ChildItem $TestDrive).Name | Sort-Object | Should -Be 'bar.txt', 'baz.txt', 'foo.txt'
     }
     It 'can asynchronously save a file from a remote web address' {
+        Get-ChildItem $TestDrive -File | Remove-Item
         $Uri = 'https://example.com/'
         $File = 'b.txt'
         $Job = $Uri | Save-File $File -Asynchronous -PassThru
         $Job.DisplayName | Should -Be 'PreludeBitsJob'
     }
-    It -Skip 'can asynchronously save multiple files from a remote web address' {
-        $Uri = @(
-            'https://example.com/foo.txt'
-            'https://example.com/bar.txt'
-            'https://example.com/baz.txt'
-        )
-        $Job = $Uri | Save-File $File -Asynchronous -PassThru
-        $Job.DisplayName | Should -Be 'PreludeBitsJob'
+    It 'can asynchronously save multiple files from a remote web address' {
+        Get-ChildItem $TestDrive -File | Remove-Item
+        $DisplayName = 'PreludeBitsJob'
+        $Uri = 'https://example.com'
+        $Names = 'foo.txt', 'bar.txt', 'baz.txt'
+        $Job = $Uri, $Uri, $Uri | Save-File $Names -Asynchronous -PassThru
+        $Job.DisplayName | Should -Be @($DisplayName, $DisplayName, $DisplayName)
     }
 }
 Describe 'Test-Url' -Tag 'Local', 'Remote' {
@@ -585,8 +585,8 @@ Describe 'Test-Url' -Tag 'Local', 'Remote' {
         'google.com', 'https://google.com', 'https://www.google.com' | Test-Url -Code | Should -Be '200', '200', '200'
     }
     It 'will return 404 if URL does not exist' {
-        'https://ifhtisSiteEverExistsIwillQuitTheInter.net' | Test-Url | Should -Be $False
-        'https://ifhtisSiteEverExistsIwillQuitTheInter.net' | Test-Url -Code | Should -Be '404'
+        'https://ifthisSiteEverExistsIwillQuitTheInter.net' | Test-Url | Should -Be $False
+        'https://ifthisSiteEverExistsIwillQuitTheInter.net' | Test-Url -Code | Should -Be '404'
     }
 }
 Describe 'Use-Web' -Tag 'Local', 'Remote', 'WindowsOnly' {
