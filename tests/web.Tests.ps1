@@ -537,7 +537,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Request[11] | Should -Be (Join-Path $TestDrive $File)
     }
 }
-Describe -Skip 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
+Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
     BeforeAll {
         Set-Location $TestDrive
     }
@@ -570,7 +570,7 @@ Describe -Skip 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Job = $Uri | Save-File $File -Asynchronous -PassThru
         $Job.DisplayName | Should -Be 'PreludeBitsJob'
     }
-    It 'can asynchronously save multiple files from a remote web address' {
+    It -Skip 'can asynchronously save multiple files from a remote web address' {
         Get-ChildItem $TestDrive -File | Remove-Item
         $DisplayName = 'PreludeBitsJob'
         $Uri = 'https://example.com'
