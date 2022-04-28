@@ -544,7 +544,7 @@ Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
     AfterAll {
         Set-Location $PSScriptRoot
     }
-    It 'can save a file from a remote web address' {
+    It 'can save a file from a remote web address (with BitsTransfer)' {
         Get-ChildItem $TestDrive -File | Remove-Item
         Mock Start-BitsTransfer {}
         $Uri = 'https://example.com/'
@@ -552,6 +552,15 @@ Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Uri | Save-File $File
         (Get-ChildItem $TestDrive).Name | Should -Be $File
         $Uri | Save-File $File
+        (Get-ChildItem $TestDrive).Name | Should -HaveCount 2
+    }
+    It 'can save a file from a remote web address (with .NET Web Client)' {
+        Get-ChildItem $TestDrive -File | Remove-Item
+        $Uri = 'https://example.com/'
+        $File = 'a.txt'
+        $Uri | Save-File $File -WebClient
+        (Get-ChildItem $TestDrive).Name | Should -Be $File
+        $Uri | Save-File $File -WebClient
         (Get-ChildItem $TestDrive).Name | Should -HaveCount 2
     }
     It 'can save files from a remote web address' {
