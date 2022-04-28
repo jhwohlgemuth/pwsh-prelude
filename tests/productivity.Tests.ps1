@@ -342,14 +342,14 @@ Describe 'Invoke-Unpack' -Tag 'Local', 'Remote' {
         $A = New-Item (Join-Path $TestDrive 'A.txt') -ItemType 'file'
         $B = New-Item (Join-Path $TestDrive 'B.txt') -ItemType 'file'
         $C = New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
-        $D = New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
+        New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
         $E = New-Item (Join-Path $TestDrive 'D/E.txt') -ItemType 'file'
         $F = New-Item (Join-Path $TestDrive 'D/F.txt') -ItemType 'file'
         $G = New-Item (Join-Path $TestDrive 'D/G.txt') -ItemType 'file'
         $H = New-Item (Join-Path $TestDrive 'D/H.txt') -ItemType 'file'
         $I = New-Item (Join-Path $TestDrive 'D/I') -ItemType 'directory'
         $J = New-Item (Join-Path $I 'J.txt') -ItemType 'file'
-        $K = New-Item (Join-Path $TestDrive 'K') -ItemType 'directory'
+        New-Item (Join-Path $TestDrive 'K') -ItemType 'directory'
         'AAA' | Set-Content $A
         'BBB' | Set-Content $B
         'CCC' | Set-Content $C
