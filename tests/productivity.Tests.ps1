@@ -343,13 +343,13 @@ Describe 'Invoke-Unpack' -Tag 'Local', 'Remote' {
         $B = New-Item (Join-Path $TestDrive 'B.txt') -ItemType 'file'
         $C = New-Item (Join-Path $TestDrive 'C.txt') -ItemType 'file'
         $D = New-Item (Join-Path $TestDrive 'D') -ItemType 'directory'
-        $E = New-Item (Join-Path $D 'E.txt') -ItemType 'file'
+        $E = New-Item (Join-Path $TestDrive 'D/E.txt') -ItemType 'file'
         $F = New-Item (Join-Path $TestDrive 'D/F.txt') -ItemType 'file'
         $G = New-Item (Join-Path $TestDrive 'D/G.txt') -ItemType 'file'
         $H = New-Item (Join-Path $TestDrive 'D/H.txt') -ItemType 'file'
         $I = New-Item (Join-Path $TestDrive 'D/I') -ItemType 'directory'
         $J = New-Item (Join-Path $I 'J.txt') -ItemType 'file'
-        # $K = New-Item (Join-Path $TestDrive 'K') -ItemType 'directory'
+        $K = New-Item (Join-Path $TestDrive 'K') -ItemType 'directory'
         'AAA' | Set-Content $A
         'BBB' | Set-Content $B
         'CCC' | Set-Content $C
@@ -375,11 +375,12 @@ Describe 'Invoke-Unpack' -Tag 'Local', 'Remote' {
         Invoke-Unpack -File (Get-Item $PackPath)
         Get-ChildItem (Join-Path $TestDrive 'packed') -Recurse | ForEach-Object 'Name' | Sort-Object | Should -Be $Expected
     }
-    It -Skip 'can unpack from different directory' {
-        Set-Location (Join-Path $TestDrive 'K')
+    It 'can unpack from different directory' {
         $PackPath = $TestDrive | Invoke-Pack
+        $Expected = 'A.txt', 'B.txt', 'C.txt', 'D', 'E.txt', 'F.txt', 'G.txt', 'H.txt', 'I', 'J.txt'
+        Set-Location (Join-Path $TestDrive 'K')
         Invoke-Unpack $PackPath
-        Get-ChildItem '.' | ForEach-Object 'Name' | ForEach-Object { $_ | Write-Color -Cyan }
+        Get-ChildItem (Join-Path $TestDrive 'K/packed') -Recurse | ForEach-Object 'Name' | Sort-Object | Should -Be $Expected
     }
 }
 Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Invoke-Speak (say)' -Tag 'Local', 'Remote' {

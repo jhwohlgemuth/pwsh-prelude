@@ -257,7 +257,7 @@ Describe 'Import-Raw' -Tag 'Local', 'Remote' {
     It 'can import lines of a file' {
         $Path = Join-Path $PSScriptRoot '\fixtures\example.html'
         $Data = Import-Raw -File $Path
-        $Data.Count | Should -Be 37
+        $Data | Should -HaveCount 37
         $Data[1] | Should -Be '<html lang="en">'
     }
     It 'can peek first line of a file' {

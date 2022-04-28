@@ -1,8 +1,12 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('RequireDirective', '')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingCmdletAliases', 'chunk')]
 Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'core'
 
+BeforeDiscovery {
+    Import-Module "${PSScriptRoot}\..\CustomAssertions.psm1" -DisableNameChecking
+}
 Describe 'PowerShell Prelude Module' -Tag 'Local', 'Remote', 'WindowsOnly' {
     Context 'meta validation' {
         It 'should import exports' {
@@ -42,7 +46,7 @@ Describe 'ConvertTo-OrderedHashtable' -Tag 'Local', 'Remote' {
             b = 2
             c = 3
         } | ConvertTo-OrderedDictionary
-        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Result | Should -HaveKeys 'a', 'b', 'c'
         $Expected = [Ordered]@{
             a = 1
             b = 2
@@ -56,13 +60,13 @@ Describe 'ConvertTo-OrderedHashtable' -Tag 'Local', 'Remote' {
             b = 2
             c = 3
         } | ConvertTo-OrderedDictionary
-        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Result | Should -HaveKeys 'a', 'b', 'c'
         $Result = [Ordered]@{
             a = 1
             b = 2
             c = 3
         } | ConvertTo-OrderedDictionary
-        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Result | Should -HaveKeys 'a', 'b', 'c'
     }
     It 'can return an ordered dictionary from PSCustomObject input' {
         $Result = [PSCustomObject]@{
@@ -70,13 +74,13 @@ Describe 'ConvertTo-OrderedHashtable' -Tag 'Local', 'Remote' {
             b = 2
             c = 3
         } | ConvertTo-OrderedDictionary
-        $Result.keys | Should -Be 'a', 'b', 'c'
+        $Result | Should -HaveKeys 'a', 'b', 'c'
         $Result = [PSCustomObject]@{
             c = 3
             b = 2
             a = 1
         } | ConvertTo-OrderedDictionary
-        $Result.keys | Should -Be 'c', 'b', 'a'
+        $Result | Should -HaveKeys 'c', 'b', 'a'
     }
 }
 Describe 'ConvertTo-Pair' -Tag 'Local', 'Remote' {
@@ -430,16 +434,16 @@ Describe 'Invoke-Pick' -Tag 'Local', 'Remote' {
     It 'can create hashtable from picked properties' {
         $Name = 'a', 'c'
         $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name
-        $Result.keys | Sort-Object | Should -Be 'a', 'c'
+        $Result | Should -HaveKeys $Name
         $Result.values | Sort-Object | Should -Be 1, 3
     }
     It 'can create hashtable from all picked properties' {
         $Name = 'a', 'c', 'x'
         $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name -All
-        $Result.keys | Sort-Object | Should -Be 'a', 'c', 'x'
+        $Result | Should -HaveKeys $Name
         $Result.values | Sort-Object | Should -Be 1, 3
         $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Pick $Name -All -EmptyValue 'EMPTY'
-        $Result.keys | Sort-Object | Should -Be 'a', 'c', 'x'
+        $Result | Should -HaveKeys $Name
         $Result.values | Sort-Object | Should -Be 1, 3, 'EMPTY'
     }
     It 'can create custom object from picked properties' {
@@ -461,10 +465,10 @@ Describe 'Invoke-Pick' -Tag 'Local', 'Remote' {
         $Name = 'foo', 'bar'
         $Result = 'Not an object' | Invoke-Pick $Name
         $Result | Should -BeOfType [Hashtable]
-        $Result.keys.Count | Sort-Object | Should -Be 0
+        $Result.keys | Should -HaveCount 0
         $Result | Should -BeOfType [Hashtable]
         $Result = 'Not an object' | Invoke-Pick $Name -All -EmptyValue 'NOTHING'
-        $Result.keys | Sort-Object | Should -Be 'bar', 'foo'
+        $Result | Should -HaveKeys 'bar', 'foo'
         $Result.values | Sort-Object | Should -Be 'NOTHING', 'NOTHING'
     }
 }
