@@ -3,6 +3,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Find-FirstIndex')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Value')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-DropWhile_')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-ObjectMerge')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Once')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-PropertyTransform')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Reduce')]
@@ -583,9 +584,46 @@ function Invoke-ObjectMerge {
     [OutputType([System.Collections.Hashtable])]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
-        [Array] $InputObject
+        [Array] $InputObject,
+        [Switch] $Force
     )
     Begin {
+        function Set-ObjectKeyValue {
+            Param(
+                [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+                $InputObject,
+                [Parameter(Mandatory = $True, Position = 1)]
+                $Key,
+                [Parameter(Position = 2)]
+                $Value
+            )
+            $Type = $InputObject.GetType().Name
+            if ($Type -eq 'PSCustomObject') {
+                $InputObject | Add-Member -MemberType NoteProperty -Name $Key -Value $Value
+            } else {
+                $InputObject.$Key = $Value
+            }
+            $InputObject
+        }
+        function Test-ObjectKeyValueNullEmpty {
+            Param(
+                [Parameter(Mandatory = $True, Position = 0)]
+                $InputObject,
+                [Parameter(Mandatory = $True, Position = 1)]
+                $Key
+            )
+            $Type = $InputObject.GetType().Name
+            $Keys = if ($Type -eq 'PSCustomObject') {
+                $InputObject.PSObject.Properties.Name
+            } else {
+                $InputObject.keys
+            }
+            if ($Keys -contains $Key) {
+                [String]::IsNullOrEmpty($InputObject.$Key)
+            } else {
+                $True
+            }
+        }
         function Invoke-Merge {
             Param(
                 [Parameter(Position = 0)]
@@ -593,7 +631,7 @@ function Invoke-ObjectMerge {
             )
             if ($Null -ne $InputObject) {
                 $Result = if ($InputObject.Count -gt 1) {
-                    $InputObject | Invoke-Reduce -InitialValue @{} -Callback {
+                    $InputObject | Invoke-Reduce -Callback {
                         Param($Acc, $Item)
                         $Type = $Item.GetType().Name
                         $ItemCount = if ($Type -eq 'PSCustomObject') {
@@ -606,13 +644,17 @@ function Invoke-ObjectMerge {
                                 # Return nothing
                             }
                             1 {
-                                $Pair = $Item | ConvertTo-Pair
-                                $Acc[$Pair[0]] = $Pair[1]
+                                $K, $V = $Item | ConvertTo-Pair
+                                if ((Test-ObjectKeyValueNullEmpty $Acc $K) -or $Force) {
+                                    $Acc | Set-ObjectKeyValue -Key $K -Value $V | Out-Null
+                                }
                             }
                             Default {
                                 $Item | ConvertTo-Pair | Invoke-Zip | ForEach-Object {
-                                    [String] $Key, $Value = $_
-                                    $Acc.$Key = $Value
+                                    $Key, $Value = $_
+                                    if ((Test-ObjectKeyValueNullEmpty $Acc $Key) -or $Force) {
+                                        $Acc | Set-ObjectKeyValue -Key $Key -Value $Value | Out-Null
+                                    }
                                 }
                             }
                         }

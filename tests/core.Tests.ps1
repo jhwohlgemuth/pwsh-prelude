@@ -377,9 +377,16 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
         $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'a', 'b', 'c', 'x', 'y', 'z'
         $Result.PSObject.Properties.Value | Sort-Object | Should -Be 1, 2, 3, 4, 5, 6
     }
-    It 'will overwrite values with same key' {
-        $Result = @{ a = 1 }, @{ b = 2 }, @{ a = 3 } | Invoke-ObjectMerge
+    It 'will overwrite values with same key with -Force switch' {
+        $Result = @{ a = 1 }, @{ a = 3 } | Invoke-ObjectMerge -Force
         $Result.a | Should -Be 3
+        $Result = @{ a = 1 }, @{ a = 3 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
+        $Result = @{ a = 1 }, @{ a = 3; b = 2 } | Invoke-ObjectMerge -Force
+        $Result.a | Should -Be 3
+        $Result.b | Should -Be 2
+        $Result = @{ a = 1 }, @{ a = 3; b = 2 } | Invoke-ObjectMerge
+        $Result.a | Should -Be 1
         $Result.b | Should -Be 2
     }
 }
