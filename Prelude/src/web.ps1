@@ -880,6 +880,7 @@ function Save-File {
         [Switch] $Asynchronous,
         [Parameter(ParameterSetName = 'asynchronous')]
         [Switch] $PassThru,
+        [Parameter(ParameterSetName = 'asynchronous')]
         [ValidateSet('Foreground', 'High', 'Normal', 'Low')]
         [String] $Priority = 'Foreground',
         [Parameter(ParameterSetName = 'asynchronous')]
@@ -926,9 +927,9 @@ function Save-File {
         if ($Client) {
             if ($PSCmdlet.ShouldProcess($Path)) {
                 if ($Asynchronous) {
-                    $Client.DownloadFileAsync($Uri, $Path)
+                    $Client.DownloadFileAsync($Uri.Uri, $Path)
                 } else {
-                    $Client.DownloadFile($Uri, $Path)
+                    $Client.DownloadFile($Uri.Uri, $Path)
                 }
                 "==> [INFO] Saved file to ${Path} using WebClient." | Write-Verbose
             }
