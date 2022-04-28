@@ -572,12 +572,20 @@ function Invoke-ObjectMerge {
     <#
     .SYNOPSIS
     Merge two or more hashtables or custom objects. The result will be of the same type as the first item passed.
+    .PARAMETER Force
+    Default behavior is to not overwrite existing values. Set this parameter to $True to overwrite existing values.
     .EXAMPLE
-    @{ a = 1 },@{ b = 2 },@{ c = 3 } | merge
+    @{ a = 1 }, @{ b = 2 }, @{ c = 3 } | merge
     # @{ a = 1; b = 2; c = 3 }
     .EXAMPLE
-    [PSCustomObject]@{ a = 1 },[PSCustomObject]@{ b = 2 } | merge
+    [PSCustomObject]@{ a = 1 }, [PSCustomObject]@{ b = 2 } | merge
     # [PSCustomObject]@{ a = 1; b = 2 }
+    .EXAMPLE
+    @{ a = 1 }, @{ a = 3 } | merge
+    # @{ a = 1 }
+    
+    @{ a = 1 }, @{ a = 3 } | merge -Force
+    # @{ a = 3 }
     #>
     [CmdletBinding()]
     [Alias('merge')]
@@ -590,11 +598,10 @@ function Invoke-ObjectMerge {
     Begin {
         function Set-ObjectKeyValue {
             Param(
-                [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+                [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
                 $InputObject,
-                [Parameter(Mandatory = $True, Position = 1)]
+                [Parameter(Mandatory = $True)]
                 $Key,
-                [Parameter(Position = 2)]
                 $Value
             )
             $Type = $InputObject.GetType().Name
@@ -1026,43 +1033,26 @@ function Invoke-Reduce {
                 }
                 $Index = 0
                 $Result = $InitialValue
-                $Callback = switch ($True) {
-                    { $_ -eq $Identity } {
+                $Callback = switch ((Find-FirstTrueVariable 'Identity', 'Add', 'Multiply', 'Every', 'Some', 'FileInfo')) {
+                    'Identity' {
                         $Callback
                     }
-                    { $_ -eq $Add } {
-                        {
-                            Param($A, $B)
-                            $A + $B
-                        }
+                    'Add' {
+                        { Param($A, $B) $A + $B }
                     }
-                    { $_ -eq $Multiply } {
-                        {
-                            Param($A, $B)
-                            $A * $B
-                        }
+                    'Multiply' {
+                        { Param($A, $B) $A * $B }
                     }
-                    { $_ -eq $Every } {
-                        {
-                            Param($A, $B)
-                            $A -and $B
-                        }
+                    'Every' {
+                        { Param($A, $B) $A -and $B }
                     }
-                    { $_ -eq $Some } {
-                        {
-                            Param($A, $B)
-                            $A -or $B
-                        }
+                    'Some' {
+                        { Param($A, $B) $A -or $B }
                     }
-                    { $_ -eq $FileInfo } {
-                        {
-                            Param($Acc, $Item)
-                            $Acc[$Item.Name] = $Item.Length
-                        }
+                    'FileInfo' {
+                        { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
                     }
-                    Default {
-                        $Callback
-                    }
+                    Default { $Callback }
                 }
                 foreach ($Item in $Items) {
                     $ShouldSaveResult = ([Array], [Bool], [System.Numerics.Complex], [Int], [String] | ForEach-Object { $InitialValue -is $_ }) -contains $True

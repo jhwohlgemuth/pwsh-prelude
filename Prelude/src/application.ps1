@@ -354,7 +354,7 @@ function New-Template {
                 '-' { '' }
                 '=' {
                     $Block = [ScriptBlock]::Create('$($(' + $Variable + ') | Write-Output)')
-                    $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
+                    $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge -Force
                     try {
                         $PowerShell = [PowerShell]::Create()
                         $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $Block).Invoke()
@@ -379,7 +379,7 @@ function New-Template {
                 return $Template
                 exit
             }
-            $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
+            $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge -Force
             try {
                 $PowerShell = [PowerShell]::Create()
                 $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
@@ -400,7 +400,7 @@ function New-Template {
                     return $Template
                     exit
                 }
-                $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge
+                $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge -Force
                 try {
                     $PowerShell = [PowerShell]::Create()
                     $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()

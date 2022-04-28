@@ -268,7 +268,7 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
         }
         $NewIpAddress = '127.0.0.42'
         $NewComment = 'this is an updated comment'
-        $Updated = $A.Clone(), @{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge
+        $Updated = $A.Clone(), @{ IPAddress = $NewIpAddress; Comment = $NewComment } | Invoke-ObjectMerge -Force
         Update-HostsFile @A -Path $Path
         $Content = Get-HostsContent $Path
         $Content.LineNumber | Should -Be 1
