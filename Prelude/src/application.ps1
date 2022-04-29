@@ -300,7 +300,14 @@ function New-Template {
     .EXAMPLE
     '{{#green Hello}} {{ name }}' | tpl -Data @{ name = 'World' } | Write-Color
 
-    Use -Data parameter cause template to return formatted string instead of template function
+    Use of the -Data parameter will cause New-Template to return a formatted string instead of template function
+    .EXAMPLE
+    $Function:Element = '<{{ tag }}>{{ text }}</{{ tag }}>' | New-Template
+    $Function:Div = Element @{ tag = 'div' } -Partial | New-Template
+    Div @{ text = 'Hello World' }
+    # '<div>Hello World</div>'
+
+    Create partial templates using the -Partial parameter
     .EXAMPLE
     'The answer is {{= $Value + 2 }}' | tpl -Data @{ Value = 40 }
     # "The answer is 42"
@@ -330,6 +337,7 @@ function New-Template {
         [Switch] $PassThru
     )
     Begin {
+        $Script:TemplateKeyNamesNotPassed = @()
         $Pattern = '(?<expression>{{(?<indicator>(=|-|#))?\s+(?<variable>.*?)\s*}})'
         $Renderer = {
             Param(
@@ -364,7 +372,10 @@ function New-Template {
                         }
                     }
                 }
-                Default { "`${${Variable}}" }
+                Default {
+                    $Script:TemplateKeyNamesNotPassed += $Variable
+                    "`${${Variable}}"
+                }
             }
         }
     }
@@ -374,6 +385,7 @@ function New-Template {
             $Template = Get-Content $Path -Raw
         }
         $TemplateScriptBlock = [ScriptBlock]::Create('$("' + [Regex]::Replace($Template, $Pattern, $Evaluator) + '" | Write-Output)')
+        $NotPassed = $Script:TemplateKeyNamesNotPassed
         if (($Binding.Count -gt 0) -or $NoData) {
             if ($PassThru) {
                 return $Template
@@ -394,13 +406,23 @@ function New-Template {
                     [Parameter(Position = 0, ValueFromPipeline = $True)]
                     [Alias('Data')]
                     [Hashtable] $Binding = @{},
+                    [Array] $NotPassed = $NotPassed,
+                    [Switch] $Partial,
                     [Switch] $PassThru
                 )
                 if ($PassThru) {
                     return $Template
                     exit
                 }
-                $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge -Force
+                $PartialValues = @{}
+                if ($Partial) {
+                    foreach ($Key in $NotPassed) {
+                        if ([String]::IsNullOrEmpty($Binding[$Key])) {
+                            $PartialValues[$Key] = "{{ ${Key} }}"
+                        }
+                    }
+                }
+                $Binding = $PartialValues, $DefaultValues, $Binding | Invoke-ObjectMerge -Force
                 try {
                     $PowerShell = [PowerShell]::Create()
                     $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()

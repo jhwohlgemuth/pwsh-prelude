@@ -260,6 +260,16 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
     </section>" | New-Template
         Section @{ title = 'Title' } | Should -Be $Expected
     }
+    It 'can support partial templates' {
+        $Expected = '<div>FOO {{ bar }}</div>'
+        $Template = '<div>{{ foo }} {{ bar }}</div>'
+        $Function:Render = $Template | New-Template
+        Render @{ foo = 'FOO' } -Partial | Should -Be $Expected
+        Render @{ foo = 'FOO' } -Partial -PassThru | Should -Be $Template
+        $Function:Element = '<{{ tag }}>{{ t }}</{{ tag }}>' | New-Template
+        $Function:Div = Element @{ tag = 'div' } -Partial | New-Template
+        Div @{ t = 'Hello World' } | Should -Be '<div>Hello World</div>'
+    }
     It 'can return pass-thru function that does no string interpolation' {
         $Template = 'Hello {{ name }}'
         $Data = @{ name = 'Jason' }
