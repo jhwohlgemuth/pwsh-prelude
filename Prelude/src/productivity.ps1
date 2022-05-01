@@ -164,8 +164,9 @@ function Find-FirstTrueVariable {
     $Foo = $False
     $Bar = $True
     $Baz = $False
+
     Find-FirstTrueVariable 'Foo','Bar','Baz'
-    # returns 'Bar'
+    # 'Bar'
     #>
     [CmdletBinding()]
     Param(
@@ -286,9 +287,9 @@ function Invoke-GoogleSearch {
     .EXAMPLE
     'Small-World Properties of Facebook Group Networks' | google -Type 'pdf' -Exact
     .EXAMPLE
-    # Search subdomains for a given site
-
     google -Site 'example.com' -Subdomain
+
+    # Search subdomains for a given site
     #>
     [CmdletBinding()]
     [Alias('google')]
@@ -475,7 +476,7 @@ function Invoke-Speak {
     .EXAMPLE
     'hello world' | Invoke-Speak -Verbose
     .EXAMPLE
-    1,2,3 | %{ say $_ }
+    1, 2, 3 | %{ say $_ }
     .EXAMPLE
     Get-Content .\phrases.csv | Invoke-Speak
     #>
@@ -553,7 +554,7 @@ function Invoke-Unpack {
     .EXAMPLE
     'path/to/packed.xml' | Invoke-Unpack
     .EXAMPLE
-    ls 'some/folder' | % { unpack -File $_ }
+    ls 'some/folder' | %{ unpack -File $_ }
     #>
     [CmdletBinding()]
     [Alias('unpack')]
@@ -585,14 +586,14 @@ function Measure-Performance {
     Measure the execution of a scriptblock a certain number of times. Return analysis of results.
     .DESCRIPTION
     This function returns the results as an object with the following keys:
-    - Min
-    - Max
-    - Range
-    - Mean
-    - TrimmedMean (mean trimmed 10% on both sides)
-    - Median
-    - StandardDeviation
-    - Runs (the original results of each run - can be used for custom analysis beyond these results)
+      - Min
+      - Max
+      - Range
+      - Mean
+      - TrimmedMean (mean trimmed 10% on both sides)
+      - Median
+      - StandardDeviation
+      - Runs (the original results of each run - can be used for custom analysis beyond these results)
     .PARAMETER Milliseconds
     Output results in milliseconds instead of "ticks"
     .PARAMETER Sample
@@ -689,16 +690,14 @@ function Out-Tree {
     Caution: Performance will be affected by excessive file depth
     .EXAMPLE
     @{ Foo = 1; Bar = 2; Baz = 3 } | Out-Tree
-    # Output:
-    ├─ Foo
-    ├─ Bar
-    └─ Baz
+    # ├─ Foo
+    # ├─ Bar
+    # └─ Baz
     .EXAMPLE
     @{ Foo = 1; Bar = 2; Baz = 3 } | Out-Tree -Property Key
-    # Output:
-    ├─ Bar
-    ├─ Baz
-    └─ Foo
+    # ├─ Bar
+    # ├─ Baz
+    # └─ Foo
     #>
     [CmdletBinding()]
     [OutputType([String])]
@@ -764,7 +763,7 @@ function Remove-DirectoryForce {
     .SYNOPSIS
     PowerShell equivalent of linux "rm -frd"
     .EXAMPLE
-    rf <folder name>
+    rf ./path/to/folder
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [Alias('rf')]
@@ -790,7 +789,8 @@ function Rename-FileExtension {
     Change the extension of one or more files
     .EXAMPLE
     'foo.bar' | Rename-FileExtension -To 'baz'
-    # new name of file will be 'foo.baz'
+
+    # New name of file will be 'foo.baz'
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
@@ -874,7 +874,7 @@ function Test-Empty {
     .SYNOPSIS
     Helper function that returns true if directory is empty, false otherwise
     .EXAMPLE
-    echo <folder name> | Test-Empty
+    echo someFolderName | Test-Empty
     .EXAMPLE
     dir . | %{Test-Empty $_.FullName}
     #>

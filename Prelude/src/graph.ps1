@@ -11,17 +11,21 @@ function Export-GraphData {
     .PARAMETER Force
     Overwrite file at destination path, if one exists
     .EXAMPLE
-    # Export graph data to ./graph.csv
     $Graph | Export-GraphData
+
+    # Export graph data to ./graph.csv
     .EXAMPLE
-    # Write mermaid format graph data to terminal
     $Graph | Export-GraphData -Mermaid -PassThru | Write-Color -Cyan
+
+    # Write mermaid format graph data to terminal
     .EXAMPLE
-    # Export compressed JSON data (compress also works with XML format)
     $Graph | Export-GraphData -JSON -Compress
+
+    # Export compressed JSON data (compress also works with XML format)
     .EXAMPLE
-    # Supports passing format as string paramter
     $Graph | Export-GraphData -Format 'XML'
+    
+    # Supports passing format as string paramter
     #>
     [CmdletBinding()]
     Param(

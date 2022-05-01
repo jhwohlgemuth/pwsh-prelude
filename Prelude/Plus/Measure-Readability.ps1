@@ -5,17 +5,16 @@ function Measure-Readability {
     .DESCRIPTION
     This function can ingest text and return the minimum school grade level necessary to understand the text.
     The following tests are supported:
-    - Flesch-Kincaid Grade Level (default)
-    - Automated Readability Index (ARI)
-    - Coleman-Liau Index (CLI)
-    - Gunning Fog Index (GFI)
-    - SMOG ("Simple Measure Of Gobbledygook")
+      - Flesch-Kincaid Grade Level (default)
+      - Automated Readability Index (ARI)
+      - Coleman-Liau Index (CLI)
+      - Gunning Fog Index (GFI)
+      - SMOG ("Simple Measure Of Gobbledygook")
     .PARAMETER Type
     Readability test type (ARI, CLI, etc...)
-    > Note: The SMOG readability test requires that the input text contains at least 30 sentences.
+    Note: The SMOG readability test requires that the input text contains at least 30 sentences.
     .EXAMPLE
-    $Text = 'This is a sentence. This is another sentence.'
-    $Text | Measure-Readability
+    'This is a sentence. This is another sentence.' | Measure-Readability
     #>
     [CmdletBinding()]
     [OutputType([Int])]

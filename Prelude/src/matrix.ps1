@@ -221,13 +221,11 @@ function Test-Matrix {
       - Square
       - Symmetric
     .EXAMPLE
-    $A = 1..4 | New-Matrix 2,2
-    $A | Test-Matrix -Square
-    # Returns True
+    1..4 | New-Matrix 2,2 | Test-Matrix -Square
+    # True
     .EXAMPLE
-    $A = 1..4 | New-Matrix 2,2
-    $A | Test-Matrix -Square -Diagonal
-    # Returns False
+    1..4 | New-Matrix 2,2 | Test-Matrix -Square -Diagonal
+    # False
     #>
     [CmdletBinding()]
     [OutputType([Bool])]

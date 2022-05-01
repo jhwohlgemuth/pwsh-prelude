@@ -12,7 +12,8 @@ function Invoke-ListenForWord {
     Invoke-Listen -Triggers 'hello' -Actions { Write-Color 'Welcome' -Green }
     .EXAMPLE
     Invoke-Listen -Triggers 'hello','quit' -Actions { say 'Welcome' | Out-Null; $True }, { say 'Goodbye' | Out-Null; $False }
-    An action will stop listening when it returns a "falsy" value like $True or $Null. Conversely, returning "truthy" values will continue the listening loop.
+
+    # An action will stop listening when it returns a "falsy" value like $True or $Null. Conversely, returning "truthy" values will continue the listening loop.
     #>
     [CmdletBinding()]
     [Alias('listenFor')]

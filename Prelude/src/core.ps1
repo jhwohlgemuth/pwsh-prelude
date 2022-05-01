@@ -19,7 +19,7 @@ function ConvertFrom-Pair {
     .SYNOPSIS
     Creates an object from an array of keys and an array of values. Key/Value pairs with higher index take precedence.
     .EXAMPLE
-    @('a','b','c'),@(1,2,3) | fromPair
+    @('a', 'b', 'c'), @(1, 2, 3) | fromPair
     # @{ a = 1; b = 2; c = 3 }
     #>
     [CmdletBinding()]
@@ -95,7 +95,7 @@ function ConvertTo-Pair {
     Note: The order of the output arrays are not guaranteed to be consistent with input object key/value pairs.
     .EXAMPLE
     @{ a = 1; b = 2; c = 3 } | toPair
-    # @('c','b','a'),@(3,2,1)
+    # @('c', 'b', 'a'), @(3, 2, 1)
     #>
     [CmdletBinding()]
     [Alias('toPair')]
@@ -126,8 +126,8 @@ function Deny-Empty {
     .SYNOPSIS
     Remove empty string values from pipeline chains
     .EXAMPLE
-    'a','b','','d' | Deny-Empty
-    # returns 'a','b','d'
+    'a', 'b', '', 'd' | Deny-Empty
+    # 'a', 'b', 'd'
     #>
     [CmdletBinding()]
     Param(
@@ -153,8 +153,8 @@ function Deny-Null {
     .SYNOPSIS
     Remove null values from pipeline chains
     .EXAMPLE
-    1,2,$Null,4 | Deny-Null
-    # returns 1,2,4
+    1, 2, $Null, 4 | Deny-Null
+    # 1, 2, 4
     #>
     [CmdletBinding()]
     Param(
@@ -180,8 +180,8 @@ function Deny-Value {
     .SYNOPSIS
     Remove string values equal to -Value parameter
     .EXAMPLE
-    'a','b','a','a' | Deny-Value -Value 'b'
-    # returns 'a','a','a'
+    'a', 'b', 'a', 'a' | Deny-Value -Value 'b'
+    # 'a', 'a', 'a'
     #>
     [CmdletBinding()]
     Param(
@@ -208,19 +208,19 @@ function Find-FirstIndex {
     Helper function to return index of first array item that returns true for a given predicate
     (default predicate returns true if value is $True)
     .EXAMPLE
-    Find-FirstIndex -Values $False,$True,$False
-    # Returns 1
+    Find-FirstIndex -Values $False, $True, $False
+    # 1
     .EXAMPLE
-    Find-FirstIndex -Values 1,1,1,2,1,1 -Predicate { $Args[0] -eq 2 }
-    # Returns 3
+    Find-FirstIndex -Values 1, 1, 1, 2, 1, 1 -Predicate { $Args[0] -eq 2 }
+    # 3
     .EXAMPLE
-    1,1,1,2,1,1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
-    # Returns 3
+    1, 1, 1, 2, 1, 1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
+    # 3
 
     Note the use of the unary comma operator
     .EXAMPLE
-    1,1,1,2,1,1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
-    # Returns 3
+    1, 1, 1, 2, 1, 1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
+    # 3
     #>
     [CmdletBinding()]
     [OutputType([Int])]
@@ -265,11 +265,12 @@ function Get-Property {
     Property name (or array index). Also works with dot-separated paths for nested properties.
     For array-like inputs, $X,$Y | prop '0.1.2' is the same as $X[0][1][2],$Y[0][1][2] (see examples)
     .EXAMPLE
-    'hello','world' | prop 'Length'
-    # returns 5,5
+    'hello', 'world' | prop 'Length'
+    # 5, 5
     .EXAMPLE
-    ,@(1,2,3,@(,4,5,6,@(7,8,9))) | prop '3.3.2'
-    # returns 9
+    ,@(1, 2, 3, @(4, 5, 6, @(7, 8, 9))) | prop '3.3.2'
+    # 9
+    # Note the leading comma
     #>
     [CmdletBinding()]
     [Alias('prop')]
@@ -321,7 +322,7 @@ function Invoke-Chunk {
     Creates an array of elements split into groups the length of Size. If array can't be split evenly, the final chunk will be the remaining elements.
     .EXAMPLE
     1..10 | chunk -s 3
-    # @(1,2,3),@(4,5,6),@(7,8,9),@(10)
+    # @(1, 2, 3), @(4, 5, 6), @(7, 8, 9), @(10)
     #>
     [CmdletBinding()]
     [Alias('chunk')]
@@ -369,7 +370,7 @@ function Invoke-DropWhile {
     Function that returns $True or $False
     .EXAMPLE
     1..10 | dropWhile { $Args[0] -lt 6 }
-    # 6,7,8,9,10
+    # 6, 7, 8, 9, 10
     #>
     [CmdletBinding()]
     [Alias('dropwhile')]
@@ -418,8 +419,8 @@ function Invoke-Flatten {
     .SYNOPSIS
     Recursively flatten array
     .EXAMPLE
-    @(1,@(2,3,@(4,5))) | flatten
-    # 1,2,3,4,5
+    @(1, @(2, 3, @(4, 5))) | flatten
+    # 1, 2, 3, 4, 5
     #>
     [CmdletBinding()]
     [Alias('flatten')]
@@ -456,6 +457,7 @@ function Invoke-InsertString {
     Index
     .EXAMPLE
     'abce' | insert 'd' -At 3
+    # 'abcde
     #>
     [CmdletBinding()]
     [Alias('insert')]
@@ -482,14 +484,14 @@ function Invoke-Method {
     Invokes method with pased name of a given object. The next two positional arguments after the method name are provided to the invoked method.
     .EXAMPLE
     '  foo','  bar','  baz' | method 'TrimStart'
-    # 'foo','bar','baz'
+    # 'foo', 'bar', 'baz'
     .EXAMPLE
-    1,2,3 | method 'CompareTo' 2
-    # -1,0,1
+    1, 2, 3 | method 'CompareTo' 2
+    # -1, 0, 1
     .EXAMPLE
-    $Arguments = 'Substring',0,3
-    'abcdef','123456','foobar' | method @Arguments
-    # 'abc','123','foo'
+    $Arguments = 'Substring', 0, 3
+    'abcdef', '123456', 'foobar' | method @Arguments
+    # 'abc', '123', 'foo'
     #>
     [CmdletBinding()]
     [Alias('method')]
@@ -698,7 +700,7 @@ function Invoke-Once {
     greet 'Jim'
     greet 'Bob'
 
-    Functions returned by Invoke-Once can accept arguments
+    # Functions returned by Invoke-Once can accept arguments
     #>
     [CmdletBinding()]
     Param(
@@ -718,8 +720,8 @@ function Invoke-Operator {
     .SYNOPSIS
     Helper function intended mainly for use within quick one-line pipeline chains
     .EXAMPLE
-    @(1,2,3),@(4,5,6),@(7,8,9) | op join ''
-    # returns '123','456','789'
+    @(1, 2, 3), @(4, 5, 6), @(7, 8, 9) | op join ''
+    # '123', '456', '789'
     #>
     [CmdletBinding()]
     [Alias('op')]
@@ -758,9 +760,9 @@ function Invoke-Partition {
     Creates an array of elements split into two groups, the first of which contains elements that the predicate returns truthy for, the second of which contains elements that the predicate returns falsey for.
     The predicate is invoked with one argument (each element of the passed array)
     .EXAMPLE
-    $IsEven = { Param($x) $x % 2 -eq 0 }
+    $IsEven = { Param($X) $X % 2 -eq 0 }
     1..10 | Invoke-Partition $IsEven
-    # Returns @(@(2,4,6,8,10),@(1,3,5,7,9))
+    # @(@(2, 4, 6, 8, 10), @(1, 3, 5, 7, 9))
     #>
     [CmdletBinding()]
     [Alias('partition')]
@@ -808,7 +810,7 @@ function Invoke-Pick {
     Include non-existent properties. For non-existent properties, set value to -EmptyValue.
     .EXAMPLE
     @{ a = 1; b = 2; c = 3 } | pick 'a','c'
-    # returns @{ a }
+    # @{ a = 1; c = 3 }
     #>
     [CmdletBinding()]
     [Alias('pick')]
@@ -883,12 +885,14 @@ function Invoke-PropertyTransform {
     }
     .PARAMETER Lookup
     Dictionary lookup object that will map old key names to new key names.
+
     Example:
 
-    $Lookup = @{
-        foobar = 'foo_bar'
-        Name = 'first_name'
-    }
+        $Lookup = @{
+            foobar = 'foo_bar'
+            Name = 'first_name'
+        }
+
     .EXAMPLE
     $Data = @{}
     $Data | Add-member -NotePropertyName 'fighter_power_level' -NotePropertyValue 90
@@ -975,27 +979,27 @@ function Invoke-Reduce {
     .PARAMETER FileInfo
     The operation of combining many FileInfo objects into one object is common enough to deserve its own switch (see examples)
     .EXAMPLE
-    1,2,3,4,5 | Invoke-Reduce -Callback { Param($a, $b) $a + $b }
+    1, 2, 3, 4, 5 | Invoke-Reduce -Callback { Param($A, $B) $A + $B }
 
-    Compute sum of array of integers
+    # Compute sum of array of integers
     .EXAMPLE
-    'a','b','c' | reduce { Param($a, $b) $a + $b }
+    'a', 'b', 'c' | reduce { Param($A, $B) $A + $B }
 
-    Concatenate array of strings
+    # Concatenate array of strings
     .EXAMPLE
     1..10 | reduce -Add
     # 5050
 
-    Invoke-Reduce has switches for common callbacks - Add, Every, and Some
+    # Invoke-Reduce has switches for common callbacks - Add, Every, and Some
     .EXAMPLE
     1..10 | reduce -Add ''
-    # returns '12345678910'
+    # '12345678910'
 
-    Change the InitialValue to change the Callback and output type
+    # Change the InitialValue to change the Callback and output type
     .EXAMPLE
     Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 
-    Combining directory contents into single object and visualize with Write-BarChart - in a single line!
+    # Combining directory contents into single object and visualize with Write-BarChart - in a single line!
     #>
     [CmdletBinding()]
     [Alias('reduce')]
@@ -1078,10 +1082,10 @@ function Invoke-Repeat {
     Create an array with -Times number of items, all equal to $Value
     .EXAMPLE
     'a' | Invoke-Repeat -Times 3
-    # returns 'a', 'a', 'a'
+    # 'a', 'a', 'a'
     .EXAMPLE
     1 | repeat -x 5
-    # returns 1, 1, 1, 1, 1
+    # 1, 1, 1, 1, 1
     #>
     [CmdletBinding()]
     [Alias('repeat')]
@@ -1103,7 +1107,7 @@ function Invoke-TakeWhile {
     Create slice of array with elements taken from the beginning
     .EXAMPLE
     1..10 | takeWhile { $Args[0] -lt 6 }
-    # 1,2,3,4,5
+    # 1, 2, 3, 4, 5
     #>
     [CmdletBinding()]
     [Alias('takeWhile')]
@@ -1157,13 +1161,16 @@ function Invoke-Tap {
     This function is mostly meant for testing and development, but could also be used as a "map" function - a simpler alternative to ForEach-Object.
     .EXAMPLE
     1..10 | Invoke-Tap { $Args[0] | Write-Color -Green } | Invoke-Reduce -Add -InitialValue 0
+
     # Returns sum of first ten integers and writes each value to the terminal
     .EXAMPLE
+    1..10 | Invoke-Tap { Param($X) $X + 1 }
+
     # Use Invoke-Tap as "map" function to add one to every value
-    1..10 | Invoke-Tap { Param($x) $x + 1 }
     .EXAMPLE
-    # Allows you to see the values as they are passed through the pipeline
     1..10 | Invoke-Tap -Verbose | Do-Something
+
+    # Allows you to see the values as they are passed through the pipeline
     #>
     [CmdletBinding()]
     [Alias('tap')]
@@ -1193,8 +1200,8 @@ function Invoke-Unzip {
     .SYNOPSIS
     The reverse of Invoke-Zip
     .EXAMPLE
-    @(@(1,'a'),@(2,'b'),@(3,'c')) | unzip
-    # @(1,2,3),@('a','b','c')
+    @(@(1, 'a'), @(2, 'b'), @(3, 'c')) | unzip
+    # @(1, 2, 3), @('a', 'b', 'c')
     #>
     [CmdletBinding()]
     [Alias('unzip')]
@@ -1229,14 +1236,18 @@ function Invoke-Zip {
     .SYNOPSIS
     Creates an array of grouped elements, the first of which contains the first elements of the given arrays, the second of which contains the second elements of the given arrays, and so on...
     .EXAMPLE
-    @('a','a','a'),@('b','b','b'),@('c','c','c') | Invoke-Zip
-    # Returns @('a','b','c'),@('a','b','c'),@('a','b','c')
+    @('a', 'a', 'a'), @('b', 'b', 'b'), @('c', 'c', 'c') | Invoke-Zip
+    # @('a', 'b', 'c'), @('a', 'b', 'c'), @('a', 'b', 'c')
     .EXAMPLE
+    @(1), @(2, 2), @(3, 3, 3) | Invoke-Zip -EmptyValue 0
+    # @(1, 2, 3), @(0, 2, 3), @(0, 0, 3)
+
     # EmptyValue is inserted when passed arrays of different orders
-    @(1),@(2,2),@(3,3,3) | Invoke-Zip -EmptyValue 0
-    # Returns @(1,2,3),@(0,2,3),@(0,0,3)
-    @(3,3,3),@(2,2),@(1) | Invoke-Zip -EmptyValue 0
-    # Returns @(3,2,1),@(3,2,0),@(3,0,0)
+    .EXAMPLE
+    @(3, 3, 3), @(2, 2), @(1) | Invoke-Zip -EmptyValue 0
+    # @(3, 2, 1), @(3, 2, 0), @(3, 0, 0)
+
+    # EmptyValue is inserted when passed arrays of different orders
     #>
     [CmdletBinding()]
     [Alias('zip')]
@@ -1284,8 +1295,8 @@ function Invoke-ZipWith {
     .SYNOPSIS
     Like Invoke-Zip except that it accepts -Iteratee to specify how grouped values should be combined (via Invoke-Reduce).
     .EXAMPLE
-    @(1,1),@(2,2) | Invoke-ZipWith { Param($a,$b) $a + $b }
-    # Returns @(3,3)
+    @(1, 1), @(2, 2) | Invoke-ZipWith { Param($A, $B) $A + $B }
+    # @(3, 3)
     #>
     [CmdletBinding()]
     [Alias('zipWith')]
@@ -1316,8 +1327,8 @@ function Join-StringsWithGrammar {
     .SYNOPSIS
     Helper function that creates a string out of a list that properly employs commands and "and"
     .EXAMPLE
-    Join-StringsWithGrammar @('a', 'b', 'c')
-    Returns "a, b, and c"
+    Join-StringsWithGrammar 'a', 'b', 'c'
+    # 'a, b, and c'
     #>
     [CmdletBinding()]
     [OutputType([String])]
@@ -1369,8 +1380,9 @@ function New-RegexString {
     $Re = New-RegexString -Single -Url
     'https://google.com' -match $Re #True
     .EXAMPLE
-    # Regular expression that matches "foo", "bar", OR "baz"
     'foo', 'bar', 'baz' | New-RegularExpression
+
+    # Regular expression that matches "foo", "bar", OR "baz"
     #>
     [CmdletBinding()]
     [Alias('re')]
@@ -1674,24 +1686,25 @@ function Test-Equal {
     Works with numbers, booleans, strings, hashtables, custom objects, and arrays
     Note: Function has limited support for comparing $Null values
     .EXAMPLE
+    42, 42, 42, 42 | equal
+
+    'na', 'na', 'na', 'na', 'na', 'na', 'na', 'na' | equal 'batman'
+
     # Test a list of items
-    # ...with just pipeline parameters
-    42,42,42,42 | equal
-    # ...or with pipeline and one positional parameter
-    'na','na','na','na','na','na','na','na' | equal 'batman'
     .EXAMPLE
-    # Test a pair of items
-    # ...with pipeline and positional parameters
     'foo' | equal 'bar'
-    # ...or with just positional parameters
+
     equal 'foo' 'bar'
+
+    # Test a pair of items using pipelines or parameters
     .EXAMPLE
+    equal $Null $Null # Supported
+
+    $Null | equal $Null # NOT supported
+
+    $Null, $Null | equal # NOT supported
+
     # Limited support for $Null comparisons
-    # Supported
-    equal $Null $Null
-    # NOT supported
-    $Null | equal $Null
-    $Null,$Null | equal
     #>
     [CmdletBinding()]
     [Alias('equal')]

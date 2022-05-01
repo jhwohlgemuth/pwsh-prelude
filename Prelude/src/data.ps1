@@ -133,14 +133,14 @@ function Format-MoneyValue {
     .SYNOPSIS
     Helper function to create human-readable money (USD) values as strings.
     .EXAMPLE
-    42 | ConvertTo-MoneyString
-    # Returns "$42.00"
+    42 | Format-MoneyValue
+    # '$42.00'
     .EXAMPLE
-    55000123.50 | ConvertTo-MoneyString -Symbol ¥
-    # Returns '¥55,000,123.50'
+    55000123.50 | Format-MoneyValue -Symbol ¥
+    # '¥55,000,123.50'
     .EXAMPLE
-    700 | ConvertTo-MoneyString -Symbol £ -Postfix
-    # Returns '700.00£'
+    700 | Format-MoneyValue -Symbol £ -Postfix
+    # '700.00£'
     #>
     [CmdletBinding()]
     [Alias('money')]
@@ -226,7 +226,7 @@ function Get-Plural {
     Return plural form of a word
     .EXAMPLE
     'boot' | plural
-    # returns 'boots'
+    # 'boots'
     .NOTES
     Adapted from the PHP library, [Text-Statistics](https://github.com/DaveChild/Text-Statistics)
     #>
@@ -294,7 +294,7 @@ function Get-Singular {
     Return singular form of a word
     .EXAMPLE
     'boots' | singular
-    # returns 'boot'
+    # 'boot'
     .NOTES
     Adapted from the PHP library, [Text-Statistics](https://github.com/DaveChild/Text-Statistics)
     #>
@@ -372,7 +372,7 @@ function Get-SyllableCount {
     Get number of syllables in an English word (used within Get-Readability function)
     .EXAMPLE
     'hello' | Get-SylallableCount
-    # returns 2
+    # 2
     .NOTES
     Adapted from Node.js library, [words/syllable](https://github.com/words/syllable#inspiration),
     which was based on the PHP library, [Text-Statistics](https://github.com/DaveChild/Text-Statistics),

@@ -77,9 +77,8 @@ function Invoke-RunApplication {
     Use this switch to disable removing the application event listeners when the application exits.
     Application event listeners can be removed manually with: 'application:' | Invoke-StopListen
     .EXAMPLE
-    # Make a simple app
-    # Initialize your app - $Init is only run once
     $Init = {
+        # Initialize your app - $Init is only run once
         'Getting things ready...' | Write-Color -Green
     }
     # Define what your app should do every iteration - $Loop is executed until ShouldContinue returns False
@@ -90,17 +89,22 @@ function Invoke-RunApplication {
     }
     # Start your app
     Invoke-RunApplication $Init $Loop
+
+    # Make a simple app
     .EXAMPLE
+    New-TerminalApplicationTemplate -Save
+
     # Make a simple app with state
     # Note: State is passed to Init, Loop, ShouldContinue, and BeforeNext
-    New-TerminalApplicationTemplate -Save
     .EXAMPLE
-    # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
     { say 'Hello' } | on 'application:init'
     { say 'Wax on' } | on 'application:loop:before'
     { say 'Wax off' } | on 'application:loop:after'
     { say 'Goodbye' } | on 'application:exit'
+
+    # Applications trigger events throughout their lifecycle which can be listened to (most commonly within the Init scriptblock).
     # The triggered event will include State as MessageData
+
     {
         $Id = $Event.MessageData.State.Id
         "`nApplication ID: $Id" | Write-Color -Green
@@ -181,18 +185,18 @@ function Invoke-StopListen {
     $Callback | on 'SomeEvent'
     'SomeEvent' | Invoke-StopListen
 
-    Remove events using the event "source identifier" (Name)
+    # Remove events using the event "source identifier" (Name)
     .EXAMPLE
     $Callback | on -Name 'Namespace:foo'
     $Callback | on -Name 'Namespace:bar'
     'Namespace:' | Invoke-StopListen
 
-    Remove multiple events using an event namespace
+    # Remove multiple events using an event namespace
     .EXAMPLE
     $Listener = $Callback | on 'SomeEvent'
     Invoke-StopListen -EventData $Listener
 
-    Selectively remove a single event by passing its event data
+    # Selectively remove a single event by passing its event data
     #>
     [CmdletBinding()]
     Param(
@@ -214,7 +218,7 @@ function Invoke-StopListen {
 function New-TerminalApplicationTemplate {
     <#
     .SYNOPSIS
-    Return boilerplate string of a "scrapp" ("script" + "app")
+    Return boilerplate string of a Prelude terminal application
     .EXAMPLE
     New-TerminalApplicationTemplate | Out-File 'my-app.ps1'
     #>
@@ -275,28 +279,30 @@ function New-Template {
     render @{ name = 'World' }
     # '<div>Hello World!</div>'
 
-    Use mustache template syntax! Just like Handlebars.js!
+    # Use mustache template syntax! Just like Handlebars.js!
     .EXAMPLE
     $Function:render = 'hello {{ name }}' | New-Template
     @{ name = 'world' } | render
     # 'hello world'
 
-    New-Template supports idiomatic powershell pipeline syntax
+    # New-Template supports idiomatic PowerShell pipeline syntax
     .EXAMPLE
     $title = New-Template -Template '<h1>{{ text }}</h1>' -DefaultValues @{ text = 'Default' }
+
     & $title
     # '<h1>Default</h1>'
+
     & $title @{ text = 'Hello World' }
     # '<h1>Hello World</h1>'
 
-    Provide default values for your templates!
+    # Provide default values for your templates!
     .EXAMPLE
     $Function:Div = '<div>{{ v }}</div>' | New-Template
     $Function:Span = '<span>{{ v }}</span>' | New-Template
     Div @{ v = Span @{ v = 'Hello World' } } | Write-Output
     # "<div><span>Hello World</span></div>"
 
-    Templates can even be nested!
+    # Templates can even be nested!
     .EXAMPLE
     '{{#green Hello}} {{ name }}' | tpl -Data @{ name = 'World' } | Write-Color
 
@@ -307,20 +313,20 @@ function New-Template {
     Div @{ text = 'Hello World' }
     # '<div>Hello World</div>'
 
-    Create partial templates using the -Partial parameter
+    # Create partial templates using the -Partial parameter
     .EXAMPLE
     'The answer is {{= $Value + 2 }}' | tpl -Data @{ Value = 40 }
     # "The answer is 42"
 
-    Execute PowerShell code within your templates using the {{= ... }} syntax
+    # Execute PowerShell code within your templates using the {{= ... }} syntax
     .EXAMPLE
     'The fox says {{= $Env:SomeRandomValue }}!!!' | New-Template -NoData
 
-    Even access environment variables. Use -NoData when no data needs to be passed.
+    # Even access environment variables. Use -NoData when no data needs to be passed.
     .EXAMPLE
     '{{- This is a comment }}Super important stuff' | tpl -NoData
 
-    Add comments to templates using {{- ... }} syntax
+    # Add comments to templates using {{- ... }} syntax
     #>
     [CmdletBinding()]
     [Alias('tpl')]
@@ -439,7 +445,8 @@ function Remove-Indent {
     <#
     .SYNOPSIS
     Remove indentation of multi-line (or single line) strings
-    ==> Good for removing spaces added to template strings because of alignment with code.
+    .NOTES
+    Good for removing spaces added to template strings because of alignment with code.
     #>
     [CmdletBinding()]
     Param(

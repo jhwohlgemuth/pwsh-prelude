@@ -5,7 +5,7 @@ function Invoke-Normalize {
     Note: Capitalization is maintained
     .EXAMPLE
     'resumé' | Invoke-Normalize
-    # returns "resume"
+    # 'resume'
     #>
     [CmdletBinding()]
     [OutputType([String])]

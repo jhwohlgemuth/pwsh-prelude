@@ -361,8 +361,10 @@ function Get-Permutation {
     .EXAMPLE
     2 | Get-Permutation
     # @(0,1),@(1,0)
+
     1,2 | Get-Permutation
     # @(1,2),@(2,1)
+
     2 | Get-Permutation -Offset 1
     # @(1,2).@(2,1)
     .EXAMPLE
@@ -388,7 +390,8 @@ function Get-Permutation {
             <#
             .SYNOPSIS
             Swap two elements of an array
-            ==> b = (a += b -= a) - b
+            .DESCRIPTION
+            Uses the algorithm, b = (a += b -= a) - b
             #>
             Param(
                 [Array] $Items,

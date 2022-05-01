@@ -17,26 +17,25 @@ function Invoke-Input {
     .PARAMETER Number
     Switch to designate input is numerical
     .EXAMPLE
-    $fullname = input 'Full Name?'
-    $username = input 'Username?' -MaxLength 10 -Indent 4
-    $age = input 'Age?' -Number -MaxLength 2 -Indent 4
-    $pass = input 'Password?' -Secret -Indent 4
+    $Fullname = input 'Full Name?'
+    $Username = input 'Username?' -MaxLength 10 -Indent 4
+    $Age = input 'Age?' -Number -MaxLength 2 -Indent 4
+    $Pass = input 'Password?' -Secret -Indent 4
+
+    # Make a simple terminal form with a few inputs
     .EXAMPLE
-    $word = input 'Favorite Saiya-jin?' -Indent 4 -Autocomplete -Choices `
-    @(
-        'Goku'
-        'Gohan'
-        'Goten'
-        'Vegeta'
-        'Trunks'
-    )
-    Autocomplete will make suggestions. Press tab once to select suggestion, press tab again to cycle through matches.
+    $Choices = @('Goku', 'Gohan', 'Goten', 'Vegeta', 'Trunks')
+    $Word = input 'Favorite Saiya-jin?' -Indent 4 -Autocomplete -Choices $Choices
+
+    # Autocomplete will make suggestions. Press tab once to select suggestion, press tab again to cycle through matches.
     .EXAMPLE
-    # Leverage autocomplete to input a folder name
     Invoke-Input 'Folder name?' -Autocomplete -Choices (Get-ChildItem -Directory | Select-Object -ExpandProperty Name)
+
+    # Leverage autocomplete to input a folder name
     .EXAMPLE
+    $Name = input 'What is your {{#blue name}}?'
+
     # Input labels can be customized with mustache color helpers
-    $name = input 'What is your {{#blue name}}?'
     #>
     [CmdletBinding()]
     [Alias('input')]
@@ -296,12 +295,12 @@ function Invoke-Menu {
     .SYNOPSIS
     Create interactive single, multi-select, or single-select list menu.
     Controls:
-    - Select item with ENTER key
-    - Move up with UP arrow key
-    - Move DOWN with down arrow key or TAB key
-    - Multi-select and single-select with SPACE key
-    - Next page with RIGHT arrow key (see Limit help)
-    - Previous page with LEFT arrow key (see Limit help)
+      - Select item with ENTER key
+      - Move up with UP arrow key
+      - Move DOWN with down arrow key or TAB key
+      - Multi-select and single-select with SPACE key
+      - Next page with RIGHT arrow key (see Limit help)
+      - Previous page with LEFT arrow key (see Limit help)
     .PARAMETER ReturnIndex
     Return the index of the selected item within the array of items.
     Note: If ReturnIndex is used with pagination (see Limit help), the index within the visible items will be returned.
@@ -318,15 +317,19 @@ function Invoke-Menu {
     .EXAMPLE
     'one','two','three' | Invoke-Menu -MultiSelect -ReturnIndex | Sort-Object
     .EXAMPLE
-    1,2,3,4,5 | menu
+    1, 2, 3, 4, 5 | menu
     .EXAMPLE
-    # The SingleSelect switch allows for only one item to be selected at a time
     1..10 | menu -SingleSelect
+
+    # The SingleSelect switch allows for only one item to be selected at a time
     .EXAMPLE
     1..100 | menu -Limit 10
+
+    # Create paginated lists using the -Limit parameter
     .EXAMPLE
-    # Open a folder via an interactive list menu populated with folder content
     Invoke-Menu -FolderContent | Invoke-Item
+
+    # Open a folder via an interactive list menu populated with folder content
     #>
     [CmdletBinding()]
     [Alias('menu')]
@@ -553,22 +556,27 @@ function Write-BarChart {
     .EXAMPLE
     @{ red = 55; white = 30; blue = 200 } | Write-BarChart -WithColor -ShowValues
     .EXAMPLE
-    # Can be used with Write-Title to create goo looking reports in the terminal
     Write-Title 'Colors'
     @{ red = 55; white = 30; blue = 200 } | Write-BarChart -Alternate -ShowValues
     Write-Color ''
+
+    # Can be used with Write-Title to create goo looking reports in the terminal
     .EXAMPLE
-    # Easily display a bar chart of files using Invoke-Reduce
     Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart -ShowValues -WithColor
+
+    # Easily display a bar chart of files using Invoke-Reduce
     .EXAMPLE
-    # Use a 2-column matrix as input (names must be numbers)
     1..8 | matrix 4,2 | Write-BarChart
+
+    # Use a 2-column matrix as input (names must be numbers)
     .EXAMPLE
-    # Use an array of values as input - name, value, name, value, etc...
     'red', 55, 'white', 30, 'blue', 200 | Write-BarChart
 
-    # or with zip
+    # Use an array of values as input - name, value, name, value, etc...
+    .EXAMPLE
     @('red', 'white', 'blue'), @(55, 30, 200) | zip | Write-BarChart
+
+    # Works with the output of zip too
     #>
     [CmdletBinding()]
     Param(
@@ -665,7 +673,9 @@ function Write-Color {
     .EXAMPLE
     'You can color entire string using Color parameter' | Write-Color -Color Green
     .EXAMPLE
-    '{{#green Hello}} {{#blue {{ name }}}}' | New-Template -Data @{ name = 'World' } | Write-Color
+    '{{#green Hello}} {{#blue {{ name }}}}' |
+        New-Template -Data @{ name = 'World' } |
+        Write-Color
     #>
     [CmdletBinding()]
     [OutputType([Void])]
@@ -723,10 +733,11 @@ function Write-Label {
     Meant to be used with Invoke-Input or Invoke-Menu
     .EXAMPLE
     Write-Label 'Favorite number?' -NewLine
-    $choice = menu @('one'; 'two'; 'three')
+    $Choice = menu @('one'; 'two'; 'three')
     .EXAMPLE
-    # Labels can be customized using mustache color helper templates
     '{{#red Message? }}' | Write-Label -NewLine
+
+    # Labels can be customized using mustache color helper templates
     #>
     [CmdletBinding()]
     Param(
@@ -753,20 +764,25 @@ function Write-Title {
     .EXAMPLE
     'Hello World' | Write-Title
     .EXAMPLE
-    # Easily change border and title text color
     'Hello World' | Write-Title -Green
+
+    # Easily change border and title text color
     .EXAMPLE
-    # Change only the color of title text with -TextColor
     'Hello World' | Write-Title -Width 20 -TextColor Red
+
+    # Change only the color of title text with -TextColor
     .EXAMPLE
-    # Titles can have set widths
     'Hello World' | Write-Title -Width 20
+
+    # Titles can have set widths
     .EXAMPLE
-    # If your terminal does not have the fancy characters needed for a proper border, fallback to "+" and "-"
     'Hello World' | Write-Title -Fallback
+
+    # If your terminal does not have the fancy characters needed for a proper border, fallback to "+" and "-"
     .EXAMPLE
-    # Write-Title accepts same input as Write-Color and can be used to customize title text.
     '{{#magenta Hello}} World' | Write-Title -Template
+
+    # Write-Title accepts same input as Write-Color and can be used to customize title text.
     #>
     [CmdletBinding()]
     [Alias('title')]

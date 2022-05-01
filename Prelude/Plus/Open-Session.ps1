@@ -12,11 +12,13 @@ function Open-Session {
     .EXAMPLE
     Open-Session -ComputerNames PCNAME -Password 123456
     .EXAMPLE
-    # This will open a prompt for you to input your password
     Open-Session -ComputerNames PCNAME
+
+    # Open a prompt for you to input your password
     .EXAMPLE
     $Sessions = Open-Session -ComputerNames ServerA,ServerB
     # This will open a password prompt and then display an interactive console menu to select ServerA or ServerB.
+
     # $Sessions will point to an array of sessions for ServerA and ServerB and can be used to make new sessions:
     Enter-PSSession -Session $Sessions[1]
     #>

@@ -331,7 +331,7 @@ function ConvertTo-JavaScript {
     $A, $B | ConvertTo-JavaScript
     .EXAMPLE
     @{ foo = 'bar' } | ConvertTo-JavaScript
-    # returns {"foo":"bar"}
+    # {"foo":"bar"}
     .NOTES
     The ConvertTo-JavaScript cmdlet is not intended to be used as a data serializer as data is removed during conversion.
     #>
@@ -566,8 +566,8 @@ function Invoke-WebRequestBasicAuth {
     .PARAMETER TwoFactorAuthentication
     Name of API that requires 2FA. Use 'none' when 2FA is not required.
     Possible values:
-        - 'Github'
-        - 'none' [Default]
+      - 'Github'
+      - 'none' [Default]
     .PARAMETER Data
     Data (Body) payload for HTTP request. Will only function with PUT and POST requests.
     ==> Analogous to the '-d' cURL flag
@@ -582,31 +582,33 @@ function Invoke-WebRequestBasicAuth {
     Object for passing parameters to underlying invocation of Invoke-WebRequest
     Note: "Custom" is an alias for this parameter
     .EXAMPLE
-    # Authenticate a GET request with a token
     $Uri = 'https://api.github.com/notifications'
     $Query = @{ per_page = 100; page = 1 }
     $Response = Invoke-WebRequestBasicAuth $Uri -Token $Token -Query $Query -ParseContent
     $Response | Format-Table -AutoSize
+
+    # Authenticate a GET request with a token
     .EXAMPLE
-    # Use basic authentication with a username and password
     $Uri = 'https://api.github.com/notifications'
     $Query = @{ per_page = 100; page = 1 }
     $Response = Invoke-WebRequestBasicAuth $Uri -Username $Username -Password $Token -Query $Query -ParseContent
     $Response | Format-Table -AutoSize
+
+    # Use basic authentication with a username and password
     .EXAMPLE
-    # Execute a PUT request with a data payload
     $Uri = 'https://api.github.com/notifications'
     @{ last_read_at = '' } | BasicAuth $Uri -Put -Token $Token
+
+    # Execute a PUT request with a data payload
     .EXAMPLE
     $Uri = 'https://api.github.com/notifications'
-    $Parameters = @{
-        SkipCertificateChecks = $True
-    }
+    $Parameters = @{ SkipCertificateChecks = $True }
     @{ last_read_at = '' } | basicauth $Uri -Put -Token $Token -Custom $Parameters
     .EXAMPLE
-    # Download and parse an API JSON response (can also parse HTML and CSV content)
     $Uri = 'https://db.ygoprodeck.com/api/v7/cardinfo.php
     basicauth $Uri -Query @{ name = 'Galaxy-Eyes Photon Dragon' } -ParseContent
+
+    # Download and parse an API JSON response (can also parse HTML and CSV content)
     #>
     [CmdletBinding(DefaultParameterSetName = 'none', SupportsShouldProcess = $True)]
     [Alias('basicauth')]

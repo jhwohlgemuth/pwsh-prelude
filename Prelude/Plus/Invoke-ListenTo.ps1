@@ -15,45 +15,43 @@ function Invoke-ListenTo {
     .EXAMPLE
     { Write-Color 'Event triggered' -Red } | on 'SomeEvent'
 
-    Expressive yet terse syntax for easy event-driven design.
+    # Expressive yet terse syntax for easy event-driven design.
     .EXAMPLE
     Invoke-ListenTo -Name 'SomeEvent' -Callback { Write-Color "Event: $($Event.SourceIdentifier)" }
 
-    Callbacks hae access to automatic variables such as $Event
+    # Callbacks hae access to automatic variables such as $Event
     .EXAMPLE
     $Callback | on 'SomeEvent' -Once
 
-    Create a listener that automatically destroys itself after one event is triggered
+    # Create a listener that automatically destroys itself after one event is triggered
     .EXAMPLE
     $Callback = {
-    $Data = $args[1]
-    "Name ==> $($Data.Name)" | Write-Color -Magenta
-    "Event ==> $($Data.ChangeType)" | Write-Color -Green
-    "Fullpath ==> $($Data.FullPath)" | Write-Color -Cyan
+        $Data = $args[1]
+        "Name ==> $($Data.Name)" | Write-Color -Magenta
+        "Event ==> $($Data.ChangeType)" | Write-Color -Green
+        "Fullpath ==> $($Data.FullPath)" | Write-Color -Cyan
     }
     $Callback | listenTo -Path .
 
-    Watch files and folders for changes (create, edit, rename, delete)
+    # Watch files and folders for changes (create, edit, rename, delete)
     .EXAMPLE
-    # Declare a value for boot
-    $boot = 42
+    $Answer = 42
 
     # Create a callback
     $Callback = {
-    $Data = $Event.MessageData
-    say "$($Data.Name) was changed from $($Data.OldValue), to $($Data.Value)"
+        $Function:Text = "{{ Name }} was changed from {{ OldValue }}, to {{ Value }}" | tpl
+        Text $Event.MessageData | say
     }
 
     # Start the variable listener
-    $Callback | listenTo 'boot' -Variable
+    $Callback | listenTo 'Answer' -Variable
 
     # Change the value of boot and have your computer tell you what changed
-    $boot = 43
-
+    $Answer = 43
     .EXAMPLE
     { 'EVENT - EXIT' | Out-File ~\dev\MyEvents.txt -Append } | on -Exit
 
-    Execute code when you exit the powershell terminal
+    # Execute code when you exit the PowerShell terminal
     #>
     [CmdletBinding(DefaultParameterSetName = 'custom')]
     [Alias('on', 'listenTo')]

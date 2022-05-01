@@ -5,7 +5,7 @@ function Invoke-NewDirectoryAndEnter {
     .DESCRIPTION
     Using take will create a new directory and then enter the driectory
     .EXAMPLE
-    take <folder name>
+    take ./new/folder/name
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [Alias('take')]

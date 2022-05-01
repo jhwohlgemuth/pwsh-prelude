@@ -19,9 +19,11 @@ function Get-Screenshot {
     Get-Screenshot
     .EXAMPLE
     Get-Screenshot 'MyPictures'
+
     # save screenshot of all monitors (one BMP file) to '.\MyPictures\screenshot.bmp'
     .EXAMPLE
     1..3 | screenshot
+
     # save screenshot of each monitor, in separate BMP files
     #>
     [CmdletBinding()]
