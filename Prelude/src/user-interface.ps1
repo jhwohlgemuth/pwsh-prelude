@@ -310,6 +310,9 @@ function Invoke-Menu {
     Note: When Limit is larger than the number of menu items, the menu will behave as though no limit value was passed.
     .PARAMETER FolderContent
     Use this switch to populate the menu with folder contents of current directory (see examples)
+    .PARAMETER SelectedMarker
+    Use custom string to indicate which item is selected.
+    Note: The NoMarker parameter overrides this parameter.
     .EXAMPLE
     Invoke-Menu 'one','two','three'
     .EXAMPLE
@@ -342,7 +345,9 @@ function Invoke-Menu {
         [Switch] $ReturnIndex = $False,
         [Switch] $FolderContent,
         [Int] $Limit = 0,
-        [Int] $Indent = 0
+        [Int] $Indent = 2,
+        [String] $SelectedMarker = '>  ',
+        [Switch] $NoMarker
     )
     Begin {
         function Invoke-MenuDraw {
@@ -378,8 +383,14 @@ function Invoke-Menu {
                             $Item = if ($Selection -contains $ModularIndex) { "(o) $Item$Clear" } else { "( ) $Item$Clear" }
                         }
                     }
-                    $Parameters = if ($Index -eq $Position) { @{ Color = $HighlightColor } } else { @{} }
-                    Write-Color "$LeftPadding  $Item$Clear" @Parameters
+                    $IsSelected = $Index -eq $Position
+                    $Parameters = if ($IsSelected) { @{ Color = $HighlightColor } } else { @{} }
+                    $Marker = if ($NoMarker) {
+                        ''
+                    } else {
+                        if ($IsSelected) { $SelectedMarker } else { ' ' * $SelectedMarker.Length }
+                    }
+                    Write-Color "${LeftPadding}${Marker}${Item}${Clear}" @Parameters
                 }
                 $Index++
             }
@@ -425,7 +436,7 @@ function Invoke-Menu {
             $Items = $Input
         }
         if ($FolderContent) {
-            $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "$_/" }
+            $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "${_}/" }
             $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
         }
         $PageNumber = 0
