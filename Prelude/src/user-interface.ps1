@@ -316,7 +316,9 @@ function Invoke-Menu {
     .EXAMPLE
     Invoke-Menu 'one','two','three'
     .EXAMPLE
-    Invoke-Menu 'one','two','three' -HighlightColor Blue
+    Invoke-Menu 'one','two','three' -HighlightColor Blue -NoMarker
+
+    # Change the highlight color and remove the marker
     .EXAMPLE
     'one','two','three' | Invoke-Menu -MultiSelect -ReturnIndex | Sort-Object
     .EXAMPLE
@@ -324,7 +326,7 @@ function Invoke-Menu {
     .EXAMPLE
     1..10 | menu -SingleSelect
 
-    # The SingleSelect switch allows for only one item to be selected at a time
+    # The SingleSelect switch allows for only one item to be selected at a time (like a radio input)
     .EXAMPLE
     1..100 | menu -Limit 10
 
@@ -538,7 +540,7 @@ function Invoke-Menu {
         if ($ReturnIndex -eq $False -and $Null -ne $Position) {
             if ($MultiSelect -or $SingleSelect) {
                 if ($Selection.Length -gt 0) {
-                    return $VisibleItems[$Selection]
+                    return $Items[$Selection]
                 } else {
                     return $Null
                 }
