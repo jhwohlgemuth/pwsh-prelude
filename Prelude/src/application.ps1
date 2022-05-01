@@ -274,6 +274,8 @@ function New-Template {
     Create render function that interpolates passed object values
     .PARAMETER Data
     Pass template data to New-Template when using New-Template within pipe chain (see examples)
+    .PARAMETER NoData
+    For use in tandem with templates that ONLY use external data (e.g. $Env variables)
     .EXAMPLE
     $Function:render = New-Template '<div>Hello {{ name }}!</div>'
     render @{ name = 'World' }
@@ -372,6 +374,10 @@ function New-Template {
                     try {
                         $PowerShell = [PowerShell]::Create()
                         $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $Block).Invoke()
+                    } catch {
+                        "==> [ERROR] Something went wrong within the Evaluator when rendering: {{#yellow ${Block} }}`n" | Write-Color -Red
+                        "==> [INFO] `$Binding = $($Binding | ConvertTo-Json -Compress)`n" | Write-Color -DarkGray
+                        $_ | Write-Error
                     } finally {
                         if ($PowerShell) {
                             $PowerShell.Dispose()
@@ -401,6 +407,10 @@ function New-Template {
             try {
                 $PowerShell = [PowerShell]::Create()
                 $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
+            } catch {
+                "==> [ERROR] Something went wrong when rendering: {{#yellow ${TemplateScriptBlock} }}`n" | Write-Color -Red
+                "==> [INFO] No data passed`n" | Write-Color -DarkGray
+                $_ | Write-Error
             } finally {
                 if ($PowerShell) {
                     $PowerShell.Dispose()
@@ -432,6 +442,10 @@ function New-Template {
                 try {
                     $PowerShell = [PowerShell]::Create()
                     $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
+                } catch {
+                    "==> [ERROR] Something went wrong when rendering: {{#yellow ${TemplateScriptBlock} }}`n" | Write-Color -Red
+                    "==> [INFO] `$Binding = $($Binding | ConvertTo-Json -Compress)`n" | Write-Color -DarkGray
+                    $_ | Write-Error
                 } finally {
                     if ($PowerShell) {
                         $PowerShell.Dispose()

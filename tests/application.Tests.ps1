@@ -191,21 +191,13 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
             'Hello {{ name }}' | New-Template -Data $Data -DefaultValues @{ name = 'Default' } | Should -Be 'Hello Not Default'
         }
     }
-    It 'can accept template from a file' -Tag 'WindowsOnly' {
+    It 'can accept template from a file' {
         $Data = @{ location = 'World'; type = 'file' }
         $Path = Join-Path $TestDrive 'test.ps1'
         New-Item $Path
-        'Hello {{ location }} from a {{ type }}' | Set-Content $Path
-        New-Template -File $Path -Data $Data | Should -Be "Hello World from a file`r`n"
-        New-Template -File $Path -Data $Data -PassThru | Should -Be "Hello {{ location }} from a {{ type }}`r`n"
-    }
-    It 'can accept template from a file' -Tag 'LinuxOnly' {
-        $Data = @{ location = 'World'; type = 'file' }
-        $Path = Join-Path $TestDrive 'test.ps1'
-        New-Item $Path
-        'Hello {{ location }} from a {{ type }}' | Set-Content $Path
-        New-Template -File $Path -Data $Data | Should -Be "Hello World from a file`n"
-        New-Template -File $Path -Data $Data -PassThru | Should -Be "Hello {{ location }} from a {{ type }}`n"
+        'Hello {{ location }} from a {{ type }}' | Set-Content $Path -NoNewline
+        New-Template -File $Path -Data $Data | Should -Be 'Hello World from a file'
+        New-Template -File $Path -Data $Data -PassThru | Should -Be 'Hello {{ location }} from a {{ type }}'
     }
     It 'can support multiple template functions at once' {
         $Function:Div = '<div>{{ text }}</div>' | New-Template -DefaultValues @{ text = 'default' }
