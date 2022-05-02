@@ -293,14 +293,23 @@ function Invoke-Input {
 function Invoke-Menu {
     <#
     .SYNOPSIS
-    Create interactive single, multi-select, or single-select list menu.
-    Controls:
+    Create custimizable and interactive single, multi-select, or single-select list menu.
+    .DESCRIPTION
+    Default Controls:
       - Select item with ENTER key
       - Move up with UP arrow key
       - Move DOWN with down arrow key or TAB key
       - Multi-select and single-select with SPACE key
       - Next page with RIGHT arrow key (see Limit help)
       - Previous page with LEFT arrow key (see Limit help)
+
+    Vim Controls (using -Vim parameter):
+      - Select item with ENTER key
+      - Move up with "j" key
+      - Move DOWN with "k" key
+      - Multi-select and single-select with SPACE key
+      - Next page with 'l' key (see Limit help)
+      - Previous page with 'h' key (see Limit help)
     .PARAMETER ReturnIndex
     Return the index of the selected item within the array of items.
     Note: If ReturnIndex is used with pagination (see Limit help), the index within the visible items will be returned.
@@ -313,6 +322,8 @@ function Invoke-Menu {
     .PARAMETER SelectedMarker
     Use custom string to indicate which item is selected.
     Note: The NoMarker parameter overrides this parameter.
+    .PARAMETER Vim
+    Use Vim hotkeys for up, down, left, and right navigation.
     .EXAMPLE
     Invoke-Menu 'one','two','three'
     .EXAMPLE
@@ -330,7 +341,7 @@ function Invoke-Menu {
     .EXAMPLE
     1..100 | menu -Limit 10
 
-    # Create paginated lists using the -Limit parameter
+    # Create paginated list with the -Limit parameter
     .EXAMPLE
     Invoke-Menu -FolderContent | Invoke-Item
 
@@ -349,7 +360,8 @@ function Invoke-Menu {
         [Int] $Limit = 0,
         [Int] $Indent = 2,
         [String] $SelectedMarker = '>  ',
-        [Switch] $NoMarker
+        [Switch] $NoMarker,
+        [Switch] $Vim
     )
     Begin {
         function Invoke-MenuDraw {
@@ -419,15 +431,19 @@ function Invoke-Menu {
             $Result
         }
         [Console]::CursorVisible = $False
+        $LeftCode = if ($Vim) { 72 } else { 37 }
+        $UpCode = if ($Vim) { 74 } else { 38 }
+        $DownCode = if ($Vim) { 75 } else { 40 }
+        $RightCode = if ($Vim) { 76 } else { 39 }
         $Keycodes = @{
             enter = 13
             escape = 27
-            left = 37
-            right = 39
+            left = $LeftCode
+            right = $RightCode
             space = 32
             tab = 9
-            up = 38
-            down = 40
+            up = $UpCode
+            down = $DownCode
         }
         $Keycode = 0
         $Position = 0
@@ -485,7 +501,9 @@ function Invoke-Menu {
                     $Selection = Update-MenuSelection @Parameters
                 }
                 $Keycodes.tab {
-                    $Position = ($Position + 1) % $VisibleItems.Length
+                    if (-not $Vim) {
+                        $Position = ($Position + 1) % $VisibleItems.Length
+                    }
                 }
                 $Keycodes.up {
                     if ($Limit -in 1..($Items.Count - 1) -and $TotalPages -gt 1) {
