@@ -341,7 +341,7 @@ function Invoke-Menu {
     .EXAMPLE
     1..100 | menu -Limit 10
 
-    # Create paginated list with the -Limit parameter
+    # Create paginated lists using the -Limit parameter
     .EXAMPLE
     Invoke-Menu -FolderContent | Invoke-Item
 
@@ -460,6 +460,7 @@ function Invoke-Menu {
         $PageNumber = 0
         $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
         $ShouldPaginate = $Limit -in 1..($Items.Count - 1)
+        $OriginalItems = $Items
         if ($ShouldPaginate) {
             $ExtraItemCount = $Limit - ($Items.Count % $Limit)
             for ($Index = 0; $Index -lt $ExtraItemCount; $Index++) {
@@ -555,21 +556,25 @@ function Invoke-Menu {
             }
         }
         [Console]::CursorVisible = $True
-        if ($ReturnIndex -eq $False -and $Null -ne $Position) {
+        if ($Null -eq $Position) {
+            return $Null
+        }
+        $AbsolutePosition = $Position + ($PageNumber * $Limit)
+        if ($ReturnIndex) {
             if ($MultiSelect -or $SingleSelect) {
-                if ($Selection.Length -gt 0) {
-                    return $Items[$Selection]
-                } else {
-                    return $Null
-                }
+                $Selection | Where-Object { $_ -lt $OriginalItems.Count }
             } else {
-                return $VisibleItems[$Position]
+                $AbsolutePosition
             }
         } else {
             if ($MultiSelect -or $SingleSelect) {
-                return $Selection
+                if ($Selection.Length -gt 0) {
+                    $OriginalItems[$Selection]
+                } else {
+                    $Null
+                }
             } else {
-                return $Position + ($PageNumber * $Limit)
+                $OriginalItems[$AbsolutePosition]
             }
         }
     }
