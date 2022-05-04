@@ -1,4 +1,5 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Matrix')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-ComplexValue')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Matrix')]
 Param()
 
 function Format-ComplexValue {
@@ -88,7 +89,7 @@ function New-ComplexValue {
     [OutputType([System.Numerics.Complex])]
     Param(
         [Parameter(ValueFromPipeline = $True)]
-        [Array] $Values,
+        [Array] $Parts,
         [Parameter(Position = 0)]
         [Alias('Re')]
         [Int] $Real = 0,
@@ -98,8 +99,8 @@ function New-ComplexValue {
         [Parameter(ParameterSetName = 'random')]
         [Switch] $Random,
         [Parameter(ParameterSetName = 'random')]
-        [ValidateScript({ $_.Count -eq 2 })]
-        [Array] $Bounds = @(-10.0, 10.0)
+        [ValidateCount(2, 2)]
+        [Double[]] $Bounds = @(-10.0, 10.0)
     )
     End {
         $Re, $Im = if ($Input.Count -ge 2) {
@@ -168,10 +169,14 @@ function New-Matrix {
     Add values to matrix along diagonal
     .PARAMETER Unit
     Create unit matrix with size, -Size
+    .PARAMETER Random
+    Create random matrix with size, -Size
+    .PARAMETER Bounds
+    Minimum and maximum values for matrix random complex values
     .EXAMPLE
     $Matrix = 1..9 | matrix 3,3
     #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'normal')]
     [Alias('matrix')]
     [OutputType([Matrix])]
     Param(
@@ -182,7 +187,12 @@ function New-Matrix {
         [Switch] $Diagonal,
         [Switch] $Identity,
         [Switch] $Unit,
-        [Switch] $Custom
+        [Switch] $Custom,
+        [Parameter(ParameterSetName = 'random')]
+        [Switch] $Random,
+        [Parameter(ParameterSetName = 'random')]
+        [ValidateCount(2, 2)]
+        [Double[]] $Bounds = @(-10.0, 10.0)
     )
     Begin {
         function Update-Matrix {
@@ -214,7 +224,7 @@ function New-Matrix {
         }
         $M, $N = if ($Size.Count -eq 1) { $Size * 2 } else { $Size }
         $Matrix = New-Object 'Matrix' @($M, $N)
-        $MatrixType = Find-FirstTrueVariable 'Custom', 'Diagonal', 'Identity', 'Unit'
+        $MatrixType = Find-FirstTrueVariable 'Custom', 'Diagonal', 'Identity', 'Unit', 'Random'
         if ($Values.Count -gt 0) {
             Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
         }
@@ -231,6 +241,12 @@ function New-Matrix {
                 }
                 'Identity' {
                     $Matrix = [Matrix]::Identity($M)
+                    break
+                }
+                'Random' {
+                    $Matrix.Rows = 1..($M * $N) | ForEach-Object {
+                        New-ComplexValue -Random -Bounds $Bounds
+                    }
                     break
                 }
                 Default {

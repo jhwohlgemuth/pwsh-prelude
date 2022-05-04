@@ -44,6 +44,18 @@ Describe 'Invoke-MatrixMap' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'New-ComplexValue / Format-ComplexValue' -Tag 'Local', 'Remote' {
+    BeforeAll {
+        function Test-ValidRandomValue {
+            Param(
+                [Parameter(ValueFromPipeline = $True)]
+                $Value,
+                [Int] $Minimum,
+                [Int] $Maximum
+            )
+            $Value | Should -BeGreaterOrEqual $Minimum
+            $Value | Should -BeLessOrEqual $Maximum
+        }
+    }
     It 'can create complex values' {
         $C1 = New-ComplexValue 2 3
         $C2 = New-ComplexValue -Re 5 -Im 9
@@ -76,15 +88,30 @@ Describe 'New-ComplexValue / Format-ComplexValue' -Tag 'Local', 'Remote' {
         New-ComplexValue -Im -9 | Format-ComplexValue -WithColor | Should -Be '-9{{#cyan i}}'
         New-ComplexValue -Re 0 -Im 0 | Format-ComplexValue -WithColor | Should -Be '0'
     }
-    It 'can be randomly generated' -TestCases (1..100) {
+    It 'can be randomly generated' -TestCases (1..25) {
         $C = New-ComplexValue -Random
-        $C.Real | Should -BeGreaterOrEqual -10
-        $C.Real | Should -BeLessOrEqual 10
-        $C.Imaginary | Should -BeGreaterOrEqual -10
-        $C.Imaginary | Should -BeLessOrEqual 10
+        $C.Real | Test-ValidRandomValue -Minimum -10 -Maximum 10
+        $C.Imaginary | Test-ValidRandomValue -Minimum -10 -Maximum 10
+    }
+    It 'can be randomly generated with custom bounds' -TestCases (1..25) {
+        $C = New-ComplexValue -Random -Bounds -1, 1
+        $C.Real | Test-ValidRandomValue -Minimum -10 -Maximum 10
+        $C.Imaginary | Test-ValidRandomValue -Minimum -1 -Maximum 1
     }
 }
 Describe 'New-Matrix' -Tag 'Local', 'Remote' {
+    BeforeAll {
+        function Test-ValidRandomValue {
+            Param(
+                [Parameter(ValueFromPipeline = $True)]
+                $Value,
+                [Int] $Minimum,
+                [Int] $Maximum
+            )
+            $Value | Should -BeGreaterOrEqual $Minimum
+            $Value | Should -BeLessOrEqual $Maximum
+        }
+    }
     It 'can provide wrapper for matrix creation' {
         $A = 1..9 | New-Matrix 3, 3
         $A.Size | Should -Be 3, 3
@@ -141,6 +168,26 @@ Describe 'New-Matrix' -Tag 'Local', 'Remote' {
         $A[0].Real | Should -Be 1, 1, 1
         $A[1].Real | Should -Be 1, 1, 1
         $A[2].Real | Should -Be 1, 1, 1
+    }
+    It 'can be randomly generated' -TestCases (1..25) {
+        $A = New-Matrix -Random
+        $A.Size | Should -Be 2, 2
+        $A.Values.Real | ForEach-Object {
+            $_ | Test-ValidRandomValue -Minimum -10 -Maximum 10
+        }
+        $A.Values.Imaginary | ForEach-Object {
+            $_ | Test-ValidRandomValue -Minimum -10 -Maximum 10
+        }
+    }
+    It 'can be randomly generated with custom bounds' -TestCases (1..25) {
+        $A = New-Matrix -Random -Bounds -1, 1
+        $A.Size | Should -Be 2, 2
+        $A.Values.Real | ForEach-Object {
+            $_ | Test-ValidRandomValue -Minimum -1 -Maximum 1
+        }
+        $A.Values.Imaginary | ForEach-Object {
+            $_ | Test-ValidRandomValue -Minimum -1 -Maximum 1
+        }
     }
 }
 Describe 'Test-Matrix' -Tag 'Local', 'Remote' {
