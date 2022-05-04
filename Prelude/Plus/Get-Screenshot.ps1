@@ -31,7 +31,7 @@ function Get-Screenshot {
     [OutputType([String])]
     Param(
         [Parameter(Position = 0)]
-        [ValidateScript( { Test-Path $_ })]
+        [ValidateScript({ Test-Path $_ })]
         [String] $Path = (Get-Location),
         [Parameter(Position = 1)]
         [String] $Name = ("screenshot-$(Get-Date -UFormat '+%y%m%d%H%M%S')"),

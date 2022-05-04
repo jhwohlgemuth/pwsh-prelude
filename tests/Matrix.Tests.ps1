@@ -57,6 +57,10 @@ Describe 'New-ComplexValue / Format-ComplexValue' -Tag 'Local', 'Remote' {
         New-ComplexValue -Re -5 -Im 9 | Format-ComplexValue | Should -Be '-5 + 9i'
         New-ComplexValue -Re -5 -Im -9 | Format-ComplexValue | Should -Be '-5 - 9i'
         New-ComplexValue -Re 5 -Im -9 | Format-ComplexValue | Should -Be '5 - 9i'
+        5, 9 | New-ComplexValue | Format-ComplexValue | Should -Be '5 + 9i'
+        -5, 9 | New-ComplexValue | Format-ComplexValue | Should -Be '-5 + 9i'
+        -5, -9 | New-ComplexValue | Format-ComplexValue | Should -Be '-5 - 9i'
+        5, -9 | New-ComplexValue | Format-ComplexValue | Should -Be '5 - 9i'
         New-ComplexValue -Re 5 | Format-ComplexValue | Should -Be '5'
         New-ComplexValue -Im 9 | Format-ComplexValue | Should -Be '9i'
         New-ComplexValue -Im -9 | Format-ComplexValue | Should -Be '-9i'
@@ -71,6 +75,13 @@ Describe 'New-ComplexValue / Format-ComplexValue' -Tag 'Local', 'Remote' {
         New-ComplexValue -Im 9 | Format-ComplexValue -WithColor | Should -Be '9{{#cyan i}}'
         New-ComplexValue -Im -9 | Format-ComplexValue -WithColor | Should -Be '-9{{#cyan i}}'
         New-ComplexValue -Re 0 -Im 0 | Format-ComplexValue -WithColor | Should -Be '0'
+    }
+    It 'can be randomly generated' -TestCases (1..100) {
+        $C = New-ComplexValue -Random
+        $C.Real | Should -BeGreaterOrEqual -10
+        $C.Real | Should -BeLessOrEqual 10
+        $C.Imaginary | Should -BeGreaterOrEqual -10
+        $C.Imaginary | Should -BeLessOrEqual 10
     }
 }
 Describe 'New-Matrix' -Tag 'Local', 'Remote' {

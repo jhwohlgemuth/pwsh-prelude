@@ -74,19 +74,47 @@ function New-ComplexValue {
     <#
     .SYNOPSIS
     Utility method for creating complex values
+    .PARAMETER Random
+    Return a complex value with random real and imaginary parts
+    .PARAMETER Bounds
+    Minimum and maximum values for random real and imaginary parts
+    .EXAMPLE
+    $C = New-ComplexValue 2 3
+    .EXAMPLE
+    $C = 4, -1.5 | complex
     #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'normal')]
     [Alias('complex')]
     [OutputType([System.Numerics.Complex])]
     Param(
+        [Parameter(ValueFromPipeline = $True)]
+        [Array] $Values,
         [Parameter(Position = 0)]
         [Alias('Re')]
         [Int] $Real = 0,
         [Parameter(Position = 1)]
         [Alias('Im')]
-        [Int] $Imaginary = 0
+        [Int] $Imaginary = 0,
+        [Parameter(ParameterSetName = 'random')]
+        [Switch] $Random,
+        [Parameter(ParameterSetName = 'random')]
+        [ValidateScript({ $_.Count -eq 2 })]
+        [Array] $Bounds = @(-10.0, 10.0)
     )
-    [System.Numerics.Complex]::New($Real, $Imaginary)
+    End {
+        $Re, $Im = if ($Input.Count -ge 2) {
+            $Input[0, 1]
+        } else {
+            if ($Random) {
+                $Minimum, $Maximum = $Bounds
+                $Parameters = @{ Minimum = $Minimum; Maximum = $Maximum }
+                (Get-Random @Parameters), (Get-Random @Parameters)
+            } else {
+                $Real, $Imaginary
+            }
+        }
+        [System.Numerics.Complex]::New($Re, $Im)
+    }
 }
 function New-Matrix {
     <#
