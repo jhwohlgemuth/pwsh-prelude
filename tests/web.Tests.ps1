@@ -91,7 +91,7 @@ Describe 'ConvertFrom-EpochDate' -Tag 'Local', 'Remote' {
         ConvertFrom-EpochDate -Value $Epoch -Microseconds -AsString | Should -Be $Expected
     }
 }
-Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag 'Local', 'Remote' {
+Describe -Skip:(-not $HtmlFileSupported) 'ConvertFrom-Html / Import-Html' -Tag 'Local' {
     It 'can convert HTML strings' {
         $Html = '<html>
       <body>

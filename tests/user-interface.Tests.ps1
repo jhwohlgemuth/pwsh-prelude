@@ -69,7 +69,7 @@ Describe 'Write-Title' -Tag 'Local', 'Remote' {
         Should -Invoke Write-Color -Exactly 3 -ModuleName Prelude
     }
 }
-Describe 'Write-BarChart' -Tag 'Local', 'Remote' {
+Describe 'Write-BarChart' -Tag 'Local' {
     It 'creates horizontal bar charts' {
         Mock Write-Color {} -ModuleName Prelude
         @{ red = 55; white = 30; blue = 200 } | Write-BarChart -WithColor -ShowValues
