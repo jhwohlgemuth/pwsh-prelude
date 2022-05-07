@@ -7,6 +7,7 @@ class ApplicationState {
     [String] $Id = (New-Guid)
     [Bool] $Continue = $True
     [String] $Name = 'Application Name'
+    [String] $Type = 'Terminal'
     $Data
 }
 function ConvertTo-PowerShellSyntax {
@@ -223,50 +224,55 @@ function New-TerminalApplicationTemplate {
     New-TerminalApplicationTemplate | Out-File 'my-app.ps1'
     #>
     [CmdletBinding()]
+    [OutputType([String])]
     Param()
     $Snippet = if (-not $IsLinux) {
-        "{
-            Invoke-Speak 'Goodbye'
-            `$Id = `$Event.MessageData.State.Id
-            `"``nApplication ID: `$Id``n`" | Write-Color -Magenta
-        } | Invoke-ListenTo 'application:exit' | Out-Null"
+        '
+        {
+            Invoke-Speak goodbye
+            $Id = $Event.MessageData.State.Id
+            "Application ID: $Id" | Write-Color -Magenta
+        } | Invoke-ListenTo ''application:exit'' | Out-Null
+        ' | Remove-Indent
     } else {
         ''
     }
-    "
-    #Requires -Modules Prelude
+    $Data = @{
+        Empty = ''
+        Snippet = $Snippet
+    }
+    '    #Requires -Modules Prelude
     [CmdletBinding()]
     Param(
-        [String] `$Id = 'app',
-        [Switch] `$Clear
+        [String] $Id = ''app'',
+        [Switch] $Clear
     )
-    $Empty
-    `$InitialState = @{ Data = 0 }
-    $Empty
-    `$Init = {
+    {{ Empty }}
+    $InitialState = @{ Data = 0; Type = ''Terminal'' }
+    {{ Empty }}
+    $Init = {
         Clear-Host
-        `$State = `$Args[0]
-        `$Id = `$State.Id
-        'Application Information:' | Write-Color
-        `"ID = {{#green `$Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-        'Name = {{#green My-App}}' | Write-Label -Color Gray -Indent 2 -NewLine
-        $Snippet
-        '' | Write-Color
+        $State = $Args[0]
+        $Id = $State.Id
+        ''Application Information:'' | Write-Color
+        `"ID = {{#green $Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
+        ''Name = {{#green My-App}}'' | Write-Label -Color Gray -Indent 2 -NewLine
+        {{ Snippet }}
         Start-Sleep 2
     }
-    $Empty
-    `$Loop = {
+    {{ Empty }}
+    $Loop = {
         Clear-Host
-        `$State = `$Args[0]
-        `$Count = `$State.Data
-        `"Current count is {{#green `$Count}}`" | Write-Color -Cyan
-        `$State.Data++
-        Save-State `$State.Id `$State | Out-Null
+        $State = $Args[0]
+        $Count = $State.Data
+        `"Current count is {{#green $Count}}`" | Write-Color -Cyan
+        $State.Data++
+        Save-State $State.Id $State | Out-Null
         Start-Sleep 1
     }
-    $Empty
-    Invoke-RunApplication `$Init `$Loop `$InitialState -Id `$Id -ClearState:`$Clear
-    " | Remove-Indent
+    {{ Empty }}
+    Invoke-RunApplication $Init $Loop $InitialState -Id $Id -ClearState:$Clear
+    ' | Remove-Indent | New-Template -Data $Data
 }
 function New-Template {
     <#
@@ -369,7 +375,7 @@ function New-Template {
                 '#' { $Value }
                 '-' { '' }
                 '=' {
-                    $Block = [ScriptBlock]::Create('$($(' + $Variable + ') | Write-Output)')
+                    $Block = [ScriptBlock]::Create('$($(' + ($Variable -replace '`(?=\$)', '') + ') | Write-Output)')
                     $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge -Force
                     try {
                         $PowerShell = [PowerShell]::Create()
@@ -396,7 +402,8 @@ function New-Template {
             $Path = Get-StringPath $File
             $Template = Get-Content $Path -Raw
         }
-        $TemplateScriptBlock = [ScriptBlock]::Create('$("' + [Regex]::Replace($Template, $Pattern, $Evaluator) + '" | Write-Output)')
+        $EvaluatedTemplate = [Regex]::Replace(($Template -replace '[$]', '`$'), $Pattern, $Evaluator)
+        $TemplateScriptBlock = [ScriptBlock]::Create('$("' + $EvaluatedTemplate + '" | Write-Output)')
         $NotPassed = $Script:TemplateKeyNamesNotPassed
         if (($Binding.Count -gt 0) -or $NoData) {
             if ($PassThru) {

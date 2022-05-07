@@ -204,6 +204,11 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         $Function:Span = '<span>{{ text }}</span>' | New-Template -DefaultValues @{ text = 'default' }
         "$(Div @{ text = Span @{ text = 'hello' }})" | Should -Be '<div><span>hello</span></div>'
     }
+    It 'supports PowerShell variables' {
+        '$Foo = {{ Foo }}' | New-Template -Data @{ Foo = 42 } | Should -Be '$Foo = 42'
+        '${Bar} = {{ Bar }}' | New-Template -Data @{ Bar = 7 } | Should -Be '${Bar} = 7'
+        '$Foo = {{ Foo }}; ${Bar} = {{ Bar }}' | New-Template -Data @{ Foo = 42; Bar = 7 } | Should -Be '$Foo = 42; ${Bar} = 7'
+    }
     It 'can return a string when passed -Data parameter' {
         $Data = @{ name = 'World' }
         'Hello {{ name }}' | New-Template -Data $Data | Should -Be 'Hello World'
@@ -270,6 +275,7 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         $Function:Render = $Template | New-Template
         Render -Data $Data | Should -Be 'Hello Jason'
         Render -Data $Data -PassThru | Should -Be 'Hello {{ name }}'
+        '$Foo = {{ Foo }}' | New-Template -PassThru -NoData | Should -Be '$Foo = {{ Foo }}'
     }
 }
 Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
