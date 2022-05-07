@@ -357,7 +357,7 @@ Describe 'Get-HostsContent / Update-HostsFile' -Tag 'Local', 'Remote' {
         { Update-HostsFile @C -Path $Path -WhatIf | Out-Null } | Should -Not -Throw
     }
 }
-Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local', 'Remote' {
+Describe -Skip:(-not $HtmlFileSupported) 'Get-HtmlElement' -Tag 'Local' {
     It 'can get elements from HTML string' {
         $Html = '<html><div id="foo">foo</div><div class="foo">bar</div></html>'
         ($Html | Get-HtmlElement 'div').innerText | Should -Be 'foo', 'bar'
