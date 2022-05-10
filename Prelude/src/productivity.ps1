@@ -236,10 +236,12 @@ function Get-ParameterList {
     $Ast = $Code | ConvertTo-AbstractSyntaxTree
     $Ast.Findall($AlwaysTrue, $True) |
         ForEach-Object ParamBlock |
+        Select-Object -First 1 |
         Deny-Null |
         ForEach-Object Parameters |
         Select-Object Name, StaticType |
-        Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer
+        Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer |
+        Sort-Object -Property Name -Unique
 }
 function Get-StringPath {
     <#

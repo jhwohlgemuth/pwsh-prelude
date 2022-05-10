@@ -191,10 +191,27 @@ Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
         $List.Name | Should -Be 'A', 'B'
         $List.Type | Should -Be 'System.String', 'System.Management.Automation.SwitchParameter'
     }
-    It 'can get parameters from input name of a function' {
+    It 'can get parameters from a simple function' {
         $List = 'Get-Maximum' | Get-ParameterList
         $List.Name | Should -Be 'Values'
         $List.Type | Should -Be 'System.Array'
+    }
+    It 'can get parameters from a complicated function' {
+        $List = 'Invoke-Menu' | Get-ParameterList
+        $Names = @(
+            'FolderContent'
+            'HighlightColor'
+            'Indent'
+            'Items'
+            'Limit'
+            'MultiSelect'
+            'NoMarker'
+            'ReturnIndex'
+            'SelectedMarker'
+            'SingleSelect'
+            'Vim'
+        )
+        $List.Name | Should -Be $Names
     }
     It 'can get parameters from file' {
         $Path = Join-Path $TestDrive 'code.txt'
