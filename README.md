@@ -24,7 +24,7 @@ Install-Module -Name Prelude -Scope CurrentUser
 Import-Module -Name Prelude
 ```
 
-> ***TIP***: For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
+> **TIP**: For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
 
 What is Prelude?
 ----------------
@@ -105,7 +105,14 @@ $Callback | listenTo 'Boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $Boot = 43
 ```
-- Create a form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
+-  Quickly create complext UI elements like paginated multi-select menus
+  <div align="center">
+      <a href="#"><img alt="Batteries include user input" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/multiselect.gif" alt="Multi-select Menu" width="1280"/></a>
+  </div>
+
+> **TIP**: See all the options of `Invoke-Menu` (alias: `menu`) with `help menu -Full`
+
+- Create a full form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
 ```PowerShell
 'Example' | Write-Title
 $Fullname = input 'Full Name?' -Indent 4
