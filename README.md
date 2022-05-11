@@ -66,9 +66,9 @@ $Abc = 'b' | insert -To 'ac' -At 2
 $Abc = 'abcd' | remove -Last
 ```
 - Create templates for easy repetitive string interpolation using handlebars syntax
-  <div align="center">
+    <div align="center">
       <a href="#"><img alt="Templates are easy and can be nested!" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/template.gif" alt="String interpolation templates" width="1280"/></a>
-  </div>
+    </div>
 - Leverage higher-order functions like reduce to add the first 100 integers (Just like Gauss!)
 ```PowerShell
 $Sum = 1..100 | reduce { Param($A, $B) $A + $B }
@@ -106,11 +106,9 @@ $Callback | listenTo 'Boot' -Variable
 $Boot = 43
 ```
 -  Quickly create complext UI elements like paginated multi-select menus
-  <div align="center">
+    <div align="center">
       <a href="#"><img alt="Batteries include user input" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/multiselect.gif" alt="Multi-select Menu" width="1280"/></a>
-  </div>
-
-> **TIP**: See all the options of `Invoke-Menu` (alias: `menu`) with `help menu -Full`
+    </div>
 
 - Create a full form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
 ```PowerShell
