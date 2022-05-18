@@ -209,6 +209,7 @@ function Get-ParameterList {
     $Lookup = @{
         Name = 'Name'
         Type = 'StaticType'
+        Required = 'Extent'
     }
     $Reducer = {
         Param($Name, $Value)
@@ -218,6 +219,9 @@ function Get-ParameterList {
             }
             'StaticType' {
                 $Value.ToString()
+            }
+            'Extent' {
+                $Value.Text -match '[Mm]andatory\s*=\s*\$[Tt]rue'
             }
             Default {
                 $Value
@@ -239,7 +243,7 @@ function Get-ParameterList {
         Select-Object -First 1 |
         Deny-Null |
         ForEach-Object Parameters |
-        Select-Object Name, StaticType |
+        Select-Object Name, StaticType, Extent |
         Invoke-PropertyTransform -Lookup $Lookup -Transform $Reducer |
         Sort-Object -Property Name -Unique
 }

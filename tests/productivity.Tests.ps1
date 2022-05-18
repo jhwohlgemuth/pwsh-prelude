@@ -195,6 +195,7 @@ Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
         $List = 'Get-Maximum' | Get-ParameterList
         $List.Name | Should -Be 'Values'
         $List.Type | Should -Be 'System.Array'
+        $List.Required | Should -Be $True
     }
     It 'can get parameters from a complicated function' {
         $List = 'Invoke-Menu' | Get-ParameterList
@@ -219,6 +220,7 @@ Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
         $List = Get-ParameterList -Path $Path
         $List.Name | Should -Be 'A', 'B', 'C'
         $List.Type | Should -Be 'System.Object', 'System.Object', 'System.Object'
+        $List.Required | Should -Be $False, $False, $False
         Remove-Item $Path
     }
 }
