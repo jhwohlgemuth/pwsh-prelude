@@ -35,6 +35,8 @@ function Add-Metadata {
     .EXAMPLE
     'My email is foo@bar.com' | ConvertTo-Html
     #>
+    [CmdletBinding()]
+    [OutputType([System.String])]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Text,

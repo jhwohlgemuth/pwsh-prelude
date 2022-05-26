@@ -1,0 +1,8 @@
+[workspace]
+members = ["{{ RustDirectory }}"]
+default-members = ["{{ RustDirectory }}"]
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1

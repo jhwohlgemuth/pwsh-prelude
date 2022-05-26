@@ -354,6 +354,7 @@ function Invoke-Menu {
         [Array] $Items,
         [Switch] $MultiSelect,
         [Switch] $SingleSelect,
+        [ValidateSet('White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow')]
         [String] $HighlightColor = 'Cyan',
         [Switch] $ReturnIndex = $False,
         [Switch] $FolderContent,

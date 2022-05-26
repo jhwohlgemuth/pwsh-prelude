@@ -261,10 +261,12 @@ Functions
   - `Join-StringsWithGrammar`
   - `Measure-Performance`
   - `Measure-Readability`
-  - `New-TerminalApplicationTemplate`
   - `New-ComplexValue`
+  - `New-DesktopApplication`
   - `New-File`
   - `New-Template`
+  - `New-TerminalApplicationTemplate`
+  - `New-WebApplication`
   - `Open-Session`
   - `Out-Browser`
   - `Out-Tree`
@@ -276,6 +278,7 @@ Functions
   - `Save-State`
   - `Take`
   - `Test-Admin`
+  - `Test-ApplicationContext`
   - `Test-Command`
   - `Test-DiagonalMatrix`
   - `Test-Empty`
@@ -286,6 +289,7 @@ Functions
   - `Test-SquareMatrix`
   - `Test-SymmetricMatrix`
   - `Test-Url`
+  - `Update-Application`
   - `Update-HostsFile`
   - `Use-Grammar` <sup>[3](#3)</sup>
   - `Use-Speech` <sup>[3](#3)</sup>

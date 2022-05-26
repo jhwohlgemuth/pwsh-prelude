@@ -198,6 +198,12 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         'Hello {{ location }} from a {{ type }}' | Set-Content $Path -NoNewline
         New-Template -File $Path -Data $Data | Should -Be 'Hello World from a file'
         New-Template -File $Path -Data $Data -PassThru | Should -Be 'Hello {{ location }} from a {{ type }}'
+        $Path = Join-Path $PSScriptRoot '\fixtures\template.txt'
+        New-Template -File $Path -Data $Data | Should -Be '{
+    ''Name'' = ''Jason''
+    "Location" = World
+    $Type = file
+}'
     }
     It 'can support multiple template functions at once' {
         $Function:Div = '<div>{{ text }}</div>' | New-Template -DefaultValues @{ text = 'default' }
@@ -287,6 +293,67 @@ Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
         New-TerminalApplicationTemplate | Should -Not -Match '  \$State = {'
     }
 }
+Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
+    It 'can be created using <Bundler> and <Library>' -TestCases @(
+        @{ Bundler = 'Webpack'; Library = $Null }
+        # @{ Bundler = 'Webpack'; Library = 'React' }
+        # @{ Bundler = 'Webpack'; Library = 'Solid' }
+        # @{ Bundler = 'Parcel'; Library = 'Vanilla' }
+        # @{ Bundler = 'Parcel'; Library = 'React' }
+        # @{ Bundler = 'Parcel'; Library = 'Solid' }
+        # @{ Bundler = 'Rollup'; Library = 'Vanilla' }
+        # @{ Bundler = 'Rollup'; Library = 'React' }
+        # @{ Bundler = 'Rollup'; Library = 'Solid' }
+        # @{ Bundler = 'Snowpack'; Library = 'Vanilla' }
+        # @{ Bundler = 'Snowpack'; Library = 'React' }
+        # @{ Bundler = 'Snowpack'; Library = 'Solid' }
+    ) {
+        $Files = @(
+            'public'
+            'src'
+            '__tests__'
+            '.editorconfig'
+            '.eslintrc.json'
+            'babel.config.json'
+            'package.json'
+            'postcss.config.js'
+            'webpack.config.js'
+        )
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive
+        Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
+        Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
+    }
+    It 'can be created using a <Config> object' -TestCases @(
+        @{ Config = @{ Name = 'MyApp'; Bundler = 'Webpack' } }
+        @{ Config = @{ Name = 'MyApp'; Bundler = 'Parcel'; Library = 'React' } }
+    ) {
+        $Path = Join-Path $TestDrive "/$($Config.Name)/package.json"
+        Test-Path -Path $Path | Should -BeFalse
+        $Config | New-WebApplication -Parent $TestDrive
+        Test-Path -Path $Path | Should -BeTrue
+        $State = $Config.Name | Get-State
+        $State.Name | Should -Be $Config.Name
+        Remove-Item -Path (Join-Path $TestDrive $Config.Name) -Recurse -Force
+    }
+    It 'can be created interactively' {
+        Mock Write-Label {} -ModuleName Prelude
+        Mock Invoke-Menu {
+            switch ($HighlightColor) {
+                'Cyan' { 'Webpack' }
+                'Yellow' { 'React' }
+                'Magenta' { 'Cesium' }
+            }
+        } -ModuleName Prelude
+        New-WebApplication -Interactive -Parent $TestDrive
+        Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
+    }
+}
+Describe 'Foo' {
+    It 'Bar' {
+        New-WebApplication -Parent $TestDrive -With Rust, Reason
+        Get-ChildItem $TestDrive -Name -Recurse | ForEach-Object { $_ | Write-Color -Cyan }
+    }
+}
 Describe 'Remove-Indent' -Tag 'Local', 'Remote' {
     It 'can handle empty strings' {
         '' | Remove-Indent | Should -BeNullOrEmpty
@@ -303,5 +370,44 @@ Describe 'Remove-Indent' -Tag 'Local', 'Remote' {
     }
     It 'can process an array of strings' {
         '    foobar', "`n    foo`n    bar`n" | Remove-Indent | Should -Be 'foobar', "`nfoo`nbar"
+    }
+}
+Describe 'Test-ApplicationContext' -Tag 'Local', 'Remote' {
+    Describe 'JavaScript Compiler (Babel)' {
+        It 'knows when configuration file, <File>, exists' -TestCases @(
+            @{ File = 'babel.config.json' }
+            @{ File = 'babel.config.js' }
+            @{ File = 'babel.config.cjs' }
+            @{ File = 'babel.config.mjs' }
+            @{ File = '.babelrc' }
+            @{ File = '.babelrc.json' }
+            @{ File = '.babelrc.js' }
+            @{ File = '.babelrc.cjs' }
+            @{ File = '.babelrc.mjs' }
+        ) {
+            $Path = Join-Path $TestDrive $File
+            New-Item -Type File -Path $Path
+            $Results = Test-ApplicationContext -Parent $TestDrive
+            $Results.Node.Compiler | Should -BeTrue
+            $Results.Node.Linter | Should -BeFalse
+            Remove-Item -Path $Path
+        }
+    }
+    Describe 'JavaScript Linter (ESLint)' {
+        It 'knows when configuration file, <File>, exists' -TestCases @(
+            @{ File = '.eslintrc' }
+            @{ File = '.eslintrc.js' }
+            @{ File = '.eslintrc.cjs' }
+            @{ File = '.eslintrc.yaml' }
+            @{ File = '.eslintrc.yml' }
+            @{ File = '.eslintrc.json' }
+        ) {
+            $Path = Join-Path $TestDrive $File
+            New-Item -Type File -Path $Path
+            $Results = Test-ApplicationContext -Parent $TestDrive
+            $Results.Node.Compiler | Should -BeFalse
+            $Results.Node.Linter | Should -BeTrue
+            Remove-Item -Path $Path
+        }
     }
 }

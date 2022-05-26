@@ -865,11 +865,11 @@ function Test-Command {
     $ErrorActionPreference = 'stop'
     try {
         if (Get-Command -Name $Name) {
-            "==> '$Name' is an available command" | Write-Verbose
+            "==> [INFO] '$Name' is an available command" | Write-Verbose
             $Result = $True
         }
     } Catch {
-        "==> '$Name' is not available command" | Write-Verbose
+        "==> [INFO] '$Name' is not available command" | Write-Verbose
     } Finally {
         $ErrorActionPreference = $OriginalPreference
     }

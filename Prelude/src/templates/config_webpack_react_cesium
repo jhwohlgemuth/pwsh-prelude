@@ -1,0 +1,110 @@
+/* eslint-env node */
+const {join, resolve} = require('path');
+const {DefinePlugin} = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const DashboardPlugin = require('webpack-dashboard/plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const {SubresourceIntegrityPlugin} = require('webpack-subresource-integrity');
+const TerserPlugin = require('terser-webpack-plugin');
+const source = 'node_modules/cesium/Build/Cesium';
+
+module.exports = (_, argv) => ({
+    mode: argv.mode === 'production' ? 'production' : 'development',
+    entry: [
+        ...(argv.mode === 'production' ? [] : ['react-hot-loader/patch']),
+        './{{ SourceDirectory }}/main.jsx'
+    ],
+    devtool: (argv.mode === 'production') ? void 0 : 'eval-source-map',
+    output: {
+        path: resolve('./{{ ProductionDirectory }}'),
+        filename: 'bundle.min.js',
+        crossOriginLoading: 'anonymous'
+    },
+    context: __dirname,
+    devServer: {
+        port: 4669,
+        disableHostCheck: true,
+        contentBase: './{{ ProductionDirectory }}',
+        compress: true,
+        host: '0.0.0.0',
+        useLocalIp: true,
+        watchContentBase: true
+    },
+    module: {
+        rules: [
+            {
+                test: /.jsx?$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader',
+                options: {
+                    presets: [
+                        '@babel/env'
+                    ]
+                }
+            },
+            {
+                test: /.css$/,
+                resourceQuery: /thirdparty/,
+                use: [
+                    'style-loader',
+                    'css-loader'
+                ]
+            },
+            {
+                test: /.css$/,
+                exclude: /node_modules/,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1
+                        }
+                    },
+                    'postcss-loader'
+                ]
+            },
+            {
+                test: /\\.(woff(2)?|ttf|eot|svg)(\\?v=\\d+\\.\\d+\\.\\d+)?$/,
+                use: [
+                    'file-loader'
+                ]
+            },
+            {
+                test: /.(png|gif|jpg|jpeg|svg|xml|json)$/,
+                use: [
+                    'url-loader'
+                ]
+            }
+        ]
+    },
+    optimization: {
+        minimize: argv.mode === 'production',
+        minimizer: [new TerserPlugin()]
+    },
+    plugins: [
+        new DashboardPlugin(),
+        new HtmlWebpackPlugin({
+            title: `Web App [${argv.mode === 'production' ? 'production' : 'development'}]`,
+            template: '{{ AssetsDirectory }}/index.html'
+        }),
+        new SubresourceIntegrityPlugin(),
+        new DefinePlugin({CESIUM_BASE_URL: JSON.stringify('/')}),
+        new CopyWebpackPlugin({
+            patterns: [
+                {from: join(source, 'Workers'), to: 'Workers'},
+                {from: join(source, 'ThirdParty'), to: 'ThirdParty'},
+                {from: join(source, 'Assets'), to: 'Assets'},
+                {from: join(source, 'Widgets'), to: 'Widgets'}
+            ]
+        })
+    ],
+    resolve: {
+        mainFields: ['module', 'main'],
+        modules: [resolve(__dirname, './{{ SourceDirectory }}'), 'node_modules'],
+        extensions: ['.js', '.jsx'],
+        alias: {
+            'react-dom': '@hot-loader/react-dom'
+        }
+    }
+});
