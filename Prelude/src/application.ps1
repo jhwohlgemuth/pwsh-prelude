@@ -565,7 +565,7 @@ function New-WebApplication {
             $Path = Join-Path $Parent $Filename
             $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
             if (-not (Test-Path -Path $Path) -or $Force) {
-                New-Template -File (Join-Path $TEMPLATE_DIRECTORY $Template) -Data $Data | Out-File -FilePath $Path
+                New-Template -File (Join-Path $TEMPLATE_DIRECTORY $Template) -Data $Data | Out-File -FilePath $Path -Encoding utf8
             } else {
                 $Message | Write-Warning
             }
@@ -588,7 +588,7 @@ function New-WebApplication {
             if (-not (Test-Path -Path $Path) -or $Force) {
                 $Data |
                     ConvertTo-Json |
-                    Out-File -FilePath $Path
+                    Out-File -FilePath $Path -Encoding utf8
             } else {
                 $Message | Write-Warning
             }
@@ -620,6 +620,59 @@ function New-WebApplication {
             RustDirectory = 'rust-to-wasm'
             Legacy = $False
             ReactVersion = '^17'
+        }
+    }
+    Process {
+        $Data = if ($PsCmdlet.ParameterSetName -eq 'pipeline') {
+            $Defaults, $Configuration | Invoke-ObjectMerge -Force
+        } else {
+            if ($Interactive) {
+                'Choose your {{#cyan bundler}}:' | Write-Label -Color 'Gray'
+                $Bundler = Invoke-Menu $BundlerOptions -SingleSelect -SelectedMarker ' => ' -HighlightColor 'Cyan'
+                'Choose your {{#yellow library}}:' | Write-Label -Color 'Gray'
+                $Library = Invoke-Menu $LibraryOptions -SingleSelect -SelectedMarker ' => ' -HighlightColor 'Yellow'
+                'Enhance your application {{#magenta with}}:' | Write-Label -Color 'Gray'
+                $With = Invoke-Menu $WithOptions -MultiSelect -SelectedMarker ' => ' -HighlightColor 'Magenta'
+            } else {
+                if (-not $Bundler) {
+                    $Bundler = Find-FirstTrueVariable $BundlerOptions
+                }
+                if (-not $Library) {
+                    $Library = Find-FirstTrueVariable $LibraryOptions
+                }
+            }
+            $Defaults, @{
+                Bundler = $Bundler
+                Library = $Library
+                With = $With
+            } | Invoke-ObjectMerge -Force
+        }
+        $Data.Name = if ($Data.Name) { $Data.Name } else { $Name }
+        $Data.Parent = if ($Data.Parent) { $Data.Parent } else { $Parent }
+        $APPLICATION_DIRECTORY = Join-Path $Data.Parent $Data.Name
+        $RUST_DIRECTORY = Join-Path $APPLICATION_DIRECTORY $Data.RustDirectory
+        $PackageManifestData = @{
+            name = $Data.Name
+            version = '0.0.0'
+            description = ''
+            license = 'MIT'
+            keywords = @()
+            main = "./$($Data.SourceDirectory)/main.js"
+            scripts = @{}
+            dependencies = @{}
+            devDependencies = @{}
+            jest = @{
+                testMatch = @(
+                    '**/__tests__/**/*.(e2e|test).[jt]s?(x)'
+                )
+                setupFilesAfterEnv = @(
+                    '<rootDir>/__tests__/setup.js'
+                )
+                watchPlugins = @(
+                    'jest-watch-typeahead/filename'
+                    'jest-watch-typeahead/testname'
+                )
+            }
         }
         $Dependencies = @{
             Cesium = @{
@@ -737,59 +790,6 @@ function New-WebApplication {
                 'webpack-bundle-analyzer' = '*'
             }
         }
-    }
-    Process {
-        $Data = if ($PsCmdlet.ParameterSetName -eq 'pipeline') {
-            $Defaults, $Configuration | Invoke-ObjectMerge -Force
-        } else {
-            if ($Interactive) {
-                'Choose your {{#cyan bundler}}:' | Write-Label -Color 'Gray'
-                $Bundler = Invoke-Menu $BundlerOptions -SingleSelect -SelectedMarker ' => ' -HighlightColor 'Cyan'
-                'Choose your {{#yellow library}}:' | Write-Label -Color 'Gray'
-                $Library = Invoke-Menu $LibraryOptions -SingleSelect -SelectedMarker ' => ' -HighlightColor 'Yellow'
-                'Enhance your application {{#magenta with}}:' | Write-Label -Color 'Gray'
-                $With = Invoke-Menu $WithOptions -MultiSelect -SelectedMarker ' => ' -HighlightColor 'Magenta'
-            } else {
-                if (-not $Bundler) {
-                    $Bundler = Find-FirstTrueVariable $BundlerOptions
-                }
-                if (-not $Library) {
-                    $Library = Find-FirstTrueVariable $LibraryOptions
-                }
-            }
-            $Defaults, @{
-                Bundler = $Bundler
-                Library = $Library
-                With = $With
-            } | Invoke-ObjectMerge -Force
-        }
-        $Data.Name = if ($Data.Name) { $Data.Name } else { $Name }
-        $Data.Parent = if ($Data.Parent) { $Data.Parent } else { $Parent }
-        $APPLICATION_DIRECTORY = Join-Path $Data.Parent $Data.Name
-        $RUST_DIRECTORY = Join-Path $APPLICATION_DIRECTORY $Data.RustDirectory
-        $PackageManifestData = @{
-            name = $Data.Name
-            version = '0.0.0'
-            description = ''
-            license = 'MIT'
-            keywords = @()
-            main = "./$($Data.SourceDirectory)/main.js"
-            scripts = @{}
-            dependencies = @{}
-            devDependencies = @{}
-            jest = @{
-                testMatch = @(
-                    '**/__tests__/**/*.(e2e|test).[jt]s?(x)'
-                )
-                setupFilesAfterEnv = @(
-                    '<rootDir>/__tests__/setup.js'
-                )
-                watchPlugins = @(
-                    'jest-watch-typeahead/filename'
-                    'jest-watch-typeahead/testname'
-                )
-            }
-        }
         $ConfigurationFileData = @{
             Eslint = @{
                 env = @{
@@ -905,7 +905,7 @@ function New-WebApplication {
                 "${Assets}/library"
                 "${Assets}/workers"
                 '__tests__'
-            ) | ForEach-Object { New-Item -Type Directory -Path (Join-Path $APPLICATION_DIRECTORY $_) -Force }
+            ) | ForEach-Object { New-Item -Type Directory -Path (Join-Path $APPLICATION_DIRECTORY $_) -Force } | Out-Null
         }
         switch ($Bundler) {
             Parcel {
@@ -954,7 +954,7 @@ function New-WebApplication {
                 $PackageManifestData.devDependencies += $DevelopmentDependencies.Cesium
             }
             Reason {
-                if (-not $React) {
+                if ($Library -ne 'React') {
                     '==> ReasonML works best with React.  You might consider using -React.' | Write-Warning
                 }
                 $PackageManifestData.dependencies += $Dependencies.Reason
@@ -994,7 +994,7 @@ function New-WebApplication {
                         $RUST_DIRECTORY
                         $Source
                         $Tests
-                    ) | Get-StringPath | ForEach-Object { New-Item -Type Directory -Path $_ -Force }
+                    ) | Get-StringPath | ForEach-Object { New-Item -Type Directory -Path $_ -Force } | Out-Null
                     @(
                         @{
                             Filename = 'Cargo.toml'
