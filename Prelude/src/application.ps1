@@ -407,12 +407,16 @@ function New-Template {
         }
     }
     Process {
+        $PLACEHOLDER = '<<<DOUBLE QUOTES PRELUDE PLACEHOLDER>>>'
         if ($File) {
             $Path = Get-StringPath $File
             $Template = Get-Content $Path -Raw
         }
         $EvaluatedTemplate = [Regex]::Replace(($Template -replace '[$]', '`$'), $Pattern, $Evaluator)
-        $TemplateScriptBlock = [ScriptBlock]::Create('$("' + ($EvaluatedTemplate -replace '"', '""') + '" | Write-Output)')
+        if ($File) {
+            # $EvaluatedTemplate = ($EvaluatedTemplate -replace '"', '""')
+        }
+        $TemplateScriptBlock = [ScriptBlock]::Create('$("' + ($EvaluatedTemplate -replace '"', $PLACEHOLDER) + '" | Write-Output)')
         $NotPassed = $Script:TemplateKeyNamesNotPassed
         if (($Binding.Count -gt 0) -or $NoData) {
             if ($PassThru) {
@@ -422,7 +426,7 @@ function New-Template {
             $Binding = $DefaultValues, $Binding | Invoke-ObjectMerge -Force
             try {
                 $PowerShell = [PowerShell]::Create()
-                $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
+                $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke() -replace $PLACEHOLDER, '"'
             } catch {
                 "==> [ERROR] Something went wrong when rendering: {{#yellow ${TemplateScriptBlock} }}`n" | Write-Color -Red
                 "==> [INFO] No data passed`n" | Write-Color -DarkGray
@@ -457,7 +461,7 @@ function New-Template {
                 $Binding = $PartialValues, $DefaultValues, $Binding | Invoke-ObjectMerge -Force
                 try {
                     $PowerShell = [PowerShell]::Create()
-                    $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke()
+                    $PowerShell.AddScript($Renderer).AddParameter('Binding', $Binding).AddParameter('Script', $TemplateScriptBlock).Invoke() -replace $PLACEHOLDER, '"'
                 } catch {
                     "==> [ERROR] Something went wrong when rendering: {{#yellow ${TemplateScriptBlock} }}`n" | Write-Color -Red
                     "==> [INFO] `$Binding = $($Binding | ConvertTo-Json -Compress)`n" | Write-Color -DarkGray

@@ -191,6 +191,13 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
             'Hello {{ name }}' | New-Template -Data $Data -DefaultValues @{ name = 'Default' } | Should -Be 'Hello Not Default'
         }
     }
+    It 'can accept templates that start with double quotes' {
+        $Data = @{ Value = 'double quotes' }
+        $Expected = 'This string has "double quotes"'
+        $Function:Render = 'This string has "{{ Value }}"' | New-Template
+        Render @{ Value = 'double quotes'} | Should -Be $Expected
+        'This string has "{{ Value }}"' | New-Template -Data $Data | Should -Be $Expected
+    }
     It 'can accept template from a file' {
         $Data = @{ location = 'World'; type = 'file' }
         $Path = Join-Path $TestDrive 'test.ps1'
