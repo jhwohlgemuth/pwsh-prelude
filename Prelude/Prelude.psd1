@@ -114,6 +114,7 @@
         'Find-Duplicate'
         'Find-FirstIndex'
         'Format-ComplexValue'
+        'Format-Json'
         'Find-FirstTrueVariable'
         'Format-MoneyValue'
         'Get-Covariance'

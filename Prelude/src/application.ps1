@@ -49,6 +49,53 @@ function Get-State {
     "==> Loading state from $Path" | Write-Verbose
     Import-Clixml -Path $Path
 }
+function Format-Json {
+    <#
+    .SYNOPSIS
+    Prettify JSON output
+    .EXAMPLE
+    Get-Content './foo.json' | Format-Json | Out-File './bar.json' -Encoding utf8
+    .EXAMPLE
+    './some.json' | Format-Json -InPlace
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [String] $Value,
+        [ValidateSet(2, 4)]
+        [Int] $Indentation = 2,
+        [Switch] $InPlace
+    )
+    $Indent = 0
+    $NewLine = '\r?\n'
+    $Quoted = '(?=([^"]*"[^"]*")*[^"]*$)'
+    $IsValidPath = Test-Path -Path $Value
+    $Data = if ($InPlace -and $IsValidPath) {
+        Get-Content -Path $Value -Raw
+    } else {
+        $Value
+    }
+    $Compressed = $Data -notmatch $NewLine
+    if ($Compressed) {
+        $Data = $Data | ConvertFrom-Json | ConvertTo-Json -Depth 100
+    }
+    $Lines = $Data -split $NewLine
+    $Result = foreach ($Line in $Lines) {
+        if ($Line -match "[}\]]${Quoted}") {
+            $Indent = ($Indent - $Indentation), 0 | Get-Maximum
+        }
+        $Temp = (' ' * $Indent) + ($Line.TrimStart() -replace ":\s+${Quoted}", ': ')
+        if ($Line -match "[\{\[]${Quoted}") {
+            $Indent += $Indentation
+        }
+        $Temp
+    }
+    if ($InPlace -and $IsValidPath) {
+        $Result | Set-Content -Path $Value | Out-Null
+    } else {
+        $Result -join [Environment]::NewLine
+    }
+}
 function Invoke-FireEvent {
     <#
     .SYNOPSIS
@@ -569,7 +616,12 @@ function New-WebApplication {
             $Path = Join-Path $Parent $Filename
             $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
             if (-not (Test-Path -Path $Path) -or $Force) {
-                New-Template -File (Join-Path $TEMPLATE_DIRECTORY $Template) -Data $Data | Out-File -FilePath $Path -Encoding utf8
+                $Parameters = @{
+                    File = (Join-Path $TEMPLATE_DIRECTORY $Template)
+                    Data = $Data
+                    NoData = ($Data.Count -eq 0)
+                }
+                New-Template @Parameters | Out-File -FilePath $Path -Encoding utf8
             } else {
                 $Message | Write-Warning
             }
@@ -592,6 +644,7 @@ function New-WebApplication {
             if (-not (Test-Path -Path $Path) -or $Force) {
                 $Data |
                     ConvertTo-Json |
+                    Format-Json |
                     Out-File -FilePath $Path -Encoding utf8
             } else {
                 $Message | Write-Warning
@@ -946,7 +999,6 @@ function New-WebApplication {
                 }
             }
             Default {
-
             }
         }
         switch ($With) {

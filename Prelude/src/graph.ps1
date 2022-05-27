@@ -24,7 +24,7 @@ function Export-GraphData {
     # Export compressed JSON data (compress also works with XML format)
     .EXAMPLE
     $Graph | Export-GraphData -Format 'XML'
-    
+
     # Supports passing format as string paramter
     #>
     [CmdletBinding()]

@@ -199,6 +199,7 @@ Functions
   - `Find-Duplicate`
   - `Find-FirstIndex`
   - `Format-ComplexValue`
+  - `Format-Json`
   - `Format-MoneyValue`
   - `Get-Covariance`
   - `Get-DefaultBrowser`

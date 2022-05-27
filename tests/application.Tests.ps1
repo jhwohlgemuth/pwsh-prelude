@@ -63,6 +63,39 @@ Describe 'ConvertTo-PowerShellSyntax' -Tag 'Local', 'Remote' {
         '{{#green Hello}} {{#red {{a}}b{{c}}d}}' | ConvertTo-PowerShellSyntax | Should -Be '{{#green Hello}} {{#red $($Data.a)b$($Data.c)d}}'
     }
 }
+Describe 'Format-Json' {
+    It 'can format string input' {
+        $Expected = '{
+    "answer": 42,
+    "numbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+    ]
+}'
+        '{"answer":42,"numbers":[1,2,3,4,5]}' | Format-Json -Indentation 4 | Should -Be $Expected
+    }
+    It 'can format file content in-place' {
+        $Expected = '{
+  "answer": 43,
+  "numbers": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ]
+}
+'
+        $Filename = 'format.json'
+        $Path = Join-Path $TestDrive $Filename
+        '{"answer":43,"numbers":[1,2,3,4,5]}' | Set-Content $Path -Encoding utf8 -NoNewline
+        $Path | Format-Json -InPlace
+        Get-Content $Path -Raw | Should -Be $Expected
+    }
+}
 Describe -Skip 'Invoke-ListenTo' -Tag 'Local', 'Remote' {
     AfterEach {
         'TestEvent' | Invoke-StopListen
@@ -195,7 +228,7 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         $Data = @{ Value = 'double quotes' }
         $Expected = 'This string has "double quotes"'
         $Function:Render = 'This string has "{{ Value }}"' | New-Template
-        Render @{ Value = 'double quotes'} | Should -Be $Expected
+        Render @{ Value = 'double quotes' } | Should -Be $Expected
         'This string has "{{ Value }}"' | New-Template -Data $Data | Should -Be $Expected
     }
     It 'can accept template from a file' {
@@ -353,12 +386,6 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
         } -ModuleName Prelude
         New-WebApplication -Interactive -Parent $TestDrive
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
-    }
-}
-Describe 'Foo' {
-    It 'Bar' {
-        New-WebApplication -Parent $TestDrive -With Rust, Reason
-        Get-ChildItem $TestDrive -Name -Recurse | ForEach-Object { $_ | Write-Color -Cyan }
     }
 }
 Describe 'Remove-Indent' -Tag 'Local', 'Remote' {

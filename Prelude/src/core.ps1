@@ -585,7 +585,7 @@ function Invoke-ObjectMerge {
     .EXAMPLE
     @{ a = 1 }, @{ a = 3 } | merge
     # @{ a = 1 }
-    
+
     @{ a = 1 }, @{ a = 3 } | merge -Force
     # @{ a = 3 }
     #>
