@@ -298,6 +298,7 @@ Functions
   - `Write-BarChart`
   - `Write-Color`
   - `Write-Label`
+  - `Write-Status`
   - `Write-Title`
   
 </details>

@@ -334,19 +334,10 @@ Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
-    It 'can be created using <Bundler> and <Library>' -TestCases @(
+    It 'can be created using Webpack and <Library>' -TestCases @(
         @{ Bundler = 'Webpack'; Library = $Null }
-        # @{ Bundler = 'Webpack'; Library = 'React' }
-        # @{ Bundler = 'Webpack'; Library = 'Solid' }
-        # @{ Bundler = 'Parcel'; Library = 'Vanilla' }
-        # @{ Bundler = 'Parcel'; Library = 'React' }
-        # @{ Bundler = 'Parcel'; Library = 'Solid' }
-        # @{ Bundler = 'Rollup'; Library = 'Vanilla' }
-        # @{ Bundler = 'Rollup'; Library = 'React' }
-        # @{ Bundler = 'Rollup'; Library = 'Solid' }
-        # @{ Bundler = 'Snowpack'; Library = 'Vanilla' }
-        # @{ Bundler = 'Snowpack'; Library = 'React' }
-        # @{ Bundler = 'Snowpack'; Library = 'Solid' }
+        @{ Bundler = 'Webpack'; Library = 'React' }
+        @{ Bundler = 'Webpack'; Library = 'Solid' }
     ) {
         $Files = @(
             'public'
@@ -359,7 +350,66 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
             'postcss.config.js'
             'webpack.config.js'
         )
-        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
+        Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
+    }
+    It -Skip 'can be created using Parcel and <Library>' -TestCases @(
+        @{ Bundler = 'Parcel'; Library = 'Vanilla' }
+        @{ Bundler = 'Parcel'; Library = 'React' }
+        @{ Bundler = 'Parcel'; Library = 'Solid' }
+    ) {
+        $Files = @(
+            'public'
+            'src'
+            '__tests__'
+            '.editorconfig'
+            '.eslintrc.json'
+            'babel.config.json'
+            'package.json'
+            'postcss.config.js'
+            'webpack.config.js'
+        )
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
+        Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
+    }
+    It -Skip 'can be created using Rollup and <Library>' -TestCases @(
+        @{ Bundler = 'Rollup'; Library = 'Vanilla' }
+        @{ Bundler = 'Rollup'; Library = 'React' }
+        @{ Bundler = 'Rollup'; Library = 'Solid' }
+    ) {
+        $Files = @(
+            'public'
+            'src'
+            '__tests__'
+            '.editorconfig'
+            '.eslintrc.json'
+            'babel.config.json'
+            'package.json'
+            'postcss.config.js'
+            'webpack.config.js'
+        )
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
+        Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
+    }
+    It -Skip 'can be created using Snowpack and <Library>' -TestCases @(
+        @{ Bundler = 'Snowpack'; Library = 'Vanilla' }
+        @{ Bundler = 'Snowpack'; Library = 'React' }
+        @{ Bundler = 'Snowpack'; Library = 'Solid' }
+    ) {
+        $Files = @(
+            'public'
+            'src'
+            '__tests__'
+            '.editorconfig'
+            '.eslintrc.json'
+            'babel.config.json'
+            'package.json'
+            'postcss.config.js'
+        )
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
         Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
@@ -369,13 +419,14 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
     ) {
         $Path = Join-Path $TestDrive "/$($Config.Name)/package.json"
         Test-Path -Path $Path | Should -BeFalse
-        $Config | New-WebApplication -Parent $TestDrive
+        $Config | New-WebApplication -Parent $TestDrive -NoInstall -Silent
         Test-Path -Path $Path | Should -BeTrue
         $State = $Config.Name | Get-State
         $State.Name | Should -Be $Config.Name
         Remove-Item -Path (Join-Path $TestDrive $Config.Name) -Recurse -Force
     }
     It 'can be created interactively' {
+        Mock Write-Title {} -ModuleName Prelude
         Mock Write-Label {} -ModuleName Prelude
         Mock Invoke-Menu {
             switch ($HighlightColor) {
@@ -384,7 +435,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
                 'Magenta' { 'Cesium' }
             }
         } -ModuleName Prelude
-        New-WebApplication -Interactive -Parent $TestDrive
+        New-WebApplication -Interactive -Parent $TestDrive -NoInstall -Silent
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
 }
@@ -443,5 +494,18 @@ Describe 'Test-ApplicationContext' -Tag 'Local', 'Remote' {
             $Results.Node.Linter | Should -BeTrue
             Remove-Item -Path $Path
         }
+    }
+}
+Describe -Skip 'Write-Status' {
+    It 'can print "done" message' {
+        'done' | Write-Status
+        'done' | Write-Status -Color Green
+    }
+    It 'can print "fail" message' {
+        'fail' | Write-Status
+        'fail' | Write-Status -PassThru | Write-Color -Yellow
+    }
+    It 'can print "pass" message' {
+        'pass' | Write-Status
     }
 }

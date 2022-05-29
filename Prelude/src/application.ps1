@@ -595,6 +595,7 @@ function New-WebApplication {
         [Parameter(ParameterSetName = 'interactive')]
         [Switch] $Interactive,
         [Switch] $NoInstall,
+        [Switch] $Silent,
         [Switch] $Force
     )
     Begin {
@@ -644,6 +645,8 @@ function New-WebApplication {
             if (-not (Test-Path -Path $Path) -or $Force) {
                 $Data |
                     ConvertTo-Json |
+                    ForEach-Object { $_ -replace '\\u003c', '<' } |
+                    ForEach-Object { $_ -replace '\\u003e', '>' } |
                     Format-Json |
                     Out-File -FilePath $Path -Encoding utf8
             } else {
@@ -677,6 +680,7 @@ function New-WebApplication {
             RustDirectory = 'rust-to-wasm'
             Legacy = $False
             ReactVersion = '^17'
+            License = 'MIT'
         }
     }
     Process {
@@ -684,12 +688,20 @@ function New-WebApplication {
             $Defaults, $Configuration | Invoke-ObjectMerge -Force
         } else {
             if ($Interactive) {
-                'Choose your {{#cyan bundler}}:' | Write-Label -Color 'Gray'
+                'Build a Web Application' | Write-Title -Blue -TextColor White -SubText 'choose wisely'
+                '' | Write-Label -NewLine
+
+                'Choose your {{#cyan bundler}}:' | Write-Label -Color 'Gray' -NewLine
                 $Bundler = Invoke-Menu $BundlerOptions -SingleSelect -SelectedMarker ' => ' -HighlightColor 'Cyan'
-                'Choose your {{#yellow library}}:' | Write-Label -Color 'Gray'
+                '' | Write-Label -NewLine
+
+                'Choose your {{#yellow library}}:' | Write-Label -Color 'Gray' -NewLine
                 $Library = Invoke-Menu $LibraryOptions -SingleSelect -SelectedMarker ' => ' -HighlightColor 'Yellow'
-                'Enhance your application {{#magenta with}}:' | Write-Label -Color 'Gray'
+                '' | Write-Label -NewLine
+
+                'Enhance your application {{#magenta with}}:' | Write-Label -Color 'Gray' -NewLine
                 $With = Invoke-Menu $WithOptions -MultiSelect -SelectedMarker ' => ' -HighlightColor 'Magenta'
+                '' | Write-Label -NewLine
             } else {
                 if (-not $Bundler) {
                     $Bundler = Find-FirstTrueVariable $BundlerOptions
@@ -712,9 +724,9 @@ function New-WebApplication {
             name = $Data.Name
             version = '0.0.0'
             description = ''
-            license = 'MIT'
+            license = $Data.License
             keywords = @()
-            main = "./$($Data.SourceDirectory)/main.js"
+            main = "./$($Data.SourceDirectory)/main.js$(if ($Library -eq 'React') { 'x' })"
             scripts = @{}
             dependencies = @{}
             devDependencies = @{}
@@ -730,6 +742,20 @@ function New-WebApplication {
                     'jest-watch-typeahead/testname'
                 )
             }
+        }
+        $NpmScripts = @{
+            Eslint = @{
+                'lint' = 'eslint . -c ./.eslintrc.js --ext .js,.jsx --fix'
+                'lint:ing' = "watch `"npm run lint`" $($Data.SourceDirectory)"
+                'lint:tests' = 'eslint __tests__/**/*.js -c ./.eslintrc.js --fix --no-ignore'
+            }
+            Jest = @{
+                'test' = 'jest .*.test.js --coverage'
+                'test:ing' = 'npm test -- --watchAll'
+            }
+            Parcel = @{}
+            Rollup = @{}
+            Webpack = @{}
         }
         $Dependencies = @{
             Cesium = @{
@@ -750,12 +776,14 @@ function New-WebApplication {
                 # 'reason-react' = '*'
                 '@rescript/react' = '*'
             }
+            Solid = @{}
         }
         $DevelopmentDependencies = @{
             _workflow = @{
                 'cpy-cli' = '*'
                 'del-cli' = '*'
                 'npm-run-all' = '*'
+                'watch' = '*'
             }
             Babel = @{
                 '@babel/cli' = '^7.17.10'
@@ -767,9 +795,6 @@ function New-WebApplication {
                 '@babel/preset-env' = '^7.18.0'
                 '@babel/preset-react' = '^7.17.12'
                 '@babel/runtime' = '^7.18.0'
-                'babel-eslint' = '^10.1.0'
-                'babel-jest' = '^28.1.0'
-                'babel-loader' = '^8.2.5'
                 'babel-preset-minify' = '^0.5.2'
             }
             Cesium = @{
@@ -778,6 +803,7 @@ function New-WebApplication {
             }
             Eslint = @{
                 'eslint' = '^7.32.0'
+                'babel-eslint' = '^10.1.0'
                 'eslint-config-omaha-prime-grade' = '^14.0.1'
                 'eslint-plugin-import' = '^2.26.0'
                 'eslint-plugin-jsx-a11y' = '^6.5.1'
@@ -966,17 +992,34 @@ function New-WebApplication {
         }
         switch ($Bundler) {
             Parcel {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Parcel
+                if ($PSCmdlet.ShouldProcess('Add Parcel dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Parcel
+                }
+                if ($PSCmdlet.ShouldProcess('Copy Parcel files')) {
+                    # TODO: Add code for copying files
+                }
             }
             Rollup {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Rollup
+                if ($PSCmdlet.ShouldProcess('Add Rollup dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Rollup
+                }
+                if ($PSCmdlet.ShouldProcess('Save Rollup configuration file')) {
+                    # TODO: Add code for copying files
+                }
             }
             Snowpack {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Snowpack
+                if ($PSCmdlet.ShouldProcess('Add Snowpack dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Snowpack
+                }
+                if ($PSCmdlet.ShouldProcess('Save Snowpack configuration file')) {
+                    # TODO: Add code for copying files
+                }
             }
             Default {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Webpack
-                if ($PSCmdlet.ShouldProcess('Create Webpack configuration file')) {
+                if ($PSCmdlet.ShouldProcess('Add Webpack dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Webpack
+                }
+                if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
                     $Parameters = @{
                         Filename = 'webpack.config.js'
                         Template = 'config_webpack'
@@ -990,34 +1033,88 @@ function New-WebApplication {
         }
         switch ($Library) {
             React {
-                $PackageManifestData.dependencies += $Dependencies.React.Core
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.React
+                if ($PSCmdlet.ShouldProcess('Add React dependencies to package.json')) {
+                    $PackageManifestData.dependencies += $Dependencies.React.Core
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.React
+                }
+                if ($PSCmdlet.ShouldProcess('Copy React files')) {
+                    $Source = Join-Path $APPLICATION_DIRECTORY 'src'
+                    $Components = Join-Path $Source 'components'
+                    @(
+                        @{
+                            Filename = 'main.jsx'
+                            Template = 'source_react_main'
+                            Parent = $Source
+                        }
+                        @{
+                            Filename = 'App.jsx'
+                            Template = 'source_react_app'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'Header.jsx'
+                            Template = 'source_react_header'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'Body.re'
+                            Template = 'source_react_body'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'Footer.re'
+                            Template = 'source_react_footer'
+                            Parent = $Components
+                        }
+                    ) | ForEach-Object {
+                        $Parameters = $_
+                        Copy-TemplateData @Parameters -Data $Data -Force:$Force
+                    }
+                }
             }
             Solid {
-                $PackageManifestData.dependencies += @{
-                    # solid
+                if ($PSCmdlet.ShouldProcess('Add Solid dependencies to package.json')) {
+                    $PackageManifestData.dependencies += $Dependencies.Solid
+                }
+                if ($PSCmdlet.ShouldProcess('Copy Solid files')) {
+                    # TODO: Add code for copying files
                 }
             }
             Default {
+                if ($PSCmdlet.ShouldProcess('Copy JavaScript files')) {
+                    $Source = Join-Path $APPLICATION_DIRECTORY 'src'
+                    $Parameters = @{
+                        Filename = 'main.js'
+                        Template = 'source_vanilla_main'
+                        Data = $Data
+                        Parent = $Source
+                        Force = $Force
+                    }
+                    Copy-TemplateData @Parameters
+                }
             }
         }
         switch ($With) {
             Cesium {
-                $PackageManifestData.dependencies += $Dependencies.Cesium
-                if ($React) {
-                    $PackageManifestData.dependencies += $Dependencies.React.Cesium
+                if ($PSCmdlet.ShouldProcess('Add Cesium dependencies to package.json')) {
+                    $PackageManifestData.dependencies += $Dependencies.Cesium
+                    if ($React) {
+                        $PackageManifestData.dependencies += $Dependencies.React.Cesium
+                    }
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Cesium
                 }
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Cesium
             }
             Reason {
-                if ($Library -ne 'React') {
+                if ($Library -ne 'React' -and (-not $Silent)) {
                     '==> ReasonML works best with React.  You might consider using -React.' | Write-Warning
                 }
-                $PackageManifestData.dependencies += $Dependencies.Reason
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Reason
-                if ($PSCmdlet.ShouldProcess('Create ReasonML configuration file')) {
+                if ($PSCmdlet.ShouldProcess('Add ReasonML dependencies to package.json')) {
+                    $PackageManifestData.dependencies += $Dependencies.Reason
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Reason
+                }
+                if ($PSCmdlet.ShouldProcess('Save ReasonML configuration file; Add dependencies to package.json')) {
                     $Parameters = @{
-                        Filename = 'bsconfig.js'
+                        Filename = 'bsconfig.json'
                         Data = $ConfigurationFileData.Reason
                         Parent = $APPLICATION_DIRECTORY
                         Force = $Force
@@ -1042,8 +1139,10 @@ function New-WebApplication {
                 }
             }
             Rust {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.Rust
-                if ($PSCmdlet.ShouldProcess('Scaffold Rust folders and files')) {
+                if ($PSCmdlet.ShouldProcess('Add Rust dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Rust
+                }
+                if ($PSCmdlet.ShouldProcess('Copy Rust files')) {
                     $Source = Join-Path $RUST_DIRECTORY 'src'
                     $Tests = Join-Path $RUST_DIRECTORY 'tests'
                     @(
@@ -1090,7 +1189,25 @@ function New-WebApplication {
             }
             Default {}
         }
-        if ($PSCmdlet.ShouldProcess('Create EditorConfig configuration file')) {
+        if ($PSCmdlet.ShouldProcess('Copy Jest files; Add dependencies and tasks to package.json')) {
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.Jest
+            $PackageManifestData.scripts += $NpmScripts.Jest
+            $Tests = Join-Path $APPLICATION_DIRECTORY '__tests__'
+            @(
+                @{
+                    Filename = 'setup.js'
+                    Template = 'source_jest_setup'
+                }
+                @{
+                    Filename = 'example.test.js'
+                    Template = 'source_jest_example'
+                }
+            ) | ForEach-Object {
+                $Parameters = $_
+                Copy-TemplateData @Parameters -Data $Data -Parent $Tests -Force:$Force
+            }
+        }
+        if ($PSCmdlet.ShouldProcess('Save EditorConfig configuration file')) {
             $Parameters = @{
                 Filename = '.editorconfig'
                 Template = 'editorconfig'
@@ -1100,7 +1217,8 @@ function New-WebApplication {
             }
             Copy-TemplateData @Parameters
         }
-        if ($PSCmdlet.ShouldProcess('Create PostCSS configuration file')) {
+        if ($PSCmdlet.ShouldProcess('Save PostCSS configuration file; Add dependencies to package.json')) {
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.Postcss
             $Parameters = @{
                 Filename = 'postcss.config.js'
                 Template = 'config_postcss'
@@ -1110,16 +1228,8 @@ function New-WebApplication {
             }
             Copy-TemplateData @Parameters
         }
-        if ($PSCmdlet.ShouldProcess('Create ESLint configuration file')) {
-            $Parameters = @{
-                Filename = '.eslintrc.json'
-                Data = $ConfigurationFileData.Eslint
-                Parent = $APPLICATION_DIRECTORY
-                Force = $Force
-            }
-            Save-JsonData @Parameters
-        }
-        if ($PSCmdlet.ShouldProcess('Create Babel configuration file')) {
+        if ($PSCmdlet.ShouldProcess('Save Babel configuration file; Add dependencies to package.json')) {
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.Babel
             $Parameters = @{
                 Filename = 'babel.config.json'
                 Data = $ConfigurationFileData.Babel
@@ -1128,7 +1238,18 @@ function New-WebApplication {
             }
             Save-JsonData @Parameters
         }
-        if ($PSCmdlet.ShouldProcess('Create package.json')) {
+        if ($PSCmdlet.ShouldProcess('Save ESLint configuration file; Add dependencies and tasks to package.json')) {
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.Eslint
+            $PackageManifestData.scripts += $NpmScripts.Eslint
+            $Parameters = @{
+                Filename = '.eslintrc.json'
+                Data = $ConfigurationFileData.Eslint
+                Parent = $APPLICATION_DIRECTORY
+                Force = $Force
+            }
+            Save-JsonData @Parameters
+        }
+        if ($PSCmdlet.ShouldProcess('Save package.json to application directory')) {
             $Parameters = @{
                 Filename = 'package.json'
                 Data = $PackageManifestData
@@ -1139,11 +1260,13 @@ function New-WebApplication {
         }
     }
     End {
-        $Context = Test-ApplicationContext
+        $Context = Test-ApplicationContext $APPLICATION_DIRECTORY
         if (-not $NoInstall) {
             if ($PSCmdlet.ShouldProcess('Install dependencies')) {
                 if ($Context.Node.Ready) {
-                    Set-Location -Path $APPLICATION_DIRECTORY
+                    if (-not $Silent) {
+                        '==> [INFO] Installing Node.js dependencies...' | Write-Color -Cyan
+                    }
                     npm install | Out-Null
                 }
             }
@@ -1154,7 +1277,10 @@ function New-WebApplication {
             $State.Data = $Data
             $State.Name = $Data.Name
             $State.Parent = $Data.Parent
-            $State | Save-State -Id $State.Name
+            $State | Save-State -Id $State.Name | Out-Null
+        }
+        if (-not $Silent) {
+            'done' | Write-Status
         }
     }
 }
@@ -1225,6 +1351,7 @@ function Test-ApplicationContext {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
         [String] $Parent = (Get-Location).Path
     )
@@ -1320,4 +1447,57 @@ function Update-Application {
     Begin {}
     Process {}
     End {}
+}
+function Write-Status {
+    <#
+    .SYNOPSIS
+    Print ASCII status message
+    .EXAMPLE
+    'pass' | Write-Status
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [ValidateSet('done', 'fail', 'pass')]
+        [String] $Status = 'done',
+        [String] $Color,
+        [Switch] $PassThru
+    )
+    if (-not $Color) {
+        $Color = switch ($Status) {
+            'done' { 'Gray' }
+            'fail' { 'Red' }
+            'pass' { 'Green' }
+        }
+    }
+    $Message = switch ($Status) {
+        'done' {
+            @(
+                '▄▀█ █░░ █░░   █▀▄ █▀█ █▄░█ █▀▀ █'
+                '█▀█ █▄▄ █▄▄   █▄▀ █▄█ █░▀█ ██▄ ▄'
+            )
+        }
+        'fail' {
+            @(
+                '█▀▀ ▄▀█ █ █░░'
+                '█▀░ █▀█ █ █▄▄'
+            )
+        }
+        'pass' {
+            @(
+                '█▀█ ▄▀█ █▀ █▀'
+                '█▀▀ █▀█ ▄█ ▄█'
+            )
+        }
+    }
+    if ($PassThru) {
+        $Message -join "`n"
+    } else {
+        '' | Write-Host
+        $Message | ForEach-Object {
+            $_ | Write-Host -ForegroundColor $Color
+        }
+        '' | Write-Host
+    }
 }

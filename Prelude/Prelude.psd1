@@ -223,6 +223,7 @@
         'Write-BarChart'
         'Write-Color'
         'Write-Label'
+        'Write-Status'
         'Write-Title'
     )
     PrivateData = @{
