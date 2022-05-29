@@ -75,7 +75,7 @@ module.exports = (_, argv) => ({
     plugins: [
         new DashboardPlugin(),
         new HtmlWebpackPlugin({
-            title: `Web App [${argv.mode === 'production' ? 'production' : 'development'}]`,
+            title: ``Web App [${argv.mode === 'production' ? 'production' : 'development'}]``,
             template: '{{ AssetsDirectory }}/index.html'
         }),
         new SubresourceIntegrityPlugin()

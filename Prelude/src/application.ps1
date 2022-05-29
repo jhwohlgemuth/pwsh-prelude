@@ -54,7 +54,7 @@ function Format-Json {
     .SYNOPSIS
     Prettify JSON output
     .EXAMPLE
-    Get-Content './foo.json' | Format-Json | Out-File './bar.json' -Encoding utf8
+    Get-Content './foo.json' | Format-Json | Out-File './bar.json' -Encoding ascii
     .EXAMPLE
     './some.json' | Format-Json -InPlace
     #>
@@ -579,7 +579,7 @@ function New-WebApplication {
         [AllowNull()]
         [AllowEmptyString()]
         [ValidateSet('', 'Vanilla', 'React', 'Solid')]
-        [String] $Library = 'Vanilla',
+        [String] $Library,
         [Parameter(ParameterSetName = 'switch')]
         [Switch] $Vanilla,
         [Parameter(ParameterSetName = 'switch')]
@@ -622,7 +622,7 @@ function New-WebApplication {
                     Data = $Data
                     NoData = ($Data.Count -eq 0)
                 }
-                New-Template @Parameters | Out-File -FilePath $Path -Encoding utf8
+                New-Template @Parameters | Out-File -FilePath $Path -Encoding ascii
             } else {
                 $Message | Write-Warning
             }
@@ -644,11 +644,11 @@ function New-WebApplication {
             $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
             if (-not (Test-Path -Path $Path) -or $Force) {
                 $Data |
-                    ConvertTo-Json |
+                    ConvertTo-Json -Depth 100 |
                     ForEach-Object { $_ -replace '\\u003c', '<' } |
                     ForEach-Object { $_ -replace '\\u003e', '>' } |
                     Format-Json |
-                    Out-File -FilePath $Path -Encoding utf8
+                    Out-File -FilePath $Path -Encoding ascii
             } else {
                 $Message | Write-Warning
             }
@@ -745,9 +745,9 @@ function New-WebApplication {
         }
         $NpmScripts = @{
             Eslint = @{
-                'lint' = 'eslint . -c ./.eslintrc.js --ext .js,.jsx --fix'
+                'lint' = 'eslint . -c ./.eslintrc.json --ext .js,.jsx --fix'
                 'lint:ing' = "watch `"npm run lint`" $($Data.SourceDirectory)"
-                'lint:tests' = 'eslint __tests__/**/*.js -c ./.eslintrc.js --fix --no-ignore'
+                'lint:tests' = 'eslint __tests__/**/*.js -c ./.eslintrc.json --fix --no-ignore'
             }
             Jest = @{
                 'test' = 'jest .*.test.js --coverage'
@@ -807,6 +807,7 @@ function New-WebApplication {
                 'eslint-config-omaha-prime-grade' = '^14.0.1'
                 'eslint-plugin-import' = '^2.26.0'
                 'eslint-plugin-jsx-a11y' = '^6.5.1'
+                'eslint-plugin-promise' = '*'
                 'eslint-plugin-react' = '^7.30.0'
             }
             Jest = @{
@@ -914,7 +915,7 @@ function New-WebApplication {
                 presets = @(
                     '@babel/preset-env'
                     'babel-preset-minify'
-                    @(
+                    , @(
                         '@babel/preset-react'
                         @{
                             runtime = 'automatic'
