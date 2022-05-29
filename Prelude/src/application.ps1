@@ -1,4 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-Template')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-WebApplication')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertTo-PowerShellSyntax')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-WebApplication')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Remove-Indent')]
@@ -540,6 +541,15 @@ function New-WebApplication {
     <#
     .SYNOPSIS
     Create a new web application.
+    .DESCRIPTION
+    This function allows you to scaffold a bespoke web application and optionally install dependencies.
+
+    When -NoInstall is not used, dependencies will be installed using npm.
+
+    Before dependencies are installed, application state will be saved using Save-State under the passed application name (or the default, "webapp")
+
+    Application data can be viewed and used using "Get-State <Name>"
+
     .PARAMETER Name
     Name of application folder
     .PARAMETER Parent
@@ -651,6 +661,62 @@ function New-WebApplication {
                     Out-File -FilePath $Path -Encoding ascii
             } else {
                 $Message | Write-Warning
+            }
+        }
+        function Invoke-NpmInstall {
+            <#
+            .SYNOPSIS
+            Perform npm install
+            #>
+            [CmdletBinding()]
+            [OutputType([Bool])]
+            Param(
+                [ValidateScript( { Test-Path $_ })]
+                [String] $Parent = (Get-Location).Path,
+                [Switch] $Silent
+            )
+            Begin {
+                $Success = $True
+                $Location = Get-Location
+                Set-Location -Path $Parents
+                $Context = Test-ApplicationContext
+                $Command = 'npm install'
+            }
+            Process {
+                if ($Context.Node.Ready) {
+                    try {
+                        if (-not $Silent) {
+                            '==> [INFO] Installing dependencies...' | Write-Color -Cyan
+                        }
+                        Invoke-Expression $Command | Out-Null
+                    } catch {
+                        $Success = $False
+                    }
+                } else {
+                    if (-not $Silent) {
+                        Write-Status 'fail'
+                    }
+                    switch ($Context.Node) {
+                        { -not $_.PackageManager } {
+                            "Could not run `"${Command}.`" Is npm installed?`n" | Write-Color -White
+                        }
+                        { -not $_.Manifest } {
+                            "Could not find package.json in ${Parent}...`n" | Write-Color -White
+                        }
+                        Default {
+                            "{{#yellow (╯°□°)╯︵ ┻━┻ }}...maybe try again?`n" | Write-Color -White
+                        }
+                    }
+                    $Success = $False
+                }
+            }
+            End {
+                Set-Location -Path $Location
+                if (-not $Success) {
+                    exit
+                } else {
+                    return $Success
+                }
             }
         }
         $BundlerOptions = @(
@@ -927,7 +993,7 @@ function New-WebApplication {
                 map = $True
                 parser = 'postcss-safe-parser'
                 plugins = @(
-                    @(
+                    , @(
                         'stylelint'
                         @{
                             config = @{
@@ -1262,26 +1328,23 @@ function New-WebApplication {
     }
     End {
         $Context = Test-ApplicationContext $APPLICATION_DIRECTORY
-        if (-not $NoInstall) {
-            if ($PSCmdlet.ShouldProcess('Install dependencies')) {
-                if ($Context.Node.Ready) {
-                    if (-not $Silent) {
-                        '==> [INFO] Installing Node.js dependencies...' | Write-Color -Cyan
-                    }
-                    npm install | Out-Null
-                }
-            }
-        }
         if ($PSCmdlet.ShouldProcess('Save application state')) {
             $Data.Context = $Context
             $Data.PackageManifestData = $PackageManifestData
             $State.Data = $Data
             $State.Name = $Data.Name
             $State.Parent = $Data.Parent
-            $State | Save-State -Id $State.Name | Out-Null
+            $State | Save-State -Id $State.Name -Verbose:(-not $Silent) | Out-Null
         }
-        if (-not $Silent) {
-            'done' | Write-Status
+        if (-not $NoInstall) {
+            if ($PSCmdlet.ShouldProcess('Install dependencies')) {
+                $NoErrors = if ($Context.Node.Ready) {
+                    Invoke-Install -Silent:$Silent
+                }
+            }
+            if ($NoErrors -and (-not $Silent)) {
+                'done' | Write-Status
+            }
         }
     }
 }
