@@ -1,15 +1,15 @@
 /* eslint-env node */
-const {resolve} = require('path');
+const {{{= if($WithCesium) { 'join, ' } }}resolve} = require('path');{{= if($WithCesium) { '`nconst {DefinePlugin} = require(''webpack'');`nconst CopyWebpackPlugin = require(''copy-webpack-plugin'');' } }}
 const DashboardPlugin = require('webpack-dashboard/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {SubresourceIntegrityPlugin} = require('webpack-subresource-integrity');
 const TerserPlugin = require('terser-webpack-plugin');
-
+{{= if($WithCesium) { 'const source = ''node_modules/cesium/Build/Cesium'';`n' } }}
 module.exports = (_, argv) => ({
     mode: argv.mode === 'production' ? 'production' : 'development',
-    entry: {
-        app: './{{ SourceDirectory }}/main.js'
-    },
+    entry: [
+        {{= if($UseReact) { '...(argv.mode === ''production'' ? [] : [''react-hot-loader/patch'']),`n        ' } }}'./{{ SourceDirectory }}/main.js{{= if($UseReact) { 'x' } }}'
+    ],
     devtool: (argv.mode === 'production') ? void 0 : 'eval-source-map',
     output: {
         path: resolve('./{{ ProductionDirectory }}'),
@@ -65,6 +65,12 @@ module.exports = (_, argv) => ({
                 use: [
                     'file-loader'
                 ]
+            },
+            {
+                test: /.(png|gif|jpg|jpeg|svg|xml|json)$/,
+                use: [
+                    'url-loader'
+                ]
             }
         ]
     },
@@ -78,12 +84,12 @@ module.exports = (_, argv) => ({
             title: ``Web App [${argv.mode === 'production' ? 'production' : 'development'}]``,
             template: '{{ AssetsDirectory }}/index.html'
         }),
-        new SubresourceIntegrityPlugin()
+        new SubresourceIntegrityPlugin(){{= if($WithCesium) { $CesiumConfig } }}
     ],
     resolve: {
         mainFields: ['module', 'main'],
         modules: [resolve(__dirname, './{{ SourceDirectory }}'), 'node_modules'],
-        extensions: ['.js'],
-        alias: {}
+        extensions: ['.js'{{= if($UseReact) { ', .jsx' } }}],
+        alias: {{{= if($UseReact) { '''react-dom'': ''@hot-loader/react-dom''' } }}}
     }
 });

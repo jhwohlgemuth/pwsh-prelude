@@ -596,7 +596,6 @@ function New-WebApplication {
         [Switch] $React,
         [Parameter(ParameterSetName = 'switch')]
         [Switch] $Solid,
-        [Parameter(ParameterSetName = 'parameter')]
         [ValidateSet('Cesium', 'Reason', 'Rust')]
         [String[]] $With,
         [String] $Name = 'webapp',
@@ -655,8 +654,10 @@ function New-WebApplication {
             if (-not (Test-Path -Path $Path) -or $Force) {
                 $Data |
                     ConvertTo-Json -Depth 100 |
+                    ForEach-Object { $_ -replace '\\\\\\', '\' } |
                     ForEach-Object { $_ -replace '\\u003c', '<' } |
                     ForEach-Object { $_ -replace '\\u003e', '>' } |
+                    ForEach-Object { $_ -replace '\\u0026', '&' } |
                     Format-Json |
                     Out-File -FilePath $Path -Encoding ascii
             } else {
@@ -821,7 +822,21 @@ function New-WebApplication {
             }
             Parcel = @{}
             Rollup = @{}
-            Webpack = @{}
+            Webpack = @{
+                'clean' = "del-cli $($Data.ProductionDirectory)"
+                'copy' = 'npm-run-all --parallel copy:assets'
+                'copy:assets' = "cpy \`"$($Data.AssetsDirectory)/!(css)/**/*.*\`" \`"$($Data.AssetsDirectory)/**/[.]*\`" $($Data.ProductionDirectory) --parents --recursive"
+                'prebuild:es' = "del-cli $($Data.ProductionDirectory)/$($Data.AssetsDirectory)"
+                'build:es' = 'webpack'
+                'build:stats' = 'webpack --mode production --profile --json > stats.json'
+                'build:analyze' = 'webpack-bundle-analyzer ./stats.json'
+                'postbuild:es' = 'npm run copy'
+                'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
+                'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
+                'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
+                'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
+                'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
+            }
         }
         $Dependencies = @{
             Cesium = @{
@@ -839,7 +854,6 @@ function New-WebApplication {
                 }
             }
             Reason = @{
-                # 'reason-react' = '*'
                 '@rescript/react' = '*'
             }
             Solid = @{}
@@ -863,10 +877,7 @@ function New-WebApplication {
                 '@babel/runtime' = '^7.18.0'
                 'babel-preset-minify' = '^0.5.2'
             }
-            Cesium = @{
-                'copy-webpack-plugin' = '*'
-                'url-loader' = '*'
-            }
+            Cesium = @{}
             Eslint = @{
                 'eslint' = '^7.32.0'
                 'babel-eslint' = '^10.1.0'
@@ -898,7 +909,6 @@ function New-WebApplication {
                 'react-hot-loader' = '^4.13.0'
             }
             Reason = @{
-                # 'bs-platform' = '*'
                 'rescript' = '*'
             }
             Rollup = @{
@@ -926,18 +936,20 @@ function New-WebApplication {
             }
             Webpack = @{
                 'webpack' = '*'
+                'webpack-bundle-analyzer' = '*'
                 'webpack-cli' = '*'
                 'webpack-dashboard' = '*'
-                'webpack-jarvis' = '*'
                 'webpack-dev-server' = '*'
+                'webpack-jarvis' = '*'
                 'webpack-subresource-integrity' = '*'
                 'babel-loader' = '*'
                 'css-loader' = '*'
                 'file-loader' = '*'
                 'style-loader' = '*'
+                'url-loader' = '*'
+                'copy-webpack-plugin' = '*'
                 'html-webpack-plugin' = '*'
                 'terser-webpack-plugin' = '*'
-                'webpack-bundle-analyzer' = '*'
             }
         }
         $ConfigurationFileData = @{
@@ -1036,9 +1048,22 @@ function New-WebApplication {
                 'suffix' = '.bs.js'
             }
             Webpack = @{
+                SourceDirectory = $Data.SourceDirectory
+                AssetsDirectory = $Data.AssetsDirectory
+                ProductionDirectory = $Data.ProductionDirectory
                 UseReact = ($Library -eq 'React')
                 WithCesium = ($With -contains 'Cesium')
                 WithRust = ($With -contains 'Rust')
+                CesiumConfig = ("
+                    new DefinePlugin({CESIUM_BASE_URL: JSON.stringify('/')}),
+                    new CopyWebpackPlugin({
+                        patterns: [
+                            {from: join(source, 'Workers'), to: 'Workers'},
+                            {from: join(source, 'ThirdParty'), to: 'ThirdParty'},
+                            {from: join(source, 'Assets'), to: 'Assets'},
+                            {from: join(source, 'Widgets'), to: 'Widgets'}
+                        ]
+                    })" | Remove-Indent -Size 12)
             }
         }
         if ($PSCmdlet.ShouldProcess('Create application folder structure')) {
@@ -1083,8 +1108,10 @@ function New-WebApplication {
                 }
             }
             Default {
-                if ($PSCmdlet.ShouldProcess('Add Webpack dependencies to package.json')) {
+                if ($PSCmdlet.ShouldProcess('Add Webpack dependencies and tasks to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Webpack
+                    $PackageManifestData.scripts += $NpmScripts.Webpack
                 }
                 if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
                     $Parameters = @{
@@ -1317,6 +1344,9 @@ function New-WebApplication {
             Save-JsonData @Parameters
         }
         if ($PSCmdlet.ShouldProcess('Save package.json to application directory')) {
+            $PackageManifestData = $PackageManifestData | ConvertTo-OrderedDictionary
+            $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | ConvertTo-OrderedDictionary
+            $PackageManifestData.scripts = $PackageManifestData.scripts | ConvertTo-OrderedDictionary
             $Parameters = @{
                 Filename = 'package.json'
                 Data = $PackageManifestData
@@ -1339,7 +1369,7 @@ function New-WebApplication {
         if (-not $NoInstall) {
             if ($PSCmdlet.ShouldProcess('Install dependencies')) {
                 $NoErrors = if ($Context.Node.Ready) {
-                    Invoke-Install -Silent:$Silent
+                    Invoke-NpmInstall -Silent:$Silent
                 }
             }
             if ($NoErrors -and (-not $Silent)) {
