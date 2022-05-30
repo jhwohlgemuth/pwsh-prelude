@@ -389,6 +389,14 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
         $Result.a | Should -Be 1
         $Result.b | Should -Be 2
     }
+    It 'can merge objects in place' {
+        $A = @{ a = 1; b = 2 }
+        $B = @{ b = 4; c = 4 }
+        $Result = $A , $B | Invoke-ObjectMerge -InPlace -Force
+        $Result | Should -BeNull
+        $A | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"a":1,"b":4,"c":4}'
+        $B | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"b":4,"c":4}'
+    }
 }
 Describe -Skip 'Invoke-Once' -Tag 'Local', 'Remote' {
     It 'will return a function that will only be executed once' {

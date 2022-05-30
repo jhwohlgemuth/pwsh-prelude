@@ -595,6 +595,7 @@ function Invoke-ObjectMerge {
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject,
+        [Switch] $InPlace,
         [Switch] $Force
     )
     Begin {
@@ -671,10 +672,14 @@ function Invoke-ObjectMerge {
                 } else {
                     $InputObject
                 }
-                if ($InputObject[0].GetType().Name -eq 'PSCustomObject') {
-                    [PSCustomObject]$Result
+                if ($InPlace) {
+                    $InputObject = $Result
                 } else {
-                    $Result
+                    if ($InputObject[0].GetType().Name -eq 'PSCustomObject') {
+                        [PSCustomObject]$Result
+                    } else {
+                        $Result
+                    }
                 }
             }
         }
