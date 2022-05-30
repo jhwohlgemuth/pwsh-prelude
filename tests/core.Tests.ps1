@@ -389,13 +389,25 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
         $Result.a | Should -Be 1
         $Result.b | Should -Be 2
     }
-    It 'can merge objects in place' {
+    It 'can merge objects in place (via pipeline)' {
         $A = @{ a = 1; b = 2 }
         $B = @{ b = 4; c = 4 }
-        $Result = $A , $B | Invoke-ObjectMerge -InPlace -Force
+        $C = @{ d = 5 }
+        $Result = $A, $B, $C | Invoke-ObjectMerge -InPlace -Force
         $Result | Should -BeNull
-        $A | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"a":1,"b":4,"c":4}'
+        $A | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"a":1,"b":4,"c":4,"d":5}'
         $B | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"b":4,"c":4}'
+        $C | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"d":5}'
+    }
+    It 'can merge objects in place (as parameter)' {
+        $A = @{ a = 1; b = 2 }
+        $B = @{ b = 4; c = 4 }
+        $C = @{ d = 5 }
+        $Result = Invoke-ObjectMerge $A, $B, $C -InPlace -Force
+        $Result | Should -BeNull
+        $A | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"a":1,"b":4,"c":4,"d":5}'
+        $B | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"b":4,"c":4}'
+        $C | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"d":5}'
     }
 }
 Describe -Skip 'Invoke-Once' -Tag 'Local', 'Remote' {
