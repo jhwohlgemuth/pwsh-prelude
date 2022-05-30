@@ -14,6 +14,36 @@ class ApplicationState {
     [String] $Type = 'Terminal'
     $Data
 }
+function ConvertFrom-Base64 {
+    <#
+    .SYNOPSIS
+    Deccode a Base64 string
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String] $Value
+    )
+    Process {
+        $String = [System.Convert]::FromBase64String($Value)
+        [System.Text.Encoding]::Unicode.GetString($String)
+    }
+}
+function ConvertTo-Base64 {
+    <#
+    .SYNOPSIS
+    Encode string in Base64
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String] $Value
+    )
+    Process {
+        $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Value)
+        [Convert]::ToBase64String($Bytes)
+    }
+}
 function ConvertTo-PowerShellSyntax {
     [OutputType([String])]
     Param(

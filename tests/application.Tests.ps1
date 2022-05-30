@@ -29,6 +29,29 @@ Describe 'Application State' -Tag 'Local', 'Remote' {
         (Test-Path $Path) | Should -BeFalse
     }
 }
+Describe 'ConvertTo-Base64 / ConvertFrom-Base64' {
+    It 'can encode a string in Base64' {
+        $Value = 'The answer is 42'
+        $Expected = 'VABoAGUAIABhAG4AcwB3AGUAcgAgAGkAcwAgADQAMgA='
+        ConvertTo-Base64 $Value | Should -Be $Expected
+        $Value | ConvertTo-Base64 | Should -Be $Expected
+    }
+    It 'can encode an empty string' {
+        $Value = ''
+        $Expected = ''
+        $Value | ConvertTo-Base64 | Should -Be $Expected
+    }
+    It 'will encode Null as empty string in Base64' {
+        $Value = $Null
+        $Expected = ''
+        $Value | ConvertTo-Base64 | Should -Be $Expected
+    }
+    It 'can decode a string in Base64' {
+        $Value = 'VABoAGUAIABhAG4AcwB3AGUAcgAgAGkAcwAgADQAMgA='
+        $Expected = 'The answer is 42'
+        $Value | ConvertFrom-Base64 | Should -Be $Expected
+    }
+}
 Describe 'ConvertTo-PowerShellSyntax' -Tag 'Local', 'Remote' {
     It 'can act as pass-thru for normal strings' {
         $Expected = 'normal string with not mustache templates'

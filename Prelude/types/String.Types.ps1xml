@@ -10,6 +10,18 @@
                 </Script>
             </ScriptMethod>
             <ScriptMethod>
+                <Name>FromBase64</Name>
+                <Script>
+                    ConvertFrom-Base64 $this
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
+                <Name>ToBase64</Name>
+                <Script>
+                    ConvertTo-Base64 $this
+                </Script>
+            </ScriptMethod>
+            <ScriptMethod>
                 <Name>ToMoney</Name>
                 <Script>
                     Format-MoneyValue $this

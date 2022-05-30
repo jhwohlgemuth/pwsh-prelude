@@ -175,6 +175,7 @@ Functions
   <summary>list of functions</summary>
   
   - `Add-Metadata`
+  - `ConvertFrom-Base64`
   - `ConvertFrom-ByteArray`
   - `ConvertFrom-EpochDate`
   - `ConvertFrom-Html`
@@ -182,6 +183,7 @@ Functions
   - `ConvertFrom-Pair`
   - `ConvertFrom-QueryString`
   - `ConvertTo-AbstractSyntaxTree`
+  - `ConvertTo-Base64`
   - `ConvertTo-Degree`
   - `ConvertTo-Html`
   - `ConvertTo-PowerShellSyntax`

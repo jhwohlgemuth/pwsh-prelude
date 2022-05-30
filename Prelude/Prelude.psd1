@@ -90,6 +90,7 @@
     )
     FunctionsToExport = @(
         'Add-Metadata'
+        'ConvertFrom-Base64'
         'ConvertFrom-ByteArray'
         'ConvertFrom-EpochDate'
         'ConvertFrom-FolderStructure'
@@ -97,6 +98,7 @@
         'ConvertFrom-Pair'
         'ConvertFrom-QueryString'
         'ConvertTo-AbstractSyntaxTree'
+        'ConvertTo-Base64'
         'ConvertTo-Degree'
         'ConvertTo-OrderedDictionary'
         'ConvertTo-PowerShellSyntax'
