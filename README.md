@@ -221,6 +221,7 @@ Functions
   - `Get-Singular`
   - `Get-Softmax`
   - `Get-State`
+  - `Get-StateName`
   - `Get-StringPath`
   - `Get-SyllableCount`
   - `Get-Variance`

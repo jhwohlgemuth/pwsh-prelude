@@ -20,6 +20,7 @@ function ConvertFrom-Base64 {
     Deccode a Base64 string
     #>
     [CmdletBinding()]
+    [OutputType([String])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Value
@@ -35,6 +36,7 @@ function ConvertTo-Base64 {
     Encode string in Base64
     #>
     [CmdletBinding()]
+    [OutputType([String])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Value
@@ -72,13 +74,31 @@ function Get-State {
         [String] $Path
     )
     if ($Path.Length -gt 0 -and (Test-Path $Path)) {
-        "==> Resolved $Path" | Write-Verbose
+        "==> Resolved ${Path}" | Write-Verbose
     } else {
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Path = Join-Path $TempRoot "state-$Id.xml"
+        $Name = $Id | Get-StateName
+        $Path = Join-Path $TempRoot "${Name}.xml"
     }
-    "==> Loading state from $Path" | Write-Verbose
+    "==> Loading state from ${Path}" | Write-Verbose
     Import-Clixml -Path $Path
+}
+function Get-StateName {
+    <#
+    .SYNOPSIS
+    Create state name from input ID
+    .EXAMPLE
+    $Name = 'My-App' | Get-StateName
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String] $Id
+    )
+    Process {
+        "prelude-$($Id | ConvertTo-Base64)"
+    }
 }
 function Format-Json {
     <#
@@ -209,7 +229,8 @@ function Invoke-RunApplication {
     )
     if ($Id.Length -gt 0) {
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Path = Join-Path $TempRoot "state-$Id.xml"
+        $Name = $Id | Get-StateName
+        $Path = Join-Path $TempRoot "${Name}.xml"
         if ($ClearState -and (Test-Path $Path)) {
             Remove-Item $Path
         }
@@ -1454,14 +1475,15 @@ function Save-State {
     )
     if (-not $Path) {
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Path = Join-Path $TempRoot "state-$Id.xml"
+        $Name = $Id | Get-StateName
+        $Path = Join-Path $TempRoot "${Name}.xml"
     }
     if ($PSCmdlet.ShouldProcess($Path)) {
         $State.Id = $Id
         $State | Export-Clixml -Path $Path
-        "==> Saved state to $Path" | Write-Verbose
+        "==> Saved state to ${Path}" | Write-Verbose
     } else {
-        "==> Would have saved state to $Path" | Write-Verbose
+        "==> Would have saved state to ${Path}" | Write-Verbose
     }
     $Path
 }

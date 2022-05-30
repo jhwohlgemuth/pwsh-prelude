@@ -22,6 +22,11 @@ Describe 'Application State' -Tag 'Local', 'Remote' {
         $Expected.Data.Value | Should -Be $Value
         Remove-Item $Path
     }
+    It 'saves state name as a Base64 string' {
+        $Id = 'Foo'
+        $Expected = 'prelude-RgBvAG8A'
+        $Id | Get-StateName | Should -Be $Expected
+    }
     It 'can test save using -WhatIf switch' {
         Mock Write-Verbose {}
         $Path = Join-Path $TestDrive 'test.xml'
@@ -199,7 +204,8 @@ Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
             $Script:Count++
         }
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Path = Join-Path $TempRoot "state-$Script:ApplicationId.xml"
+        $Name = $Script:ApplicationId | Get-StateName
+        $Path = Join-Path $TempRoot "${Name}.xml"
         (Test-Path $Path) | Should -BeTrue
         Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId -ClearState
         (Test-Path $Path) | Should -BeFalse
