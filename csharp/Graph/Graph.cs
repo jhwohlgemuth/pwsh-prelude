@@ -92,6 +92,13 @@ namespace Prelude {
             }
         }
 
+        public static Graph operator +(Graph left, Graph right) {
+            Graph temp = new();
+            temp.Add(left);
+            temp.Add(right);
+            return temp;
+        }
+
         /// <summary>
         /// Create new graph from input graph object.
         /// </summary>

@@ -393,6 +393,32 @@ namespace GraphTests {
         }
 
         [Fact]
+        public void Can_add_nodes_and_edges_from_graphs_using_operator() {
+            var graph = new Graph();
+            var a = new Node("a");
+            var b = new Node("b");
+            var c = new Node("c");
+            var ab = new Edge(a, b);
+            var bc = new Edge(b, c);
+            var ac = new Edge(a, c);
+            graph.Add(a, b, c).Add(ab, bc, ac);
+            var fromGraph = Graph.From(graph);
+            Assert.Equal(3, fromGraph.Nodes.Count);
+            Assert.Equal(3, fromGraph.Edges.Count);
+            var addGraph = new Graph();
+            Graph result = addGraph + graph;
+            Assert.Equal(3, result.Nodes.Count);
+            Assert.Equal(3, result.Edges.Count);
+            Assert.Empty(addGraph.Nodes);
+            Assert.Empty(addGraph.Edges);
+            result = graph + addGraph;
+            Assert.Equal(3, result.Nodes.Count);
+            Assert.Equal(3, result.Edges.Count);
+            Assert.Empty(addGraph.Nodes);
+            Assert.Empty(addGraph.Edges);
+        }
+
+        [Fact]
         public void Can_update_node_neighbors_when_edges_are_added() {
             var a = new Node();
             var b = new Node();
