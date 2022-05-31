@@ -28,6 +28,7 @@ Comparison Examples
 
 `curl` vs Prelude
 ===============
+> **Note**
 > Works on Windows **and** Linux
 
 POST JSON data with cURL

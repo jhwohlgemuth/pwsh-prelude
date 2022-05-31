@@ -24,7 +24,8 @@ Install-Module -Name Prelude -Scope CurrentUser
 Import-Module -Name Prelude
 ```
 
-> **TIP**: For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
+> **Note**
+> For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
 
 What is Prelude?
 ----------------
@@ -45,6 +46,8 @@ So what, big deal, who cares?
 -----------------------------
 
 This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[6](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[7](#7)</sup> without system/administrator/root privileges.
+
+> **Note**
 > For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
 
 Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly) works on Linux<sup>[3](#3)</sup> ;)
@@ -332,7 +335,10 @@ Type Accelerators
   # ...or format complex values for us in your scripts
   $C | Format-ComplexValue -WithColor | Write-Label
   ```
-  > **Note:** Full class name is `System.Numerics.Complex`
+
+  > **Note**
+  > Full class name is `System.Numerics.Complex`
+
 - `[Coordinate]`
   > Class for working with geodetic and cartesian earth coordinate values.
   ```PowerShell
@@ -348,14 +354,20 @@ Type Accelerators
   $Distance = $Omaha - $SanDiego
   # Distance = 2097705.740066118 (meters)
   ```
-  > **Note:** Full class name is `Prelude.Geodetic.Coordinate`
+
+  > **Note**
+  > Full class name is `Prelude.Geodetic.Coordinate`
+
 - `[Datum]`
   > Namespace for geodetic constants
   ```PowerShell
   [Datum]::Radius | Write-Color -Cyan
   # output 6371001
   ```
-  > **Note:** Full class name is `Prelude.Geodetic.Datum`
+
+  > **Note**
+  > Full class name is `Prelude.Geodetic.Datum`
+
 - `[Matrix]`
   > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[4](#4)</sup>
 
@@ -390,7 +402,10 @@ Type Accelerators
   # ==> The result is a 2x1 matrix with the desired values (1 and 0.7, in this case)
 
   ```
-  > **Note:** Full class name is `Prelude.Matrix`
+
+  > **Note**
+  > Full class name is `Prelude.Matrix`
+
 - `[Node]`
   > Simple node data structure for use with Graph data structure
   ```PowerShell
@@ -398,7 +413,10 @@ Type Accelerators
   $B = [Node]'b'
   $C = [Node]'c'
   ```
-  > **Note:** Full class name is `Prelude.Node`
+
+  > **Note**
+  > Full class name is `Prelude.Node`
+
 - `[Edge]`
   > Simple edge data structure for use with Graph data structure. Edges are composed of two nodes and an optional weight (default weight is `1`).
   
@@ -412,7 +430,10 @@ Type Accelerators
   $AB = New-Edge $A $B
   $BC = New-Edge $B $C
   ```
-  > **Note:** Full class name is `Prelude.Edge`
+
+  > **Note**
+  > Full class name is `Prelude.Edge`
+
 - `[DirectedEdge]`
   > Exactly like `[Edge]`, but directed.
   ```PowerShell
@@ -424,7 +445,10 @@ Type Accelerators
   $AB = New-Edge -From $A -To $B -Directed
   $BC = New-Edge -From $B -To $C -Directed
   ```
-  > **Note:** Full class name is `Prelude.DirectedEdge`
+
+  > **Note**
+  > Full class name is `Prelude.DirectedEdge`
+
 - `[Graph]`
   > Data structure to model objects (nodes) and relations (edges). Named `[Graph]` instead of `[Network]` to avoid confusion with computer networks, a common use case for PowerShell. 
   ```PowerShell
@@ -447,7 +471,9 @@ Type Accelerators
   # algorithms and other cool stuff are UNDER CONSTRUCTION
 
   ```
-  > **Note:** Full class name is `Prelude.Graph`
+
+  > **Note**
+  > Full class name is `Prelude.Graph`
 
 Type Extensions
 ---------------
@@ -471,6 +497,8 @@ $Add = { Param($a,$b) $a + $b }
 @(1,2,3).Reduce($Add, 0) # 6
 
 ```
+
+> **Note**
 > For the full list of functions, read through the `ps1xml` files in the [types directory](./Prelude/types).
 
 Contributing

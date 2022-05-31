@@ -40,7 +40,8 @@ $Data = basicauth $Uri -Token $Token -Query $Query | prop Content | ConvertFrom-
 $Data | prop 'subject.title'
 ```
 
-> ***NOTE***: The results are paginated. Use the `page` key in your query to retrieve more results.
+> **Note**
+> The results are paginated. Use the `page` key in your query to retrieve more results.
 
 You can also make changes like marking notifications as read using `Invoke-WebRequestBasicAuth` with the `-Put` and `-Data` parameters:
 
