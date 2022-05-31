@@ -248,19 +248,9 @@ Example #5
     <a href="#"><img alt="Eigenvalues with matrices" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/eigenvalue.gif" alt="Eigenvalue with matrices" width="1280"/></a>
 </div>
 
-First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations,
+First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations, $F_{k + 2} = F_{k + 1} + F_{k}$ and $F_{k + 1} = F_{k + 1}$, which can be codified in matrix form as $U_{k} = \begin{bmatrix} F_{k + 1}\\ F_{k} \end{bmatrix}$ and $U_{k + 1} = A \cdot U_{k}$, where $A = \begin{bmatrix} 1 & 1\\ 1 & 0 \end{bmatrix}$.
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" title="\begin{matrix} F_{k + 2} = F_{k + 1} + F_{k}\\ F_{k + 1} = F_{k + 1} \end{matrix}" /></a>
-
-, which can be codified with matrices as
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;U_{k}&space;=&space;\begin{bmatrix}&space;F_{k&space;&plus;&space;1}\\&space;F_{k}&space;\end{bmatrix},&space;U_{k&space;&plus;&space;1}&space;=&space;A&space;\cdot&space;U_{k}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;U_{k}&space;=&space;\begin{bmatrix}&space;F_{k&space;&plus;&space;1}\\&space;F_{k}&space;\end{bmatrix},&space;U_{k&space;&plus;&space;1}&space;=&space;A&space;\cdot&space;U_{k}" title="U_{k} = \begin{bmatrix} F_{k + 1}\\ F_{k} \end{bmatrix}, U_{k + 1} = A \cdot U_{k}" /></a>
-
-and
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;A&space;=&space;\begin{bmatrix}&space;1&space;&&space;1\\&space;1&space;&&space;0&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;A&space;=&space;\begin{bmatrix}&space;1&space;&&space;1\\&space;1&space;&&space;0&space;\end{bmatrix}" title="A = \begin{bmatrix} 1 & 1\\ 1 & 0 \end{bmatrix}" /></a>
-
-The final step is a simple matter of calculating the dominant eigenvalue of ***A***:
+The final step is a simple matter of calculating the dominant eigenvalue of ***A*** with the code,
 
 ```PowerShell
 $A = 1, 1, 1, 0 | matrix
@@ -274,17 +264,13 @@ Example #6
 ----------
 > Solve system of equations using [Gaussian elimination](https://en.wikipedia.org/wiki/Gaussian_elimination)
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\text{Solve&space;the&space;system}&space;\begin{cases}&space;&&space;2\textit{x}_1&space;&plus;&space;\textit{x}_2&space;&plus;&space;5\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;5&space;\\&space;&&space;\textit{x}_1&space;&plus;&space;\textit{x}_2&space;-&space;3\textit{x}_3&space;-&space;4\textit{x}_4&space;=&space;-1&space;\\&space;&&space;3\textit{x}_1&space;&plus;&space;6\textit{x}_2&space;-&space;2\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;8&space;\\&space;&&space;2\textit{x}_1&space;&plus;&space;2\textit{x}_2&space;&plus;&space;2\textit{x}_3&space;-&space;3\textit{x}_4&space;=&space;2&space;\end{cases}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;\text{Solve&space;the&space;system}&space;\begin{cases}&space;&&space;2\textit{x}_1&space;&plus;&space;\textit{x}_2&space;&plus;&space;5\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;5&space;\\&space;&&space;\textit{x}_1&space;&plus;&space;\textit{x}_2&space;-&space;3\textit{x}_3&space;-&space;4\textit{x}_4&space;=&space;-1&space;\\&space;&&space;3\textit{x}_1&space;&plus;&space;6\textit{x}_2&space;-&space;2\textit{x}_3&space;&plus;&space;\textit{x}_4&space;=&space;8&space;\\&space;&&space;2\textit{x}_1&space;&plus;&space;2\textit{x}_2&space;&plus;&space;2\textit{x}_3&space;-&space;3\textit{x}_4&space;=&space;2&space;\end{cases}" title="\text{Solve the system} \begin{cases} & 2\textit{x}_1 + \textit{x}_2 + 5\textit{x}_3 + \textit{x}_4 = 5 \\ & \textit{x}_1 + \textit{x}_2 - 3\textit{x}_3 - 4\textit{x}_4 = -1 \\ & 3\textit{x}_1 + 6\textit{x}_2 - 2\textit{x}_3 + \textit{x}_4 = 8 \\ & 2\textit{x}_1 + 2\textit{x}_2 + 2\textit{x}_3 - 3\textit{x}_4 = 2 \end{cases}" /></a>
+$$
+\text{Solve the system} \begin{cases} & 2\textit{x}_1 + \textit{x}_2 + 5\textit{x}_3 + \textit{x}_4 = 5 \\ & \textit{x}_1 + \textit{x}_2 - 3\textit{x}_3 - 4\textit{x}_4 = -1 \\ & 3\textit{x}_1 + 6\textit{x}_2 - 2\textit{x}_3 + \textit{x}_4 = 8 \\ & 2\textit{x}_1 + 2\textit{x}_2 + 2\textit{x}_3 - 3\textit{x}_4 = 2 \end{cases}
+$$
 
-Our plan is to solve the equation,
+Our plan is to solve the equation, $\mathbf{A}\textit{x}= \mathbf{b}$, where $\mathbf{A} = \begin{bmatrix} 2 & 1 & 5 & 1\\ 1 & 1 & -3 & -4\\ 3 & 6 & -2 & 1\\ 2 & 2 & 2 & -3 \end{bmatrix}$ and $\mathbf{b} = \begin{bmatrix} 5\\ -4\\ 1\\ -3 \end{bmatrix}$.
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\mathbf{A}\textit{x}=&space;\mathbf{b}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{140}\inline&space;\inline&space;\mathbf{A}\textit{x}=&space;\mathbf{b}" title="\mathbf{A}\textit{x}= \mathbf{b}" /></a>
-
-where
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\mathbf{A}&space;=&space;\begin{bmatrix}&space;2&space;&&space;1&space;&&space;5&space;&&space;1\\&space;1&space;&&space;1&space;&&space;-3&space;&&space;-4\\&space;3&space;&&space;6&space;&&space;-2&space;&&space;1\\&space;2&space;&&space;2&space;&&space;2&space;&&space;-3&space;\end{bmatrix}&space;\text{,&space;}&space;\mathbf{b}&space;=&space;\begin{bmatrix}&space;5\\&space;-4\\&space;1\\&space;-3&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;\mathbf{A}&space;=&space;\begin{bmatrix}&space;2&space;&&space;1&space;&&space;5&space;&&space;1\\&space;1&space;&&space;1&space;&&space;-3&space;&&space;-4\\&space;3&space;&&space;6&space;&&space;-2&space;&&space;1\\&space;2&space;&&space;2&space;&&space;2&space;&&space;-3&space;\end{bmatrix}&space;\text{,&space;}&space;\mathbf{b}&space;=&space;\begin{bmatrix}&space;5\\&space;-4\\&space;1\\&space;-3&space;\end{bmatrix}" title="\mathbf{A} = \begin{bmatrix} 2 & 1 & 5 & 1\\ 1 & 1 & -3 & -4\\ 3 & 6 & -2 & 1\\ 2 & 2 & 2 & -3 \end{bmatrix} \text{, } \mathbf{b} = \begin{bmatrix} 5\\ -4\\ 1\\ -3 \end{bmatrix}" /></a>
-
-and then solve the equation by using Gaussian elimination on the associated [augmented matrix](https://en.wikipedia.org/wiki/Augmented_matrix).
+Finally, we solve the equation by using Gaussian elimination on the associated [augmented matrix](https://en.wikipedia.org/wiki/Augmented_matrix).
 
 This can be translated to code very easily as
 
@@ -296,7 +282,9 @@ $X = [Matrix]::Solve($A, $B)
 
 which yields the result,
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\mathbf{\textit{x}}&space;=&space;\begin{bmatrix}&space;\textit{x}_1\\&space;\textit{x}_2\\&space;\textit{x}_3\\&space;\textit{x}_4&space;\end{bmatrix}&space;=&space;\begin{bmatrix}&space;2\\&space;0.2\\&space;0\\&space;0.8&space;\end{bmatrix}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;\mathbf{\textit{x}}&space;=&space;\begin{bmatrix}&space;\textit{x}_1\\&space;\textit{x}_2\\&space;\textit{x}_3\\&space;\textit{x}_4&space;\end{bmatrix}&space;=&space;\begin{bmatrix}&space;2\\&space;0.2\\&space;0\\&space;0.8&space;\end{bmatrix}" title="\mathbf{\textit{x}} = \begin{bmatrix} \textit{x}_1\\ \textit{x}_2\\ \textit{x}_3\\ \textit{x}_4 \end{bmatrix} = \begin{bmatrix} 2\\ 0.2\\ 0\\ 0.8 \end{bmatrix}" /></a>
+$$
+\mathbf{\textit{x}} = \begin{bmatrix} \textit{x}_1\\ \textit{x}_2\\ \textit{x}_3\\ \textit{x}_4 \end{bmatrix} = \begin{bmatrix} 2\\ 0.2\\ 0\\ 0.8 \end{bmatrix}
+$$
 
 ------
 
