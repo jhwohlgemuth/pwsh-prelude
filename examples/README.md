@@ -98,13 +98,17 @@ $Reducer = {
 $Data = $Raw | transform $Lookup $Reducer | ? { $_.Capacity -gt 0 }
 ```
 
-We can now fit the data with a simple linear model using matrices. This is done via the equation:
+We can now fit the data with a simple linear model using matrices. This is done via the equation,
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\widehat{\beta&space;}&space;=&space;{\left&space;(&space;\textbf{X}^{\text{T}}&space;\textbf{X}&space;\right&space;)}^{-1}&space;\textbf{X}^{\text{T}}\textbf{Y}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{140}\widehat{\beta&space;}&space;=&space;{\left&space;(&space;\textbf{X}^{\text{T}}&space;\textbf{X}&space;\right&space;)}^{-1}&space;\textbf{X}^{\text{T}}\textbf{Y}" title="\widehat{\beta } = {\left ( \textbf{X}^{\text{T}} \textbf{X} \right )}^{-1} \textbf{X}^{\text{T}}\textbf{Y}" /></a>
+$$
+\widehat{\beta } = {\left ( \textbf{X}^{\text{T}} \textbf{X} \right )}^{-1} \textbf{X}^{\text{T}}\textbf{Y}
+$$
 
 To ensure this equation will render an answer, we must first verify that **X<sup>T</sup> X** is non-singular, that is, we must verify
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\text{det}\begin{vmatrix}&space;\textbf{X}^{\text{T}}\textbf{X}&space;\end{vmatrix}&space;\neq&space;0" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{140}\text{det}\begin{vmatrix}&space;\textbf{X}^{\text{T}}\textbf{X}&space;\end{vmatrix}&space;\neq&space;0" title="\text{det}\begin{vmatrix} \textbf{X}^{\text{T}}\textbf{X} \end{vmatrix} \neq 0" /></a>
+$$
+\text{det}\begin{vmatrix} \textbf{X}^{\text{T}}\textbf{X} \end{vmatrix} \neq 0
+$$
 
 We can quickly calculate the necessary determinant:
 
@@ -136,11 +140,13 @@ $BatteryDeathDate = [DateTime]::FromFileTime($XIntercept.Real)
 
 > 🤓 The data in my battery report indicates that my Microsoft Surface Pro 6 battery may die sometime in 2028
 
-After making a statistical inference, it is common practice to assess the quality of the estimation. We can calculate an estimator for the variance with
+After making a statistical inference, it is common practice to assess the quality of the estimation. We can calculate an estimator for the variance with the equation,
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=s^{2}&space;=&space;\frac{\text{SSE}}{n&space;-&space;2}&space;=&space;\frac{\textbf{Y}^{\text{T}}\textbf{Y}&space;-&space;\beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n&space;-&space;2}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{150}\inline&space;s^{2}&space;=&space;\frac{\text{SSE}}{n&space;-&space;2}&space;=&space;\frac{\textbf{Y}^{\text{T}}\textbf{Y}&space;-&space;\beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n&space;-&space;2}" title="s^{2} = \frac{\text{SSE}}{n - 2} = \frac{\textbf{Y}^{\text{T}}\textbf{Y} - \beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n - 2}" /></a>
+$$
+s^{2} = \frac{\text{SSE}}{n - 2} = \frac{\textbf{Y}^{\text{T}}\textbf{Y} - \beta^{\text{T}}\textbf{X}^{T}\textbf{Y}}{n - 2}
+$$
 
-and the associated code,
+, and the associated code,
 
 ```PowerShell
 $SSE = ($Y.Transpose() * $Y) - ($B.Transpose() * $X.Transpose() * $Y)
@@ -242,11 +248,11 @@ Example #5
     <a href="#"><img alt="Eigenvalues with matrices" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/eigenvalue.gif" alt="Eigenvalue with matrices" width="1280"/></a>
 </div>
 
-First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations:
+First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations,
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;\begin{matrix}&space;F_{k&space;&plus;&space;2}&space;=&space;F_{k&space;&plus;&space;1}&space;&plus;&space;F_{k}\\&space;F_{k&space;&plus;&space;1}&space;=&space;F_{k&space;&plus;&space;1}&space;\end{matrix}" title="\begin{matrix} F_{k + 2} = F_{k + 1} + F_{k}\\ F_{k + 1} = F_{k + 1} \end{matrix}" /></a>
 
-which can be codified with matrices as:
+, which can be codified with matrices as
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;U_{k}&space;=&space;\begin{bmatrix}&space;F_{k&space;&plus;&space;1}\\&space;F_{k}&space;\end{bmatrix},&space;U_{k&space;&plus;&space;1}&space;=&space;A&space;\cdot&space;U_{k}" target="_blank"><img src="https://latex.codecogs.com/png.latex?\inline&space;\dpi{120}\inline&space;\inline&space;U_{k}&space;=&space;\begin{bmatrix}&space;F_{k&space;&plus;&space;1}\\&space;F_{k}&space;\end{bmatrix},&space;U_{k&space;&plus;&space;1}&space;=&space;A&space;\cdot&space;U_{k}" title="U_{k} = \begin{bmatrix} F_{k + 1}\\ F_{k} \end{bmatrix}, U_{k + 1} = A \cdot U_{k}" /></a>
 
