@@ -62,14 +62,14 @@ function Get-State {
     .SYNOPSIS
     Load state from file
     .EXAMPLE
-    $State = Get-State -Id 'abc-def-ghi'
+    $State = Get-State -Name 'abc-def-ghi'
     .EXAMPLE
     $State = 'abc-def-ghi' | Get-State
     #>
     [CmdletBinding()]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
-        [String] $Id,
+        [String] $Name,
         [AllowEmptyString()]
         [String] $Path
     )
@@ -77,8 +77,8 @@ function Get-State {
         "==> Resolved ${Path}" | Write-Verbose
     } else {
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Name = $Id | Get-StateName
-        $Path = Join-Path $TempRoot "${Name}.xml"
+        $Filename = $Name | Get-StateName
+        $Path = Join-Path $TempRoot "${Filename}.xml"
     }
     "==> Loading state from ${Path}" | Write-Verbose
     Import-Clixml -Path $Path
@@ -220,35 +220,35 @@ function Invoke-RunApplication {
         [ScriptBlock] $Loop,
         [Parameter(Position = 2)]
         [ApplicationState] $State = @{},
-        [String] $Id,
+        [String] $Name,
         [ScriptBlock] $ShouldContinue,
         [ScriptBlock] $BeforeNext,
         [Switch] $ClearState,
         [Switch] $SingleRun,
         [Switch] $NoCleanup
     )
-    if ($Id.Length -gt 0) {
+    if ($Name.Length -gt 0) {
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Name = $Id | Get-StateName
-        $Path = Join-Path $TempRoot "${Name}.xml"
+        $Filename = $Name | Get-StateName
+        $Path = Join-Path $TempRoot "${Filename}.xml"
         if ($ClearState -and (Test-Path $Path)) {
             Remove-Item $Path
         }
         if (Test-Path $Path) {
-            "==> Resolved state with ID: $Id" | Write-Verbose
+            "==> Resolved state with name: ${Name}" | Write-Verbose
             try {
-                [ApplicationState]$State = Get-State $Id
-                $State.Id = $Id
+                [ApplicationState]$State = Get-State $Name
+                $State.Name = $Name
             } catch {
-                "==> Failed to get state with ID: $Id" | Write-Verbose
-                $State = [ApplicationState]@{ Id = $Id }
+                "==> Failed to get state with name: ${Name}" | Write-Verbose
+                $State = [ApplicationState]@{ Name = $Name }
             }
         } else {
-            $State.Id = $Id
+            $State.Name = $Name
         }
     }
     if (-not $State) {
-        $State = [ApplicationState]@{}
+        $State = [ApplicationState]@{ Name = $Name }
     }
     if (-not $ShouldContinue) {
         $ShouldContinue = { $State.Continue -eq $True }
@@ -260,6 +260,7 @@ function Invoke-RunApplication {
         }
     }
     "Application ID: $($State.Id)" | Write-Verbose
+    "Application Name: $($State.Name)" | Write-Verbose
     'application:init' | Invoke-FireEvent
     & $Init $State
     if ($SingleRun) {
@@ -333,7 +334,7 @@ function New-TerminalApplicationTemplate {
         {
             Invoke-Speak goodbye
             $Id = $Event.MessageData.State.Id
-            "Application ID: $Id" | Write-Color -Magenta
+            "Application name: $Name" | Write-Color -Magenta
         } | Invoke-ListenTo ''application:exit'' | Out-Null
         ' | Remove-Indent
     } else {
@@ -346,11 +347,11 @@ function New-TerminalApplicationTemplate {
     '    #Requires -Modules Prelude
     [CmdletBinding()]
     Param(
-        [String] $Id = ''app'',
+        [String] $Name = ''My-App'',
         [Switch] $Clear
     )
     {{ Empty }}
-    $InitialState = @{ Data = 0; Type = ''Terminal'' }
+    $InitialState = @{ Data = 0; Type = ''Terminal''; Name = $Name }
     {{ Empty }}
     $Init = {
         Clear-Host
@@ -358,7 +359,7 @@ function New-TerminalApplicationTemplate {
         $Id = $State.Id
         ''Application Information:'' | Write-Color
         `"ID = {{#green $Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-        ''Name = {{#green My-App}}'' | Write-Label -Color Gray -Indent 2 -NewLine
+        ''Name = {{#green $Name}}'' | Write-Label -Color Gray -Indent 2 -NewLine
         {{ Snippet }}
         Start-Sleep 2
     }
@@ -369,7 +370,7 @@ function New-TerminalApplicationTemplate {
         $Count = $State.Data
         `"Current count is {{#green $Count}}`" | Write-Color -Cyan
         $State.Data++
-        Save-State $State.Id $State | Out-Null
+        Save-State $State.Name $State | Out-Null
         Start-Sleep 1
     }
     {{ Empty }}
@@ -616,7 +617,7 @@ function New-WebApplication {
         Bundler = 'Parcel'
         Library = 'React'
         With = 'Cesium'
-    } | New-WebApplication
+    } | New-WebApplication -Name 'My-App'
     #>
     [CmdletBinding(DefaultParameterSetName = 'parameter', SupportsShouldProcess = $True)]
     Param(
@@ -1415,7 +1416,7 @@ function New-WebApplication {
             $State.Data = $Data
             $State.Name = $Data.Name
             $State.Parent = $Data.Parent
-            $State | Save-State -Id $State.Name -Verbose:(-not $Silent) | Out-Null
+            $State | Save-State -Name $State.Name -Verbose:(-not $Silent) -Force:$Force | Out-Null
         }
         if (-not $NoInstall) {
             if ($PSCmdlet.ShouldProcess('Install dependencies')) {
@@ -1458,30 +1459,35 @@ function Save-State {
     .SYNOPSIS
     Save state object as CliXml in temp directory
     .EXAMPLE
-    Set-State -Id 'my-app -State @{ Data = 42 }
+    Set-State -Name 'My-App' -State @{ Data = 42 }
     .EXAMPLE
-    Set-State 'my-app' @{ Data = 42 }
+    Set-State 'My-App' @{ Data = 42 }
     .EXAMPLE
-    @{ Data = 42 } | Set-State 'my-app'
+    @{ Data = 42 } | Set-State 'My-App'
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
     Param(
         [Parameter(Mandatory = $True, Position = 0)]
-        [String] $Id,
+        [String] $Name,
         [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
         [PSObject] $State,
-        [String] $Path
+        [String] $Path,
+        [Switch] $Force
     )
     if (-not $Path) {
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Name = $Id | Get-StateName
-        $Path = Join-Path $TempRoot "${Name}.xml"
+        $Filename = $Name | Get-StateName
+        $Path = Join-Path $TempRoot "${Filename}.xml"
     }
     if ($PSCmdlet.ShouldProcess($Path)) {
-        $State.Id = $Id
-        $State | Export-Clixml -Path $Path
-        "==> Saved state to ${Path}" | Write-Verbose
+        if ((Test-Path -Path $Path) -and (-not $Force)) {
+            "==> ${Path} already exists.  To replace the existing state, use -Force" | Write-Warning
+        } else {
+            $State.Name = $Name
+            $State | Export-Clixml -Path $Path
+            "==> Saved state to ${Path}" | Write-Verbose
+        }
     } else {
         "==> Would have saved state to ${Path}" | Write-Verbose
     }

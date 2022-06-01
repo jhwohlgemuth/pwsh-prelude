@@ -2,35 +2,37 @@
 
 Describe 'Application State' -Tag 'Local', 'Remote' {
     It 'can save and get state using ID' {
-        $Id = 'pester-test'
+        $Name = 'pester-test'
         $Value = (New-Guid).Guid
         $State = @{ Data = @{ Value = $Value } }
-        $Path = $State | Save-State $Id
-        $Expected = Get-State $Id
-        $Expected.Id | Should -Be $Id
+        $Path = $State | Save-State $Name
+        $Expected = Get-State $Name
+        $Expected.Name | Should -Be $Name
         $Expected.Data.Value | Should -Be $Value
         Remove-Item $Path
     }
     It 'can save and get state using path' {
         $Path = Join-Path $TestDrive 'state.xml'
         $Id = (New-Guid).Guid
+        $Name = 'My-State'
         $Value = (New-Guid).Guid
         $State = @{ Id = $Id; Data = @{ Value = $Value } }
-        $State | Save-State -Id $Id -Path $Path
+        $State | Save-State -Name $Name -Path $Path
         $Expected = Get-State -Path $Path
         $Expected.Id | Should -Be $Id
+        $Expected.Name | Should -Be $Name
         $Expected.Data.Value | Should -Be $Value
         Remove-Item $Path
     }
     It 'saves state name as a Base64 string' {
-        $Id = 'Foo'
+        $Name = 'Foo'
         $Expected = 'prelude-RgBvAG8A'
-        $Id | Get-StateName | Should -Be $Expected
+        $Name | Get-StateName | Should -Be $Expected
     }
     It 'can test save using -WhatIf switch' {
         Mock Write-Verbose {}
         $Path = Join-Path $TestDrive 'test.xml'
-        @{ Data = 42 } | Save-State -Id 'whatif' -Path $Path -WhatIf
+        @{ Data = 42 } | Save-State -Name 'whatif' -Path $Path -WhatIf
         (Test-Path $Path) | Should -BeFalse
     }
 }
@@ -166,14 +168,15 @@ Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
     It 'can persist state with -Id switch and clear state with -ClearState switch' {
         # First run with initial state passed to Invoke-RunApplication
         $Script:Count = 0
+        $Script:Name = 'My-Tui'
         $Script:Value = (New-Guid).Guid
-        $InitialState = @{ Data = @{ Value = $Script:Value } }
+        $InitialState = @{ Data = @{ Value = $Script:Value }; Name = $Script:Name }
         $Init = {
             $Script:Count++
         }
         $Loop = {
             $State = $Args[0]
-            $State | Save-State $State.Id | Out-Null
+            $State | Save-State $Script:Name -Force | Out-Null
             $Script:Count++
         }
         $Script:ApplicationId = Invoke-RunApplication $Init $Loop $InitialState -SingleRun
@@ -181,22 +184,22 @@ Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
         # Second run that loads state with Get-State
         $Init = {
             $State = $Args[0]
-            $State.Id | Should -Be $Script:ApplicationId
+            $State.Name | Should -Be $Script:Name
             $State.Data.Value | Should -Be $Script:Value
             $Script:Count++
         }
         $Loop = {
             $State = $Args[0]
-            $State.Id | Should -Be $Script:ApplicationId
+            $State.Name | Should -Be $Script:Name
             $State.Data.Value | Should -Be $Script:Value
             $Script:Count++
         }
-        Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId
+        Invoke-RunApplication $Init $Loop -SingleRun -Name $Script:Name
         $Script:Count | Should -Be 4
         # Third run that should clear state
         $Init = {
             $State = $Args[0]
-            $State.Id | Should -Be $Script:ApplicationId
+            $State.Name | Should -Be $Script:Name
             $State.Data.Value | Should -BeNullOrEmpty
             $Script:Count++
         }
@@ -204,10 +207,10 @@ Describe 'Invoke-RunApplication' -Tag 'Local', 'Remote' {
             $Script:Count++
         }
         $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
-        $Name = $Script:ApplicationId | Get-StateName
-        $Path = Join-Path $TempRoot "${Name}.xml"
+        $Filename = $Script:Name | Get-StateName
+        $Path = Join-Path $TempRoot "${Filename}.xml"
         (Test-Path $Path) | Should -BeTrue
-        Invoke-RunApplication $Init $Loop -SingleRun -Id $Script:ApplicationId -ClearState
+        Invoke-RunApplication $Init $Loop -SingleRun -Name $Script:Name -ClearState
         (Test-Path $Path) | Should -BeFalse
         $Script:Count | Should -Be 6
     }
@@ -357,7 +360,7 @@ Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
     It 'can interpolate values into template string' {
         New-TerminalApplicationTemplate | Should -Match '#Requires -Modules Prelude'
         New-TerminalApplicationTemplate | Should -Match '\$Init = {'
-        New-TerminalApplicationTemplate | Should -Match '{{#green My-App}}'
+        New-TerminalApplicationTemplate | Should -Match '{{#green \$Name}}'
         New-TerminalApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
         New-TerminalApplicationTemplate | Should -Not -Match '  \$State = {'
     }
@@ -379,7 +382,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
             'postcss.config.js'
             'webpack.config.js'
         )
-        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent -Force
         Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
@@ -399,7 +402,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
             'postcss.config.js'
             'webpack.config.js'
         )
-        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent -Force
         Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
@@ -419,7 +422,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
             'postcss.config.js'
             'webpack.config.js'
         )
-        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent -Force
         Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
@@ -438,7 +441,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
             'package.json'
             'postcss.config.js'
         )
-        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent
+        New-WebApplication -Bundler $Bundler -Library $Library -Parent $TestDrive -NoInstall -Silent -Force
         Get-ChildItem (Join-Path $TestDrive 'webapp') | Should -Be $Files
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
@@ -448,7 +451,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
     ) {
         $Path = Join-Path $TestDrive "/$($Config.Name)/package.json"
         Test-Path -Path $Path | Should -BeFalse
-        $Config | New-WebApplication -Parent $TestDrive -NoInstall -Silent
+        $Config | New-WebApplication -Parent $TestDrive -NoInstall -Silent -Force
         Test-Path -Path $Path | Should -BeTrue
         $State = $Config.Name | Get-State
         $State.Name | Should -Be $Config.Name
@@ -464,7 +467,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
                 'Magenta' { 'Cesium' }
             }
         } -ModuleName Prelude
-        New-WebApplication -Interactive -Parent $TestDrive -NoInstall -Silent
+        New-WebApplication -Interactive -Parent $TestDrive -NoInstall -Silent -Force
         Remove-Item -Path (Join-Path $TestDrive 'webapp') -Recurse -Force
     }
 }
