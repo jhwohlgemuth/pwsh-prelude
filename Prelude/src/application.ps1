@@ -333,8 +333,8 @@ function New-TerminalApplicationTemplate {
         '
         {
             Invoke-Speak goodbye
-            $Id = $Event.MessageData.State.Id
-            "Application name: $Name" | Write-Color -Magenta
+            $Name = $Event.MessageData.State.Name
+            "Application name: ${Name}" | Write-Color -Magenta
         } | Invoke-ListenTo ''application:exit'' | Out-Null
         ' | Remove-Indent
     } else {
@@ -359,7 +359,7 @@ function New-TerminalApplicationTemplate {
         $Id = $State.Id
         ''Application Information:'' | Write-Color
         `"ID = {{#green $Id}}`" | Write-Label -Color Gray -Indent 2 -NewLine
-        ''Name = {{#green $Name}}'' | Write-Label -Color Gray -Indent 2 -NewLine
+        `"Name = {{#green ${Name}}}`" | Write-Label -Color Gray -Indent 2 -NewLine
         {{ Snippet }}
         Start-Sleep 2
     }
@@ -374,7 +374,7 @@ function New-TerminalApplicationTemplate {
         Start-Sleep 1
     }
     {{ Empty }}
-    Invoke-RunApplication $Init $Loop $InitialState -Id $Id -ClearState:$Clear
+    Invoke-RunApplication $Init $Loop $InitialState -Name $Name -ClearState:$Clear
     ' | Remove-Indent | New-Template -Data $Data
 }
 function New-Template {

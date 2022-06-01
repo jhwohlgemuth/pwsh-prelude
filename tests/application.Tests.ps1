@@ -360,7 +360,7 @@ Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
     It 'can interpolate values into template string' {
         New-TerminalApplicationTemplate | Should -Match '#Requires -Modules Prelude'
         New-TerminalApplicationTemplate | Should -Match '\$Init = {'
-        New-TerminalApplicationTemplate | Should -Match '{{#green \$Name}}'
+        New-TerminalApplicationTemplate | Should -Match '{{#green \${Name}}}'
         New-TerminalApplicationTemplate | Should -Match '\$Init \$Loop \$InitialState'
         New-TerminalApplicationTemplate | Should -Not -Match '  \$State = {'
     }
