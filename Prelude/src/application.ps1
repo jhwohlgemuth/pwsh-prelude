@@ -347,7 +347,7 @@ function New-TerminalApplicationTemplate {
     '    #Requires -Modules Prelude
     [CmdletBinding()]
     Param(
-        [String] $Name = ''My-App'',
+        [String] $Name = ''My-Terminal-App'',
         [Switch] $Clear
     )
     {{ Empty }}
@@ -370,7 +370,7 @@ function New-TerminalApplicationTemplate {
         $Count = $State.Data
         `"Current count is {{#green $Count}}`" | Write-Color -Cyan
         $State.Data++
-        Save-State $State.Name $State | Out-Null
+        $State | Save-State $State.Name -Force | Out-Null
         Start-Sleep 1
     }
     {{ Empty }}
