@@ -249,7 +249,23 @@ Example #5
     <a href="#"><img alt="Eigenvalues with matrices" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/eigenvalue.gif" alt="Eigenvalue with matrices" width="1280"/></a>
 </div>
 
-First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations, $F_{k + 2} = F_{k + 1} + F_{k}$ and $F_{k + 1} = F_{k + 1}$, which can be codified in matrix form as $U_{k} = \begin{bmatrix} F_{k + 1}\\ F_{k} \end{bmatrix}$ and $U_{k + 1} = A \cdot U_{k}$, where $A = \begin{bmatrix} 1 & 1\\ 1 & 0 \end{bmatrix}$.
+First, we model the [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_number) using the equations, $F_{k + 2} = F_{k + 1} + F_{k}$ and $F_{k + 1} = F_{k + 1}$, which can be codified in matrix form as
+
+$$
+U_{k} = \begin{bmatrix}
+F_{k + 1}\\
+F_{k}\\
+\end{bmatrix}
+$$
+
+and $U_{k + 1} = A \cdot U_{k}$, where
+
+$$
+A = \begin{bmatrix}
+1 & 1\\
+1 & 0\\
+\end{bmatrix}
+$$
 
 The final step is a simple matter of calculating the dominant eigenvalue of ***A*** with the code,
 
@@ -266,10 +282,37 @@ Example #6
 > Solve system of equations using [Gaussian elimination](https://en.wikipedia.org/wiki/Gaussian_elimination)
 
 $$
-\text{Solve the system} \begin{cases} & 2\textit{x}_1 + \textit{x}_2 + 5\textit{x}_3 + \textit{x}_4 = 5 \\ & \textit{x}_1 + \textit{x}_2 - 3\textit{x}_3 - 4\textit{x}_4 = -1 \\ & 3\textit{x}_1 + 6\textit{x}_2 - 2\textit{x}_3 + \textit{x}_4 = 8 \\ & 2\textit{x}_1 + 2\textit{x}_2 + 2\textit{x}_3 - 3\textit{x}_4 = 2 \end{cases}
+\text{Solve the system}
+\begin{cases}
+& 2\textit{x}_1 + \textit{x}_2 + 5\textit{x}_3 + \textit{x}_4 = 5 \\
+& \textit{x}_1 + \textit{x}_2 - 3\textit{x}_3 - 4\textit{x}_4 = -1 \\
+& 3\textit{x}_1 + 6\textit{x}_2 - 2\textit{x}_3 + \textit{x}_4 = 8 \\
+& 2\textit{x}_1 + 2\textit{x}_2 + 2\textit{x}_3 - 3\textit{x}_4 = 2
+\end{cases}
 $$
 
-Our plan is to solve the equation, $\mathbf{A}\textit{x}= \mathbf{b}$, where $\mathbf{A} = \begin{bmatrix} 2 & 1 & 5 & 1\\ 1 & 1 & -3 & -4\\ 3 & 6 & -2 & 1\\ 2 & 2 & 2 & -3 \end{bmatrix}$ and $\mathbf{b} = \begin{bmatrix} 5\\ -4\\ 1\\ -3 \end{bmatrix}$.
+Our plan is to solve the equation, $\mathbf{A}\textit{x}= \mathbf{b}$, where 
+
+$$
+\mathbf{A} =
+\begin{bmatrix}
+2 & 1 & 5 & 1\\
+1 & 1 & -3 & -4\\
+3 & 6 & -2 & 1\\
+2 & 2 & 2 & -3\\
+\end{bmatrix}
+$$
+
+and
+
+$$
+\mathbf{b} = \begin{bmatrix}
+5\\
+-4\\
+1\\
+-3\\
+\end{bmatrix}
+$$
 
 Finally, we solve the equation by using Gaussian elimination on the associated [augmented matrix](https://en.wikipedia.org/wiki/Augmented_matrix).
 
@@ -284,7 +327,19 @@ $X = [Matrix]::Solve($A, $B)
 which yields the result,
 
 $$
-\mathbf{\textit{x}} = \begin{bmatrix} \textit{x}_1\\ \textit{x}_2\\ \textit{x}_3\\ \textit{x}_4 \end{bmatrix} = \begin{bmatrix} 2\\ 0.2\\ 0\\ 0.8 \end{bmatrix}
+\mathbf{\textit{x}} =
+\begin{bmatrix}
+\textit{x}_1\\
+\textit{x}_2\\
+\textit{x}_3\\
+\textit{x}_4\\
+\end{bmatrix} =
+\begin{bmatrix}
+2\\
+0.2\\
+0\\
+0.8\\
+\end{bmatrix}
 $$
 
 ------
