@@ -731,7 +731,7 @@ function New-WebApplication {
             Begin {
                 $Success = $True
                 $Location = Get-Location
-                Set-Location -Path $Parents
+                Set-Location -Path $Parent
                 $Context = Test-ApplicationContext
                 $Command = 'npm install'
             }
@@ -1421,7 +1421,11 @@ function New-WebApplication {
         if (-not $NoInstall) {
             if ($PSCmdlet.ShouldProcess('Install dependencies')) {
                 $NoErrors = if ($Context.Node.Ready) {
-                    Invoke-NpmInstall -Silent:$Silent
+                    $Parameters = @{
+                        Parent = $APPLICATION_DIRECTORY
+                        Silent = $Silent
+                    }
+                    Invoke-NpmInstall @Parameters
                 }
             }
             if ($NoErrors -and (-not $Silent)) {
