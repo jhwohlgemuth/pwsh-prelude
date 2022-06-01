@@ -766,7 +766,7 @@ function New-WebApplication {
             End {
                 Set-Location -Path $Location
                 if (-not $Success) {
-                    exit
+                    return $Null
                 } else {
                     return $Success
                 }
