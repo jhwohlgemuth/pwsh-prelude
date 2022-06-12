@@ -365,7 +365,7 @@ Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
         New-TerminalApplicationTemplate | Should -Not -Match '  \$State = {'
     }
 }
-Describe 'Foo' {
+Describe -Skip 'Foo' {
     It 'Bar' {
         New-WebApplication -React -NoInstall -Silent -Force -Parent $TestDrive -With Reason, Rust
         $Path = Join-Path $TestDrive 'webapp'
