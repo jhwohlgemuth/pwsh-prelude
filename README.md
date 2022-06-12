@@ -282,7 +282,9 @@ Functions
   - `Remove-Indent`
   - `Rename-FileExtension`
   - `Save-File`
+  - `Save-JsonData`
   - `Save-State`
+  - `Save-TemplateData`
   - `Take`
   - `Test-Admin`
   - `Test-ApplicationContext`

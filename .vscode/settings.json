@@ -18,5 +18,7 @@
         "statusBarItem.remoteBackground": "#007fff",
         "statusBarItem.remoteForeground": "#e7e7e7"
     },
-    "peacock.color": "#007fff"
+    "peacock.color": "#007fff",
+    "editor.fontFamily" : "\"JetBrainsMono NF\"",
+    "terminal.integrated.fontFamily" : "\"JetBrainsMono NF\""
 }

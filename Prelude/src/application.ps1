@@ -660,62 +660,6 @@ function New-WebApplication {
         [Switch] $Force
     )
     Begin {
-        $TEMPLATE_DIRECTORY = Join-Path $PSScriptRoot '../src/templates'
-        function Copy-TemplateData {
-            <#
-            .SYNOPSIS
-            Utility function for copying template file to the application directory.
-            Provides warning message when file already exists and -Force is not used.
-            #>
-            [CmdletBinding()]
-            Param(
-                [PSObject] $Data,
-                [String] $Template,
-                [String] $Parent,
-                [String] $Filename,
-                [Switch] $Force
-            )
-            $Path = Join-Path $Parent $Filename
-            $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
-            if (-not (Test-Path -Path $Path) -or $Force) {
-                $Parameters = @{
-                    File = (Join-Path $TEMPLATE_DIRECTORY $Template)
-                    Data = $Data
-                    NoData = ($Data.Count -eq 0)
-                }
-                New-Template @Parameters | Out-File -FilePath $Path -Encoding ascii
-            } else {
-                $Message | Write-Warning
-            }
-        }
-        function Save-JsonData {
-            <#
-            .SYNOPSIS
-            Utility function for saving JSON data.
-            Provides warning message when file already exists and -Force is not used.
-            #>
-            [CmdletBinding()]
-            Param(
-                [PSObject] $Data,
-                [String] $Parent,
-                [String] $Filename,
-                [Switch] $Force
-            )
-            $Path = Join-Path $Parent $Filename
-            $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
-            if (-not (Test-Path -Path $Path) -or $Force) {
-                $Data |
-                    ConvertTo-Json -Depth 100 |
-                    ForEach-Object { $_ -replace '\\\\\\', '\' } |
-                    ForEach-Object { $_ -replace '\\u003c', '<' } |
-                    ForEach-Object { $_ -replace '\\u003e', '>' } |
-                    ForEach-Object { $_ -replace '\\u0026', '&' } |
-                    Format-Json |
-                    Out-File -FilePath $Path -Encoding ascii
-            } else {
-                $Message | Write-Warning
-            }
-        }
         function Invoke-NpmInstall {
             <#
             .SYNOPSIS
@@ -838,6 +782,7 @@ function New-WebApplication {
         $Data.Name = if ($Data.Name) { $Data.Name } else { $Name }
         $Data.Parent = if ($Data.Parent) { $Data.Parent } else { $Parent }
         $APPLICATION_DIRECTORY = Join-Path $Data.Parent $Data.Name
+        $TEMPLATE_DIRECTORY = Join-Path $PSScriptRoot '../src/templates'
         $RUST_DIRECTORY = Join-Path $APPLICATION_DIRECTORY $Data.RustDirectory
         $PackageManifestData = @{
             name = $Data.Name
@@ -863,6 +808,7 @@ function New-WebApplication {
             }
         }
         $NpmScripts = @{
+            Babel = @{}
             Eslint = @{
                 'lint' = 'eslint . -c ./.eslintrc.json --ext .js,.jsx --fix'
                 'lint:ing' = "watch `"npm run lint`" $($Data.SourceDirectory)"
@@ -873,6 +819,7 @@ function New-WebApplication {
                 'test:ing' = 'npm test -- --watchAll'
             }
             Parcel = @{}
+            Postcss = @{}
             Rollup = @{}
             Webpack = @{
                 'clean' = "del-cli $($Data.ProductionDirectory)"
@@ -918,26 +865,34 @@ function New-WebApplication {
                 'watch' = '*'
             }
             Babel = @{
-                '@babel/cli' = '^7.17.10'
-                '@babel/core' = '^7.18.0'
-                '@babel/plugin-proposal-class-properties' = '^7.17.12'
-                '@babel/plugin-proposal-export-default-from' = '^7.17.12'
-                '@babel/plugin-proposal-optional-chaining' = '^7.17.12'
-                '@babel/plugin-transform-runtime' = '^7.18.0'
-                '@babel/preset-env' = '^7.18.0'
-                '@babel/preset-react' = '^7.17.12'
-                '@babel/runtime' = '^7.18.0'
-                'babel-preset-minify' = '^0.5.2'
+                Core = @{
+                    '@babel/cli' = '^7.17.10'
+                    '@babel/core' = '^7.18.0'
+                    '@babel/plugin-proposal-class-properties' = '^7.17.12'
+                    '@babel/plugin-proposal-export-default-from' = '^7.17.12'
+                    '@babel/plugin-proposal-optional-chaining' = '^7.17.12'
+                    '@babel/plugin-transform-runtime' = '^7.18.0'
+                    '@babel/preset-env' = '^7.18.0'
+                    '@babel/runtime' = '^7.18.0'
+                    'babel-preset-minify' = '^0.5.2'
+                }
+                React = @{
+                    '@babel/preset-react' = '^7.17.12'
+                }
             }
             Cesium = @{}
             Eslint = @{
-                'eslint' = '^7.32.0'
-                'babel-eslint' = '^10.1.0'
-                'eslint-config-omaha-prime-grade' = '^14.0.1'
-                'eslint-plugin-import' = '^2.26.0'
-                'eslint-plugin-jsx-a11y' = '^6.5.1'
-                'eslint-plugin-promise' = '*'
-                'eslint-plugin-react' = '^7.30.0'
+                Core = @{
+                    'eslint' = '^7.32.0'
+                    'babel-eslint' = '^10.1.0'
+                    'eslint-config-omaha-prime-grade' = '^14.0.1'
+                    'eslint-plugin-import' = '^2.26.0'
+                    'eslint-plugin-jsx-a11y' = '^6.5.1'
+                    'eslint-plugin-promise' = '*'
+                }
+                React = @{
+                    'eslint-plugin-react' = '^7.30.0'
+                }
             }
             Jest = @{
                 'jest' = '^28.1.0'
@@ -949,16 +904,20 @@ function New-WebApplication {
                 'parcel-plugin-purgecss' = '*'
             }
             Postcss = @{
-                'cssnano' = '^5.1.9'
-                'postcss' = '^8.4.14'
-                'postcss-cli' = '^9.1.0'
-                'postcss-import' = '^14.1.0'
-                'postcss-preset-env' = '^7.6.0'
-                'postcss-reporter' = '^7.0.5'
-                'postcss-safe-parser' = '^6.0.0'
+                Core = @{
+                    'cssnano' = '^5.1.9'
+                    'postcss' = '^8.4.14'
+                    'postcss-cli' = '^9.1.0'
+                    'postcss-import' = '^14.1.0'
+                    'postcss-preset-env' = '^7.6.0'
+                    'postcss-reporter' = '^7.0.5'
+                    'postcss-safe-parser' = '^6.0.0'
+                }
+                React = @{}
             }
             React = @{
-                'react-hot-loader' = '^4.13.0'
+                '@hot-loader/react-dom' = $Data.ReactVersion
+                'react-hot-loader' = '*'
             }
             Reason = @{
                 'rescript' = '*'
@@ -1006,70 +965,108 @@ function New-WebApplication {
         }
         $ConfigurationFileData = @{
             Eslint = @{
-                env = @{
-                    es6 = $True
-                    jest = $True
-                    browser = $True
-                }
-                extends = @(
-                    'omaha-prime-grade'
-                    'plugin:import/errors'
-                    'plugin:import/warnings'
-                    'plugin:promise/recommended'
-                    'plugin:react/recommended'
-                    'plugin:jsx-a11y/recommended'
-                )
-                parser = 'babel-eslint'
-                parserOptions = @{
-                    ecmaFeatures = @{
-                        jsx = $True
+                Core = @{
+                    env = @{
+                        es6 = $True
+                        jest = $True
+                        browser = $True
                     }
+                    extends = @(
+                        'omaha-prime-grade'
+                        'plugin:import/errors'
+                        'plugin:import/warnings'
+                        'plugin:promise/recommended'
+                        'plugin:jsx-a11y/recommended'
+                    )
+                    parser = 'babel-eslint'
                 }
-                plugins = @(
-                    'jsx-a11y'
-                )
-                settings = @{
-                    react = @{
-                        version = 'detect'
+                React = @{
+                    env = @{
+                        es6 = $True
+                        jest = $True
+                        browser = $True
+                    }
+                    extends = @(
+                        'omaha-prime-grade'
+                        'plugin:import/errors'
+                        'plugin:import/warnings'
+                        'plugin:promise/recommended'
+                        'plugin:react/recommended'
+                        'plugin:jsx-a11y/recommended'
+                    )
+                    parser = 'babel-eslint'
+                    parserOptions = @{
+                        ecmaFeatures = @{
+                            jsx = $True
+                        }
+                    }
+                    plugins = @(
+                        'jsx-a11y'
+                    )
+                    rules = @{
+                        'react/jsx-uses-react' = 'off'
+                        'react/react-in-jsx-scope' = 'off'
+                    }
+                    settings = @{
+                        react = @{
+                            version = 'detect'
+                        }
                     }
                 }
             }
             Babel = @{
-                plugins = @(
-                    'react-hot-loader/babel'
-                    '@babel/plugin-transform-runtime'
-                    '@babel/plugin-proposal-class-properties'
-                    '@babel/plugin-proposal-export-default-from'
-                    '@babel/plugin-proposal-optional-chaining'
-                )
-                presets = @(
-                    '@babel/preset-env'
-                    'babel-preset-minify'
-                    , @(
-                        '@babel/preset-react'
-                        @{
-                            runtime = 'automatic'
-                        }
+                Core = @{
+                    plugins = @(
+                        '@babel/plugin-transform-runtime'
+                        '@babel/plugin-proposal-class-properties'
+                        '@babel/plugin-proposal-export-default-from'
+                        '@babel/plugin-proposal-optional-chaining'
                     )
-                )
+                    presets = @(
+                        '@babel/preset-env'
+                        'babel-preset-minify'
+                    )
+                }
+                React = @{
+                    plugins = @(
+                        'react-hot-loader/babel'
+                        '@babel/plugin-transform-runtime'
+                        '@babel/plugin-proposal-class-properties'
+                        '@babel/plugin-proposal-export-default-from'
+                        '@babel/plugin-proposal-optional-chaining'
+                    )
+                    presets = @(
+                        '@babel/preset-env'
+                        'babel-preset-minify'
+                        , @(
+                            '@babel/preset-react'
+                            @{
+                                runtime = 'automatic'
+                            }
+                        )
+                    )
+                }
             }
             Postcss = @{
-                map = $True
-                parser = 'postcss-safe-parser'
-                plugins = @(
-                    , @(
-                        'stylelint'
-                        @{
-                            config = @{
-                                extends = 'stylelint-config-recommended'
+                Core = @{
+                    map = $True
+                    parser = 'postcss-safe-parser'
+                    plugins = @(
+                        , @(
+                            'stylelint'
+                            @{
+                                config = @{
+                                    extends = 'stylelint-config-recommended'
+                                }
                             }
-                        }
+                        )
+                        'postcss-import'
+                        'postcss-preset-env'
+                        'cssnano'
+                        'postcss-reporter'
                     )
-                    'postcss-import'
-                    'postcss-preset-env'
-                    'cssnano'
-                    'postcss-reporter'
-                )
+                }
+                React = @{}
             }
             Reason = @{
                 'name' = $Data.Name
@@ -1118,7 +1115,7 @@ function New-WebApplication {
                     })" | Remove-Indent -Size 12)
             }
         }
-        if ($PSCmdlet.ShouldProcess('Create application folder structure')) {
+        if ($PSCmdlet.ShouldProcess('Create application folder structure and common assets')) {
             $Source = $Data.SourceDirectory
             $Assets = $Data.AssetsDirectory
             @(
@@ -1133,6 +1130,57 @@ function New-WebApplication {
                 "${Assets}/workers"
                 '__tests__'
             ) | ForEach-Object { New-Item -Type Directory -Path (Join-Path $APPLICATION_DIRECTORY $_) -Force } | Out-Null
+        }
+        if ($PSCmdlet.ShouldProcess('Copy common assets')) {
+            $Data, @{
+                UseReact = ($Library -eq 'React')
+                WithCesium = ($With -contains 'Cesium')
+                NoJavaScriptEnglish = 'Please enable JavaScript in your browser for a better experience.'
+                NoJavaScriptFrench = 'Veuillez activer JavaScript dans votre navigateur pour une meilleure expérience.'
+                NoJavaScriptJapanese = 'より良い体験のため、ブラウザでJavaScriptを有効にして下さい'
+                NoJavaScriptChinese = '请在你的浏览器中启用JavaScript以便享受最佳体验'
+            } | Invoke-ObjectMerge -InPlace -Force
+            $Assets = Join-Path $APPLICATION_DIRECTORY $Data.AssetsDirectory
+            @(
+                @{
+                    Filename = 'index.html'
+                    Template = 'source/html_index'
+                    Parent = $Assets
+                }
+                @{
+                    Filename = 'style.css'
+                    Template = 'source/css_style'
+                    Parent = (Join-Path $Assets 'css')
+                }
+                @{
+                    Filename = '.gitkeep'
+                    Template = 'gitkeep'
+                    Parent = (Join-Path $Assets 'fonts')
+                }
+                @{
+                    Filename = '.gitkeep'
+                    Template = 'gitkeep'
+                    Parent = (Join-Path $Assets 'images')
+                }
+                @{
+                    Filename = '.gitkeep'
+                    Template = 'gitkeep'
+                    Parent = (Join-Path $Assets 'library')
+                }
+                @{
+                    Filename = '.gitkeep'
+                    Template = 'gitkeep'
+                    Parent = (Join-Path $Assets 'workers')
+                }
+            ) | ForEach-Object {
+                $Parameters = $_
+                $Common = @{
+                    Data = $Data
+                    Force = $Force
+                    TemplateDirectory = $TEMPLATE_DIRECTORY
+                }
+                Save-TemplateData @Parameters @Common
+            }
         }
         switch ($Bundler) {
             Parcel {
@@ -1168,12 +1216,13 @@ function New-WebApplication {
                 if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
                     $Parameters = @{
                         Filename = 'webpack.config.js'
-                        Template = 'config_webpack'
+                        Template = 'config/webpack'
+                        TemplateDirectory = $TEMPLATE_DIRECTORY
                         Data = $ConfigurationFileData.Webpack
                         Parent = $APPLICATION_DIRECTORY
                         Force = $Force
                     }
-                    Copy-TemplateData @Parameters
+                    Save-TemplateData @Parameters
                 }
             }
         }
@@ -1189,32 +1238,37 @@ function New-WebApplication {
                     @(
                         @{
                             Filename = 'main.jsx'
-                            Template = 'source_react_main'
+                            Template = 'source/react/main'
                             Parent = $Source
                         }
                         @{
                             Filename = 'App.jsx'
-                            Template = 'source_react_app'
+                            Template = 'source/react/app'
                             Parent = $Components
                         }
                         @{
                             Filename = 'Header.jsx'
-                            Template = 'source_react_header'
+                            Template = 'source/react/header'
                             Parent = $Components
                         }
                         @{
-                            Filename = 'Body.re'
-                            Template = 'source_react_body'
+                            Filename = 'Body.jsx'
+                            Template = 'source/react/body'
                             Parent = $Components
                         }
                         @{
-                            Filename = 'Footer.re'
-                            Template = 'source_react_footer'
+                            Filename = 'Footer.jsx'
+                            Template = 'source/react/footer'
                             Parent = $Components
                         }
                     ) | ForEach-Object {
                         $Parameters = $_
-                        Copy-TemplateData @Parameters -Data $Data -Force:$Force
+                        $Common = @{
+                            Data = $Data
+                            Force = $Force
+                            TemplateDirectory = $TEMPLATE_DIRECTORY
+                        }
+                        Save-TemplateData @Parameters @Common
                     }
                 }
             }
@@ -1231,12 +1285,13 @@ function New-WebApplication {
                     $Source = Join-Path $APPLICATION_DIRECTORY 'src'
                     $Parameters = @{
                         Filename = 'main.js'
-                        Template = 'source_vanilla_main'
+                        Template = 'source/vanilla_main'
+                        TemplateDirectory = $TEMPLATE_DIRECTORY
                         Data = $Data
                         Parent = $Source
                         Force = $Force
                     }
-                    Copy-TemplateData @Parameters
+                    Save-TemplateData @Parameters
                 }
             }
         }
@@ -1244,7 +1299,7 @@ function New-WebApplication {
             Cesium {
                 if ($PSCmdlet.ShouldProcess('Add Cesium dependencies to package.json')) {
                     $PackageManifestData.dependencies += $Dependencies.Cesium
-                    if ($React) {
+                    if ($Library -eq 'React') {
                         $PackageManifestData.dependencies += $Dependencies.React.Cesium
                     }
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Cesium
@@ -1272,15 +1327,21 @@ function New-WebApplication {
                     @(
                         @{
                             Filename = 'App.re'
-                            Template = 'source_reason_app'
+                            Template = 'source/reason/app'
                         }
                         @{
                             Filename = 'Example.re'
-                            Template = 'source_reason_example'
+                            Template = 'source/reason/example'
                         }
                     ) | ForEach-Object {
                         $Parameters = $_
-                        Copy-TemplateData @Parameters -Data $Data -Parent $Components -Force:$Force
+                        $Common = @{
+                            Data = $Data
+                            Parent = $Components
+                            Force = $Force
+                            TemplateDirectory = $TEMPLATE_DIRECTORY
+                        }
+                        Save-TemplateData @Parameters @Common
                     }
                 }
             }
@@ -1299,37 +1360,42 @@ function New-WebApplication {
                     @(
                         @{
                             Filename = 'Cargo.toml'
-                            Template = 'config_rust'
+                            Template = 'config/rust'
                             Parent = $APPLICATION_DIRECTORY
                         }
                         @{
                             Filename = 'Cargo.toml'
-                            Template = 'config_rust_crate'
+                            Template = 'config/crate'
                             Parent = $RUST_DIRECTORY
                         }
                         @{
                             Filename = 'lib.rs'
-                            Template = 'source_rust_lib'
+                            Template = 'source/rust/lib'
                             Parent = $Source
                         }
                         @{
                             Filename = 'utils.rs'
-                            Template = 'source_rust_utils'
+                            Template = 'source/rust/utils'
                             Parent = $Source
                         }
                         @{
                             Filename = 'app.rs'
-                            Template = 'source_rust_app'
+                            Template = 'source/rust/app'
                             Parent = $Tests
                         }
                         @{
                             Filename = 'web.rs'
-                            Template = 'source_rust_web'
+                            Template = 'source/rust/web'
                             Parent = $Tests
                         }
                     ) | ForEach-Object {
                         $Parameters = $_
-                        Copy-TemplateData @Parameters -Data $Data -Force:$Force
+                        $Common = @{
+                            Data = $Data
+                            Force = $Force
+                            TemplateDirectory = $TEMPLATE_DIRECTORY
+                        }
+                        Save-TemplateData @Parameters @Common
                     }
                 }
             }
@@ -1342,54 +1408,86 @@ function New-WebApplication {
             @(
                 @{
                     Filename = 'setup.js'
-                    Template = 'source_jest_setup'
+                    Template = 'source/jest_setup'
                 }
                 @{
                     Filename = 'example.test.js'
-                    Template = 'source_jest_example'
+                    Template = 'source/jest_example'
                 }
             ) | ForEach-Object {
                 $Parameters = $_
-                Copy-TemplateData @Parameters -Data $Data -Parent $Tests -Force:$Force
+                $Common = @{
+                    Data = $Data
+                    Parent = $Tests
+                    Force = $Force
+                    TemplateDirectory = $TEMPLATE_DIRECTORY
+                }
+                Save-TemplateData @Parameters @Common
             }
         }
         if ($PSCmdlet.ShouldProcess('Save EditorConfig configuration file')) {
             $Parameters = @{
                 Filename = '.editorconfig'
-                Template = 'editorconfig'
+                Template = 'config/editor'
+                TemplateDirectory = $TEMPLATE_DIRECTORY
                 Data = @{}
                 Parent = $APPLICATION_DIRECTORY
                 Force = $Force
             }
-            Copy-TemplateData @Parameters
+            Save-TemplateData @Parameters
         }
+        $ToolName = 'PostCSS'
+        $ConfigName = 'postcss.config.js'
         if ($PSCmdlet.ShouldProcess('Save PostCSS configuration file; Add dependencies to package.json')) {
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.Postcss
+            $Config = $ConfigurationFileData.$ToolName.Core
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+            $PackageManifestData.scripts += $NpmScripts.$ToolName
+            if ($Library -eq 'React') {
+                $Config, $ConfigurationFileData.$ToolName.React | Invoke-ObjectMerge -InPlace -Force
+            }
             $Parameters = @{
-                Filename = 'postcss.config.js'
-                Template = 'config_postcss'
-                Data = $ConfigurationFileData.Postcss
+                Filename = $ConfigName
+                Template = 'config/postcss'
+                TemplateDirectory = $TEMPLATE_DIRECTORY
+                Data = $Config
                 Parent = $APPLICATION_DIRECTORY
                 Force = $Force
             }
-            Copy-TemplateData @Parameters
+            Save-TemplateData @Parameters
         }
-        if ($PSCmdlet.ShouldProcess('Save Babel configuration file; Add dependencies to package.json')) {
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.Babel
+        $ToolName = 'Babel'
+        $ConfigName = 'babel.config.json'
+        if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add dependencies to package.json")) {
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+            $PackageManifestData.scripts += $NpmScripts.$ToolName
+            $Config = if ($Library -eq 'React') {
+                $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
+                $ConfigurationFileData.$ToolName.React
+            } else {
+                $ConfigurationFileData.$ToolName.Core
+            }
             $Parameters = @{
-                Filename = 'babel.config.json'
-                Data = $ConfigurationFileData.Babel
+                Filename = $ConfigName
+                Data = $Config
                 Parent = $APPLICATION_DIRECTORY
                 Force = $Force
             }
             Save-JsonData @Parameters
         }
-        if ($PSCmdlet.ShouldProcess('Save ESLint configuration file; Add dependencies and tasks to package.json')) {
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.Eslint
-            $PackageManifestData.scripts += $NpmScripts.Eslint
+        $ToolName = 'ESLint'
+        $ConfigName = '.eslintrc.json'
+        if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add dependencies and tasks to package.json")) {
+            $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+            $PackageManifestData.scripts += $NpmScripts.$ToolName
+            $Config = if ($Library -eq 'React') {
+                $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
+                $ConfigurationFileData.$ToolName.React
+            } else {
+                $ConfigurationFileData.$ToolName.Core
+            }
             $Parameters = @{
-                Filename = '.eslintrc.json'
-                Data = $ConfigurationFileData.Eslint
+                Filename = $ConfigName
+                Data = $Config
                 Parent = $APPLICATION_DIRECTORY
                 Force = $Force
             }
@@ -1428,7 +1526,7 @@ function New-WebApplication {
                     Invoke-NpmInstall @Parameters
                 }
             }
-            if ($NoErrors -and (-not $Silent)) {
+            if (($NoErrors -and (-not $Silent)) -or $Interactive) {
                 'done' | Write-Status
             }
         }
@@ -1496,6 +1594,69 @@ function Save-State {
         "==> Would have saved state to ${Path}" | Write-Verbose
     }
     $Path
+}
+function Save-JsonData {
+    <#
+    .SYNOPSIS
+    Utility function for saving JSON data.
+    Provides warning message when file already exists and -Force is not used.
+    #>
+    [CmdletBinding()]
+    Param(
+        [PSObject] $Data,
+        [String] $Parent,
+        [String] $Filename,
+        [Switch] $Force
+    )
+    $Path = Join-Path $Parent $Filename
+    $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
+    if (-not (Test-Path -Path $Path) -or $Force) {
+        $Data |
+            ConvertTo-Json -Depth 100 |
+            ForEach-Object { $_ -replace '\\\\\\', '\' } |
+            ForEach-Object { $_ -replace '\\u003c', '<' } |
+            ForEach-Object { $_ -replace '\\u003e', '>' } |
+            ForEach-Object { $_ -replace '\\u0026', '&' } |
+            Format-Json |
+            Out-File -FilePath $Path -Encoding ascii
+    } else {
+        $Message | Write-Warning
+    }
+}
+function Save-TemplateData {
+    <#
+    .SYNOPSIS
+    Utility function for copying template file to the application directory.
+    Provides warning message when file already exists and -Force is not used.
+    .PARAMETER Template
+    Name of input template file (located within TemplateDirectory)
+    .PARAMETER Parent
+    Parent directory of where template file should be saved
+    .PARAMETER Filename
+    Name of output file
+    #>
+    [CmdletBinding()]
+    Param(
+        [PSObject] $Data,
+        [ValidateScript( { Test-Path $_ })]
+        [String] $TemplateDirectory = (Get-Location).Path,
+        [String] $Template,
+        [String] $Parent,
+        [String] $Filename,
+        [Switch] $Force
+    )
+    $Path = Join-Path $Parent $Filename
+    $Message = "==> [WARN] ${Filename} already exists.  Please either delete ${Filename} or re-run this command with the -Force parameter."
+    if (-not (Test-Path -Path $Path) -or $Force) {
+        $Parameters = @{
+            File = (Join-Path $TemplateDirectory $Template)
+            Data = $Data
+            NoData = ($Data.Count -eq 0)
+        }
+        New-Template @Parameters | Out-File -FilePath $Path -Encoding ascii
+    } else {
+        $Message | Write-Warning
+    }
 }
 function Test-ApplicationContext {
     <#
@@ -1600,9 +1761,37 @@ function Update-Application {
         [ValidateSet('Cesium', 'Reason', 'Rust')]
         [String[]] $Remove
     )
-    Begin {}
-    Process {}
-    End {}
+    Begin {
+
+    }
+    Process {
+        switch ($Add) {
+            Babel {
+
+            }
+            Cesium {
+
+            }
+            ESLint {
+
+            }
+            PostCSS {
+
+            }
+            Reason {
+
+            }
+            Rust {
+
+            }
+            Default {
+
+            }
+        }
+    }
+    End {
+
+    }
 }
 function Write-Status {
     <#

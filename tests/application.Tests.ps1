@@ -365,6 +365,15 @@ Describe 'New-TerminalApplicationTemplate' -Tag 'Local', 'Remote' {
         New-TerminalApplicationTemplate | Should -Not -Match '  \$State = {'
     }
 }
+Describe 'Foo' {
+    It 'Bar' {
+        New-WebApplication -React -NoInstall -Silent -Force -Parent $TestDrive -With Reason, Rust
+        $Path = Join-Path $TestDrive 'webapp'
+        Get-ChildItem -Recurse -Path $Path | Foreach-Object {
+            $_ | Write-Color -Cyan
+        }
+    }
+}
 Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
     It 'can be created using Webpack and <Library>' -TestCases @(
         @{ Bundler = 'Webpack'; Library = $Null }
