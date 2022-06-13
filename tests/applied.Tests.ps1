@@ -193,6 +193,15 @@ Describe 'Get-Softmax' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Expected = '0.00216569646006109', '0.00588697333334214', '0.118243020252665', '0.873704309953932'
         Get-Softmax -Values -1, 0, 3, 5 | ForEach-Object { $_.ToString() } | Should -Be $Expected
     }
+    It 'can handle matrix input' {
+        $Round = { Param($X) [Math]::Round($X.Real, 3) }
+        $Expected = 0.032, 0.087, 0.237, 0.644
+        $A = 1..4 | New-Matrix
+        $Result = $A | Get-Softmax | Invoke-MatrixMap $Round
+        $Result.Values.Real | Should -Be $Expected
+        $Result = Get-Softmax -Values $A | Invoke-MatrixMap $Round
+        $Result.Values.Real | Should -Be $Expected
+    }
 }
 Describe 'Get-Sum' -Tag 'Local', 'Remote' {
     It 'can return the sum of a list of numbers' {

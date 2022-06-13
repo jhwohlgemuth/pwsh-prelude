@@ -567,12 +567,13 @@ function Get-Softmax {
     [CmdletBinding()]
     [Alias('softmax')]
     [OutputType([Int[]])]
+    [OutputType([Matrix])]
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $Values
     )
     Begin {
-        $Calculate = {
+        function Get-Softmax_ {
             Param($Values)
             $Numerators = $Values | ForEach-Object { [Math]::Exp($_) }
             $Denominator = $Numerators | Get-Sum
@@ -581,12 +582,22 @@ function Get-Softmax {
             }
         }
         if ($Values.Count -gt 0) {
-            & $Calculate -Values $Values
+            if ($Values[0].GetType().Name -eq 'Matrix') {
+                $Size = $Values.Size
+                Get-Softmax_ -Values $Values.Values.Real | New-Matrix $Size
+            } else {
+                Get-Softmax_ -Values $Values
+            }
         }
     }
     End {
         if ($Input.Count -gt 0) {
-            & $Calculate -Values $Input
+            if ($Input[0].GetType().Name -eq 'Matrix') {
+                $Size = $Input.Size
+                Get-Softmax_ -Values $Input.Values.Real | New-Matrix $Size
+            } else {
+                Get-Softmax_ -Values $Input
+            }
         }
     }
 }
