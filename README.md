@@ -231,6 +231,7 @@ Functions
   - `Import-Excel`
   - `Import-Html` <sup>[3](#3)</sup>
   - `Import-Raw`
+  - `Install-SshServer`
   - `Invoke-Chunk`
   - `Invoke-DropWhile`
   - `Invoke-Flatten`
@@ -244,6 +245,7 @@ Functions
   - `Invoke-MatrixMap`
   - `Invoke-Menu`
   - `Invoke-Method`
+  - `Invoke-NewDirectoryAndEnter`
   - `Invoke-Normalize`
   - `Invoke-ObjectInvert`
   - `Invoke-ObjectMerge`
@@ -269,6 +271,7 @@ Functions
   - `Measure-Performance`
   - `Measure-Readability`
   - `New-ComplexValue`
+  - `New-DailyShutdownJob`
   - `New-DesktopApplication`
   - `New-File`
   - `New-Template`
@@ -278,6 +281,7 @@ Functions
   - `Out-Browser`
   - `Out-Tree`
   - `Remove-Character`
+  - `Remove-DailyShutdownjob`
   - `Remove-DirectoryForce`
   - `Remove-Indent`
   - `Rename-FileExtension`
@@ -285,7 +289,6 @@ Functions
   - `Save-JsonData`
   - `Save-State`
   - `Save-TemplateData`
-  - `Take`
   - `Test-Admin`
   - `Test-ApplicationContext`
   - `Test-Command`
