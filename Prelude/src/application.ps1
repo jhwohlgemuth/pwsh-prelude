@@ -1273,16 +1273,28 @@ function New-WebApplication {
             }
             Save-JsonData @Parameters
         }
-        Update-Application -Add 'Babel', 'ESLint', 'PostCSS', 'Jest' -Parent $ApplicationDirectory
+        $Context = Test-ApplicationContext $ApplicationDirectory
+        $Data, @{
+            Context = $Context
+            PackageManifestData = $PackageManifestData
+        } | Invoke-ObjectMerge -Force -InPlace
+        $State, @{
+            Data = $Data
+            Name = $Data.Name
+            Parent = $Data.Parent
+        } | Invoke-ObjectMerge -Force -InPlace
+        $Tools = @(
+            'Babel'
+            'ESLint'
+            'PostCSS'
+            'Jest'
+        )
+        if ($PSCmdlet.ShouldProcess("Add development tools - $($Tools | Join-StringsWithGrammar)")) {
+            Update-Application -Add $Tools -Parent $ApplicationDirectory -State $State
+        }
     }
     End {
-        $Context = Test-ApplicationContext $ApplicationDirectory
         if ($PSCmdlet.ShouldProcess('Save application state')) {
-            $Data.Context = $Context
-            $Data.PackageManifestData = $PackageManifestData
-            $State.Data = $Data
-            $State.Name = $Data.Name
-            $State.Parent = $Data.Parent
             $State | Save-State -Name $State.Name -Verbose:(-not $Silent) -Force:$Force | Out-Null
         }
         if (-not $NoInstall) {
@@ -1539,14 +1551,19 @@ function Update-Application {
         [String[]] $Remove,
         [ValidateScript( { Test-Path $_ })]
         [String] $Parent = (Get-Location).Path,
+        [ApplicationState] $State,
         [Switch] $Force
     )
     Begin {
-        $PackageManifestData = Get-Content -Path (Join-Path $Parent 'package.json') -Raw | ConvertFrom-Json
-        $Name = $PackageManifestData.name
-        $Data = ($Name | Get-State).Data
+        $Data = if ($State) {
+            $PackageManifestData = $State.Data.PackageManifestData
+            $State.Data
+        } else {
+            $PackageManifestData = Get-Content -Path (Join-Path $Parent 'package.json') -Raw | ConvertFrom-Json
+            ($PackageManifestData.name | Get-State).Data
+        }
         $UseReact = $Data.Library -eq 'React'
-        $ApplicationDirectory = Join-Path $Data.Parent $Name
+        $ApplicationDirectory = Join-Path $Data.Parent $Data.Name
         $TemplateDirectory = Join-Path $PSScriptRoot '../src/templates'
         $PackageManifestAugment = @{
             Jest = @{
@@ -1902,6 +1919,14 @@ function Update-Application {
             }
             Default {
                 '==> [WARN] Unknown application update requested' | Write-Warning
+            }
+        }
+        switch ($Remove) {
+            Babel {
+                "==> [WARN] Removing ${_} has not yet been implemented" | Write-Color -Yellow
+            }
+            ESLint {
+                "==> [WARN] Removing ${_} has not yet been implemented" | Write-Color -Yellow
             }
         }
     }
