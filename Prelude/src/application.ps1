@@ -781,9 +781,9 @@ function New-WebApplication {
         }
         $Data.Name = if ($Data.Name) { $Data.Name } else { $Name }
         $Data.Parent = if ($Data.Parent) { $Data.Parent } else { $Parent }
-        $APPLICATION_DIRECTORY = Join-Path $Data.Parent $Data.Name
-        $TEMPLATE_DIRECTORY = Join-Path $PSScriptRoot '../src/templates'
-        $RUST_DIRECTORY = Join-Path $APPLICATION_DIRECTORY $Data.RustDirectory
+        $ApplicationDirectory = Join-Path $Data.Parent $Data.Name
+        $TemplateDirectory = Join-Path $PSScriptRoot '../src/templates'
+        $RustDirectory = Join-Path $ApplicationDirectory $Data.RustDirectory
         $PackageManifestData = @{
             name = $Data.Name
             version = '0.0.0'
@@ -794,280 +794,8 @@ function New-WebApplication {
             scripts = @{}
             dependencies = @{}
             devDependencies = @{}
-            jest = @{
-                testMatch = @(
-                    '**/__tests__/**/*.(e2e|test).[jt]s?(x)'
-                )
-                setupFilesAfterEnv = @(
-                    '<rootDir>/__tests__/setup.js'
-                )
-                watchPlugins = @(
-                    'jest-watch-typeahead/filename'
-                    'jest-watch-typeahead/testname'
-                )
-            }
-        }
-        $NpmScripts = @{
-            Babel = @{}
-            Eslint = @{
-                'lint' = 'eslint . -c ./.eslintrc.json --ext .js,.jsx --fix'
-                'lint:ing' = "watch `"npm run lint`" $($Data.SourceDirectory)"
-                'lint:tests' = 'eslint __tests__/**/*.js -c ./.eslintrc.json --fix --no-ignore'
-            }
-            Jest = @{
-                'test' = 'jest .*.test.js --coverage'
-                'test:ing' = 'npm test -- --watchAll'
-            }
-            Parcel = @{}
-            Postcss = @{}
-            Rollup = @{}
-            Webpack = @{
-                'clean' = "del-cli $($Data.ProductionDirectory)"
-                'copy' = 'npm-run-all --parallel copy:assets'
-                'copy:assets' = "cpy \`"$($Data.AssetsDirectory)/!(css)/**/*.*\`" \`"$($Data.AssetsDirectory)/**/[.]*\`" $($Data.ProductionDirectory) --parents --recursive"
-                'prebuild:es' = "del-cli $($Data.ProductionDirectory)/$($Data.AssetsDirectory)"
-                'build:es' = 'webpack'
-                'build:stats' = 'webpack --mode production --profile --json > stats.json'
-                'build:analyze' = 'webpack-bundle-analyzer ./stats.json'
-                'postbuild:es' = 'npm run copy'
-                'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
-                'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
-                'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
-                'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
-                'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
-            }
-        }
-        $Dependencies = @{
-            Cesium = @{
-                'cesium' = '^1.93.0'
-            }
-            React = @{
-                Core = @{
-                    'prop-types' = '*'
-                    'react' = $Data.ReactVersion
-                    'react-dom' = $Data.ReactVersion
-                    'wouter' = '*'
-                }
-                Cesium = @{
-                    'resium' = '^1.14.3'
-                }
-            }
-            Reason = @{
-                '@rescript/react' = '*'
-            }
-            Solid = @{}
-        }
-        $DevelopmentDependencies = @{
-            _workflow = @{
-                'cpy-cli' = '*'
-                'del-cli' = '*'
-                'npm-run-all' = '*'
-                'watch' = '*'
-            }
-            Babel = @{
-                Core = @{
-                    '@babel/cli' = '^7.17.10'
-                    '@babel/core' = '^7.18.0'
-                    '@babel/plugin-proposal-class-properties' = '^7.17.12'
-                    '@babel/plugin-proposal-export-default-from' = '^7.17.12'
-                    '@babel/plugin-proposal-optional-chaining' = '^7.17.12'
-                    '@babel/plugin-transform-runtime' = '^7.18.0'
-                    '@babel/preset-env' = '^7.18.0'
-                    '@babel/runtime' = '^7.18.0'
-                    'babel-preset-minify' = '^0.5.2'
-                }
-                React = @{
-                    '@babel/preset-react' = '^7.17.12'
-                }
-            }
-            Cesium = @{}
-            Eslint = @{
-                Core = @{
-                    'eslint' = '^7.32.0'
-                    'babel-eslint' = '^10.1.0'
-                    'eslint-config-omaha-prime-grade' = '^14.0.1'
-                    'eslint-plugin-import' = '^2.26.0'
-                    'eslint-plugin-jsx-a11y' = '^6.5.1'
-                    'eslint-plugin-promise' = '*'
-                }
-                React = @{
-                    'eslint-plugin-react' = '^7.30.0'
-                }
-            }
-            Jest = @{
-                'jest' = '^28.1.0'
-                'babel-jest' = '^28.1.0'
-                'jest-watch-typeahead' = '^1.1.0'
-            }
-            Parcel = @{
-                'parcel' = '*'
-                'parcel-plugin-purgecss' = '*'
-            }
-            Postcss = @{
-                Core = @{
-                    'cssnano' = '^5.1.9'
-                    'postcss' = '^8.4.14'
-                    'postcss-cli' = '^9.1.0'
-                    'postcss-import' = '^14.1.0'
-                    'postcss-preset-env' = '^7.6.0'
-                    'postcss-reporter' = '^7.0.5'
-                    'postcss-safe-parser' = '^6.0.0'
-                }
-                React = @{}
-            }
-            React = @{
-                '@hot-loader/react-dom' = $Data.ReactVersion
-                'react-hot-loader' = '*'
-            }
-            Reason = @{
-                'rescript' = '*'
-            }
-            Rollup = @{
-                'rollup' = '*'
-                'rollup-plugin-babel' = '*'
-                'rollup-plugin-commonjs' = '*'
-                'rollup-plugin-node-resolve' = '*'
-                'rollup-plugin-replace' = '*'
-                'rollup-plugin-terser' = '*'
-            }
-            Rust = @{
-                '@wasm-tool/wasm-pack-plugin' = '*'
-            }
-            Stylelint = @{
-                'style-loader' = '^3.3.1'
-                'stylelint' = '^14.8.3'
-                'stylelint-config-recommended' = '^7.0.0'
-            }
-            Snowpack = @{
-                'snowpack' = '*'
-                '@snowpack/app-scripts-react' = '*'
-                '@snowpack/plugin-react-refresh' = '*'
-                '@snowpack/plugin-postcss' = '*'
-                '@snowpack/plugin-optimize' = '*'
-            }
-            Webpack = @{
-                'webpack' = '*'
-                'webpack-bundle-analyzer' = '*'
-                'webpack-cli' = '*'
-                'webpack-dashboard' = '*'
-                'webpack-dev-server' = '*'
-                'webpack-jarvis' = '*'
-                'webpack-subresource-integrity' = '*'
-                'babel-loader' = '*'
-                'css-loader' = '*'
-                'file-loader' = '*'
-                'style-loader' = '*'
-                'url-loader' = '*'
-                'copy-webpack-plugin' = '*'
-                'html-webpack-plugin' = '*'
-                'terser-webpack-plugin' = '*'
-            }
         }
         $ConfigurationFileData = @{
-            Eslint = @{
-                Core = @{
-                    env = @{
-                        es6 = $True
-                        jest = $True
-                        browser = $True
-                    }
-                    extends = @(
-                        'omaha-prime-grade'
-                        'plugin:import/errors'
-                        'plugin:import/warnings'
-                        'plugin:promise/recommended'
-                        'plugin:jsx-a11y/recommended'
-                    )
-                    parser = 'babel-eslint'
-                }
-                React = @{
-                    env = @{
-                        es6 = $True
-                        jest = $True
-                        browser = $True
-                    }
-                    extends = @(
-                        'omaha-prime-grade'
-                        'plugin:import/errors'
-                        'plugin:import/warnings'
-                        'plugin:promise/recommended'
-                        'plugin:react/recommended'
-                        'plugin:jsx-a11y/recommended'
-                    )
-                    parser = 'babel-eslint'
-                    parserOptions = @{
-                        ecmaFeatures = @{
-                            jsx = $True
-                        }
-                    }
-                    plugins = @(
-                        'jsx-a11y'
-                    )
-                    rules = @{
-                        'react/jsx-uses-react' = 'off'
-                        'react/react-in-jsx-scope' = 'off'
-                    }
-                    settings = @{
-                        react = @{
-                            version = 'detect'
-                        }
-                    }
-                }
-            }
-            Babel = @{
-                Core = @{
-                    plugins = @(
-                        '@babel/plugin-transform-runtime'
-                        '@babel/plugin-proposal-class-properties'
-                        '@babel/plugin-proposal-export-default-from'
-                        '@babel/plugin-proposal-optional-chaining'
-                    )
-                    presets = @(
-                        '@babel/preset-env'
-                        'babel-preset-minify'
-                    )
-                }
-                React = @{
-                    plugins = @(
-                        'react-hot-loader/babel'
-                        '@babel/plugin-transform-runtime'
-                        '@babel/plugin-proposal-class-properties'
-                        '@babel/plugin-proposal-export-default-from'
-                        '@babel/plugin-proposal-optional-chaining'
-                    )
-                    presets = @(
-                        '@babel/preset-env'
-                        'babel-preset-minify'
-                        , @(
-                            '@babel/preset-react'
-                            @{
-                                runtime = 'automatic'
-                            }
-                        )
-                    )
-                }
-            }
-            Postcss = @{
-                Core = @{
-                    map = $True
-                    parser = 'postcss-safe-parser'
-                    plugins = @(
-                        , @(
-                            'stylelint'
-                            @{
-                                config = @{
-                                    extends = 'stylelint-config-recommended'
-                                }
-                            }
-                        )
-                        'postcss-import'
-                        'postcss-preset-env'
-                        'cssnano'
-                        'postcss-reporter'
-                    )
-                }
-                React = @{}
-            }
             Reason = @{
                 'name' = $Data.Name
                 'bs-dependencies' = @(
@@ -1115,6 +843,117 @@ function New-WebApplication {
                     })" | Remove-Indent -Size 12)
             }
         }
+        $Dependencies = @{
+            Cesium = @{
+                'cesium' = '^1.93.0'
+            }
+            React = @{
+                Core = @{
+                    'prop-types' = '*'
+                    'react' = $Data.ReactVersion
+                    'react-dom' = $Data.ReactVersion
+                    'wouter' = '*'
+                }
+                Cesium = @{
+                    'resium' = '^1.14.3'
+                }
+            }
+            Reason = @{
+                '@rescript/react' = '*'
+            }
+            Solid = @{}
+        }
+        $DevelopmentDependencies = @{
+            _workflow = @{
+                'cpy-cli' = '*'
+                'del-cli' = '*'
+                'npm-run-all' = '*'
+                'watch' = '*'
+            }
+            Cesium = @{}
+            Parcel = @{
+                'parcel' = '*'
+                'parcel-plugin-purgecss' = '*'
+            }
+            Postcss = @{
+                Core = @{
+                    'cssnano' = '^5.1.9'
+                    'postcss' = '^8.4.14'
+                    'postcss-cli' = '^9.1.0'
+                    'postcss-import' = '^14.1.0'
+                    'postcss-preset-env' = '^7.6.0'
+                    'postcss-reporter' = '^7.0.5'
+                    'postcss-safe-parser' = '^6.0.0'
+                }
+                React = @{}
+            }
+            React = @{
+                '@hot-loader/react-dom' = $Data.ReactVersion
+                'react-hot-loader' = '*'
+            }
+            Reason = @{
+                'rescript' = '*'
+            }
+            Rollup = @{
+                'rollup' = '*'
+                'rollup-plugin-babel' = '*'
+                'rollup-plugin-commonjs' = '*'
+                'rollup-plugin-node-resolve' = '*'
+                'rollup-plugin-replace' = '*'
+                'rollup-plugin-terser' = '*'
+            }
+            Rust = @{
+                '@wasm-tool/wasm-pack-plugin' = '*'
+            }
+            Stylelint = @{
+                'stylelint' = '^14.8.3'
+                'stylelint-config-recommended' = '^7.0.0'
+            }
+            Snowpack = @{
+                'snowpack' = '*'
+                '@snowpack/app-scripts-react' = '*'
+                '@snowpack/plugin-react-refresh' = '*'
+                '@snowpack/plugin-postcss' = '*'
+                '@snowpack/plugin-optimize' = '*'
+            }
+            Webpack = @{
+                'webpack' = '*'
+                'webpack-bundle-analyzer' = '*'
+                'webpack-cli' = '*'
+                'webpack-dashboard' = '*'
+                'webpack-dev-server' = '*'
+                'webpack-jarvis' = '*'
+                'webpack-subresource-integrity' = '*'
+                'babel-loader' = '*'
+                'css-loader' = '*'
+                'file-loader' = '*'
+                'style-loader' = '*'
+                'url-loader' = '*'
+                'copy-webpack-plugin' = '*'
+                'html-webpack-plugin' = '*'
+                'terser-webpack-plugin' = '*'
+            }
+        }
+        $NpmScripts = @{
+            Parcel = @{}
+            Postcss = @{}
+            Rollup = @{}
+            Webpack = @{
+                'clean' = "del-cli $($Data.ProductionDirectory)"
+                'copy' = 'npm-run-all --parallel copy:assets'
+                'copy:assets' = "cpy \`"$($Data.AssetsDirectory)/!(css)/**/*.*\`" \`"$($Data.AssetsDirectory)/**/[.]*\`" $($Data.ProductionDirectory) --parents --recursive"
+                'prebuild:es' = "del-cli $($Data.ProductionDirectory)/$($Data.AssetsDirectory)"
+                'build:es' = 'webpack'
+                'build:stats' = 'webpack --mode production --profile --json > stats.json'
+                'build:analyze' = 'webpack-bundle-analyzer ./stats.json'
+                'postbuild:es' = 'npm run copy'
+                'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
+                'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
+                'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
+                'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
+                'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
+            }
+        }
         if ($PSCmdlet.ShouldProcess('Create application folder structure and common assets')) {
             $Source = $Data.SourceDirectory
             $Assets = $Data.AssetsDirectory
@@ -1129,7 +968,7 @@ function New-WebApplication {
                 "${Assets}/library"
                 "${Assets}/workers"
                 '__tests__'
-            ) | ForEach-Object { New-Item -Type Directory -Path (Join-Path $APPLICATION_DIRECTORY $_) -Force } | Out-Null
+            ) | ForEach-Object { New-Item -Type Directory -Path (Join-Path $ApplicationDirectory $_) -Force } | Out-Null
         }
         if ($PSCmdlet.ShouldProcess('Copy common assets')) {
             $Data, @{
@@ -1140,7 +979,7 @@ function New-WebApplication {
                 NoJavaScriptJapanese = 'より良い体験のため、ブラウザでJavaScriptを有効にして下さい'
                 NoJavaScriptChinese = '请在你的浏览器中启用JavaScript以便享受最佳体验'
             } | Invoke-ObjectMerge -InPlace -Force
-            $Assets = Join-Path $APPLICATION_DIRECTORY $Data.AssetsDirectory
+            $Assets = Join-Path $ApplicationDirectory $Data.AssetsDirectory
             @(
                 @{
                     Filename = 'index.html'
@@ -1177,7 +1016,7 @@ function New-WebApplication {
                 $Common = @{
                     Data = $Data
                     Force = $Force
-                    TemplateDirectory = $TEMPLATE_DIRECTORY
+                    TemplateDirectory = $TemplateDirectory
                 }
                 Save-TemplateData @Parameters @Common
             }
@@ -1211,15 +1050,16 @@ function New-WebApplication {
                 if ($PSCmdlet.ShouldProcess('Add Webpack dependencies and tasks to package.json')) {
                     $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Webpack
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
                     $PackageManifestData.scripts += $NpmScripts.Webpack
                 }
                 if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
                     $Parameters = @{
                         Filename = 'webpack.config.js'
                         Template = 'config/webpack'
-                        TemplateDirectory = $TEMPLATE_DIRECTORY
+                        TemplateDirectory = $TemplateDirectory
                         Data = $ConfigurationFileData.Webpack
-                        Parent = $APPLICATION_DIRECTORY
+                        Parent = $ApplicationDirectory
                         Force = $Force
                     }
                     Save-TemplateData @Parameters
@@ -1233,7 +1073,7 @@ function New-WebApplication {
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.React
                 }
                 if ($PSCmdlet.ShouldProcess('Copy React files')) {
-                    $Source = Join-Path $APPLICATION_DIRECTORY 'src'
+                    $Source = Join-Path $ApplicationDirectory 'src'
                     $Components = Join-Path $Source 'components'
                     @(
                         @{
@@ -1266,7 +1106,7 @@ function New-WebApplication {
                         $Common = @{
                             Data = $Data
                             Force = $Force
-                            TemplateDirectory = $TEMPLATE_DIRECTORY
+                            TemplateDirectory = $TemplateDirectory
                         }
                         Save-TemplateData @Parameters @Common
                     }
@@ -1282,11 +1122,11 @@ function New-WebApplication {
             }
             Default {
                 if ($PSCmdlet.ShouldProcess('Copy JavaScript files')) {
-                    $Source = Join-Path $APPLICATION_DIRECTORY 'src'
+                    $Source = Join-Path $ApplicationDirectory 'src'
                     $Parameters = @{
                         Filename = 'main.js'
                         Template = 'source/vanilla_main'
-                        TemplateDirectory = $TEMPLATE_DIRECTORY
+                        TemplateDirectory = $TemplateDirectory
                         Data = $Data
                         Parent = $Source
                         Force = $Force
@@ -1317,13 +1157,13 @@ function New-WebApplication {
                     $Parameters = @{
                         Filename = 'bsconfig.json'
                         Data = $ConfigurationFileData.Reason
-                        Parent = $APPLICATION_DIRECTORY
+                        Parent = $ApplicationDirectory
                         Force = $Force
                     }
                     Save-JsonData @Parameters
                 }
                 if ($PSCmdlet.ShouldProcess('Copy ReasonML files')) {
-                    $Components = Join-Path $APPLICATION_DIRECTORY 'src/components'
+                    $Components = Join-Path $ApplicationDirectory 'src/components'
                     @(
                         @{
                             Filename = 'App.re'
@@ -1339,7 +1179,7 @@ function New-WebApplication {
                             Data = $Data
                             Parent = $Components
                             Force = $Force
-                            TemplateDirectory = $TEMPLATE_DIRECTORY
+                            TemplateDirectory = $TemplateDirectory
                         }
                         Save-TemplateData @Parameters @Common
                     }
@@ -1350,10 +1190,10 @@ function New-WebApplication {
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Rust
                 }
                 if ($PSCmdlet.ShouldProcess('Copy Rust files')) {
-                    $Source = Join-Path $RUST_DIRECTORY 'src'
-                    $Tests = Join-Path $RUST_DIRECTORY 'tests'
+                    $Source = Join-Path $RustDirectory 'src'
+                    $Tests = Join-Path $RustDirectory 'tests'
                     @(
-                        $RUST_DIRECTORY
+                        $RustDirectory
                         $Source
                         $Tests
                     ) | Get-StringPath | ForEach-Object { New-Item -Type Directory -Path $_ -Force } | Out-Null
@@ -1361,12 +1201,12 @@ function New-WebApplication {
                         @{
                             Filename = 'Cargo.toml'
                             Template = 'config/rust'
-                            Parent = $APPLICATION_DIRECTORY
+                            Parent = $ApplicationDirectory
                         }
                         @{
                             Filename = 'Cargo.toml'
                             Template = 'config/crate'
-                            Parent = $RUST_DIRECTORY
+                            Parent = $RustDirectory
                         }
                         @{
                             Filename = 'lib.rs'
@@ -1393,7 +1233,7 @@ function New-WebApplication {
                         $Common = @{
                             Data = $Data
                             Force = $Force
-                            TemplateDirectory = $TEMPLATE_DIRECTORY
+                            TemplateDirectory = $TemplateDirectory
                         }
                         Save-TemplateData @Parameters @Common
                     }
@@ -1401,113 +1241,34 @@ function New-WebApplication {
             }
             Default {}
         }
-        if ($PSCmdlet.ShouldProcess('Copy Jest files; Add dependencies and tasks to package.json')) {
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.Jest
-            $PackageManifestData.scripts += $NpmScripts.Jest
-            $Tests = Join-Path $APPLICATION_DIRECTORY '__tests__'
-            @(
-                @{
-                    Filename = 'setup.js'
-                    Template = 'source/jest_setup'
-                }
-                @{
-                    Filename = 'example.test.js'
-                    Template = 'source/jest_example'
-                }
-            ) | ForEach-Object {
-                $Parameters = $_
-                $Common = @{
-                    Data = $Data
-                    Parent = $Tests
-                    Force = $Force
-                    TemplateDirectory = $TEMPLATE_DIRECTORY
-                }
-                Save-TemplateData @Parameters @Common
-            }
-        }
         if ($PSCmdlet.ShouldProcess('Save EditorConfig configuration file')) {
             $Parameters = @{
                 Filename = '.editorconfig'
                 Template = 'config/editor'
-                TemplateDirectory = $TEMPLATE_DIRECTORY
+                TemplateDirectory = $TemplateDirectory
                 Data = @{}
-                Parent = $APPLICATION_DIRECTORY
+                Parent = $ApplicationDirectory
                 Force = $Force
             }
             Save-TemplateData @Parameters
-        }
-        $ToolName = 'PostCSS'
-        $ConfigName = 'postcss.config.js'
-        if ($PSCmdlet.ShouldProcess('Save PostCSS configuration file; Add dependencies to package.json')) {
-            $Config = $ConfigurationFileData.$ToolName.Core
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-            $PackageManifestData.scripts += $NpmScripts.$ToolName
-            if ($Library -eq 'React') {
-                $Config, $ConfigurationFileData.$ToolName.React | Invoke-ObjectMerge -InPlace -Force
-            }
-            $Parameters = @{
-                Filename = $ConfigName
-                Template = 'config/postcss'
-                TemplateDirectory = $TEMPLATE_DIRECTORY
-                Data = $Config
-                Parent = $APPLICATION_DIRECTORY
-                Force = $Force
-            }
-            Save-TemplateData @Parameters
-        }
-        $ToolName = 'Babel'
-        $ConfigName = 'babel.config.json'
-        if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add dependencies to package.json")) {
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-            $PackageManifestData.scripts += $NpmScripts.$ToolName
-            $Config = if ($Library -eq 'React') {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
-                $ConfigurationFileData.$ToolName.React
-            } else {
-                $ConfigurationFileData.$ToolName.Core
-            }
-            $Parameters = @{
-                Filename = $ConfigName
-                Data = $Config
-                Parent = $APPLICATION_DIRECTORY
-                Force = $Force
-            }
-            Save-JsonData @Parameters
-        }
-        $ToolName = 'ESLint'
-        $ConfigName = '.eslintrc.json'
-        if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add dependencies and tasks to package.json")) {
-            $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-            $PackageManifestData.scripts += $NpmScripts.$ToolName
-            $Config = if ($Library -eq 'React') {
-                $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
-                $ConfigurationFileData.$ToolName.React
-            } else {
-                $ConfigurationFileData.$ToolName.Core
-            }
-            $Parameters = @{
-                Filename = $ConfigName
-                Data = $Config
-                Parent = $APPLICATION_DIRECTORY
-                Force = $Force
-            }
-            Save-JsonData @Parameters
         }
         if ($PSCmdlet.ShouldProcess('Save package.json to application directory')) {
             $PackageManifestData = $PackageManifestData | ConvertTo-OrderedDictionary
+            $PackageManifestData.dependencies = $PackageManifestData.dependencies | ConvertTo-OrderedDictionary
             $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | ConvertTo-OrderedDictionary
             $PackageManifestData.scripts = $PackageManifestData.scripts | ConvertTo-OrderedDictionary
             $Parameters = @{
                 Filename = 'package.json'
                 Data = $PackageManifestData
-                Parent = $APPLICATION_DIRECTORY
+                Parent = $ApplicationDirectory
                 Force = $Force
             }
             Save-JsonData @Parameters
         }
+        Update-Application -Add 'Babel', 'ESLint', 'PostCSS', 'Jest' -Parent $ApplicationDirectory
     }
     End {
-        $Context = Test-ApplicationContext $APPLICATION_DIRECTORY
+        $Context = Test-ApplicationContext $ApplicationDirectory
         if ($PSCmdlet.ShouldProcess('Save application state')) {
             $Data.Context = $Context
             $Data.PackageManifestData = $PackageManifestData
@@ -1520,7 +1281,7 @@ function New-WebApplication {
             if ($PSCmdlet.ShouldProcess('Install dependencies')) {
                 $NoErrors = if ($Context.Node.Ready) {
                     $Parameters = @{
-                        Parent = $APPLICATION_DIRECTORY
+                        Parent = $ApplicationDirectory
                         Silent = $Silent
                     }
                     Invoke-NpmInstall @Parameters
@@ -1752,45 +1513,404 @@ function Update-Application {
     .SYNOPSIS
     Update a dependency of a web or desktop application created using New-WebApplication or New-DesktopApplication, respectively.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $True)]
     Param(
         [Switch] $Web,
         [Switch] $Desktop,
-        [ValidateSet('Cesium', 'Reason', 'Rust')]
+        [ValidateSet(
+            'Babel',
+            'ESLint',
+            'Jest',
+            'PostCSS'
+        )]
         [String[]] $Add,
-        [ValidateSet('Cesium', 'Reason', 'Rust')]
-        [String[]] $Remove
+        [ValidateSet(
+            'Babel',
+            'ESLint'
+        )]
+        [String[]] $Remove,
+        [ValidateScript( { Test-Path $_ })]
+        [String] $Parent = (Get-Location).Path,
+        [Switch] $Force
     )
     Begin {
-
+        $PackageManifestData = Get-Content -Path (Join-Path $Parent 'package.json') -Raw | ConvertFrom-Json
+        $Name = $PackageManifestData.name
+        $Data = ($Name | Get-State).Data
+        $UseReact = $Data.Library -eq 'React'
+        $ApplicationDirectory = Join-Path $Data.Parent $Name
+        $TemplateDirectory = Join-Path $PSScriptRoot '../src/templates'
+        $PackageManifestAugment = @{
+            Jest = @{
+                jest = @{
+                    testMatch = @(
+                        '**/__tests__/**/*.(e2e|test).[jt]s?(x)'
+                    )
+                    setupFilesAfterEnv = @(
+                        '<rootDir>/__tests__/setup.js'
+                    )
+                    watchPlugins = @(
+                        'jest-watch-typeahead/filename'
+                        'jest-watch-typeahead/testname'
+                    )
+                }
+            }
+            Postcss = @{}
+        }
+        $ConfigurationFileData = @{
+            Babel = @{
+                Core = @{
+                    plugins = @(
+                        '@babel/plugin-transform-runtime'
+                        '@babel/plugin-proposal-class-properties'
+                        '@babel/plugin-proposal-export-default-from'
+                        '@babel/plugin-proposal-optional-chaining'
+                    )
+                    presets = @(
+                        '@babel/preset-env'
+                        'babel-preset-minify'
+                    )
+                }
+                React = @{
+                    plugins = @(
+                        'react-hot-loader/babel'
+                        '@babel/plugin-transform-runtime'
+                        '@babel/plugin-proposal-class-properties'
+                        '@babel/plugin-proposal-export-default-from'
+                        '@babel/plugin-proposal-optional-chaining'
+                    )
+                    presets = @(
+                        '@babel/preset-env'
+                        'babel-preset-minify'
+                        , @(
+                            '@babel/preset-react'
+                            @{
+                                runtime = 'automatic'
+                            }
+                        )
+                    )
+                }
+            }
+            Eslint = @{
+                Core = @{
+                    env = @{
+                        es6 = $True
+                        jest = $True
+                        browser = $True
+                    }
+                    extends = @(
+                        'omaha-prime-grade'
+                        'plugin:import/errors'
+                        'plugin:import/warnings'
+                        'plugin:promise/recommended'
+                        'plugin:jsx-a11y/recommended'
+                    )
+                    parser = 'babel-eslint'
+                }
+                React = @{
+                    env = @{
+                        es6 = $True
+                        jest = $True
+                        browser = $True
+                    }
+                    extends = @(
+                        'omaha-prime-grade'
+                        'plugin:import/errors'
+                        'plugin:import/warnings'
+                        'plugin:promise/recommended'
+                        'plugin:react/recommended'
+                        'plugin:jsx-a11y/recommended'
+                    )
+                    parser = 'babel-eslint'
+                    parserOptions = @{
+                        ecmaFeatures = @{
+                            jsx = $True
+                        }
+                    }
+                    plugins = @(
+                        'jsx-a11y'
+                    )
+                    rules = @{
+                        'react/jsx-uses-react' = 'off'
+                        'react/react-in-jsx-scope' = 'off'
+                    }
+                    settings = @{
+                        react = @{
+                            version = 'detect'
+                        }
+                    }
+                }
+            }
+            Jest = @{
+                Core = $Data
+                React = @{}
+            }
+            Postcss = @{
+                Core = @{
+                    map = $True
+                    parser = 'postcss-safe-parser'
+                    plugins = @(
+                        , @(
+                            'stylelint'
+                            @{
+                                config = @{
+                                    extends = 'stylelint-config-recommended'
+                                }
+                            }
+                        )
+                        'postcss-import'
+                        'postcss-preset-env'
+                        'cssnano'
+                        'postcss-reporter'
+                    )
+                }
+                React = @{}
+            }
+            Reason = @{
+                Core = @{}
+                React = @{
+                    'name' = $Data.Name
+                    'bs-dependencies' = @(
+                        '@rescript/react'
+                    )
+                    'bsc-flags' = @(
+                        '-bs-super-errors'
+                    )
+                    'namespace' = $True
+                    'package-specs' = @(
+                        @{
+                            'module' = 'es6'
+                            'in-source' = $True
+                        }
+                    )
+                    'ppx-flags' = @()
+                    'reason' = @{
+                        'react-jsx' = 3
+                    }
+                    'refmt' = 3
+                    'sources' = @(
+                        @{
+                            'dir' = $Data.SourceDirectory
+                            'subdirs' = $True
+                        }
+                    )
+                    'suffix' = '.bs.js'
+                }
+            }
+        }
+        $DevelopmentDependencies = @{
+            _workflow = @{
+                'cpy-cli' = '*'
+                'del-cli' = '*'
+                'npm-run-all' = '*'
+                'watch' = '*'
+            }
+            Babel = @{
+                Core = @{
+                    '@babel/cli' = '^7.17.10'
+                    '@babel/core' = '^7.18.0'
+                    '@babel/plugin-proposal-class-properties' = '^7.17.12'
+                    '@babel/plugin-proposal-export-default-from' = '^7.17.12'
+                    '@babel/plugin-proposal-optional-chaining' = '^7.17.12'
+                    '@babel/plugin-transform-runtime' = '^7.18.0'
+                    '@babel/preset-env' = '^7.18.0'
+                    '@babel/runtime' = '^7.18.0'
+                    'babel-preset-minify' = '^0.5.2'
+                }
+                React = @{
+                    '@babel/preset-react' = '^7.17.12'
+                }
+            }
+            Cesium = @{
+                Core = @{}
+                React = @{}
+            }
+            Eslint = @{
+                Core = @{
+                    'eslint' = '^7.32.0'
+                    'babel-eslint' = '^10.1.0'
+                    'eslint-config-omaha-prime-grade' = '^14.0.1'
+                    'eslint-plugin-import' = '^2.26.0'
+                    'eslint-plugin-jsx-a11y' = '^6.5.1'
+                    'eslint-plugin-promise' = '*'
+                }
+                React = @{
+                    'eslint-plugin-react' = '^7.30.0'
+                }
+            }
+            Jest = @{
+                Core = @{
+                    'jest' = '^28.1.0'
+                    'babel-jest' = '^28.1.0'
+                    'jest-watch-typeahead' = '^1.1.0'
+                }
+                React = @{}
+            }
+            Postcss = @{
+                Core = @{
+                    'cssnano' = '^5.1.9'
+                    'postcss' = '^8.4.14'
+                    'postcss-cli' = '^9.1.0'
+                    'postcss-import' = '^14.1.0'
+                    'postcss-preset-env' = '^7.6.0'
+                    'postcss-reporter' = '^7.0.5'
+                    'postcss-safe-parser' = '^6.0.0'
+                }
+                React = @{}
+            }
+            Reason = @{
+                Core = @{}
+                React = @{
+                    'rescript' = '*'
+                }
+            }
+            Stylelint = @{
+                Core = @{
+                    'style-loader' = '^3.3.1'
+                    'stylelint' = '^14.8.3'
+                    'stylelint-config-recommended' = '^7.0.0'
+                }
+                React = @{}
+            }
+        }
+        $NpmScripts = @{
+            Babel = @{}
+            Eslint = @{
+                'lint' = 'eslint . -c ./.eslintrc.json --ext .js,.jsx --fix'
+                'lint:ing' = "watch `"npm run lint`" $($Data.SourceDirectory)"
+                'lint:tests' = 'eslint __tests__/**/*.js -c ./.eslintrc.json --fix --no-ignore'
+            }
+            Jest = @{
+                'test' = 'jest .*.test.js --coverage'
+                'test:ing' = 'npm test -- --watchAll'
+            }
+            Postcss = @{}
+        }
     }
     Process {
         switch ($Add) {
             Babel {
-
-            }
-            Cesium {
-
+                $ToolName = $_
+                $ConfigName = 'babel.config.json'
+                if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add tasks and dependencies to package.json")) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $Config = if ($UseReact) {
+                        $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
+                        $ConfigurationFileData.$ToolName.React
+                    } else {
+                        $ConfigurationFileData.$ToolName.Core
+                    }
+                    $Parameters = @{
+                        Filename = $ConfigName
+                        Data = $Config
+                        Parent = $ApplicationDirectory
+                        Force = $Force
+                    }
+                    Save-JsonData @Parameters
+                }
             }
             ESLint {
-
+                $ToolName = $_
+                $ConfigName = '.eslintrc.json'
+                if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add tasks and dependencies to package.json")) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $Config = if ($UseReact) {
+                        $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
+                        $ConfigurationFileData.$ToolName.React
+                    } else {
+                        $ConfigurationFileData.$ToolName.Core
+                    }
+                    $Parameters = @{
+                        Filename = $ConfigName
+                        Data = $Config
+                        Parent = $ApplicationDirectory
+                        Force = $Force
+                    }
+                    Save-JsonData @Parameters
+                }
+            }
+            Jest {
+                $Toolname = $_
+                if ($PSCmdlet.ShouldProcess('Copy Jest files; Add dependencies and tasks to package.json')) {
+                    $Config = $ConfigurationFileData.$ToolName.Core
+                    $PackageManifestData += $PackageManifestAugment.$ToolName
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $Parent = Join-Path $ApplicationDirectory '__tests__'
+                    if ($UseReact) {
+                        # Do nothing
+                    }
+                    @(
+                        @{
+                            Filename = 'setup.js'
+                            Template = 'source/jest_setup'
+                        }
+                        @{
+                            Filename = 'example.test.js'
+                            Template = 'source/jest_example'
+                        }
+                    ) | ForEach-Object {
+                        $Parameters = $_
+                        $Common = @{
+                            TemplateDirectory = $TemplateDirectory
+                            Data = $Config
+                            Parent = $Parent
+                            Force = $Force
+                        }
+                        Save-TemplateData @Parameters @Common
+                    }
+                }
             }
             PostCSS {
-
-            }
-            Reason {
-
-            }
-            Rust {
-
+                $ToolName = 'PostCSS'
+                $ConfigName = 'postcss.config.js'
+                if ($PSCmdlet.ShouldProcess('Save PostCSS configuration file; Add dependencies to package.json')) {
+                    $Config = $ConfigurationFileData.$ToolName.Core
+                    $PackageManifestData += $PackageManifestAugment.$ToolName
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
+                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $Parent = $ApplicationDirectory
+                    if ($UseReact) {
+                        $Config, $ConfigurationFileData.$ToolName.React | Invoke-ObjectMerge -InPlace -Force
+                    }
+                    @(
+                        @{
+                            Filename = $ConfigName
+                            Template = 'config/postcss'
+                        }
+                    ) | ForEach-Object {
+                        $Parameters = $_
+                        $Common = @{
+                            TemplateDirectory = $TemplateDirectory
+                            Data = $Config
+                            Parent = $Parent
+                            Force = $Force
+                        }
+                        Save-TemplateData @Parameters @Common
+                    }
+                }
             }
             Default {
-
+                '==> [WARN] Unknown application update requested' | Write-Warning
             }
         }
     }
     End {
-
+        if ($PSCmdlet.ShouldProcess('Save package.json to application directory')) {
+            $PackageManifestData = $PackageManifestData | ConvertTo-OrderedDictionary
+            $PackageManifestData.dependencies = $PackageManifestData.dependencies | ConvertTo-OrderedDictionary
+            $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | ConvertTo-OrderedDictionary
+            $PackageManifestData.scripts = $PackageManifestData.scripts | ConvertTo-OrderedDictionary
+            $Parameters = @{
+                Filename = 'package.json'
+                Data = $PackageManifestData
+                Parent = $ApplicationDirectory
+                Force = $True
+            }
+            Save-JsonData @Parameters
+        }
     }
 }
 function Write-Status {
