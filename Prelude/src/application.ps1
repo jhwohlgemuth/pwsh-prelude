@@ -1,5 +1,5 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-Template')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-WebApplication')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'Invoke-NpmInstall')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'New-Template')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertTo-PowerShellSyntax')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-WebApplication')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Remove-Indent')]
@@ -162,6 +162,70 @@ function Invoke-FireEvent {
         [PSObject] $Data
     )
     New-Event -SourceIdentifier $Name -MessageData $Data | Out-Null
+}
+function Invoke-NpmInstall {
+    <#
+    .SYNOPSIS
+    "npm install"...but as a cmdlet
+    .EXAMPLE
+    Invoke-NpmInstall
+    #>
+    [CmdletBinding(SupportsShouldProcess = $True)]
+    [OutputType([Bool])]
+    Param(
+        [ValidateScript( { Test-Path $_ })]
+        [String] $Parent = (Get-Location).Path,
+        [Switch] $Silent
+    )
+    Begin {
+        if ($PSCmdlet.ShouldProcess("Change location to ${Parent}")) {
+            $Success = $True
+            $Location = Get-Location
+            Set-Location -Path $Parent
+            $Context = Test-ApplicationContext
+            $Command = 'npm install'
+        }
+    }
+    Process {
+        if ($Context.Node.Ready) {
+            try {
+                if ($PSCmdlet.ShouldProcess('Install dependencies with "npm install"')) {
+                    if (-not $Silent) {
+                        '==> [INFO] Installing dependencies...' | Write-Color -Cyan
+                    }
+                    Invoke-Expression $Command | Out-Null
+                }
+            } catch {
+                $Success = $False
+            }
+        } else {
+            if (-not $Silent) {
+                Write-Status 'fail'
+            }
+            switch ($Context.Node) {
+                { -not $_.PackageManager } {
+                    "Could not run `"${Command}.`" Is npm installed?`n" | Write-Color -White
+                }
+                { -not $_.Manifest } {
+                    "Could not find package.json in ${Parent}...`n" | Write-Color -White
+                }
+                Default {
+                    "{{#yellow (╯°□°)╯︵ ┻━┻ }}...maybe try again?`n" | Write-Color -White
+                }
+            }
+            $Success = $False
+        }
+    }
+    End {
+        if ($PSCmdlet.ShouldProcess("Restore location to ${Location}")) {
+            Set-Location -Path $Location
+            if (-not $Success) {
+                return $Null
+            } else {
+                return $Success
+            }
+        }
+    }
 }
 function Invoke-RunApplication {
     <#
@@ -660,62 +724,6 @@ function New-WebApplication {
         [Switch] $Force
     )
     Begin {
-        function Invoke-NpmInstall {
-            <#
-            .SYNOPSIS
-            Perform npm install
-            #>
-            [CmdletBinding()]
-            [OutputType([Bool])]
-            Param(
-                [ValidateScript( { Test-Path $_ })]
-                [String] $Parent = (Get-Location).Path,
-                [Switch] $Silent
-            )
-            Begin {
-                $Success = $True
-                $Location = Get-Location
-                Set-Location -Path $Parent
-                $Context = Test-ApplicationContext
-                $Command = 'npm install'
-            }
-            Process {
-                if ($Context.Node.Ready) {
-                    try {
-                        if (-not $Silent) {
-                            '==> [INFO] Installing dependencies...' | Write-Color -Cyan
-                        }
-                        Invoke-Expression $Command | Out-Null
-                    } catch {
-                        $Success = $False
-                    }
-                } else {
-                    if (-not $Silent) {
-                        Write-Status 'fail'
-                    }
-                    switch ($Context.Node) {
-                        { -not $_.PackageManager } {
-                            "Could not run `"${Command}.`" Is npm installed?`n" | Write-Color -White
-                        }
-                        { -not $_.Manifest } {
-                            "Could not find package.json in ${Parent}...`n" | Write-Color -White
-                        }
-                        Default {
-                            "{{#yellow (╯°□°)╯︵ ┻━┻ }}...maybe try again?`n" | Write-Color -White
-                        }
-                    }
-                    $Success = $False
-                }
-            }
-            End {
-                Set-Location -Path $Location
-                if (-not $Success) {
-                    return $Null
-                } else {
-                    return $Success
-                }
-            }
-        }
         $BundlerOptions = @(
             'Webpack'
             'Parcel'

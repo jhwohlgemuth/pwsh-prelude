@@ -164,6 +164,7 @@
         'Invoke-Method'
         'Invoke-NewDirectoryAndEnter'
         'Invoke-Normalize'
+        'Invoke-NpmInstall'
         'Invoke-ObjectInvert'
         'Invoke-ObjectMerge'
         'Invoke-Once'
