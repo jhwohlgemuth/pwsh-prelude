@@ -179,7 +179,7 @@ function Invoke-NpmInstall {
     )
     Begin {
         $Command = 'npm install'
-        $Context = Test-ApplicationContext
+        $Context = Test-ApplicationContext -Parent $Parent
         $Location = Get-Location
         if ($PSCmdlet.ShouldProcess("Change location to ${Parent}")) {
             $Success = $True
