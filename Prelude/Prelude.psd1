@@ -1,5 +1,5 @@
 ﻿@{
-    ModuleVersion = '0.1.12'
+    ModuleVersion = '0.1.13'
     RootModule = 'Prelude.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Wohlgemuth Technology Foundation'
