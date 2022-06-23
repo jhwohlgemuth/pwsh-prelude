@@ -1025,6 +1025,7 @@ function New-WebApplication {
                     Data = $Data
                     Force = $Force
                     TemplateDirectory = $TemplateDirectory
+                    Encoding = 'utf8'
                 }
                 Save-TemplateData @Parameters @Common
             }
@@ -1424,6 +1425,7 @@ function Save-TemplateData {
         [String] $Template,
         [String] $Parent,
         [String] $Filename,
+        [String] $Encoding = 'ascii',
         [Switch] $Force
     )
     $Path = Join-Path $Parent $Filename
@@ -1434,7 +1436,7 @@ function Save-TemplateData {
             Data = $Data
             NoData = ($Data.Count -eq 0)
         }
-        New-Template @Parameters | Out-File -FilePath $Path -Encoding ascii
+        New-Template @Parameters | Out-File -FilePath $Path -Encoding $Encoding
     } else {
         $Message | Write-Warning
     }
