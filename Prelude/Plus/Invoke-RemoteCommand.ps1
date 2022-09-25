@@ -41,7 +41,7 @@ function Invoke-RemoteCommand {
         [String[]] $ComputerName,
         [Parameter(ParameterSetName = 'scriptblock')]
         [Parameter(ParameterSetName = 'file')]
-        [SecureString] $Password,
+        [String] $Password,
         [Parameter(ParameterSetName = 'scriptblock')]
         [Parameter(ParameterSetName = 'file')]
         [PSObject] $Credential,
