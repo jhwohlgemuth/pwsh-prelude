@@ -259,6 +259,7 @@ Functions
   - `Invoke-Reduce`
   - `Invoke-Repeat`
   - `Invoke-RemoteCommand`
+  - `Invoke-Reverse`
   - `Invoke-RunApplication`
   - `Invoke-Speak` <sup>[3](#3)</sup>
   - `Invoke-TakeWhile`

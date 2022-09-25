@@ -10,10 +10,10 @@ BeforeDiscovery {
 Describe 'PowerShell Prelude Module' -Tag 'Local', 'Remote', 'WindowsOnly' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 142
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 143
         }
         It 'should import aliases' {
-            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 63
+            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 64
         }
     }
 }
@@ -631,7 +631,6 @@ Describe 'Invoke-Reduce' -Tag 'Local', 'Remote' {
         Get-ChildItem $TestDrive | ForEach-Object { Remove-Item $_.FullName -Force -Recurse }
     }
 }
-
 Describe 'Invoke-Repeat' -Tag 'Local', 'Remote' {
     It 'can create array of repeated values' {
         Invoke-Repeat 'O' | Should -Be 'O'
@@ -645,6 +644,20 @@ Describe 'Invoke-Repeat' -Tag 'Local', 'Remote' {
         0 | Invoke-Repeat -Times 6 | Should -Be 0, 0, 0, 0, 0, 0
         1, 2, 3 | Invoke-Repeat -Times 3 | Should -Be 1, 1, 1, 2, 2, 2, 3, 3, 3
         ' ' | Invoke-Repeat -Times 5 | Invoke-Reduce -Add | Should -Be '     '
+    }
+}
+Describe 'Invoke-Reverse' -Tag 'Local', 'Remote' {
+    It 'can reverse string values' {
+        $Value = 'Hello World'
+        $Expected = 'dlroW olleH'
+        $Value | Invoke-Reverse | Should -Be $Expected
+        Invoke-Reverse $Value | Should -Be $Expected
+    }
+    It 'can reverse array values' {
+        $Value = 1..10
+        $Expected = 10..1
+        $Value | Invoke-Reverse | Should -Be $Expected
+        Invoke-Reverse $Value | Should -Be $Expected
     }
 }
 Describe 'Invoke-TakeWhile' -Tag 'Local', 'Remote' {

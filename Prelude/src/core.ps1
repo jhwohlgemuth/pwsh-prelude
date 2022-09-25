@@ -1106,6 +1106,58 @@ function Invoke-Repeat {
         [System.Linq.Enumerable]::Repeat($Value, $Times)
     }
 }
+function Invoke-Reverse {
+    <#
+    .SYNOPSIS
+    Return a reversed version of input array or string
+    .EXAMPLE
+    1..5 | Invoke-Reverse
+    # 5, 4, 3, 2, 1
+
+    Invoke-Reverse -Value @(1, 2, 3, 4, 5)
+    # 5, 4, 3, 2, 1
+    .EXAMPLE
+    'hello world' | reverse
+    # 'dlrow olleh'
+    #>
+    [CmdletBinding()]
+    [Alias('reverse')]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [AllowEmptyString()]
+        [Array] $InputObject
+    )
+    Begin {
+        function Invoke-Reverse_ {
+            Param(
+                [Parameter(Position = 0)]
+                [Array] $InputObject
+            )
+            if ($InputObject.Count -gt 0) {
+                $Clone = New-Object 'System.Collections.ArrayList'
+                foreach ($Item in $InputObject) {
+                    [Void]$Clone.Add($Item)
+                }
+                $Clone.Reverse()
+                $Clone
+            }
+        }
+        if ($InputObject.Count -eq 1 -and $InputObject[0].GetType().Name -eq 'String') {
+            $Result = Invoke-Reverse_ $InputObject.ToCharArray()
+            $Result -join ''
+        } else {
+            Invoke-Reverse_ $InputObject
+        }
+    }
+    End {
+        if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
+            $Result = Invoke-Reverse_ $Input.ToCharArray()
+            $Result -join ''
+        } else {
+            Invoke-Reverse_ $Input
+        }
+    }
+}
 function Invoke-TakeWhile {
     <#
     .SYNOPSIS
