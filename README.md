@@ -27,11 +27,11 @@ Import-Module -Name Prelude
 > **Note**
 > For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
 
-What is Prelude?
-----------------
-> Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better.  If you are already familiar with another language (like Python or JavaScript), you can look at these [comparisons of Prelude to other popular languages, libraries, and tools](./examples/Compare.md).
+What's Prelude?
+---------------
+> Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better. If you are already familiar with another language (like Python or JavaScript), you can look at these [comparisons of Prelude to other popular languages, libraries, and tools](./examples/Compare.md).
 
-PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions – it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[5](#5)</sup> the typical use cases. Use cases are varied and include:
+PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions, it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[5](#5)</sup> the typical use cases. Use cases are varied and include:
 - Linear algebra, graph theory, and statistics
 - Data shaping, analysis, and visualization
 - Local and remote automation
@@ -39,7 +39,7 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 - PowerShell meta-programming
 - **See the [examples folder](./examples) for detailed examples**
 
-> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some PowerShell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module..."  
+> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some PowerShell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module…"  
 *- Anonymous*
 
 So what, big deal, who cares?
@@ -54,7 +54,7 @@ Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly
 
 Things You Can Do With Prelude
 ------------------------------
-> Although `Prelude` has more than the standard "standard" libary, it still comes packed with functions engineered to enhance script sustainability
+> Although `Prelude` has more than the standard "standard" library, it still comes packed with functions engineered to enhance script sustainability
 
 - List all permutations of a word
 ```PowerShell
@@ -108,12 +108,12 @@ $Callback | listenTo 'Boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $Boot = 43
 ```
--  Quickly create complext UI elements like paginated multi-select menus
+-  Quickly create complex UI elements like paginated multi-select menus
     <div align="center">
       <a href="#"><img alt="Batteries include user input" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/multiselect.gif" alt="Multi-select Menu" width="1280"/></a>
     </div>
 
-- Create a full form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more complete example)
+- Create a full form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more extensive example)
 ```PowerShell
 'Example' | Write-Title
 $Fullname = input 'Full Name?' -Indent 4
@@ -162,13 +162,13 @@ ConvertFrom-FolderStructure | Out-Tree
 'bookmarks.html' | Import-Html | Get-HtmlElement 'a' | prop 'href' | ? { -not (Test-Url $_) }
 ```
 
-### **And then...**
+### **And then…**
 - Use complex values
 - Calculate matrix inverses
 - Solve linear systems
 - Calculate multiple matrix norms
-- Compute eignenvalues and eigenvectors
-- ...and more!
+- Compute eigenvalues and eigenvectors
+- …and more!
 
 Functions
 ---------
@@ -347,7 +347,7 @@ Type Accelerators
   > Full class name is `System.Numerics.Complex`
 
 - `[Coordinate]`
-  > Class for working with geodetic and cartesian earth coordinate values.
+  > Class for working with geodetic and Cartesian earth coordinate values.
   ```PowerShell
   $Omaha = [Coordinate]@{ latitude = 41.25; longitude = -96 }
   $Omaha.ToString()
@@ -486,7 +486,7 @@ Type Extensions
 ---------------
 > For details on how to extend types with `Types.ps1xml` files, see [About Types.ps1xml](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_types.ps1xml?view=powershell-7)
 
-Prelude uses type extensions to provide method versions of most core functions. This may be useful in some situations (or if you just don't feel like using pipelines...)
+Prelude uses type extensions to provide method versions of most core functions. This may be useful in some situations (or if you just don't feel like using pipelines…)
 
 **Examples**
 ```PowerShell
@@ -545,7 +545,7 @@ Credits
 
 [2]
 ---
-> This code was inspired and enabled by [several people and projects](#Credits)
+> This code is inspired and enabled by [several people and projects](#Credits)
 
 [3]
 ---
@@ -567,7 +567,7 @@ Credits
 
 [6]
 ---
-> Compiled code, closed source software, arcane code snippets copy/pasted from the internet nether-realm, etc...
+> Compiled code, closed source software, arcane code snippets copy/pasted from the internet nether-realm, etc…
 
 [7]
 ---
