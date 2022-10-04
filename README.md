@@ -31,7 +31,10 @@ What's Prelude?
 ---------------
 > Are you new to PowerShell? If so, please look through [this presentation](https://powershell.surge.sh) for a quick introduction to the merits and magic of PowerShell and how Prelude makes it even better. If you are already familiar with another language (like Python or JavaScript), you can look at these [comparisons of Prelude to other popular languages, libraries, and tools](./examples/Compare.md).
 
-PowerShell is not limited to purely functional programming like Haskell or confined to a browser like Elm. Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. A prelude for PowerShell should be more than “just” a library of utility functions, it should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[5](#5)</sup> the typical use cases. Use cases are varied and include:
+PowerShell isn't limited to purely functional programming like Haskell or confined to a browser like Elm. 
+Interacting with the host computer (and other computers) is a large part of PowerShell’s power and purpose. 
+A prelude for PowerShell should be more than “just” a library of utility functions. It should also help “fill the gaps” in the language that one finds after constant use, within and beyond<sup>[5](#5)</sup> the typical use cases. 
+The myriad use cases include:
 - Linear algebra, graph theory, and statistics
 - Data shaping, analysis, and visualization
 - Local and remote automation
@@ -39,7 +42,7 @@ PowerShell is not limited to purely functional programming like Haskell or confi
 - PowerShell meta-programming
 - **See the [examples folder](./examples) for detailed examples**
 
-> "It is almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some PowerShell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module…"  
+> "It's almost like someone just browsed the [awesome-powershell](https://github.com/janikvonrotz/awesome-powershell) repository, read some PowerShell scripting blogs, wrote some C# versions of algorithms, and then added all their favorite functions and aliases into a grab-bag module…"  
 *- Anonymous*
 
 So what, big deal, who cares?
@@ -48,10 +51,10 @@ So what, big deal, who cares?
 This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[6](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[7](#7)</sup> without system/administrator/root privileges.
 
 > **Note**
-> For maximum effectiveness, it is recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
-
+> For maximum effectiveness, it's recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
+<!-- vale off -->
 Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly) works on Linux<sup>[3](#3)</sup> ;)
-
+<!-- vale on -->
 Things You Can Do With Prelude
 ------------------------------
 > Although `Prelude` has more than the standard "standard" library, it still comes packed with functions engineered to enhance script sustainability
@@ -108,7 +111,7 @@ $Callback | listenTo 'Boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $Boot = 43
 ```
--  Quickly create complex UI elements like paginated multi-select menus
+- Create complex UI elements like paginated multi-select menus
     <div align="center">
       <a href="#"><img alt="Batteries include user input" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/multiselect.gif" alt="Multi-select Menu" width="1280"/></a>
     </div>
@@ -166,7 +169,7 @@ ConvertFrom-FolderStructure | Out-Tree
 - Use complex values
 - Calculate matrix inverses
 - Solve linear systems
-- Calculate multiple matrix norms
+- Calculate matrix norms
 - Compute eigenvalues and eigenvectors
 - …and more!
 
@@ -376,7 +379,7 @@ Type Accelerators
   > Full class name is `Prelude.Geodetic.Datum`
 
 - `[Matrix]`
-  > Perform all kinds of matrix math. Tested on multiple math books - 100% Guaranteed to make homework easier<sup>[4](#4)</sup>
+  > Perform all kinds of matrix math. Tested on many math books - 100% Guaranteed to make homework easier<sup>[4](#4)</sup>
 
   <div align="center">
       <a href="#"><img alt="Matrix arithmetic is so easy!" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/matrix.gif" alt="Matrix math!" width="1280"/></a>
@@ -510,14 +513,14 @@ $Add = { Param($a,$b) $a + $b }
 
 Contributing
 ------------
-Have an idea? Want to help implement a fix? Check out the [contributing guide](./.github/CONTRIBUTING.md).
+Have an idea? Want to help contribute? Check out the [contributing guide](./.github/CONTRIBUTING.md).
 
 Credits
 -------
 - [Microsoft](https://www.microsoft.com)
   - [PowerShell](https://github.com/powershell/powershell) (d'uh)
   - [Windows Terminal](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal)
-  - [VS Code](https://code.visualstudio.com/) - *the editor I use for writing PowerShell*
+  - [VS Code](https://code.visualstudio.com/) - *My editor of choice for writing PowerShell*
   - [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - *the editor I use for writing C#*
 - [Pester](https://pester.dev/) - *testing*
 - [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) - *static analysis (linting)*
@@ -549,7 +552,7 @@ Credits
 
 [3]
 ---
-> The following functions are not supported on Linux:
+> The following functions aren't supported on Linux:
 - `Invoke-ListenForWord`
 - `Invoke-Speak`
 - `Import-Html`
@@ -559,7 +562,7 @@ Credits
 
 [4]
 ---
-> Results may vary. The 100% guarantee is not 100% certain in 100% of cases.
+> Results may vary. The 100% guarantee is 100% uncertain in 100% of cases.
 
 [5]
 ---
