@@ -11,11 +11,11 @@ Param()
 function Invoke-Input {
     <#
     .SYNOPSIS
-    A fancy Read-Host replacement meant to be used to make CLI applications.
+    A fancy Read-Host replacement meant to for use making CLI applications.
     .PARAMETER Secret
-    Displayed characters are replaced with asterisks
+    Displayed characters replaced with asterisks
     .PARAMETER Number
-    Switch to designate input is numerical
+    Switch to designate numerical input
     .EXAMPLE
     $Fullname = input 'Full Name?'
     $Username = input 'Username?' -MaxLength 10 -Indent 4
