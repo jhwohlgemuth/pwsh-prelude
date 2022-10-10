@@ -374,7 +374,7 @@ Describe -Skip 'Foo' {
         }
     }
 }
-Describe 'New-WebApplication' -Tag 'Local', 'Remote' {
+Describe 'New-WebApplication' -Tag 'Local', 'Remote', 'WindowsOnly' {
     It 'can be created using Webpack and <Library>' -TestCases @(
         @{ Bundler = 'Webpack'; Library = $Null }
         @{ Bundler = 'Webpack'; Library = 'React' }
