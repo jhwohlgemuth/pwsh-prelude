@@ -1,6 +1,7 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope = 'Function', Target = 'Write-Color')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function', Target = 'Invoke-Input')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function', Target = 'Update-Autocomplete')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Input')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Menu')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Update-MenuSelection')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Write-BarChart')]
@@ -11,11 +12,11 @@ Param()
 function Invoke-Input {
     <#
     .SYNOPSIS
-    A fancy Read-Host replacement meant to be used to make CLI applications.
+    A fancy Read-Host replacement meant to for use making CLI applications.
     .PARAMETER Secret
-    Displayed characters are replaced with asterisks
+    Displayed characters replaced with asterisks
     .PARAMETER Number
-    Switch to designate input is numerical
+    Switch to designate numerical input
     .EXAMPLE
     $Fullname = input 'Full Name?'
     $Username = input 'Username?' -MaxLength 10 -Indent 4
@@ -47,7 +48,8 @@ function Invoke-Input {
         [Switch] $Autocomplete,
         [Array] $Choices,
         [Int] $Indent,
-        [Int] $MaxLength = 0
+        [Int] $MaxLength = 0,
+        [String] $Placeholder = ''
     )
     Write-Label -Text $LabelText -Indent $Indent
     $Global:PreviousRegularExpression = $Null
@@ -55,6 +57,16 @@ function Invoke-Input {
     $CurrentIndex = 0
     $AutocompleteMatches = @()
     $StartPosition = [Console]::CursorLeft
+    function Clear-Placeholder {
+        Param()
+        [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+        Write-Color (' ' * $Placeholder.Length) -NoNewLine
+        [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+    }
+    function Write-Placeholder {
+        Param()
+        Write-Color $Placeholder -NoNewLine -DarkGray
+    }
     function Format-Output {
         Param(
             [Parameter(Mandatory = $True, Position = 0)]
@@ -109,9 +121,14 @@ function Invoke-Input {
             [Console]::SetCursorPosition($Left, [Console]::CursorTop)
         }
     }
+    Write-Placeholder
+    [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
     do {
         $KeyInfo = [Console]::ReadKey($True)
         $KeyChar = $KeyInfo.KeyChar
+        if ($Result.Length -eq 0) {
+            Clear-Placeholder
+        }
         switch ($KeyInfo.Key) {
             'Backspace' {
                 if (-not $Secret) {
@@ -142,25 +159,27 @@ function Invoke-Input {
             }
             'Delete' {
                 if (-not $Secret) {
-                    $Left = [Console]::CursorLeft
-                    [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
-                    $Updated = $Result | Remove-Character -At ($Left - $StartPosition)
-                    $Result = $Updated
-                    if ($MaxLength -eq 0) {
-                        Write-Color "$Updated " -NoNewLine
-                    } else {
+                    if ($Result.Length -gt 0) {
+                        $Left = [Console]::CursorLeft
                         [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
-                        if ($Result.Length -le $MaxLength) {
+                        $Updated = $Result | Remove-Character -At ($Left - $StartPosition)
+                        $Result = $Updated
+                        if ($MaxLength -eq 0) {
                             Write-Color "$Updated " -NoNewLine
                         } else {
-                            Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
-                            Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + ' ') -NoNewLine -Red
+                            [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
+                            if ($Result.Length -le $MaxLength) {
+                                Write-Color "$Updated " -NoNewLine
+                            } else {
+                                Write-Color $Updated.Substring(0, $MaxLength) -NoNewLine
+                                Write-Color ($Updated.Substring($MaxLength, $Updated.Length - $MaxLength) + ' ') -NoNewLine -Red
+                            }
                         }
+                        if ($Autocomplete) {
+                            Update-Autocomplete -Output $Updated
+                        }
+                        [Console]::SetCursorPosition([Math]::Max(0, $Left), [Console]::CursorTop)
                     }
-                    if ($Autocomplete) {
-                        Update-Autocomplete -Output $Updated
-                    }
-                    [Console]::SetCursorPosition([Math]::Max(0, $Left), [Console]::CursorTop)
                 }
             }
             'DownArrow' {
@@ -273,6 +292,10 @@ function Invoke-Input {
                     }
                 }
             }
+        }
+        if ($Result.Length -eq 0) {
+            Write-Placeholder
+            [Console]::SetCursorPosition($StartPosition, [Console]::CursorTop)
         }
     } until ($KeyInfo.Key -eq 'Enter' -or $KeyInfo.Key -eq 'Escape')
     Write-Color ''
