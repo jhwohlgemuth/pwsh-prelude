@@ -268,7 +268,6 @@ Functions
   - `Invoke-TakeWhile`
   - `Invoke-Tap`
   - `Invoke-Unpack`
-  - `Invoke-UnwrapTemplateString`
   - `Invoke-Unzip`
   - `Invoke-WebRequestBasicAuth`
   - `Invoke-Zip`
@@ -289,6 +288,7 @@ Functions
   - `Remove-Character`
   - `Remove-DailyShutdownjob`
   - `Remove-DirectoryForce`
+  - `Remove-HandlebarsHelper`
   - `Remove-Indent`
   - `Rename-FileExtension`
   - `Save-File`

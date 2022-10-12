@@ -436,7 +436,7 @@ function Invoke-Menu {
                         if ($IsSelected) { $SelectedMarker } else { ' ' * $SelectedMarker.Length }
                     }
                     $Text = if ($IsSelected) {
-                        $Item | Invoke-UnwrapTemplateString
+                        $Item | Remove-HandlebarsHelper
                     } else {
                         $Item
                     }
@@ -614,18 +614,18 @@ function Invoke-Menu {
             }
         }
         if ($Unwrap) {
-            $Output | Invoke-UnwrapTemplateString
+            $Output | Remove-HandlebarsHelper
         } else {
             $Output
         }
     }
 }
-function Invoke-UnwrapTemplateString {
+function Remove-HandlebarsHelper {
     <#
     .SYNOPSIS
     Unwrap template string
     .EXAMPLE
-    '{{#red Hello World}}' | Invoke-UnwrapTemplateString
+    '{{#red Hello World}}' | Remove-HandlebarsHelper
     # Hello World
     #>
     [CmdletBinding()]
