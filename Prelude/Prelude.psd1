@@ -183,6 +183,7 @@
         'Invoke-TakeWhile'
         'Invoke-Tap'
         'Invoke-Unpack'
+        'Invoke-UnwrapTemplateString'
         'Invoke-Unzip'
         'Invoke-WebRequestBasicAuth'
         'Invoke-Zip'

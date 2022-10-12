@@ -603,6 +603,39 @@ function Invoke-Menu {
         }
     }
 }
+function Invoke-UnwrapTemplateString {
+    <#
+    .SYNOPSIS
+    Unwrap template string
+    .EXAMPLE
+    '{{#red Hello World}}' | Invoke-UnwrapTemplateString
+    # Hello World
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String] $Value
+    )
+    Begin {
+        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#))((?!}}).)*}}'
+    }
+    Process {
+        $Result = ''
+        $Position = 0
+        $Value | Select-String -Pattern $Pattern -AllMatches | ForEach-Object Matches | ForEach-Object {
+            $Result += $Value.Substring($Position, $_.Index - $Position)
+            $HelperTemplate = $Value.Substring($_.Index, $_.Length)
+            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace '}}', '' } | ForEach-Object { $_ -split ' ' }
+            $Result += ($Arr[1..$Arr.Length] -join ' ')
+            $Position = $_.Index + $_.Length
+        }
+        if ($Position -lt $Value.Length) {
+            $Result += $Value.Substring($Position, $Value.Length - $Position)
+        }
+        $Result.Trim()
+    }
+}
 function Write-BarChart {
     <#
     .SYNOPSIS

@@ -577,9 +577,6 @@ function New-Template {
             $Template = Get-Content $Path -Raw
         }
         $EvaluatedTemplate = [Regex]::Replace(($Template -replace '[$]', '`$'), $Pattern, $Evaluator)
-        if ($File) {
-            # $EvaluatedTemplate = ($EvaluatedTemplate -replace '"', '""')
-        }
         $TemplateScriptBlock = [ScriptBlock]::Create('$("' + ($EvaluatedTemplate -replace '"', $PLACEHOLDER) + '" | Write-Output)')
         $NotPassed = $Script:TemplateKeyNamesNotPassed
         if (($Binding.Count -gt 0) -or $NoData) {

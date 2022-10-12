@@ -6,6 +6,35 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
+Describe 'Invoke-UnwrapTemplateString' -Tag 'Local', 'Remote' {
+    It 'Should unwrap a template string and return internal <Value>' -TestCases @(
+        @{ Value = '{{#red Hello World}}' }
+        @{ Value = '{{#red Hello World }}' }
+        @{ Value = '{{#red  Hello World}}' }
+        @{ Value = '{{#red  Hello World }}' }
+        @{ Value = '{{=white Hello World}}' }
+        @{ Value = '{{=white Hello World }}' }
+        @{ Value = '{{=white  Hello World}}' }
+        @{ Value = '{{=white  Hello World }}' }
+        @{ Value = '{{-blue Hello World}}' }
+        @{ Value = '{{-blue Hello World }}' }
+        @{ Value = '{{-blue  Hello World}}' }
+        @{ Value = '{{-blue  Hello World }}' }
+    ) {
+        $Value | Invoke-UnwrapTemplateString | Should -Be 'Hello World'
+    }
+    It 'should support processing string <Value> with multiple templates' -TestCases @(
+        @{ Value = '{{#red RED}} WHITE {{#blue BLUE}}' }
+        @{ Value = '{{#red RED}} {{#white WHITE}} BLUE' }
+        @{ Value = 'RED {{#white WHITE}} BLUE' }
+    ) {
+        $Value | Invoke-UnwrapTemplateString | Should -Be 'RED WHITE BLUE'
+    }
+    It 'should support processing a list of template strings' {
+        $Expected = 'RED', 'WHITE', 'BLUE'
+        '{{#red RED}}', '{{#white WHITE}}', '{{#blue BLUE}}' | Invoke-UnwrapTemplateString | Should -Be $Expected
+    }
+}
 Describe 'Write-Color' -Tag 'Local', 'Remote' {
     BeforeAll {
         It 'should write nothing when passed an empty string' {
