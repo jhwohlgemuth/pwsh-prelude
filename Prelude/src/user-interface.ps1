@@ -347,6 +347,8 @@ function Invoke-Menu {
     Note: The NoMarker parameter overrides this parameter.
     .PARAMETER Vim
     Use Vim hotkeys for up, down, left, and right navigation.
+    .PARAMETER Unwrap
+    For items that are formatted with handlebar helper syntax, return unwrapped value when selected
     .EXAMPLE
     Invoke-Menu 'one','two','three'
     .EXAMPLE
@@ -369,6 +371,10 @@ function Invoke-Menu {
     Invoke-Menu -FolderContent | Invoke-Item
 
     # Open a folder via an interactive list menu populated with folder content
+    .EXAMPLE
+    '{{#red red}}','white','{{#blue blue}}' | menu -Unwrap
+
+    # Unwrap formatted values
     #>
     [CmdletBinding()]
     [Alias('menu')]
@@ -385,7 +391,8 @@ function Invoke-Menu {
         [Int] $Indent = 2,
         [String] $SelectedMarker = '>  ',
         [Switch] $NoMarker,
-        [Switch] $Vim
+        [Switch] $Vim,
+        [Switch] $Unwrap
     )
     Begin {
         function Invoke-MenuDraw {
@@ -428,7 +435,12 @@ function Invoke-Menu {
                     } else {
                         if ($IsSelected) { $SelectedMarker } else { ' ' * $SelectedMarker.Length }
                     }
-                    Write-Color "${LeftPadding}${Marker}${Item}${Clear}" @Parameters
+                    $Text = if ($IsSelected) {
+                        $Item | Remove-HandlebarsHelper
+                    } else {
+                        $Item
+                    }
+                    Write-Color "${LeftPadding}${Marker}${Text}${Clear}" @Parameters
                 }
                 $Index++
             }
@@ -584,7 +596,7 @@ function Invoke-Menu {
             return $Null
         }
         $AbsolutePosition = $Position + ($PageNumber * $Limit)
-        if ($ReturnIndex) {
+        $Output = if ($ReturnIndex) {
             if ($MultiSelect -or $SingleSelect) {
                 $Selection | Where-Object { $_ -lt $OriginalItems.Count }
             } else {
@@ -601,6 +613,44 @@ function Invoke-Menu {
                 $OriginalItems[$AbsolutePosition]
             }
         }
+        if ($Unwrap) {
+            $Output | Remove-HandlebarsHelper
+        } else {
+            $Output
+        }
+    }
+}
+function Remove-HandlebarsHelper {
+    <#
+    .SYNOPSIS
+    Unwrap template string
+    .EXAMPLE
+    '{{#red Hello World}}' | Remove-HandlebarsHelper
+    # Hello World
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [String] $Value
+    )
+    Begin {
+        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#))((?!}}).)*}}'
+    }
+    Process {
+        $Result = ''
+        $Position = 0
+        $Value | Select-String -Pattern $Pattern -AllMatches | ForEach-Object Matches | ForEach-Object {
+            $Result += $Value.Substring($Position, $_.Index - $Position)
+            $HelperTemplate = $Value.Substring($_.Index, $_.Length)
+            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace '}}', '' } | ForEach-Object { $_ -split ' ' }
+            $Result += ($Arr[1..$Arr.Length] -join ' ')
+            $Position = $_.Index + $_.Length
+        }
+        if ($Position -lt $Value.Length) {
+            $Result += $Value.Substring($Position, $Value.Length - $Position)
+        }
+        $Result.Trim()
     }
 }
 function Write-BarChart {

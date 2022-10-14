@@ -210,6 +210,7 @@ Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
             'ReturnIndex'
             'SelectedMarker'
             'SingleSelect'
+            'Unwrap'
             'Vim'
         )
         $List.Name | Should -Be $Names

@@ -288,6 +288,7 @@ Functions
   - `Remove-Character`
   - `Remove-DailyShutdownjob`
   - `Remove-DirectoryForce`
+  - `Remove-HandlebarsHelper`
   - `Remove-Indent`
   - `Rename-FileExtension`
   - `Save-File`
