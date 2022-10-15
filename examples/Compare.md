@@ -4,6 +4,15 @@ Comparison Examples
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
+- [`gum` vs Prelude](#gum-vs-prelude)
+  - [Prompt for user input](#prompt-for-user-input)
+  - [Prompt for sensitive input](#prompt-for-sensitive-input)
+  - [Choose an option from a list of choices](#choose-an-option-from-a-list-of-choices)
+  - [Choose multiple options from a list of choices](#choose-multiple-options-from-a-list-of-choices)
+  - [Prompt the use to select a file/folder from the file tree](#prompt-the-use-to-select-a-filefolder-from-the-file-tree)
+- [`zx` vs Prelude](#zx-vs-prelude)
+  - [Print colored text to the terminal](#print-colored-text-to-the-terminal)
+  - [Get version from `package.json` file](#get-version-from-packagejson-file)
 - [`curl` vs Prelude](#curl-vs-prelude)
   - [POST JSON data with cURL](#post-json-data-with-curl)
   - [Set authorization header for request](#set-authorization-header-for-request)
@@ -26,10 +35,126 @@ Comparison Examples
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+`gum` vs Prelude
+==============
+> **Note**
+> [gum](https://github.com/charmbracelet/gum) is a tool for glamorous shell scripts
+
+Prompt for user input
+---------------------
+
+**gum**
+```shell
+gum input
+```
+
+**Prelude**
+```powershell
+input '>'
+```
+
+Prompt for sensitive input
+--------------------------
+
+**gum**
+```shell
+gum input --password
+```
+
+**Prelude**
+> **Note**
+> Default label is `input:`
+```powershell
+input '>' -Secret
+```
+
+Choose an option from a list of choices
+---------------------------------------
+
+**gum**
+```shell
+gum choose (1..10)
+```
+
+**Prelude**
+```powershell
+1..10 | menu
+```
+
+Choose multiple options from a list of choices
+----------------------------------------------
+
+**gum**
+```shell
+gum choose (1..10) --limit 10
+```
+
+**Prelude**
+```powershell
+1..10 | menu -MultiSelect
+```
+
+Prompt the use to select a file/folder from the file tree
+---------------------------------------------------------
+
+**gum**
+```shell
+gum file .
+```
+
+**Prelude**
+```powershell
+menu -FolderContent
+```
+
+`zx` vs Prelude
+===============
+> **Note**
+> `zx` code goes in files with the `.mjs` extension.
+> `Prelude` code goes in files with the `.ps1` extension.
+
+Print colored text to the terminal
+----------------------------------
+
+**zx**
+> **Note**
+> `zx` makes the [chalk](https://www.npmjs.com/package/chalk) package available
+```javascript
+#!/usr/bin/env zx
+
+console.log(chalk.blue('Hello world!'))
+```
+
+**Prelude**
+```powershell
+#Requires -Modules Prelude
+
+'Hello World' | Write-Color -Blue
+```
+
+Get version from `package.json` file
+------------------------------------
+
+**zx**
+> **Note**
+> `zx` makes the [fs-extra](https://www.npmjs.com/package/fs-extra) package available
+```javascript
+#!/usr/bin/env zx
+
+let {version} = await fs.readJson('./package.json')
+```
+
+**Prelude**
+```powershell
+#Requires -Modules Prelude
+
+$Version = Get-Content .\package.json | ConvertFrom-Json | prop version
+```
+
 `curl` vs Prelude
 ===============
 > **Note**
-> Works on Windows **and** Linux
+> Prelude works on Windows **and** Linux
 
 POST JSON data with cURL
 ------------------------
