@@ -26,10 +26,82 @@ Comparison Examples
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+gum vs Prelude
+==============
+> **Note**
+> [gum](https://github.com/charmbracelet/gum) is a tool for glamorous shell scripts
+
+Prompt for user input
+---------------------
+
+**gum**
+```shell
+gum input
+```
+
+**Prelude**
+```powershell
+input '>'
+```
+
+Prompt for sensitive input
+--------------------------
+
+**gum**
+```shell
+gum input --password
+```
+
+**Prelude**
+> **Note**
+> Default label is `input:`
+```powershell
+input '>' -Secret
+```
+
+Choose an option from a list of choices
+---------------------------------------
+
+**gum**
+```shell
+gum choose (1..10)
+```
+
+**Prelude**
+```powershell
+1..10 | menu
+```
+
+Choose multiple options from a list of choices
+----------------------------------------------
+
+**gum**
+```shell
+gum choose (1..10) --limit 10
+```
+
+**Prelude**
+```powershell
+1..10 | menu -MultiSelect
+```
+
+Prompt the use to select a file/folder from the file tree
+---------------------------------------------------------
+
+**gum**
+```shell
+gum file .
+```
+
+**Prelude**
+```powershell
+menu -FolderContent
+```
+
 `curl` vs Prelude
 ===============
 > **Note**
-> Works on Windows **and** Linux
+> Prelude works on Windows **and** Linux
 
 POST JSON data with cURL
 ------------------------
