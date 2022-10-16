@@ -4,16 +4,16 @@ Comparison Examples
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [`gum` vs Prelude](#gum-vs-prelude)
+- [`gum` vs. Prelude](#gum-vs-prelude)
   - [Prompt for user input](#prompt-for-user-input)
   - [Prompt for sensitive input](#prompt-for-sensitive-input)
   - [Choose an option from a list of choices](#choose-an-option-from-a-list-of-choices)
   - [Choose multiple options from a list of choices](#choose-multiple-options-from-a-list-of-choices)
   - [Prompt the use to select a file/folder from the file tree](#prompt-the-use-to-select-a-filefolder-from-the-file-tree)
-- [`zx` vs Prelude](#zx-vs-prelude)
+- [`zx` vs. Prelude](#zx-vs-prelude)
   - [Print colored text to the terminal](#print-colored-text-to-the-terminal)
   - [Get version from `package.json` file](#get-version-from-packagejson-file)
-- [`curl` vs Prelude](#curl-vs-prelude)
+- [`curl` vs. Prelude](#curl-vs-prelude)
   - [POST JSON data with cURL](#post-json-data-with-curl)
   - [Set authorization header for request](#set-authorization-header-for-request)
 - [Python vs. Prelude](#python-vs-prelude)
@@ -35,7 +35,7 @@ Comparison Examples
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-`gum` vs Prelude
+`gum` vs. Prelude
 ==============
 > **Note**
 > [gum](https://github.com/charmbracelet/gum) is a tool for glamorous shell scripts
@@ -107,7 +107,7 @@ gum file .
 menu -FolderContent
 ```
 
-`zx` vs Prelude
+`zx` vs. Prelude
 ===============
 > **Note**
 > `zx` code goes in files with the `.mjs` extension.
@@ -151,7 +151,7 @@ let {version} = await fs.readJson('./package.json')
 $Version = Get-Content .\package.json | ConvertFrom-Json | prop version
 ```
 
-`curl` vs Prelude
+`curl` vs. Prelude
 ===============
 > **Note**
 > Prelude works on Windows **and** Linux
