@@ -39,13 +39,17 @@ $FavoriteNumberWord = 'one', 'two', 'three' | Invoke-Menu -SingleSelect -Indent 
 $Choice = 'Godel', 'Gauss', 'Cantor' | Invoke-Menu -MultiSelect -Indent $Indent
 
 '{{#red Red}}, {{#white White}}, or {{#blue Blue}}?' | Write-Label @LabelParameters
-$FavoriteColor = 'red', 'white', 'blue' | Invoke-Menu -Indent $Indent
+$FavoriteColor = '{{#red red}}', 'white', '{{#blue blue}}' | Invoke-Menu -Indent $Indent -Unwrap
 
-'Favorite number between 1 and 100?' | Write-Label @LabelParameters
+$Space
+
+'Favorite number between 1 and 100?' | Write-Label -Indent $Indent
 $Space
 $FavoriteNumber = 1..100 | Invoke-Menu -Limit 10 -Indent $Indent
 
-'Favorite index between 0 and 9?' | Write-Label @LabelParameters
+$Space
+
+'Favorite index between 0 and 9?' | Write-Label -Indent $Indent
 $Space
 $FavoriteIndex = 1..10 | Invoke-Menu -Limit 3 -Indent $Indent -ReturnIndex
 
