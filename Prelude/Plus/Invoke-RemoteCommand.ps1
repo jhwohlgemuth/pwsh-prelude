@@ -10,18 +10,18 @@ function Invoke-RemoteCommand {
     .PARAMETER Parameters
     Object to pass parameters to underlying Invoke-Command call (ex: -Parameters @{ HideComputerName = $True })
     .EXAMPLE
-    Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456 { whoami }
+    Invoke-RemoteCommand -ComputerName PCNAME -Password 123456 { whoami }
     .EXAMPLE
-    { whoami } | Invoke-RemoteCommand -ComputerNames PCNAME -Password 123456
+    { whoami } | Invoke-RemoteCommand -ComputerName PCNAME -Password 123456
     .EXAMPLE
     # This will open a prompt for you to input your password
-    { whoami } | Invoke-RemoteCommand -ComputerNames PCNAME
+    { whoami } | Invoke-RemoteCommand -ComputerName PCNAME
     .EXAMPLE
     # Use the "irc" alias and execute commands on multiple computers!
-    { whoami } | irc -ComputerNames Larry,Moe,Curly
+    { whoami } | irc -ComputerName Larry,Moe,Curly
     .EXAMPLE
-    Get-Credential | Export-CliXml -Path .\crendential.xml
-    { whoami } | Invoke-RemoteCommand -Credential (Import-Clixml -Path .\credential.xml) -ComputerNames PCNAME -Verbose
+    Get-Credential | Export-CliXml -Path .\credential.xml
+    { whoami } | Invoke-RemoteCommand -Credential .\credential.xml -Name PCNAME -Verbose
     .EXAMPLE
     irc '.\path\to\script.ps1'
     .EXAMPLE
@@ -55,7 +55,11 @@ function Invoke-RemoteCommand {
     $User = whoami
     if ($Credential) {
         '==> Using -Credential for authentication' | Write-Verbose
-        $Cred = $Credential
+        $Cred = if ($Credential.GetType().Name -eq 'String') {
+            Import-Clixml -Path $Credential
+        } else {
+            $Credential
+        }
     } elseif ($Password) {
         "==> Creating credential for $User using -Password" | Write-Verbose
         $Pass = ConvertTo-SecureString -String $Password -AsPlainText -Force
