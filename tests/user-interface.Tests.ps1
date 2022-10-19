@@ -6,6 +6,12 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
+
+Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
+    It 'Should support empty strings' {
+        '' | Format-MinimumWidth -Width 10 | Should -BeExactly '          '
+    }
+}
 Describe 'Remove-HandlebarsHelper' -Tag 'Local', 'Remote' {
     It 'Should unwrap a template string and return internal <Value>' -TestCases @(
         @{ Value = '{{#red Hello World}}' }

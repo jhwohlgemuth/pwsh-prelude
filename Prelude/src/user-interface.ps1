@@ -9,6 +9,31 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Scope = 'Function', Target = 'Invoke-Menu')]
 Param()
 
+
+function Format-MinimumWidth {
+    <#
+    .SYNOPSIS
+    Pad a string to ensure it is at least a certain width.
+    .EXAMPLE
+    'foo' | Format-MinimumWidth 5
+    # ' foo '
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 1, ValueFromPipeline = $True)]
+        [String] $Value = '',
+        [Parameter(Position = 0)]
+        [Int] $Width = 0,
+        [String] $Padding = ' '
+    )
+    Begin {
+        # WIP
+    }
+    Process {
+        $Padding * $Width
+    }
+}
 function Invoke-Input {
     <#
     .SYNOPSIS
