@@ -24,14 +24,48 @@ function Format-MinimumWidth {
         [Parameter(Position = 1, ValueFromPipeline = $True)]
         [String] $Value = '',
         [Parameter(Position = 0)]
-        [Int] $Width = 0,
-        [String] $Padding = ' '
+        [Int] $Width,
+        [String] $Padding = ' ',
+        [String] $Align = 'Center'
     )
-    Begin {
-        # WIP
-    }
     Process {
-        $Padding * $Width
+        $Actual = $Value.Length
+        $Desired = $Width
+        $Diff = if ($Actual -gt $Desired) { 0 } else { $Desired - $Actual }
+        if ($Value.Length -eq 0) {
+            return $Padding * $Width
+        }
+        if ($Diff -gt 0) {
+            if (($Diff % 2) -eq 0) {
+                $Pad = $Padding * ($Diff / 2)
+                switch ($Align) {
+                    'Left' {
+                        "${Value}$($Pad * $Diff)"
+                    }
+                    'Right' {
+                        "$($Pad * $Diff)${Value}"
+                    }
+                    Default {
+                        "${Pad}${Value}${Pad}"
+                    }
+                }
+            } else {
+                $Pad = $Padding * (($Diff - 1) / 2)
+                switch ($Align) {
+                    'Left' {
+                        "${Value}$($Pad * $Diff)${Padding}"
+                    }
+                    'Right' {
+                        "${Padding}$($Pad * $Diff)${Value}"
+                    }
+                    Default {
+                        "${Pad}${Value}${Pad}${Padding}"
+                    }
+                }
+            }
+        } else {
+            $Value
+        }
     }
 }
 function Invoke-Input {
