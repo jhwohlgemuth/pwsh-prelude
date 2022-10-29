@@ -208,6 +208,7 @@ Functions
   - `Find-FirstIndex`
   - `Format-ComplexValue`
   - `Format-Json`
+  - `Format-MinimumWidth`
   - `Format-MoneyValue`
   - `Get-Covariance`
   - `Get-DefaultBrowser`

@@ -6,6 +6,30 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
+
+Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
+    It 'Should support empty strings' {
+        '' | Format-MinimumWidth -Width 10 | Should -BeExactly '          '
+    }
+    It 'Should support string values longer than the desired length' {
+        $Value = 'foobar'
+        $Value | Format-MinimumWidth -Width 3 | Should -BeExactly $Value
+    }
+    It 'Should support string values equal to the desired length' {
+        'foobar' | Format-MinimumWidth -Width 6 | Should -BeExactly 'foobar'
+    }
+    It 'Should support string values shorter than the desired length' {
+        'foobar' | Format-MinimumWidth -Width 10 | Should -BeExactly '  foobar  '
+        'foobar' | Format-MinimumWidth -Width 11 | Should -BeExactly '  foobar   '
+        'foo' | Format-MinimumWidth -Width 10 | Should -BeExactly '   foo    '
+    }
+    It 'Should support strings with handlebars helpers' {
+        $WithoutTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*'
+        $WithoutTemplate | Should -Be '*{{#blue b}}*'
+        $WithTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*' -Template
+        $WithTemplate | Should -Be '******b******'
+    }
+}
 Describe 'Remove-HandlebarsHelper' -Tag 'Local', 'Remote' {
     It 'Should unwrap a template string and return internal <Value>' -TestCases @(
         @{ Value = '{{#red Hello World}}' }

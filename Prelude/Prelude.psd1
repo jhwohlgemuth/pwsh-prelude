@@ -118,6 +118,7 @@
         'Find-FirstIndex'
         'Format-ComplexValue'
         'Format-Json'
+        'Format-MinimumWidth'
         'Find-FirstTrueVariable'
         'Format-MoneyValue'
         'Get-Covariance'

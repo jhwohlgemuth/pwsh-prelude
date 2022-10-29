@@ -9,6 +9,67 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Scope = 'Function', Target = 'Invoke-Menu')]
 Param()
 
+
+function Format-MinimumWidth {
+    <#
+    .SYNOPSIS
+    Pad a string to ensure it is at least a certain width.
+    .EXAMPLE
+    'foo' | Format-MinimumWidth 5
+    # ' foo '
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 1, ValueFromPipeline = $True)]
+        [String] $Value = '',
+        [Parameter(Position = 0)]
+        [Int] $Width,
+        [String] $Padding = ' ',
+        [String] $Align = 'Center',
+        [Switch] $Template
+    )
+    Process {
+        $Value = if ($Template) { $Value | Remove-HandlebarsHelper } else { $Value }
+        $Actual = $Value.Length
+        $Desired = $Width
+        $Diff = if ($Actual -gt $Desired) { 0 } else { $Desired - $Actual }
+        if ($Actual -eq 0) {
+            return $Padding * $Width
+        }
+        if ($Diff -gt 0) {
+            if (($Diff % 2) -eq 0) {
+                $Pad = $Padding * ($Diff / 2)
+                switch ($Align) {
+                    'Left' {
+                        "${Value}$($Pad * $Diff)"
+                    }
+                    'Right' {
+                        "$($Pad * $Diff)${Value}"
+                    }
+                    Default {
+                        "${Pad}${Value}${Pad}"
+                    }
+                }
+            } else {
+                $Pad = $Padding * (($Diff - 1) / 2)
+                switch ($Align) {
+                    'Left' {
+                        "${Value}$($Pad * $Diff)${Padding}"
+                    }
+                    'Right' {
+                        "${Padding}$($Pad * $Diff)${Value}"
+                    }
+                    Default {
+                        "${Pad}${Value}${Pad}${Padding}"
+                    }
+                }
+            }
+        } else {
+            $Value
+        }
+    }
+}
 function Invoke-Input {
     <#
     .SYNOPSIS
@@ -395,6 +456,8 @@ function Invoke-Menu {
         [Switch] $Unwrap
     )
     Begin {
+        $ModeWidth = 8
+        $SizeWidth = 8
         function Invoke-MenuDraw {
             Param(
                 [Array] $VisibleItems,
@@ -407,8 +470,8 @@ function Invoke-Menu {
                 [Int] $Indent = 0
             )
             $Index = 0
-            $LengthValues = $Items | ForEach-Object { $_.ToString().Length }
-            $MaxLength = Get-Maximum $LengthValues
+            $LengthValues = $Items | Remove-HandlebarsHelper | ForEach-Object { $_.ToString().Length }
+            $MaxLength = (Get-Maximum $LengthValues) + $ModeWidth
             $MinLength = Get-Minimum $LengthValues
             $Clear = ' ' | Invoke-Repeat -Times ($MaxLength - $MinLength) | Invoke-Reduce -Add
             $LeftPadding = ' ' | Invoke-Repeat -Times $Indent | Invoke-Reduce -Add
@@ -436,7 +499,9 @@ function Invoke-Menu {
                         if ($IsSelected) { $SelectedMarker } else { ' ' * $SelectedMarker.Length }
                     }
                     $Text = if ($IsSelected) {
-                        $Item | Remove-HandlebarsHelper
+                        # TODO: Figure out how to enable selected highlighting
+                        # $Item | Remove-HandlebarsHelper
+                        $Item
                     } else {
                         $Item
                     }
@@ -490,8 +555,20 @@ function Invoke-Menu {
             $Items = $Input
         }
         if ($FolderContent) {
-            $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "${_}/" }
-            $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
+            $Unwrap = $True
+            $Padding = ' '
+            $Folders = Get-ChildItem -Directory | ForEach-Object {
+                $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
+                "{{#darkGray ${Mode}}}         {{#magenta $($_.Name)/}}"
+            }
+            $Files = Get-ChildItem -File | ForEach-Object {
+                $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
+                $Units = if ($_.Length -lt 1000) { 1 } else { 1KB }
+                $Length = [Math]::Round($_.Length / $Units, 2)
+                $Size = "${Length}KB" | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
+                "{{#darkGray ${Mode} ${Size}}} $($_.Name)"
+            }
+            $Items = $Folders + $Files
         }
         $PageNumber = 0
         $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
@@ -613,6 +690,9 @@ function Invoke-Menu {
                 $OriginalItems[$AbsolutePosition]
             }
         }
+        if ($FolderContent) {
+            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring($ModeWidth + $SizeWidth - 1) }
+        }
         if ($Unwrap) {
             $Output | Remove-HandlebarsHelper
         } else {
@@ -635,7 +715,7 @@ function Remove-HandlebarsHelper {
         [String] $Value
     )
     Begin {
-        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#))((?!}}).)*}}'
+        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#)) *((?!}}).)*}}'
     }
     Process {
         $Result = ''
@@ -643,14 +723,14 @@ function Remove-HandlebarsHelper {
         $Value | Select-String -Pattern $Pattern -AllMatches | ForEach-Object Matches | ForEach-Object {
             $Result += $Value.Substring($Position, $_.Index - $Position)
             $HelperTemplate = $Value.Substring($_.Index, $_.Length)
-            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace '}}', '' } | ForEach-Object { $_ -split ' ' }
+            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace ' *}}', '' } | ForEach-Object { $_ -split ' +' }
             $Result += ($Arr[1..$Arr.Length] -join ' ')
             $Position = $_.Index + $_.Length
         }
         if ($Position -lt $Value.Length) {
             $Result += $Value.Substring($Position, $Value.Length - $Position)
         }
-        $Result.Trim()
+        $Result
     }
 }
 function Write-BarChart {
