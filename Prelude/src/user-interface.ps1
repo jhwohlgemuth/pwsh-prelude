@@ -549,8 +549,22 @@ function Invoke-Menu {
             $Items = $Input
         }
         if ($FolderContent) {
-            $Items = Get-ChildItem -Directory | Select-Object -ExpandProperty Name | ForEach-Object { "${_}/" }
-            $Items += (Get-ChildItem -File | Select-Object -ExpandProperty Name)
+            $Unwrap = $True
+            $Folders = Get-ChildItem -Directory | ForEach-Object {
+                $Mode = $_.Mode | Format-MinimumWidth 8
+                "{{#darkGray ${Mode}}}         {{#magenta $($_.Name)/}}"
+            }
+            $Files = Get-ChildItem -File | ForEach-Object {
+                $Mode = $_.Mode | Format-MinimumWidth 8
+                $Length = if ($_.Length -lt 1KB) {
+                    [System.Math]::Round($_.Length, 2)
+                } else {
+                    [System.Math]::Round($_.Length / 1KB, 2)
+                }
+                $Size = "${Length}KB" | Format-MinimumWidth 7 -Align Right
+                "{{#darkGray ${Mode} ${Size}}} $($_.Name)"
+            }
+            $Items = $Folders + $Files
         }
         $PageNumber = 0
         $TotalPages = if ($Limit -eq 0) { 1 } else { [Math]::Ceiling($Items.Length / $Limit) }
@@ -672,6 +686,9 @@ function Invoke-Menu {
                 $OriginalItems[$AbsolutePosition]
             }
         }
+        if ($FolderContent) {
+            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring(13) }
+        }
         if ($Unwrap) {
             $Output | Remove-HandlebarsHelper
         } else {
@@ -694,7 +711,7 @@ function Remove-HandlebarsHelper {
         [String] $Value
     )
     Begin {
-        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#))((?!}}).)*}}'
+        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#)) *((?!}}).)*}}'
     }
     Process {
         $Result = ''
@@ -702,14 +719,14 @@ function Remove-HandlebarsHelper {
         $Value | Select-String -Pattern $Pattern -AllMatches | ForEach-Object Matches | ForEach-Object {
             $Result += $Value.Substring($Position, $_.Index - $Position)
             $HelperTemplate = $Value.Substring($_.Index, $_.Length)
-            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace '}}', '' } | ForEach-Object { $_ -split ' ' }
+            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace ' *}}', '' } | ForEach-Object { $_ -split ' +' }
             $Result += ($Arr[1..$Arr.Length] -join ' ')
             $Position = $_.Index + $_.Length
         }
         if ($Position -lt $Value.Length) {
             $Result += $Value.Substring($Position, $Value.Length - $Position)
         }
-        $Result.Trim()
+        $Result
     }
 }
 function Write-BarChart {
