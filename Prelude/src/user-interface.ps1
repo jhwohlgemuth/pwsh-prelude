@@ -26,13 +26,15 @@ function Format-MinimumWidth {
         [Parameter(Position = 0)]
         [Int] $Width,
         [String] $Padding = ' ',
-        [String] $Align = 'Center'
+        [String] $Align = 'Center',
+        [Switch] $Template
     )
     Process {
+        $Value = if ($Template) { $Value | Remove-HandlebarsHelper } else { $Value }
         $Actual = $Value.Length
         $Desired = $Width
         $Diff = if ($Actual -gt $Desired) { 0 } else { $Desired - $Actual }
-        if ($Value.Length -eq 0) {
+        if ($Actual -eq 0) {
             return $Padding * $Width
         }
         if ($Diff -gt 0) {
@@ -454,6 +456,8 @@ function Invoke-Menu {
         [Switch] $Unwrap
     )
     Begin {
+        $ModeWidth = 8
+        $SizeWidth = 8
         function Invoke-MenuDraw {
             Param(
                 [Array] $VisibleItems,
@@ -466,8 +470,8 @@ function Invoke-Menu {
                 [Int] $Indent = 0
             )
             $Index = 0
-            $LengthValues = $Items | ForEach-Object { $_.ToString().Length }
-            $MaxLength = Get-Maximum $LengthValues
+            $LengthValues = $Items | Remove-HandlebarsHelper | ForEach-Object { $_.ToString().Length }
+            $MaxLength = (Get-Maximum $LengthValues) + $ModeWidth
             $MinLength = Get-Minimum $LengthValues
             $Clear = ' ' | Invoke-Repeat -Times ($MaxLength - $MinLength) | Invoke-Reduce -Add
             $LeftPadding = ' ' | Invoke-Repeat -Times $Indent | Invoke-Reduce -Add
@@ -495,7 +499,9 @@ function Invoke-Menu {
                         if ($IsSelected) { $SelectedMarker } else { ' ' * $SelectedMarker.Length }
                     }
                     $Text = if ($IsSelected) {
-                        $Item | Remove-HandlebarsHelper
+                        # TODO: Figure out how to enable selected highlighting
+                        # $Item | Remove-HandlebarsHelper
+                        $Item
                     } else {
                         $Item
                     }
@@ -550,18 +556,16 @@ function Invoke-Menu {
         }
         if ($FolderContent) {
             $Unwrap = $True
+            $Padding = ' '
             $Folders = Get-ChildItem -Directory | ForEach-Object {
-                $Mode = $_.Mode | Format-MinimumWidth 8
+                $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
                 "{{#darkGray ${Mode}}}         {{#magenta $($_.Name)/}}"
             }
             $Files = Get-ChildItem -File | ForEach-Object {
-                $Mode = $_.Mode | Format-MinimumWidth 8
-                $Length = if ($_.Length -lt 1KB) {
-                    [System.Math]::Round($_.Length, 2)
-                } else {
-                    [System.Math]::Round($_.Length / 1KB, 2)
-                }
-                $Size = "${Length}KB" | Format-MinimumWidth 7 -Align Right
+                $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
+                $Units = if ($_.Length -lt 1000) { 1 } else { 1KB }
+                $Length = [Math]::Round($_.Length / $Units, 2)
+                $Size = "${Length}KB" | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
                 "{{#darkGray ${Mode} ${Size}}} $($_.Name)"
             }
             $Items = $Folders + $Files
@@ -687,7 +691,7 @@ function Invoke-Menu {
             }
         }
         if ($FolderContent) {
-            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring(13) }
+            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring($ModeWidth + $SizeWidth - 1) }
         }
         if ($Unwrap) {
             $Output | Remove-HandlebarsHelper

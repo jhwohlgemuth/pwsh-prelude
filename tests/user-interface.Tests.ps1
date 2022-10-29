@@ -23,6 +23,12 @@ Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
         'foobar' | Format-MinimumWidth -Width 11 | Should -BeExactly '  foobar   '
         'foo' | Format-MinimumWidth -Width 10 | Should -BeExactly '   foo    '
     }
+    It 'Should support strings with handlebars helpers' {
+        $WithoutTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*'
+        $WithoutTemplate | Should -Be '*{{#blue b}}*'
+        $WithTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*' -Template
+        $WithTemplate | Should -Be '******b******'
+    }
 }
 Describe 'Remove-HandlebarsHelper' -Tag 'Local', 'Remote' {
     It 'Should unwrap a template string and return internal <Value>' -TestCases @(
