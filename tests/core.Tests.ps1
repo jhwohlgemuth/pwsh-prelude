@@ -10,7 +10,7 @@ BeforeDiscovery {
 Describe 'PowerShell Prelude Module' -Tag 'Local', 'Remote', 'WindowsOnly' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 145
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 146
         }
         It 'should import aliases' {
             (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 64
@@ -150,6 +150,13 @@ Describe 'Find-FirstIndex' -Tag 'Local', 'Remote' {
         Find-FirstIndex -Values $Arr -Predicate $Predicate | Should -Be 4
         $Arr | Find-FirstIndex -Predicate $Predicate | Should -Be 4
         Find-FirstIndex -Values 2, 0, 0, 0, 2, 0, 0 -Predicate $Predicate | Should -Be 0
+    }
+}
+Describe 'Format-FileSize' -Tag 'Local', 'Remote' {
+    It 'can format file sizes' {
+        3000 | Format-FileSize | Should -Be '2.93KB'
+        # 50000 | Format-FileSize | Should -Be '2.93KB'
+        # 1024 | Format-FileSize | Should -Be '1.0KB'
     }
 }
 Describe 'Get-Property' -Tag 'Local', 'Remote' {

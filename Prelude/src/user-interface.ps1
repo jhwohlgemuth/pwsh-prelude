@@ -10,7 +10,48 @@
 Param()
 
 
-function Format-MinimumWidth {
+function Format-FileSize {
+    <#
+    .SYNOPSIS
+    Format a file size in bytes to a human readable string
+    .EXAMPLE
+    2000 | Format-FileSize
+    # '1.95KB'
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 1, ValueFromPipeline = $True)]
+        [Float] $Value = ''
+    )
+    Process {
+        $Units = ''
+        switch ($Value) {
+            { $_ -lt 1KB } {
+                $Units = 'B'
+                $Denominator = 1
+            }
+            { ($_ -ge 1KB) -and ($_ -lt 1MB) } {
+                $Units = 'KB'
+                $Denominator = 1KB
+            }
+            { ($_ -ge 1MB) -and ($_ -lt 1GB) } {
+                $Units = 'MB'
+                $Denominator = 1MB
+            }
+            { ($_ -ge 1GB) -and ($_ -lt 1TB) } {
+                $Units = 'GB'
+                $Denominator = 1GB
+            }
+            Default {
+                $Units = 'TB'
+                $Denominator = 1TB
+            }
+        }
+        [Math]::Round($Value / $Denominator, 2).ToString() + $Units
+    }
+}
+function Format-MinimumWidth {  
     <#
     .SYNOPSIS
     Pad a string to ensure it is at least a certain width.
