@@ -7,6 +7,19 @@ Param()
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
 
+Describe 'Format-FileSize' -Tag 'Local', 'Remote' {
+    It 'can format file sizes' {
+        100 | Format-FileSize | Should -Be '100.0B'
+        1024 | Format-FileSize | Should -Be '1.0KB'
+        3000 | Format-FileSize | Should -Be '2.9KB'
+        50000 | Format-FileSize | Should -Be '48.8KB'
+        700000 | Format-FileSize | Should -Be '683.6KB'
+        2000000 | Format-FileSize | Should -Be '1.9MB'
+        4000000000 | Format-FileSize | Should -Be '3.7GB'
+        60000000000 | Format-FileSize | Should -Be '55.9GB'
+        9000000000000 | Format-FileSize | Should -Be '8.2TB'
+    }
+}
 Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
     It 'Should support empty strings' {
         '' | Format-MinimumWidth -Width 10 | Should -BeExactly '          '
@@ -28,6 +41,12 @@ Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
         $WithoutTemplate | Should -Be '*{{#blue b}}*'
         $WithTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*' -Template
         $WithTemplate | Should -Be '******b******'
+    }
+    It 'Should support left and right alignment' {
+        '100.0B' | Format-MinimumWidth 10 -Align Left | Should -Be '100.0B    '
+        '100.0B' | Format-MinimumWidth 10 -Align Right | Should -Be '    100.0B'
+        '100.0KB' | Format-MinimumWidth 10 -Align Left | Should -Be '100.0KB   '
+        '100.0KB' | Format-MinimumWidth 10 -Align Right | Should -Be '   100.0KB'
     }
 }
 Describe 'Remove-HandlebarsHelper' -Tag 'Local', 'Remote' {

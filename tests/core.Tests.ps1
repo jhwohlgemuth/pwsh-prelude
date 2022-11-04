@@ -152,13 +152,6 @@ Describe 'Find-FirstIndex' -Tag 'Local', 'Remote' {
         Find-FirstIndex -Values 2, 0, 0, 0, 2, 0, 0 -Predicate $Predicate | Should -Be 0
     }
 }
-Describe 'Format-FileSize' -Tag 'Local', 'Remote' {
-    It 'can format file sizes' {
-        3000 | Format-FileSize | Should -Be '2.93KB'
-        # 50000 | Format-FileSize | Should -Be '2.93KB'
-        # 1024 | Format-FileSize | Should -Be '1.0KB'
-    }
-}
 Describe 'Get-Property' -Tag 'Local', 'Remote' {
     It 'can get object properties within a pipeline' {
         'hello' | Get-Property 'Length' | Should -Be 5

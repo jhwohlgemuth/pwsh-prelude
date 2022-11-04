@@ -48,7 +48,7 @@ function Format-FileSize {
                 $Denominator = 1TB
             }
         }
-        [Math]::Round($Value / $Denominator, 2).ToString() + $Units
+        [Math]::Round($Value / $Denominator, 1).ToString('0.0') + $Units
     }
 }
 function Format-MinimumWidth {  
@@ -83,10 +83,10 @@ function Format-MinimumWidth {
                 $Pad = $Padding * ($Diff / 2)
                 switch ($Align) {
                     'Left' {
-                        "${Value}$($Pad * $Diff)"
+                        "${Value}$($Padding * $Diff)"
                     }
                     'Right' {
-                        "$($Pad * $Diff)${Value}"
+                        "$($Padding * $Diff)${Value}"
                     }
                     Default {
                         "${Pad}${Value}${Pad}"
@@ -96,10 +96,10 @@ function Format-MinimumWidth {
                 $Pad = $Padding * (($Diff - 1) / 2)
                 switch ($Align) {
                     'Left' {
-                        "${Value}$($Pad * $Diff)${Padding}"
+                        "${Value}$($Padding * $Diff)"
                     }
                     'Right' {
-                        "${Padding}$($Pad * $Diff)${Value}"
+                        "$($Padding * $Diff)${Value}"
                     }
                     Default {
                         "${Pad}${Value}${Pad}${Padding}"
@@ -598,15 +598,14 @@ function Invoke-Menu {
         if ($FolderContent) {
             $Unwrap = $True
             $Padding = ' '
+            $Spacer = $Padding | Invoke-Repeat -Times $SizeWidth | Invoke-Reduce -Add
             $Folders = Get-ChildItem -Directory | ForEach-Object {
                 $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
-                "{{#darkGray ${Mode}}}         {{#magenta $($_.Name)/}}"
+                "{{#darkGray ${Mode}}} ${Spacer} {{#magenta $($_.Name)/}}"
             }
             $Files = Get-ChildItem -File | ForEach-Object {
                 $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
-                $Units = if ($_.Length -lt 1000) { 1 } else { 1KB }
-                $Length = [Math]::Round($_.Length / $Units, 2)
-                $Size = "${Length}KB" | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
+                $Size = $_.Length | Format-FileSize | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
                 "{{#darkGray ${Mode} ${Size}}} $($_.Name)"
             }
             $Items = $Folders + $Files
@@ -732,7 +731,7 @@ function Invoke-Menu {
             }
         }
         if ($FolderContent) {
-            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring($ModeWidth + $SizeWidth - 1) }
+            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring($ModeWidth + $SizeWidth - 2) }
         }
         if ($Unwrap) {
             $Output | Remove-HandlebarsHelper
