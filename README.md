@@ -267,6 +267,7 @@ Functions
   - `Invoke-Reverse`
   - `Invoke-RunApplication`
   - `Invoke-Speak` <sup>[3](#3)</sup>
+  - `Invoke-StopListen`
   - `Invoke-TakeWhile`
   - `Invoke-Tap`
   - `Invoke-Unpack`

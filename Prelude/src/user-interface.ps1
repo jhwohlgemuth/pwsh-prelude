@@ -51,7 +51,7 @@ function Format-FileSize {
         [Math]::Round($Value / $Denominator, 1).ToString('0.0') + $Units
     }
 }
-function Format-MinimumWidth {  
+function Format-MinimumWidth {
     <#
     .SYNOPSIS
     Pad a string to ensure it is at least a certain width.

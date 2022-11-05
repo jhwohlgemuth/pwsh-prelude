@@ -182,6 +182,7 @@
         'Invoke-Reverse'
         'Invoke-RunApplication'
         'Invoke-Speak'
+        'Invoke-StopListen'
         'Invoke-TakeWhile'
         'Invoke-Tap'
         'Invoke-Unpack'
