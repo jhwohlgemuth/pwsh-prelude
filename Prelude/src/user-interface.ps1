@@ -606,7 +606,7 @@ function Invoke-Menu {
             $Files = Get-ChildItem -File | ForEach-Object {
                 $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
                 $Size = $_.Length | Format-FileSize | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
-                "{{#darkGray ${Mode} ${Size}}} $($_.Name)"
+                "{{#darkGray ${Mode}}} {{#darkGray ${Size}}} $($_.Name)"
             }
             $Items = $Folders + $Files
         }
@@ -731,7 +731,12 @@ function Invoke-Menu {
             }
         }
         if ($FolderContent) {
-            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring($ModeWidth + $SizeWidth - 2) }
+            $NotSpace = { Param($X) $X -ne ' ' }
+            $Output = $Output |
+                Remove-HandlebarsHelper |
+                Invoke-Method 'Substring' $ModeWidth |
+                Invoke-DropWhile $NotSpace |
+                Invoke-Method 'Trim'
         }
         if ($Unwrap) {
             $Output | Remove-HandlebarsHelper

@@ -21,28 +21,29 @@ Describe 'Format-FileSize' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
-    It 'Should support empty strings' {
+    It 'should support empty strings' {
         '' | Format-MinimumWidth -Width 10 | Should -BeExactly '          '
     }
-    It 'Should support string values longer than the desired length' {
+    It 'should support string values longer than the desired length' {
         $Value = 'foobar'
         $Value | Format-MinimumWidth -Width 3 | Should -BeExactly $Value
     }
-    It 'Should support string values equal to the desired length' {
+    It 'should support string values equal to the desired length' {
         'foobar' | Format-MinimumWidth -Width 6 | Should -BeExactly 'foobar'
     }
-    It 'Should support string values shorter than the desired length' {
+    It 'should support string values shorter than the desired length' {
         'foobar' | Format-MinimumWidth -Width 10 | Should -BeExactly '  foobar  '
         'foobar' | Format-MinimumWidth -Width 11 | Should -BeExactly '  foobar   '
         'foo' | Format-MinimumWidth -Width 10 | Should -BeExactly '   foo    '
     }
-    It 'Should support strings with handlebars helpers' {
+    It 'should support strings with handlebars helpers' {
         $WithoutTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*'
         $WithoutTemplate | Should -Be '*{{#blue b}}*'
         $WithTemplate = '{{#blue b}}' | Format-MinimumWidth 13 -Padding '*' -Template
         $WithTemplate | Should -Be '******b******'
     }
-    It 'Should support left and right alignment' {
+    It 'should support left and right alignment' {
+        '1.6B' | Format-MinimumWidth 10 -Align Left | Should -Be '1.6B      '
         '100.0B' | Format-MinimumWidth 10 -Align Left | Should -Be '100.0B    '
         '100.0B' | Format-MinimumWidth 10 -Align Right | Should -Be '    100.0B'
         '100.0KB' | Format-MinimumWidth 10 -Align Left | Should -Be '100.0KB   '
@@ -50,7 +51,7 @@ Describe 'Format-MinimumWidth' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Remove-HandlebarsHelper' -Tag 'Local', 'Remote' {
-    It 'Should unwrap a template string and return internal <Value>' -TestCases @(
+    It 'should unwrap a template string and return internal <Value>' -TestCases @(
         @{ Value = '{{#red Hello World}}' }
         @{ Value = '{{#red Hello World }}' }
         @{ Value = '{{#red  Hello World}}' }
