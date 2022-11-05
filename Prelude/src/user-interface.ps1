@@ -10,7 +10,48 @@
 Param()
 
 
-function Format-MinimumWidth {
+function Format-FileSize {
+    <#
+    .SYNOPSIS
+    Format a file size in bytes to a human readable string
+    .EXAMPLE
+    2000 | Format-FileSize
+    # '1.95KB'
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 1, ValueFromPipeline = $True)]
+        [Float] $Value = ''
+    )
+    Process {
+        $Units = ''
+        switch ($Value) {
+            { $_ -lt 1KB } {
+                $Units = 'B'
+                $Denominator = 1
+            }
+            { ($_ -ge 1KB) -and ($_ -lt 1MB) } {
+                $Units = 'KB'
+                $Denominator = 1KB
+            }
+            { ($_ -ge 1MB) -and ($_ -lt 1GB) } {
+                $Units = 'MB'
+                $Denominator = 1MB
+            }
+            { ($_ -ge 1GB) -and ($_ -lt 1TB) } {
+                $Units = 'GB'
+                $Denominator = 1GB
+            }
+            Default {
+                $Units = 'TB'
+                $Denominator = 1TB
+            }
+        }
+        [Math]::Round($Value / $Denominator, 1).ToString('0.0') + $Units
+    }
+}
+function Format-MinimumWidth {  
     <#
     .SYNOPSIS
     Pad a string to ensure it is at least a certain width.
@@ -42,10 +83,10 @@ function Format-MinimumWidth {
                 $Pad = $Padding * ($Diff / 2)
                 switch ($Align) {
                     'Left' {
-                        "${Value}$($Pad * $Diff)"
+                        "${Value}$($Padding * $Diff)"
                     }
                     'Right' {
-                        "$($Pad * $Diff)${Value}"
+                        "$($Padding * $Diff)${Value}"
                     }
                     Default {
                         "${Pad}${Value}${Pad}"
@@ -55,10 +96,10 @@ function Format-MinimumWidth {
                 $Pad = $Padding * (($Diff - 1) / 2)
                 switch ($Align) {
                     'Left' {
-                        "${Value}$($Pad * $Diff)${Padding}"
+                        "${Value}$($Padding * $Diff)"
                     }
                     'Right' {
-                        "${Padding}$($Pad * $Diff)${Value}"
+                        "$($Padding * $Diff)${Value}"
                     }
                     Default {
                         "${Pad}${Value}${Pad}${Padding}"
@@ -557,16 +598,15 @@ function Invoke-Menu {
         if ($FolderContent) {
             $Unwrap = $True
             $Padding = ' '
+            $Spacer = $Padding | Invoke-Repeat -Times $SizeWidth | Invoke-Reduce -Add
             $Folders = Get-ChildItem -Directory | ForEach-Object {
                 $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
-                "{{#darkGray ${Mode}}}         {{#magenta $($_.Name)/}}"
+                "{{#darkGray ${Mode}}} ${Spacer} {{#magenta $($_.Name)/}}"
             }
             $Files = Get-ChildItem -File | ForEach-Object {
                 $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
-                $Units = if ($_.Length -lt 1000) { 1 } else { 1KB }
-                $Length = [Math]::Round($_.Length / $Units, 2)
-                $Size = "${Length}KB" | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
-                "{{#darkGray ${Mode} ${Size}}} $($_.Name)"
+                $Size = $_.Length | Format-FileSize | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
+                "{{#darkGray ${Mode}}} {{#darkGray ${Size}}} $($_.Name)"
             }
             $Items = $Folders + $Files
         }
@@ -691,7 +731,12 @@ function Invoke-Menu {
             }
         }
         if ($FolderContent) {
-            $Output = $Output | Remove-HandlebarsHelper | ForEach-Object { $_.Substring($ModeWidth + $SizeWidth - 1) }
+            $NotSpace = { Param($X) $X -ne ' ' }
+            $Output = $Output |
+                Remove-HandlebarsHelper |
+                Invoke-Method 'Substring' $ModeWidth |
+                Invoke-DropWhile $NotSpace |
+                Invoke-Method 'Trim'
         }
         if ($Unwrap) {
             $Output | Remove-HandlebarsHelper

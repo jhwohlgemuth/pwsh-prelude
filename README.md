@@ -207,6 +207,7 @@ Functions
   - `Find-Duplicate`
   - `Find-FirstIndex`
   - `Format-ComplexValue`
+  - `Format-FileSize`
   - `Format-Json`
   - `Format-MinimumWidth`
   - `Format-MoneyValue`
