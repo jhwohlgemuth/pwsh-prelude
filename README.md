@@ -272,6 +272,7 @@ Functions
   - `Invoke-Tap`
   - `Invoke-Unpack`
   - `Invoke-Unzip`
+  - `Invoke-Wait`
   - `Invoke-WebRequestBasicAuth`
   - `Invoke-Zip`
   - `Invoke-ZipWith`

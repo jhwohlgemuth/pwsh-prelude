@@ -745,6 +745,41 @@ function Invoke-Menu {
         }
     }
 }
+function Invoke-Wait {
+    <#
+    .SYNOPSIS
+    Wrapper UI component for processes that take time
+    .EXAMPLE
+    { sleep 5 } | Invoke-Wait
+    #>
+    [CmdletBinding()]
+    [Alias('wait')]
+    [OutputType([String])]
+    Param(
+        [Parameter(Position = 0, ValueFromPipeline = $True)]
+        [Scriptblock] $Script = { },
+        [String] $Message = '{{#gray Waiting...}}',
+        [String] $CompleteMessage = '{{#green Done}}',
+        [Switch] $AsJob
+    )
+    Begin {
+        $EventName = (New-Guid).Guid
+        $Message | Write-Color -NoNewLine
+    }
+    Process {
+        if ($AsJob) {
+            Start-Job -Name $EventName -ScriptBlock $Script | Wait-Job | Out-Null
+        } else {
+            & $Script | Out-Null
+        }
+    }
+    End {
+        $CompleteMessage | Write-Color
+        if ($AsJob) {
+            $EventName
+        }
+    }
+}
 function Remove-HandlebarsHelper {
     <#
     .SYNOPSIS
