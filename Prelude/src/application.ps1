@@ -686,16 +686,16 @@ function New-WebApplication {
         [PSObject] $Configuration = @{},
         [ApplicationState] $State = @{ Type = 'Web' },
         [Parameter(Position = 0, ParameterSetName = 'parameter')]
-        [ValidateSet('Parcel', 'Rollup', 'Snowpack', 'Vite', 'Webpack')]
+        [ValidateSet('Parcel', 'Snowpack', 'Turbopack', 'Vite', 'Webpack')]
         [String] $Bundler,
         [Parameter(ParameterSetName = 'switch')]
         [Switch] $Webpack,
         [Parameter(ParameterSetName = 'switch')]
         [Switch] $Parcel,
         [Parameter(ParameterSetName = 'switch')]
-        [Switch] $Rollup,
-        [Parameter(ParameterSetName = 'switch')]
         [Switch] $Snowpack,
+        [Parameter(ParameterSetName = 'switch')]
+        [Switch] $Turbopack,
         [Parameter(ParameterSetName = 'switch')]
         [Switch] $Vite,
         [Parameter(Position = 1, ParameterSetName = 'parameter')]
@@ -724,8 +724,8 @@ function New-WebApplication {
         $BundlerOptions = @(
             'Webpack'
             'Parcel'
-            'Rollup'
             'Snowpack'
+            'Turbopack'
             'Vite'
         )
         $LibraryOptions = @(
@@ -899,14 +899,6 @@ function New-WebApplication {
             Reason = @{
                 'rescript' = '*'
             }
-            Rollup = @{
-                'rollup' = '*'
-                'rollup-plugin-babel' = '*'
-                'rollup-plugin-commonjs' = '*'
-                'rollup-plugin-node-resolve' = '*'
-                'rollup-plugin-replace' = '*'
-                'rollup-plugin-terser' = '*'
-            }
             Rust = @{
                 '@wasm-tool/wasm-pack-plugin' = '*'
             }
@@ -940,23 +932,40 @@ function New-WebApplication {
             }
         }
         $NpmScripts = @{
-            Parcel = @{}
-            Postcss = @{}
-            Rollup = @{}
+            Common = @{
+                Core = @{}
+                React = @{}
+            }
+            Parcel = @{
+                Core = @{}
+                React = @{}
+            }
+            Snowpack = @{
+                Core = @{}
+                React = @{}
+            }
+            TurboPack = @{
+                Core = @{}
+                React = @{}
+            }
             Webpack = @{
-                'clean' = "del-cli $($Data.ProductionDirectory)"
-                'copy' = 'npm-run-all --parallel copy:assets'
-                'copy:assets' = "cpy \`"$($Data.AssetsDirectory)/!(css)/**/*.*\`" \`"$($Data.AssetsDirectory)/**/[.]*\`" $($Data.ProductionDirectory) --parents --recursive"
-                'prebuild:es' = "del-cli $($Data.ProductionDirectory)/$($Data.AssetsDirectory)"
-                'build:es' = 'webpack'
-                'build:stats' = 'webpack --mode production --profile --json > stats.json'
-                'build:analyze' = 'webpack-bundle-analyzer ./stats.json'
-                'postbuild:es' = 'npm run copy'
-                'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
-                'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
-                'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
-                'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
-                'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
+                Core = @{
+                    'start' = ''
+                    'clean' = "del-cli $($Data.ProductionDirectory)"
+                    'copy' = 'npm-run-all --parallel copy:assets'
+                    'copy:assets' = "cpy \`"$($Data.AssetsDirectory)/!(css)/**/*.*\`" \`"$($Data.AssetsDirectory)/**/[.]*\`" $($Data.ProductionDirectory) --parents --recursive"
+                    'prebuild:es' = "del-cli $($Data.ProductionDirectory)/$($Data.AssetsDirectory)"
+                    'build:es' = 'webpack'
+                    'build:stats' = 'webpack --mode production --profile --json > stats.json'
+                    'build:analyze' = 'webpack-bundle-analyzer ./stats.json'
+                    'postbuild:es' = 'npm run copy'
+                    'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
+                    'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
+                    'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
+                    'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
+                    'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
+                }
+                React = @{}
             }
         }
         if ($PSCmdlet.ShouldProcess('Create application folder structure and common assets')) {
@@ -1036,11 +1045,11 @@ function New-WebApplication {
                     # TODO: Add code for copying files
                 }
             }
-            Rollup {
-                if ($PSCmdlet.ShouldProcess('Add Rollup dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Rollup
+            Turbopack {
+                if ($PSCmdlet.ShouldProcess('Add Turbopack dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.TurboPack
                 }
-                if ($PSCmdlet.ShouldProcess('Save Rollup configuration file')) {
+                if ($PSCmdlet.ShouldProcess('Save Turbopack configuration file')) {
                     # TODO: Add code for copying files
                 }
             }
@@ -1057,7 +1066,8 @@ function New-WebApplication {
                     $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Webpack
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
-                    $PackageManifestData.scripts += $NpmScripts.Webpack
+                    $PackageManifestData.scripts += $NpmScripts.Common.Core
+                    $PackageManifestData.scripts += $NpmScripts.Webpack.Core
                 }
                 if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
                     $Parameters = @{
@@ -1271,7 +1281,11 @@ function New-WebApplication {
             }
             Save-JsonData @Parameters
         }
-        $Context = Test-ApplicationContext $ApplicationDirectory
+        $Context = if ($PSCmdlet.ShouldProcess('Test application context')) {
+            Test-ApplicationContext $ApplicationDirectory
+        } else {
+            Test-ApplicationContext
+        }
         $Data, @{
             Context = $Context
             PackageManifestData = $PackageManifestData
@@ -1826,10 +1840,10 @@ function Update-Application {
                         $ConfigurationFileData.$ToolName.Core
                     }
                     $Parameters = @{
-                        Filename = $ConfigName
                         Data = $Config
-                        Parent = $ApplicationDirectory
                         Force = $Force
+                        Filename = $ConfigName
+                        Parent = $ApplicationDirectory
                     }
                     Save-JsonData @Parameters
                 }
@@ -1847,10 +1861,10 @@ function Update-Application {
                         $ConfigurationFileData.$ToolName.Core
                     }
                     $Parameters = @{
-                        Filename = $ConfigName
                         Data = $Config
-                        Parent = $ApplicationDirectory
                         Force = $Force
+                        Filename = $ConfigName
+                        Parent = $ApplicationDirectory
                     }
                     Save-JsonData @Parameters
                 }
@@ -1862,7 +1876,6 @@ function Update-Application {
                     $PackageManifestData += $PackageManifestAugment.$ToolName
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
                     $PackageManifestData.scripts += $NpmScripts.$ToolName
-                    $Parent = Join-Path $ApplicationDirectory '__tests__'
                     if ($UseReact) {
                         # Do nothing
                     }
@@ -1878,19 +1891,19 @@ function Update-Application {
                     ) | ForEach-Object {
                         $Parameters = $_
                         $Common = @{
-                            TemplateDirectory = $TemplateDirectory
                             Data = $Config
-                            Parent = $Parent
                             Force = $Force
+                            TemplateDirectory = $TemplateDirectory
+                            Parent = (Join-Path $ApplicationDirectory '__tests__')
                         }
                         Save-TemplateData @Parameters @Common
                     }
                 }
             }
             PostCSS {
-                $ToolName = 'PostCSS'
+                $ToolName = $_
                 $ConfigName = 'postcss.config.js'
-                if ($PSCmdlet.ShouldProcess('Save PostCSS configuration file; Add dependencies to package.json')) {
+                if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add tasks and dependencies to package.json")) {
                     $Config = $ConfigurationFileData.$ToolName.Core
                     $PackageManifestData += $PackageManifestAugment.$ToolName
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
@@ -1917,15 +1930,12 @@ function Update-Application {
                 }
             }
             Default {
-                '==> [WARN] Unknown application update requested' | Write-Warning
+                "==> [WARN] Adding ${_} is not currently supported" | Write-Color -Yellow
             }
         }
         switch ($Remove) {
-            Babel {
-                "==> [WARN] Removing ${_} has not yet been implemented" | Write-Color -Yellow
-            }
-            ESLint {
-                "==> [WARN] Removing ${_} has not yet been implemented" | Write-Color -Yellow
+            Default {
+                "==> [WARN] Removing ${_} is not currently supported" | Write-Color -Yellow
             }
         }
     }
@@ -1936,10 +1946,10 @@ function Update-Application {
             $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | ConvertTo-OrderedDictionary
             $PackageManifestData.scripts = $PackageManifestData.scripts | ConvertTo-OrderedDictionary
             $Parameters = @{
+                Force = $True
                 Filename = 'package.json'
                 Data = $PackageManifestData
                 Parent = $ApplicationDirectory
-                Force = $True
             }
             Save-JsonData @Parameters
         }
