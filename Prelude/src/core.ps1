@@ -720,6 +720,50 @@ function Invoke-Once {
         }
     }.GetNewClosure()
 }
+function Invoke-Omit {
+    <#
+    .SYNOPSIS
+    Create an object composed of the omitted object properties
+    .EXAMPLE
+    @{ a = 1; b = 2; c = 3 } | omit a
+    # @{ b = 2; c = 3 }
+    #>
+    [CmdletBinding()]
+    [Alias('omit')]
+    [OutputType([Hashtable])]
+    [OutputType([PSCustomObject])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [PSObject] $From,
+        [Parameter(Position = 0)]
+        [Array] $Name
+    )
+    Process {
+        $Type = $From.GetType().Name
+        switch ($Type) {
+            'PSCustomObject' {
+                $Result = [PSCustomObject]@{}
+                $Keys = $From.PSObject.Properties.Name
+                foreach ($Property in $Keys.Where( { $_ -notin $Name })) {
+                    $Result | Add-Member -MemberType NoteProperty -Name $Property -Value $From.$Property
+                }
+                $Result
+            }
+            'Hashtable' {
+                $Result = @{}
+                $Keys = $From.keys
+                foreach ($Property in $Keys.Where( { $_ -notin $Name })) {
+                    $Result.$Property = $From.$Property
+                }
+                $Result
+            }
+            Default {
+                $Result = @{}
+                $Result
+            }
+        }
+    }
+}
 function Invoke-Operator {
     <#
     .SYNOPSIS

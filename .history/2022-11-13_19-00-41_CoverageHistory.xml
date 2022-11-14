@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<coverage version="1.0" date="2022-11-13_19-00-41" tag="">
+  <assembly name="Geodetic">
+    <class name="Prelude.Geodetic.Coordinate" coveredlines="128" coverablelines="131" totallines="267" coveredbranches="22" totalbranches="22" />
+  </assembly>
+  <assembly name="Graph">
+    <class name="Prelude.DirectedEdge" coveredlines="9" coverablelines="9" totallines="38" coveredbranches="0" totalbranches="0" />
+    <class name="Prelude.Edge" coveredlines="52" coverablelines="53" totallines="135" coveredbranches="22" totalbranches="22" />
+    <class name="Prelude.Graph" coveredlines="264" coverablelines="267" totallines="565" coveredbranches="85" totalbranches="88" />
+    <class name="Prelude.Item" coveredlines="55" coverablelines="55" totallines="110" coveredbranches="22" totalbranches="26" />
+    <class name="Prelude.Node" coveredlines="66" coverablelines="68" totallines="167" coveredbranches="20" totalbranches="24" />
+    <class name="Prelude.PriorityQueue" coveredlines="54" coverablelines="65" totallines="140" coveredbranches="8" totalbranches="14" />
+  </assembly>
+  <assembly name="Matrix">
+    <class name="Prelude.Matrix" coveredlines="492" coverablelines="504" totallines="1041" coveredbranches="201" totalbranches="206" />
+  </assembly>
+  <assembly name="src">
+    <class name="src/application" coveredlines="845" coverablelines="1022" totallines="2010" coveredbranches="0" totalbranches="0" />
+    <class name="src/applied" coveredlines="203" coverablelines="206" totallines="746" coveredbranches="0" totalbranches="0" />
+    <class name="src/core" coveredlines="609" coverablelines="640" totallines="2064" coveredbranches="0" totalbranches="0" />
+    <class name="src/data" coveredlines="322" coverablelines="445" totallines="689" coveredbranches="0" totalbranches="0" />
+    <class name="src/graph" coveredlines="115" coverablelines="116" totallines="325" coveredbranches="0" totalbranches="0" />
+    <class name="src/matrix" coveredlines="70" coverablelines="70" totallines="301" coveredbranches="0" totalbranches="0" />
+    <class name="src/productivity" coveredlines="264" coverablelines="296" totallines="941" coveredbranches="0" totalbranches="0" />
+    <class name="src/user-interface" coveredlines="149" coverablelines="469" totallines="1109" coveredbranches="0" totalbranches="0" />
+    <class name="src/web" coveredlines="295" coverablelines="383" totallines="1106" coveredbranches="0" totalbranches="0" />
+  </assembly>
+</coverage>

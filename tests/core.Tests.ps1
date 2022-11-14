@@ -10,10 +10,10 @@ BeforeDiscovery {
 Describe 'PowerShell Prelude Module' -Tag 'Local', 'Remote', 'WindowsOnly' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 147
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 148
         }
         It 'should import aliases' {
-            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 64
+            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 65
         }
     }
 }
@@ -408,6 +408,27 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
         $A | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"a":1,"b":4,"c":4,"d":5}'
         $B | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"b":4,"c":4}'
         $C | ConvertTo-OrderedDictionary | ConvertTo-Json -Compress | Should -Be '{"d":5}'
+    }
+}
+Describe 'Invoke-Omit' -Tag 'Local', 'Remote' {
+    It 'can create hashtable from omitted properties' {
+        $Name = 'a', 'c'
+        $Result = @{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Omit $Name
+        $Result | Should -HaveKeys 'b', 'd'
+        $Result.values | Sort-Object | Should -Be 2, 4
+    }
+    It 'can create custom object from omitted properties' {
+        $Name = 'a', 'c'
+        $Result = [PSCustomObject]@{ a = 1; b = 2; c = 3; d = 4 } | Invoke-Omit $Name
+        $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'b', 'd'
+        $Result.PSObject.Properties.Value | Sort-Object | Should -Be 2, 4
+    }
+    It 'should always return an object' {
+        $Name = 'foo', 'bar'
+        $Result = 'Not an object' | Invoke-Omit $Name
+        $Result | Should -BeOfType [Hashtable]
+        $Result.keys | Should -HaveCount 0
+        $Result | Should -BeOfType [Hashtable]
     }
 }
 Describe -Skip 'Invoke-Once' -Tag 'Local', 'Remote' {
