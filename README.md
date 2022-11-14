@@ -255,6 +255,7 @@ Functions
   - `Invoke-NpmInstall`
   - `Invoke-ObjectInvert`
   - `Invoke-ObjectMerge`
+  - `Invoke-Omit`
   - `Invoke-Once`
   - `Invoke-Operator`
   - `Invoke-Pack`
