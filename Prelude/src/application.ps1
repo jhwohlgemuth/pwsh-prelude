@@ -836,7 +836,7 @@ function New-WebApplication {
                 UseReact = ($Library -eq 'React')
                 WithCesium = ($With -contains 'Cesium')
                 WithRust = ($With -contains 'Rust')
-                CesiumConfig = ("
+                CesiumConfig = (",
                     new DefinePlugin({CESIUM_BASE_URL: JSON.stringify('/')}),
                     new CopyWebpackPlugin({
                         patterns: [

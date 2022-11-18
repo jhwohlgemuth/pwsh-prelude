@@ -18,13 +18,13 @@ module.exports = (_, argv) => ({
     },
     context: __dirname,
     devServer: {
-        port: 4669,
-        disableHostCheck: true,
-        contentBase: './{{ ProductionDirectory }}',
+        allowedHosts: 'all',
         compress: true,
-        host: '0.0.0.0',
-        useLocalIp: true,
-        watchContentBase: true
+        host: 'localhost',
+        port: 4669,
+        static: {
+            directory: resolve('./{{ ProductionDirectory }}')
+        }
     },
     module: {
         rules: [
