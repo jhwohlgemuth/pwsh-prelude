@@ -84,7 +84,7 @@ module.exports = (_, argv) => ({
             title: ``Web App [${argv.mode === 'production' ? 'production' : 'development'}]``,
             template: '{{ AssetsDirectory }}/index.html'
         }),
-        new SubresourceIntegrityPlugin(){{= if($WithCesium) { $CesiumConfig } }}
+        new SubresourceIntegrityPlugin(){{= if($WithCesium) { ",${CesiumConfig}" } }}
     ],
     resolve: {
         mainFields: ['module', 'main'],
