@@ -1822,7 +1822,10 @@ function Update-Application {
                 'test' = 'jest .*.test.js --coverage'
                 'test:ing' = 'npm test -- --watchAll'
             }
-            Postcss = @{}
+            Postcss = @{
+                'build:css' = "postcss $($Data.AssetsDirectory)/css/style.css --dir $($Data.ProductionDirectory)"
+                'watch:css' = 'npm run build:css -- --watch'
+            }
         }
     }
     Process {
