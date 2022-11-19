@@ -18,6 +18,7 @@ Prelude Plus
 - [`Invoke-RemoteCommand`](#invoke-remotecommand)
 - [`Measure-Readability`](#measure-readability)
 - [`New-DailyShutdownJob`](#new-dailyshutdownjob)
+- [`New-WebApplication`](#new-webapplication)
 - [`Open-Session`](#open-session)
 - [`Remove-DailyShutdownJob`](#remove-dailyshutdownjob)
 
@@ -75,6 +76,10 @@ Prelude Plus
 
 `New-DailyShutdownJob`
 ------------------------
+- **Description**: Scaffold a web application using various technologies.
+
+`New-WebApplication`
+-------------------
 - **Description**: Add daily shutdown job on a Windows PC.
 
 `Open-Session`
