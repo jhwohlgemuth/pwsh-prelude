@@ -78,10 +78,6 @@ Prelude Plus
 ------------------------
 - **Description**: Scaffold a web application using various technologies.
 
-`New-WebApplication`
--------------------
-- **Description**: Add daily shutdown job on a Windows PC.
-
 `Open-Session`
 --------------
 - **Description**: Create interactive session with remote machine.
