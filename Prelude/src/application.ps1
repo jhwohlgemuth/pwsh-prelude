@@ -1048,19 +1048,19 @@ function New-WebApplication {
                     # TODO: Add code for copying files
                 }
             }
-            Turbopack {
-                if ($PSCmdlet.ShouldProcess('Add Turbopack dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.TurboPack
-                }
-                if ($PSCmdlet.ShouldProcess('Save Turbopack configuration file')) {
-                    # TODO: Add code for copying files
-                }
-            }
             Snowpack {
                 if ($PSCmdlet.ShouldProcess('Add Snowpack dependencies to package.json')) {
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Snowpack
                 }
                 if ($PSCmdlet.ShouldProcess('Save Snowpack configuration file')) {
+                    # TODO: Add code for copying files
+                }
+            }
+            Turbopack {
+                if ($PSCmdlet.ShouldProcess('Add Turbopack dependencies to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.TurboPack
+                }
+                if ($PSCmdlet.ShouldProcess('Save Turbopack configuration file')) {
                     # TODO: Add code for copying files
                 }
             }
