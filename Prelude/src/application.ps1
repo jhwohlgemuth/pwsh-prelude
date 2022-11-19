@@ -965,7 +965,10 @@ function New-WebApplication {
                     'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
                     'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
                 }
-                React = @{}
+                React = @{
+                    'start' = 'npm-run-all build:es --parallel watch:*'
+                    'watch:es' = 'webpack serve --hot --open --mode development'
+                }
             }
         }
         if ($PSCmdlet.ShouldProcess('Create application folder structure and common assets')) {
@@ -1068,6 +1071,9 @@ function New-WebApplication {
                     $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
                     $PackageManifestData.scripts += $NpmScripts.Common.Core
                     $PackageManifestData.scripts += $NpmScripts.Webpack.Core
+                    if ($Library -eq 'React') {
+                        $PackageManifestData.scripts = $PackageManifestData.scripts, $NpmScripts.Webpack.React | Invoke-ObjectMerge -Force
+                    }
                 }
                 if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
                     $Parameters = @{
