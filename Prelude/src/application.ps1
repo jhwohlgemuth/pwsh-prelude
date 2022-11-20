@@ -712,6 +712,7 @@ function New-WebApplication {
         [ValidateSet('Cesium', 'Reason', 'Rust')]
         [String[]] $With,
         [String] $Name = 'webapp',
+        [Int] $Port = 4669,
         [ValidateScript( { Test-Path $_ })]
         [String] $Parent = (Get-Location).Path,
         [Parameter(ParameterSetName = 'interactive')]
@@ -749,6 +750,7 @@ function New-WebApplication {
             Legacy = $False
             ReactVersion = '^17'
             License = 'MIT'
+            Port = $Port
         }
     }
     Process {
@@ -836,6 +838,7 @@ function New-WebApplication {
                 UseReact = ($Library -eq 'React')
                 WithCesium = ($With -contains 'Cesium')
                 WithRust = ($With -contains 'Rust')
+                Port = $Port
                 CesiumConfig = ("
                     new DefinePlugin({CESIUM_BASE_URL: JSON.stringify('/')}),
                     new CopyWebpackPlugin({
@@ -933,15 +936,33 @@ function New-WebApplication {
         }
         $NpmScripts = @{
             Common = @{
-                Core = @{}
+                Core = @{
+                    'deploy' = "echo `"Not yet implemented - now.sh or surge.sh are supported out of the box`" && exit 1"
+                }
                 React = @{}
             }
             Parcel = @{
-                Core = @{}
+                Core = @{
+                    'start' = 'npm-run-all --parallel watch:assets serve'
+                    'clean' = "del-cli $($Data.ProductionDirectory)"
+                    'copy' = 'npm-run-all --parallel copy:assets copy:index'
+                    'copy:assets' = "cpy `"$($Data.AssetsDirectory)/!(css)/**/*.*`" `"$($Data.AssetsDirectory)/**/[.]*`" $($Data.ProductionDirectory) --parents --recursive"
+                    'copy:index' = "cpy `"$($Data.AssetsDirectory)/index.html`" $($Data.ProductionDirectory)"
+                    'prebuild:es' = 'npm run clean'
+                    'build:es' = "parcel build --dist-dir $($Data.ProductionDirectory) --public-url ./ $($Data.AssetsDirectory)/index.html"
+                    'watch:assets' = "watch `"npm run copy`" $($Data.AssetsDirectory)"
+                    'prewatch:es' = 'npm run clean'
+                    'watch:es' = 'npm run build:es'
+                    'serve' = "parcel $($Data.AssetsDirectory)/index.html --dist-dir $($Data.ProductionDirectory) --port $($Data.Port) --open"
+                    'predeploy' = 'npm-run-all clean build:es build:css copy:assets'
+                }
                 React = @{}
             }
             Snowpack = @{
-                Core = @{}
+                Core = @{
+                    'start' = 'snowpack dev'
+                    'build' = 'snowpack build'
+                }
                 React = @{}
             }
             TurboPack = @{
@@ -962,8 +983,7 @@ function New-WebApplication {
                     'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
                     'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
                     'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
-                    'predeploy' = 'npm-run-all clean "build:es -- --mode=production" build:css'
-                    'deploy' = 'echo \"Not yet implemented - now.sh or surge.sh are supported out of the box\" && exit 1'
+                    'predeploy' = "npm-run-all clean `"build:es -- --mode=production`" build:css"
                 }
                 React = @{
                     'start' = 'npm-run-all build:es --parallel watch:*'
@@ -1042,15 +1062,32 @@ function New-WebApplication {
         switch ($Bundler) {
             Parcel {
                 if ($PSCmdlet.ShouldProcess('Add Parcel dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Parcel
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$_
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
+                    $PackageManifestData.scripts += $NpmScripts.Common.Core
+                    $PackageManifestData.scripts += $NpmScripts.$_.Core
+                    if ($Library -eq 'React') {
+                        # Do nothing
+                    }
                 }
                 if ($PSCmdlet.ShouldProcess('Copy Parcel files')) {
                     # TODO: Add code for copying files
                 }
+                if ($PSCmdlet.ShouldProcess('Save PurgeCSS configuration file')) {
+                    # TODO: Add code for copying files
+                }
             }
             Snowpack {
-                if ($PSCmdlet.ShouldProcess('Add Snowpack dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Snowpack
+                if ($PSCmdlet.ShouldProcess('Add Snowpack dependencies and tasks to package.json')) {
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$_
+                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
+                    $PackageManifestData.scripts += $NpmScripts.Common.Core
+                    $PackageManifestData.scripts += $NpmScripts.$_.Core
+                    if ($Library -eq 'React') {
+                        # Do nothing
+                    }
                 }
                 if ($PSCmdlet.ShouldProcess('Save Snowpack configuration file')) {
                     # TODO: Add code for copying files
