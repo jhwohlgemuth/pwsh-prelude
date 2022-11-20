@@ -21,7 +21,7 @@ module.exports = (_, argv) => ({
         allowedHosts: 'all',
         compress: true,
         host: 'localhost',
-        port: $Port,
+        port: {{ Port }},
         static: {
             directory: resolve('./{{ ProductionDirectory }}')
         }
