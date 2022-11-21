@@ -369,7 +369,7 @@ function Invoke-DropWhile {
     .PARAMETER Predicate
     Function that returns $True or $False
     .EXAMPLE
-    1..10 | dropWhile { $Args[0] -lt 6 }
+    1..10 | dropWhile { $_ -lt 6 }
     # 6, 7, 8, 9, 10
     #>
     [CmdletBinding()]
@@ -391,7 +391,10 @@ function Invoke-DropWhile {
             if ($InputObject.Count -gt 0) {
                 $Continue = $False
                 $InputObject | ForEach-Object {
-                    if (-not (& $Predicate $_) -or $Continue) {
+                    $Powershell = [Powershell]::Create()
+                    $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $_).AddScript($Predicate)
+                    $Condition = $Powershell.Invoke()
+                    if (-not $Condition -or $Continue) {
                         $Continue = $True
                         $_
                     }
