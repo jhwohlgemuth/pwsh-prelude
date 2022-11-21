@@ -200,6 +200,15 @@ Describe 'Invoke-Chunk' -Tag 'Local', 'Remote' {
     }
 }
 Describe 'Invoke-DropWhile' -Tag 'Local', 'Remote' {
+    It -Skip 'can drop elements until passed predicate is False (cmdlet form)' {
+        $LessThan3 = { Param($X) $X -lt 3 }
+        $GreaterThan10 = { Param($X) $X -gt 10 }
+        1..5 | Invoke-DropWhile $LessThan3 | Should -Be 3, 4, 5
+        1, 2, 3, 4, 5, 1, 1, 1 | Invoke-DropWhile $LessThan3 | Should -Be 3, 4, 5, 1, 1, 1
+        Invoke-DropWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 3, 4, 5
+        1..5 | Invoke-DropWhile $GreaterThan10 | Should -Be 1, 2, 3, 4, 5
+        Invoke-DropWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 1, 2, 3, 4, 5
+    }
     It 'can drop elements until passed predicate is False' {
         $LessThan3 = { $_ -lt 3 }
         $GreaterThan10 = { $_ -gt 10 }

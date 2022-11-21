@@ -390,13 +390,13 @@ function Invoke-DropWhile {
             )
             if ($InputObject.Count -gt 0) {
                 $Continue = $False
-                $InputObject | ForEach-Object {
+                foreach ($Item in $InputObject) {
                     $Powershell = [Powershell]::Create()
-                    $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $_).AddScript($Predicate)
+                    $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
                     $Condition = $Powershell.Invoke()
                     if (-not $Condition -or $Continue) {
                         $Continue = $True
-                        $_
+                        $Item
                     }
                 }
             }
