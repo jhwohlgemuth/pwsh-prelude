@@ -371,6 +371,9 @@ function Invoke-DropWhile {
     .EXAMPLE
     1..10 | dropWhile { $_ -lt 6 }
     # 6, 7, 8, 9, 10
+    .EXAMPLE
+    40..45 | dropWhile { Param($X) $X -ne 42 }
+    # 42, 43, 44, 45
     #>
     [CmdletBinding()]
     [Alias('dropwhile')]
@@ -390,10 +393,15 @@ function Invoke-DropWhile {
             )
             if ($InputObject.Count -gt 0) {
                 $Continue = $False
+                $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
                 foreach ($Item in $InputObject) {
-                    $Powershell = [Powershell]::Create()
-                    $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
-                    $Condition = $Powershell.Invoke()
+                    $Condition = if ($UseAutomaticVariable) {
+                        $Powershell = [Powershell]::Create()
+                        $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
+                        $Powershell.Invoke()
+                    } else {
+                        & $Predicate $Item
+                    }
                     if (-not $Condition -or $Continue) {
                         $Continue = $True
                         $Item
