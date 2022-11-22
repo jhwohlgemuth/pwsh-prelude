@@ -211,15 +211,15 @@ function Find-FirstIndex {
     Find-FirstIndex -Values $False, $True, $False
     # 1
     .EXAMPLE
-    Find-FirstIndex -Values 1, 1, 1, 2, 1, 1 -Predicate { $Args[0] -eq 2 }
+    Find-FirstIndex -Values 1, 1, 1, 2, 1, 1 -Predicate { $_ -eq 2 }
     # 3
     .EXAMPLE
-    1, 1, 1, 2, 1, 1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
+    1, 1, 1, 2, 1, 1 | Find-FirstIndex -Predicate { $_ -eq 2 }
     # 3
 
     Note the use of the unary comma operator
     .EXAMPLE
-    1, 1, 1, 2, 1, 1 | Find-FirstIndex -Predicate { $Args[0] -eq 2 }
+    1, 1, 1, 2, 1, 1 | Find-FirstIndex -Predicate { Param($X) $X -eq 2 }
     # 3
     #>
     [CmdletBinding()]
@@ -227,7 +227,7 @@ function Find-FirstIndex {
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Values,
-        [ScriptBlock] $Predicate = { $Args[0] -eq $True },
+        [ScriptBlock] $Predicate = { $_ -eq $True },
         [Int] $DefaultIndex = -1
     )
     Begin {
@@ -238,8 +238,16 @@ function Find-FirstIndex {
             )
             if ($Values.Count -gt 0) {
                 $Results = New-Object 'System.Collections.ArrayList'
+                $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
                 foreach ($Value in $Values) {
-                    if (& $Predicate $Value) {
+                    $Condition = if ($UseAutomaticVariable) {
+                        $Powershell = [Powershell]::Create()
+                        $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Value).AddScript($Predicate)
+                        $Powershell.Invoke()
+                    } else {
+                        & $Predicate $Value
+                    }
+                    if ($Condition) {
                         $Index = [Array]::IndexOf($Values, $Value)
                         [Void]$Results.Add($Index)
                     }
