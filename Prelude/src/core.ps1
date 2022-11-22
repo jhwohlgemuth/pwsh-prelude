@@ -1246,9 +1246,26 @@ function Invoke-TakeWhile {
                 [ScriptBlock] $Predicate
             )
             if ($InputObject.Count -gt 0) {
+                function Test-Predicate {
+                    Param(
+                        [Parameter(Position = 0)]
+                        [ScriptBlock] $Predicate,
+                        [Parameter(Position = 1)]
+                        $Item
+                    )
+                    $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
+                    $Item = $InputObject[$Index]
+                    if ($UseAutomaticVariable) {
+                        $Powershell = [Powershell]::Create()
+                        $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
+                        $Powershell.Invoke()
+                    } else {
+                        & $Predicate $Item
+                    }
+                }
                 $Result = [System.Collections.ArrayList]@{}
                 $Index = 0
-                while ((& $Predicate $InputObject[$Index]) -and ($Index -lt $InputObject.Count)) {
+                while ((Test-Predicate $Predicate $InputObject[$Index]) -and ($Index -lt $InputObject.Count)) {
                     [Void]$Result.Add($InputObject[$Index])
                     $Index++
                 }
