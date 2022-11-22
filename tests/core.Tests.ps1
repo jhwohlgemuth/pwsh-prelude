@@ -487,6 +487,14 @@ Describe 'Invoke-Operator' -Tag 'Local', 'Remote' {
 }
 Describe 'Invoke-Partition' -Tag 'Local', 'Remote' {
     It 'can separate an array of objects into two arrays' {
+        $IsPositive = { $_ -gt 0 }
+        $IsNegative = { $_ -lt 0 }
+        1..10 | Invoke-Partition $IsPositive | Should -Be @(@(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), @())
+        1..10 | Invoke-Partition $IsNegative | Should -Be @(@(), @(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+        $IsEven = { $_ % 2 -eq 0 }
+        0..9 | Invoke-Partition $IsEven | Should -Be @(0, 2, 4, 6, 8), @(1, 3, 5, 7, 9)
+    }
+    It 'can separate an array of objects into two arrays (cmdlet form)' {
         $IsPositive = { Param($X) $X -gt 0 }
         $IsNegative = { Param($X) $X -lt 0 }
         1..10 | Invoke-Partition $IsPositive | Should -Be @(@(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), @())

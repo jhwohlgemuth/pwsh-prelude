@@ -239,9 +239,11 @@ function Find-FirstIndex {
             if ($Values.Count -gt 0) {
                 $Results = New-Object 'System.Collections.ArrayList'
                 $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
+                $Powershell = if ($UseAutomaticVariable) {
+                    [Powershell]::Create()
+                }
                 foreach ($Value in $Values) {
                     $Condition = if ($UseAutomaticVariable) {
-                        $Powershell = [Powershell]::Create()
                         $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Value).AddScript($Predicate)
                         $Powershell.Invoke()
                     } else {
@@ -402,9 +404,11 @@ function Invoke-DropWhile {
             if ($InputObject.Count -gt 0) {
                 $Continue = $False
                 $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
+                $Powershell = if ($UseAutomaticVariable) {
+                    [Powershell]::Create()
+                }
                 foreach ($Item in $InputObject) {
                     $Condition = if ($UseAutomaticVariable) {
-                        $Powershell = [Powershell]::Create()
                         $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
                         $Powershell.Invoke()
                     } else {
@@ -828,6 +832,10 @@ function Invoke-Partition {
     Creates an array of elements split into two groups, the first of which contains elements that the predicate returns truthy for, the second of which contains elements that the predicate returns falsey for.
     The predicate is invoked with one argument (each element of the passed array)
     .EXAMPLE
+    $IsEven = { $_ % 2 -eq 0 }
+    1..10 | Invoke-Partition $IsEven
+    # @(@(2, 4, 6, 8, 10), @(1, 3, 5, 7, 9))
+    .EXAMPLE
     $IsEven = { Param($X) $X % 2 -eq 0 }
     1..10 | Invoke-Partition $IsEven
     # @(@(2, 4, 6, 8, 10), @(1, 3, 5, 7, 9))
@@ -851,8 +859,17 @@ function Invoke-Partition {
             if ($InputObject.Count -gt 1) {
                 $Left = @()
                 $Right = @()
+                $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
+                $Powershell = if ($UseAutomaticVariable) {
+                    [Powershell]::Create()
+                }
                 foreach ($Item in $InputObject) {
-                    $Condition = & $Predicate $Item
+                    $Condition = if ($UseAutomaticVariable) {
+                        $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
+                        $Powershell.Invoke()
+                    } else {
+                        & $Predicate $Item
+                    }
                     if ($Condition) {
                         $Left += $Item
                     } else {
