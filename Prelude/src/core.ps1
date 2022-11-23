@@ -1243,8 +1243,11 @@ function Invoke-TakeWhile {
     .SYNOPSIS
     Create slice of array with elements taken from the beginning
     .EXAMPLE
-    1..10 | takeWhile { $Args[0] -lt 6 }
+    1..10 | takeWhile { $_ -lt 6 }
     # 1, 2, 3, 4, 5
+    .EXAMPLE
+    10..1 | takeWhile { Param($X) $X -gt 5 }
+    # 10, 9, 8, 7, 6
     #>
     [CmdletBinding()]
     [Alias('takeWhile')]
@@ -1263,13 +1266,22 @@ function Invoke-TakeWhile {
                 [ScriptBlock] $Predicate
             )
             if ($InputObject.Count -gt 0) {
-                $Result = [System.Collections.ArrayList]@{}
-                $Index = 0
-                while ((& $Predicate $InputObject[$Index]) -and ($Index -lt $InputObject.Count)) {
-                    [Void]$Result.Add($InputObject[$Index])
-                    $Index++
+                $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
+                if ($UseAutomaticVariable) {
+                    $Result = [System.Collections.ArrayList]@{}
+                    $Powershell = [Powershell]::Create()
+                    foreach ($Item in $InputObject) {
+                        $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
+                        $Condition = $Powershell.Invoke()
+                        if (-not $Condition) {
+                            break
+                        }
+                        [Void]$Result.Add($Item)
+                    }
+                    $Result
+                } else {
+                    [System.Linq.Enumerable]::TakeWhile($InputObject, [Func[Object, Bool]]$Predicate)
                 }
-                $Result
             }
         }
         if ($InputObject.Count -eq 1 -and $InputObject[0].GetType().Name -eq 'String') {

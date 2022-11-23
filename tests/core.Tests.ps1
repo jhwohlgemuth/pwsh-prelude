@@ -708,6 +708,22 @@ Describe 'Invoke-Reverse' -Tag 'Local', 'Remote' {
 }
 Describe 'Invoke-TakeWhile' -Tag 'Local', 'Remote' {
     It 'can take elements until passed predicate is False' {
+        $LessThan3 = { $_ -lt 3 }
+        $GreaterThan10 = { $_ -gt 10 }
+        1..5 | Invoke-TakeWhile $LessThan3 | Should -Be 1, 2
+        1, 2, 3, 4, 5, 1, 1 | Invoke-TakeWhile $LessThan3 | Should -Be 1, 2
+        Invoke-TakeWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 1, 2
+        13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13, 12, 11
+        Invoke-TakeWhile -InputObject (13..8) -Predicate $GreaterThan10 | Should -Be 13, 12, 11
+    }
+    It 'supports string input and output' {
+        $IsNotSpace = { $_ -ne ' ' }
+        'Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
+        '   Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be ''
+        @('Hello World') | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
+        Invoke-TakeWhile -InputObject 'Hello World' $IsNotSpace | Should -Be 'Hello'
+    }
+    It 'can take elements until passed predicate is False (cmdlet form)' {
         $LessThan3 = { Param($X) $X -lt 3 }
         $GreaterThan10 = { Param($X) $X -gt 10 }
         1..5 | Invoke-TakeWhile $LessThan3 | Should -Be 1, 2
@@ -716,7 +732,7 @@ Describe 'Invoke-TakeWhile' -Tag 'Local', 'Remote' {
         13..8 | Invoke-TakeWhile $GreaterThan10 | Should -Be 13, 12, 11
         Invoke-TakeWhile -InputObject (13..8) -Predicate $GreaterThan10 | Should -Be 13, 12, 11
     }
-    It 'supports string input and output' {
+    It 'supports string input and output (cmdlet form)' {
         $IsNotSpace = { Param($X) $X -ne ' ' }
         'Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be 'Hello'
         '   Hello World' | Invoke-TakeWhile $IsNotSpace | Should -Be ''
