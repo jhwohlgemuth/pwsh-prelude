@@ -16,6 +16,7 @@ install:
 
 build_script:
   - ps: ./Invoke-Task.ps1 -Lint -CI
+  - ps: ./Invoke-Task.ps1 -Lint -Plus -CI
 
 for:
 -

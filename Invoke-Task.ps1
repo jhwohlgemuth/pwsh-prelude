@@ -6,6 +6,7 @@
 Param(
     [Switch] $Lint,
     [Switch] $Test,
+    [Switch] $Plus,
     [Switch] $Mutate,
     [ValidateSet('Geodetic', 'Graph', 'Matrix')]
     [String] $Project,
@@ -398,15 +399,22 @@ function Invoke-Lint {
         }
     }
     if (-not ($Skip -contains 'powershell')) {
+        $FolderName = if ($Plus) { 'Plus' } else { 'src' }
         $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion 5.0.4
         $PSScriptAnalyzerData = Import-Module -Name PSScriptAnalyzer -PassThru -MinimumVersion 1.20.0
         $Parameters = @{
-            Path = $PSScriptRoot
+            Path = (Join-Path $PSScriptRoot "Prelude/${FolderName}")
             Settings = 'PSScriptAnalyzerSettings.psd1'
             Fix = (-not $DryRun)
             EnableExit = $CI
             ReportSummary = $True
             Recurse = $True
+        }
+        # Run say command to clear an annoying error message
+        try {
+            'Linting Code' | Invoke-Speak
+        } catch {
+            'Linting Code' | Out-Null
         }
         "`n==> [INFO] Linting PowerShell code (Path = $($Parameters.Path))" | Write-Message
         "==> [INFO] Using Pester v$($PesterData.Version.ToString())" | Write-Message
