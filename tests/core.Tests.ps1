@@ -222,7 +222,7 @@ Describe 'Invoke-DropWhile' -Tag 'Local', 'Remote' {
         'Hello World ###' | Invoke-DropWhile $IsNotHash | Should -Be '###'
         '### Hello World' | Invoke-DropWhile $IsNotHash | Should -Be '### Hello World'
         @('Hello World ###') | Invoke-DropWhile $IsNotHash | Should -Be '###'
-        Invoke-DropWhile -InputObject 'Hello World ###' $IsNotHash | Should -Be '###'
+        Invoke-DropWhile $IsNotHash -InputObject 'Hello World ###' | Should -Be '###'
     }
     It 'can drop elements until passed predicate is False (cmdlet form)' {
         $LessThan3 = { Param($X) $X -lt 3 }
@@ -232,6 +232,13 @@ Describe 'Invoke-DropWhile' -Tag 'Local', 'Remote' {
         Invoke-DropWhile -InputObject (1..5) -Predicate $LessThan3 | Should -Be 3, 4, 5
         1..5 | Invoke-DropWhile $GreaterThan10 | Should -Be 1, 2, 3, 4, 5
         Invoke-DropWhile -InputObject (1..5) -Predicate $GreaterThan10 | Should -Be 1, 2, 3, 4, 5
+    }
+    It 'supports string input and output (cmdlet form)' {
+        $IsNotHash = { Param($X) $X -ne '#' }
+        'Hello World ###' | Invoke-DropWhile $IsNotHash | Should -Be '###'
+        '### Hello World' | Invoke-DropWhile $IsNotHash | Should -Be '### Hello World'
+        @('Hello World ###') | Invoke-DropWhile $IsNotHash | Should -Be '###'
+        Invoke-DropWhile $IsNotHash 'Hello World ###' | Should -Be '###'
     }
 }
 Describe 'Invoke-Flatten' -Tag 'Local', 'Remote' {

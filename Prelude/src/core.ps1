@@ -4,6 +4,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Value')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-DropWhile_')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-ObjectMerge')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Omit')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Once')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-PropertyTransform')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Reduce')]
@@ -388,7 +389,7 @@ function Invoke-DropWhile {
     [CmdletBinding()]
     [Alias('dropwhile')]
     Param(
-        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Predicate
@@ -396,44 +397,50 @@ function Invoke-DropWhile {
     Begin {
         function Invoke-DropWhile_ {
             Param(
-                [Parameter(Position = 0)]
-                [Array] $InputObject,
                 [Parameter(Position = 1)]
+                [Array] $InputObject,
+                [Parameter(Position = 0)]
                 [ScriptBlock] $Predicate
             )
             if ($InputObject.Count -gt 0) {
-                $Continue = $False
                 $UseAutomaticVariable = ($Predicate | Get-ParameterList).Name.Count -eq 0
-                $Powershell = if ($UseAutomaticVariable) {
-                    [Powershell]::Create()
-                }
-                foreach ($Item in $InputObject) {
-                    $Condition = if ($UseAutomaticVariable) {
+                if ($UseAutomaticVariable) {
+                    $Continue = $False
+                    $Powershell = [Powershell]::Create()
+                    foreach ($Item in $InputObject) {
                         $Null = $Powershell.AddCommand('Set-Variable').AddParameter('Name', '_').AddParameter('Value', $Item).AddScript($Predicate)
-                        $Powershell.Invoke()
-                    } else {
-                        & $Predicate $Item
+                        $Condition = $Powershell.Invoke()
+                        if (-not $Condition -or $Continue) {
+                            $Continue = $True
+                            $Item
+                        }
                     }
-                    if (-not $Condition -or $Continue) {
-                        $Continue = $True
-                        $Item
+                } else {
+                    $Items = switch ($InputObject.GetType().Name) {
+                        'Char[]' {
+                            $InputObject | ForEach-Object { "${_}" }
+                        }
+                        Default {
+                            $InputObject
+                        }
                     }
+                    [System.Linq.Enumerable]::SkipWhile($Items, [Func[Object, Bool]]$Predicate)
                 }
             }
         }
         if ($InputObject.Count -eq 1 -and $InputObject[0].GetType().Name -eq 'String') {
-            $Result = Invoke-DropWhile_ $InputObject[0].ToCharArray() $Predicate
+            $Result = Invoke-DropWhile_ $Predicate $InputObject[0].ToCharArray()
             $Result -join ''
         } else {
-            Invoke-DropWhile_ $InputObject $Predicate
+            Invoke-DropWhile_ $Predicate $InputObject
         }
     }
     End {
         if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
-            $Result = Invoke-DropWhile_ $Input.ToCharArray() $Predicate
+            $Result = Invoke-DropWhile_ $Predicate $Input.ToCharArray()
             $Result -join ''
         } else {
-            Invoke-DropWhile_ $Input $Predicate
+            Invoke-DropWhile_ $Predicate $Input
         }
     }
 }
