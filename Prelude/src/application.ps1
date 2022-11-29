@@ -1169,6 +1169,23 @@ function New-WebApplication {
                         }
                         Save-TemplateData @Parameters @Common
                     }
+                    if ($With -contains 'Cesium') {
+                        @(
+                            @{
+                                Filename = 'ResiumViewer.jsx'
+                                Template = 'source/react/viewer'
+                                Parent = $Components
+                            }
+                        ) | ForEach-Object {
+                            $Parameters = $_
+                            $Common = @{
+                                Data = $Data
+                                Force = $Force
+                                TemplateDirectory = $TemplateDirectory
+                            }
+                            Save-TemplateData @Parameters @Common
+                        }
+                    }
                 }
             }
             Solid {

@@ -1,0 +1,16 @@
+import { Viewer, Entity, PointGraphics } from 'resium';
+import { Cartesian3, Color } from 'cesium';
+
+const color = Color.LIGHTGREEN;
+const pixelSize = 40;
+const position = Cartesian3.fromDegrees(-84.3104167, 35.9313056, 100);
+
+const ResiumViewer = () => <section>
+    <Viewer full>
+        <Entity position={position}>
+            <PointGraphics pixelSize={pixelSize} color={color}/>
+        </Entity>
+    </Viewer>
+</section>;
+
+export default ResiumViewer;

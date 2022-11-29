@@ -7,6 +7,7 @@
     <meta name="description" content="Web Application">
     <meta name="keywords" content="">
     <link rel="stylesheet" type="text/css" href="style.css">
+    {{= if ($WithCesium) { '<link rel="stylesheet" type="text/css" href="/Widgets/widgets.css">' } }}
     <noscript>
       <style>            
             body {
