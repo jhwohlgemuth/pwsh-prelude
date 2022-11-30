@@ -454,6 +454,19 @@ Describe 'Invoke-Omit' -Tag 'Local', 'Remote' {
         $Result.keys | Should -HaveCount 0
         $Result | Should -BeOfType [Hashtable]
     }
+    It 'should support selecting omitted hashtable keys with KeyCollections' {
+        $X = @{ a = 1; b = 2 }
+        $Y = @{ a = 1; b = 2; c = 3; d = 4 }
+        $Result = $Y | Invoke-Omit $X.Keys
+        $Result | Should -HaveKeys 'c', 'd'
+    }
+    It 'should support selecting omitted PSCustomObject keys with KeyCollections' {
+        $X = @{ a = 1; b = 2 }
+        $Y = [PSCustomObject]@{ a = 1; b = 2; c = 3; d = 4 }
+        $Result = $Y | Invoke-Omit $X.Keys
+        $Result.PSObject.Properties.Name | Sort-Object | Should -Be 'c', 'd'
+        $Result.PSObject.Properties.Value | Sort-Object | Should -Be 3, 4
+    }
 }
 Describe -Skip 'Invoke-Once' -Tag 'Local', 'Remote' {
     It 'will return a function that will only be executed once' {

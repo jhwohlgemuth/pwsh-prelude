@@ -1993,12 +1993,28 @@ function Update-Application {
                 }
             }
             Default {
-                "==> [WARN] Adding ${_} is not currently supported" | Write-Color -Yellow
+                if ($Null -ne $_) {
+                    "==> [WARN] Adding ${_} is not currently supported" | Write-Color -Yellow
+                }
             }
         }
         switch ($Remove) {
+            ESLint {
+                $ToolName = $_
+                $ConfigName = '.eslintrc.json'
+                if ($PSCmdlet.ShouldProcess("Remove ${ToolName} configuration file; Remove tasks and dependencies from package.json")) {
+                    $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | Invoke-Omit $DevelopmentDependencies.$ToolName.Core.Keys
+                    $PackageManifestData.scripts = $PackageManifestData.scripts | Invoke-Omit $NpmScripts.$ToolName.Keys
+                    if ($UseReact) {
+                        $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | Invoke-Omit $DevelopmentDependencies.$ToolName.React.Keys
+                    }
+                    Remove-Item $ConfigName
+                }
+            }
             Default {
-                "==> [WARN] Removing ${_} is not currently supported" | Write-Color -Yellow
+                if ($Null -ne $_) {
+                    "==> [WARN] Removing ${_} is not currently supported" | Write-Color -Yellow
+                }
             }
         }
     }

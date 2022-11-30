@@ -770,6 +770,7 @@ function Invoke-Omit {
     )
     Process {
         $Type = $From.GetType().Name
+        $Name = $Name | ForEach-Object { $_ }
         switch ($Type) {
             'PSCustomObject' {
                 $Result = [PSCustomObject]@{}
