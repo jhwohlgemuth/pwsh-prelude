@@ -1062,11 +1062,13 @@ function New-WebApplication {
         switch ($Bundler) {
             Parcel {
                 if ($PSCmdlet.ShouldProcess('Add Parcel dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$_
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
-                    $PackageManifestData.scripts += $NpmScripts.Common.Core
-                    $PackageManifestData.scripts += $NpmScripts.$_.Core
+                    @(
+                        $PackageManifestData.devDependencies
+                        $DevelopmentDependencies._workflow
+                        $DevelopmentDependencies.$_
+                        $DevelopmentDependencies.Stylelint
+                    ) | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.Common.Core, $NpmScripts.$_.Core | Invoke-ObjectMerge -InPlace
                     if ($Library -eq 'React') {
                         # Do nothing
                     }
@@ -1080,11 +1082,13 @@ function New-WebApplication {
             }
             Snowpack {
                 if ($PSCmdlet.ShouldProcess('Add Snowpack dependencies and tasks to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$_
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
-                    $PackageManifestData.scripts += $NpmScripts.Common.Core
-                    $PackageManifestData.scripts += $NpmScripts.$_.Core
+                    @(
+                        $PackageManifestData.devDependencies
+                        $DevelopmentDependencies._workflow
+                        $DevelopmentDependencies.$_
+                        $DevelopmentDependencies.Stylelint
+                    ) | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.Common.Core, $NpmScripts.$_.Core | Invoke-ObjectMerge -InPlace
                     if ($Library -eq 'React') {
                         # Do nothing
                     }
@@ -1095,7 +1099,7 @@ function New-WebApplication {
             }
             Turbopack {
                 if ($PSCmdlet.ShouldProcess('Add Turbopack dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.TurboPack
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.TurboPack | Invoke-ObjectMerge -InPlace
                 }
                 if ($PSCmdlet.ShouldProcess('Save Turbopack configuration file')) {
                     # TODO: Add code for copying files
@@ -1103,11 +1107,13 @@ function New-WebApplication {
             }
             Default {
                 if ($PSCmdlet.ShouldProcess('Add Webpack dependencies and tasks to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies._workflow
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Webpack
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Stylelint
-                    $PackageManifestData.scripts += $NpmScripts.Common.Core
-                    $PackageManifestData.scripts += $NpmScripts.Webpack.Core
+                    @(
+                        $PackageManifestData.devDependencies
+                        $DevelopmentDependencies._workflow
+                        $DevelopmentDependencies.Webpack
+                        $DevelopmentDependencies.Stylelint
+                    ) | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.Common.Core, $NpmScripts.Webpack.Core | Invoke-ObjectMerge -InPlace
                     if ($Library -eq 'React') {
                         $PackageManifestData.scripts = $PackageManifestData.scripts, $NpmScripts.Webpack.React | Invoke-ObjectMerge -Force
                     }
@@ -1128,8 +1134,8 @@ function New-WebApplication {
         switch ($Library) {
             React {
                 if ($PSCmdlet.ShouldProcess('Add React dependencies to package.json')) {
-                    $PackageManifestData.dependencies += $Dependencies.React.Core
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.React
+                    $PackageManifestData.dependencies, $Dependencies.React.Core | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.React | Invoke-ObjectMerge -InPlace
                 }
                 if ($PSCmdlet.ShouldProcess('Copy React files')) {
                     $Source = Join-Path $ApplicationDirectory 'src'
@@ -1190,7 +1196,7 @@ function New-WebApplication {
             }
             Solid {
                 if ($PSCmdlet.ShouldProcess('Add Solid dependencies to package.json')) {
-                    $PackageManifestData.dependencies += $Dependencies.Solid
+                    $PackageManifestData.dependencies, $Dependencies.Solid | Invoke-ObjectMerge -InPlace
                 }
                 if ($PSCmdlet.ShouldProcess('Copy Solid files')) {
                     # TODO: Add code for copying files
@@ -1214,11 +1220,11 @@ function New-WebApplication {
         switch ($With) {
             Cesium {
                 if ($PSCmdlet.ShouldProcess('Add Cesium dependencies to package.json')) {
-                    $PackageManifestData.dependencies += $Dependencies.Cesium
+                    $PackageManifestData.dependencies, $Dependencies.Cesium | Invoke-ObjectMerge -InPlace
                     if ($Library -eq 'React') {
-                        $PackageManifestData.dependencies += $Dependencies.React.Cesium
+                        $PackageManifestData.dependencies, $Dependencies.React.Cesium | Invoke-ObjectMerge -InPlace
                     }
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Cesium
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.Cesium | Invoke-ObjectMerge -InPlace
                 }
             }
             Reason {
@@ -1226,8 +1232,8 @@ function New-WebApplication {
                     '==> ReasonML works best with React.  You might consider using -React.' | Write-Warning
                 }
                 if ($PSCmdlet.ShouldProcess('Add ReasonML dependencies to package.json')) {
-                    $PackageManifestData.dependencies += $Dependencies.Reason
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Reason
+                    $PackageManifestData.dependencies, $Dependencies.Reason | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.Reason | Invoke-ObjectMerge -InPlace
                 }
                 if ($PSCmdlet.ShouldProcess('Save ReasonML configuration file; Add dependencies to package.json')) {
                     $Parameters = @{
@@ -1263,7 +1269,7 @@ function New-WebApplication {
             }
             Rust {
                 if ($PSCmdlet.ShouldProcess('Add Rust dependencies to package.json')) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.Rust
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.Rust | Invoke-ObjectMerge -InPlace
                 }
                 if ($PSCmdlet.ShouldProcess('Copy Rust files')) {
                     $Source = Join-Path $RustDirectory 'src'
@@ -1894,10 +1900,10 @@ function Update-Application {
                 $ToolName = $_
                 $ConfigName = 'babel.config.json'
                 if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add tasks and dependencies to package.json")) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.$ToolName.Core | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.$ToolName | Invoke-ObjectMerge -InPlace
                     $Config = if ($UseReact) {
-                        $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
+                        $PackageManifestData.devDependencies, $DevelopmentDependencies.$ToolName.React | Invoke-ObjectMerge -InPlace
                         $ConfigurationFileData.$ToolName.React
                     } else {
                         $ConfigurationFileData.$ToolName.Core
@@ -1915,10 +1921,10 @@ function Update-Application {
                 $ToolName = $_
                 $ConfigName = '.eslintrc.json'
                 if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add tasks and dependencies to package.json")) {
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.$ToolName.Core | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.$ToolName | Invoke-ObjectMerge -InPlace
                     $Config = if ($UseReact) {
-                        $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.React
+                        $PackageManifestData.devDependencies, $DevelopmentDependencies.$ToolName.React | Invoke-ObjectMerge -InPlace
                         $ConfigurationFileData.$ToolName.React
                     } else {
                         $ConfigurationFileData.$ToolName.Core
@@ -1936,9 +1942,9 @@ function Update-Application {
                 $Toolname = $_
                 if ($PSCmdlet.ShouldProcess('Copy Jest files; Add dependencies and tasks to package.json')) {
                     $Config = $ConfigurationFileData.$ToolName.Core
-                    $PackageManifestData += $PackageManifestAugment.$ToolName
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $PackageManifestData, $PackageManifestAugment.$ToolName | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.$ToolName.Core | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.$ToolName | Invoke-ObjectMerge -InPlace
                     if ($UseReact) {
                         # Do nothing
                     }
@@ -1968,9 +1974,9 @@ function Update-Application {
                 $ConfigName = 'postcss.config.js'
                 if ($PSCmdlet.ShouldProcess("Save ${ToolName} configuration file; Add tasks and dependencies to package.json")) {
                     $Config = $ConfigurationFileData.$ToolName.Core
-                    $PackageManifestData += $PackageManifestAugment.$ToolName
-                    $PackageManifestData.devDependencies += $DevelopmentDependencies.$ToolName.Core
-                    $PackageManifestData.scripts += $NpmScripts.$ToolName
+                    $PackageManifestData, $PackageManifestAugment.$ToolName | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.$ToolName.Core | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.scripts, $NpmScripts.$ToolName | Invoke-ObjectMerge -InPlace
                     $Parent = $ApplicationDirectory
                     if ($UseReact) {
                         $Config, $ConfigurationFileData.$ToolName.React | Invoke-ObjectMerge -InPlace -Force
