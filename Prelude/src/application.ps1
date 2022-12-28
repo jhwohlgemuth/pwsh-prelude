@@ -2005,6 +2005,18 @@ function Update-Application {
             }
         }
         switch ($Remove) {
+            Babel {
+                $ToolName = $_
+                $ConfigName = 'babel.config.json'
+                if ($PSCmdlet.ShouldProcess("Remove ${ToolName} configuration file; Remove tasks and dependencies from package.json")) {
+                    $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | Invoke-Omit $DevelopmentDependencies.$ToolName.Core.Keys
+                    $PackageManifestData.scripts = $PackageManifestData.scripts | Invoke-Omit $NpmScripts.$ToolName.Keys
+                    if ($UseReact) {
+                        $PackageManifestData.devDependencies = $PackageManifestData.devDependencies | Invoke-Omit $DevelopmentDependencies.$ToolName.React.Keys
+                    }
+                    Remove-Item $ConfigName
+                }
+            }
             ESLint {
                 $ToolName = $_
                 $ConfigName = '.eslintrc.json'
