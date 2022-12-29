@@ -856,6 +856,9 @@ function New-WebApplication {
             Cesium = @{
                 'cesium' = '^1.93.0'
             }
+            Marionette = @{
+                # todo: Add Marionette.js dependencies
+            }
             React = @{
                 Core = @{
                     'prop-types' = '*'
@@ -1210,14 +1213,53 @@ function New-WebApplication {
                     $Components = Join-Path $Source 'components'
                     $Plugins = Join-Path $Source 'plugins'
                     $Shims = Join-Path $Source 'shims'
-                    New-Item -Type Directory -Path $Components -Force:$Force
-                    New-Item -Type Directory -Path $Plugins -Force:$Force
-                    New-Item -Type Directory -Path $Shims -Force:$Force
+                    @(
+                        $Components
+                        $Plugins
+                        $Shims
+                    ) | ForEach-Object {
+                        New-Item -Type Directory -Path $_ -Force:$Force | Out-Null
+                    }
                     @(
                         @{
                             Filename = 'main.js'
                             Template = 'source/vanilla/main'
                             Parent = $Source
+                        }
+                        @{
+                            Filename = 'app.js'
+                            Template = 'source/vanilla/app'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'header.js'
+                            Template = 'source/vanilla/header'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'body.js'
+                            Template = 'source/vanilla/body'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'footer.js'
+                            Template = 'source/vanilla/footer'
+                            Parent = $Components
+                        }
+                        @{
+                            Filename = 'mn.radio.logging.js'
+                            Template = 'source/vanilla/mn.radio.logging'
+                            Parent = $Plugins
+                        }
+                        @{
+                            Filename = 'mn.redux.state.js'
+                            Template = 'source/vanilla/mn.redux.state'
+                            Parent = $Plugins
+                        }
+                        @{
+                            Filename = 'mn.renderer.shim.js'
+                            Template = 'source/vanilla/mn.renderer.shim'
+                            Parent = $Shims
                         }
                     ) | ForEach-Object {
                         $Parameters = $_
