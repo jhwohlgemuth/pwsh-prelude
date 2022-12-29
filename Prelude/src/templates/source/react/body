@@ -1,5 +1,5 @@
 const Body = () => <section>
-    <img src={'{{ AssetsDirectory }}/images/react.png'} />
+    <img id="logo" src={'images/react.png'} />
     <p>What happens next is up to you...</p>
 </section>;
 

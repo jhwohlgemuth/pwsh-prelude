@@ -1,0 +1,9 @@
+/**
+ * Main entry point for application
+ */
+import app from './components/app';
+
+const options = {
+    name: 'My Web Application'
+};
+document.addEventListener('DOMContentLoaded', () => app.start(options));

@@ -1,7 +1,0 @@
-/**
- * Main entry point for application
- */
-const options = {
-    name: '{{ Name }}'
-};
-document.addEventListener('DOMContentLoaded', () => console.log(`${options.name} Start!`));

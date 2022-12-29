@@ -1,4 +1,8 @@
 /* This comment will be removed by cssnano */
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
 body {
     background-color: white;
     color: #777;
@@ -55,4 +59,14 @@ section {
 }
 .heart {
     color: red;
+    &::before {
+        content: '❤️';
+    }
+}
+#logo {
+    width: 300px;
+    animation-name: spin;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
 }

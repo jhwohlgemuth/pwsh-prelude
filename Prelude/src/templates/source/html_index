@@ -20,7 +20,7 @@
             }
       </style>
       <section>
-        <img src="assets/images/preferences.png">
+        <img src="images/preferences.png">
         <p>{{ NoJavaScriptEnglish }}</p>
         <p>{{ NoJavaScriptFrench }}</p>
         <p>{{ NoJavaScriptJapanese }}</p>

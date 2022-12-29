@@ -790,6 +790,7 @@ function New-WebApplication {
         $Data.Parent = if ($Data.Parent) { $Data.Parent } else { $Parent }
         $ApplicationDirectory = Join-Path $Data.Parent $Data.Name
         $TemplateDirectory = Join-Path $PSScriptRoot '../src/templates'
+        $ResourcesDirectory = Join-Path $PSScriptRoot '../src/resources'
         $RustDirectory = Join-Path $ApplicationDirectory $Data.RustDirectory
         $PackageManifestData = @{
             name = $Data.Name
@@ -997,7 +998,6 @@ function New-WebApplication {
             @(
                 ''
                 $Source
-                "${Source}/components"
                 $Assets
                 "${Assets}/css"
                 "${Assets}/fonts"
@@ -1140,6 +1140,7 @@ function New-WebApplication {
                 if ($PSCmdlet.ShouldProcess('Copy React files')) {
                     $Source = Join-Path $ApplicationDirectory 'src'
                     $Components = Join-Path $Source 'components'
+                    New-Item -Type Directory -Path $Components -Force:$Force
                     @(
                         @{
                             Filename = 'main.jsx'
@@ -1175,6 +1176,7 @@ function New-WebApplication {
                         }
                         Save-TemplateData @Parameters @Common
                     }
+                    Copy-Item -Path (Join-Path $ResourcesDirectory 'react.png') -Destination (Join-Path $ApplicationDirectory 'public/images')
                     if ($With -contains 'Cesium') {
                         @(
                             @{
@@ -1205,15 +1207,27 @@ function New-WebApplication {
             Default {
                 if ($PSCmdlet.ShouldProcess('Copy JavaScript files')) {
                     $Source = Join-Path $ApplicationDirectory 'src'
-                    $Parameters = @{
-                        Filename = 'main.js'
-                        Template = 'source/vanilla_main'
-                        TemplateDirectory = $TemplateDirectory
-                        Data = $Data
-                        Parent = $Source
-                        Force = $Force
+                    $Components = Join-Path $Source 'components'
+                    $Plugins = Join-Path $Source 'plugins'
+                    $Shims = Join-Path $Source 'shims'
+                    New-Item -Type Directory -Path $Components -Force:$Force
+                    New-Item -Type Directory -Path $Plugins -Force:$Force
+                    New-Item -Type Directory -Path $Shims -Force:$Force
+                    @(
+                        @{
+                            Filename = 'main.js'
+                            Template = 'source/vanilla/main'
+                            Parent = $Source
+                        }
+                    ) | ForEach-Object {
+                        $Parameters = $_
+                        $Common = @{
+                            Data = $Data
+                            Force = $Force
+                            TemplateDirectory = $TemplateDirectory
+                        }
+                        Save-TemplateData @Parameters @Common
                     }
-                    Save-TemplateData @Parameters
                 }
             }
         }
