@@ -1,13 +1,10 @@
 import PropTypes from 'prop-types';
 
 const links = {
-    prelude: 'https://github.com/jhwohlgemuth/pwsh-prelude',
-    ninalimpi: 'https://twitter.com/ninalimpi',
-    undraw: 'https://undraw.co/'
+    prelude: 'https://github.com/jhwohlgemuth/pwsh-prelude'
 };
 const Footer = ({name}) => <footer>
     <p>{name} was created with <span className="heart">❤</span> using <a href={links.prelude}>Prelude</a></p>
-    <p>Illustration created by <a href={links.ninalimpi}>Katerina Limpitsouni</a>, available at <a href={links.undraw}>unDraw</a></p>
 </footer>;
 
 Footer.propTypes = {
