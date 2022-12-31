@@ -133,7 +133,7 @@ function Find-Duplicate {
     "==> Finding duplicate files in `"$Path`"" | Write-Verbose
     if ($AsJob) {
         $ModulePath = Join-Path $PSScriptRoot 'productivity.ps1'
-        $Job = if (Test-Command -Name 'Start-ThreadJob') {
+        $Job = if (Test-Command -Name 'Start-ThreadJob' -Silent) {
             Start-ThreadJob -Name 'Find-Duplicate' -ScriptBlock {
                 . $Using:ModulePath
                 Find-Duplicate -Path $Using:Path
@@ -231,7 +231,7 @@ function Get-ParameterList {
     $Code = if ($Path) {
         Get-Content $Path
     } else {
-        if (Test-Command $String) {
+        if (Test-Command $String -Silent) {
             (Get-Item -Path function:$String).Definition
         } else {
             $String
@@ -858,7 +858,8 @@ function Test-Command {
     [OutputType([Bool])]
     Param(
         [Parameter(Mandatory = $True, Position = 0)]
-        [String] $Name
+        [String] $Name,
+        [Switch] $Silent
     )
     $Result = $False
     $OriginalPreference = $ErrorActionPreference
@@ -869,7 +870,9 @@ function Test-Command {
             $Result = $True
         }
     } Catch {
-        "==> [INFO] '$Name' is not available command" | Write-Verbose
+        if (-not $Silent) {
+            "==> [INFO] '$Name' is not available command" | Write-Verbose
+        }
     } Finally {
         $ErrorActionPreference = $OriginalPreference
     }

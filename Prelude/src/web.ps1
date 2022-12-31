@@ -912,7 +912,7 @@ function Save-File {
             ($State -ne 'Transferring') -and ($State -ne 'Connecting')
         }
         $Count = 0
-        $CanUseBitsTransfer = Test-Command 'Start-BitsTransfer'
+        $CanUseBitsTransfer = Test-Command 'Start-BitsTransfer' -Silent
         $Client = if ($CanUseBitsTransfer -and (-not $WebClient)) {
             '==> [INFO] Using Start-BitsTransfer' | Write-Verbose
             $Null

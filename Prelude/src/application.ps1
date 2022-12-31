@@ -792,6 +792,7 @@ function New-WebApplication {
         $TemplateDirectory = Join-Path $PSScriptRoot '../src/templates'
         $ResourcesDirectory = Join-Path $PSScriptRoot '../src/resources'
         $RustDirectory = Join-Path $ApplicationDirectory $Data.RustDirectory
+        $Data | ConvertTo-Json | Write-Verbose
         $PackageManifestData = @{
             name = $Data.Name
             version = '0.0.0'
@@ -857,7 +858,14 @@ function New-WebApplication {
                 'cesium' = '^1.93.0'
             }
             Marionette = @{
-                # todo: Add Marionette.js dependencies
+                'backbone' = '^1.4.1'
+                'backbone.marionette' = '^4.1.3'
+                'backbone.radio' = '^2.0.0'
+                'jquery' = '^3.6.3'
+                'lit-html' = '^2.5.0'
+                'lodash-es' = '^4.17.21'
+                'marionette.approuter' = '^1.0.2'
+                'redux' = '^4.2.0'
             }
             React = @{
                 Core = @{
@@ -881,6 +889,9 @@ function New-WebApplication {
                 'del-cli' = '*'
                 'npm-run-all' = '*'
                 'watch' = '*'
+            }
+            BrowserSync = @{
+                'browser-sync' = '^2.27.11'
             }
             Cesium = @{}
             Parcel = @{
@@ -942,6 +953,8 @@ function New-WebApplication {
             Common = @{
                 Core = @{
                     'deploy' = "echo `"Not yet implemented - now.sh or surge.sh are supported out of the box`" && exit 1"
+                    'serve' = "browser-sync start --server $($Data.ProductionDirectory) --files $($Data.ProductionDirectory) --port $($Data.Port)"
+                    'start' = 'npm-run-all --parallel watch:es watch:css serve'
                 }
                 React = @{}
             }
@@ -985,13 +998,14 @@ function New-WebApplication {
                     'build:analyze' = 'webpack-bundle-analyzer ./stats.json'
                     'postbuild:es' = 'npm run copy'
                     'watch:assets' = "watch \`"npm run copy\`" $($Data.AssetsDirectory)"
-                    'watch:es' = "watch \`"npm run build:es\`" $($Data.AssetsDirectory)"
+                    'watch:es' = "watch \`"npm run build:es\`" $($Data.SourceDirectory)"
                     'dashboard' = 'webpack-dashboard -- webpack serve --config ./webpack.config.js'
                     'predeploy' = "npm-run-all clean `"build:es -- --mode=production`" build:css"
                 }
                 React = @{
                     'start' = 'npm-run-all build:es --parallel watch:*'
                     'watch:es' = 'webpack serve --hot --open --mode development'
+                    'serve' = ''
                 }
             }
         }
@@ -1115,10 +1129,10 @@ function New-WebApplication {
                         $DevelopmentDependencies._workflow
                         $DevelopmentDependencies.Webpack
                         $DevelopmentDependencies.Stylelint
-                    ) | Invoke-ObjectMerge -InPlace
-                    $PackageManifestData.scripts, $NpmScripts.Common.Core, $NpmScripts.Webpack.Core | Invoke-ObjectMerge -InPlace
+                    ) | Invoke-ObjectMerge -InPlace -Force
+                    $PackageManifestData.scripts, $NpmScripts.Common.Core, $NpmScripts.Webpack.Core | Invoke-ObjectMerge -InPlace -Force
                     if ($Library -eq 'React') {
-                        $PackageManifestData.scripts = $PackageManifestData.scripts, $NpmScripts.Webpack.React | Invoke-ObjectMerge -Force
+                        $PackageManifestData.scripts, $NpmScripts.Webpack.React | Invoke-ObjectMerge -InPlace -Force
                     }
                 }
                 if ($PSCmdlet.ShouldProcess('Save Webpack configuration file')) {
@@ -1143,7 +1157,7 @@ function New-WebApplication {
                 if ($PSCmdlet.ShouldProcess('Copy React files')) {
                     $Source = Join-Path $ApplicationDirectory 'src'
                     $Components = Join-Path $Source 'components'
-                    New-Item -Type Directory -Path $Components -Force:$Force
+                    New-Item -Type Directory -Path $Components -Force:$Force | Out-Null
                     @(
                         @{
                             Filename = 'main.jsx'
@@ -1179,7 +1193,6 @@ function New-WebApplication {
                         }
                         Save-TemplateData @Parameters @Common
                     }
-                    Copy-Item -Path (Join-Path $ResourcesDirectory 'react.png') -Destination (Join-Path $ApplicationDirectory 'public/images')
                     if ($With -contains 'Cesium') {
                         @(
                             @{
@@ -1198,6 +1211,7 @@ function New-WebApplication {
                         }
                     }
                 }
+                Copy-Item -Path (Join-Path $ResourcesDirectory 'react.png') -Destination (Join-Path $ApplicationDirectory 'public/images')
             }
             Solid {
                 if ($PSCmdlet.ShouldProcess('Add Solid dependencies to package.json')) {
@@ -1208,7 +1222,11 @@ function New-WebApplication {
                 }
             }
             Default {
-                if ($PSCmdlet.ShouldProcess('Copy JavaScript files')) {
+                if ($PSCmdlet.ShouldProcess('Add JavaScript dependencies to package.json')) {
+                    $PackageManifestData.dependencies, $Dependencies.Marionette | Invoke-ObjectMerge -InPlace
+                    $PackageManifestData.devDependencies, $DevelopmentDependencies.BrowserSync | Invoke-ObjectMerge -InPlace
+                }
+                if ($PSCmdlet.ShouldProcess('Copy JavaScript files and assets')) {
                     $Source = Join-Path $ApplicationDirectory 'src'
                     $Components = Join-Path $Source 'components'
                     $Plugins = Join-Path $Source 'plugins'
@@ -1271,6 +1289,7 @@ function New-WebApplication {
                         Save-TemplateData @Parameters @Common
                     }
                 }
+                Copy-Item -Path (Join-Path $ResourcesDirectory 'blank.png') -Destination (Join-Path $ApplicationDirectory 'public/images')
             }
         }
         switch ($With) {
@@ -1624,9 +1643,9 @@ function Test-ApplicationContext {
     }
     Process {
         $Installed = @{
-            Cargo = (Test-Command 'cargo')
-            Rustc = (Test-Command 'rustc')
-            Npm = (Test-Command 'npm')
+            Cargo = (Test-Command 'cargo' -Silent)
+            Rustc = (Test-Command 'rustc' -Silent)
+            Npm = (Test-Command 'npm' -Silent)
         }
         $FileExists = @{
             CargoToml = (Test-SomeExist 'Cargo.toml')

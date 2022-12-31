@@ -165,7 +165,7 @@ Describe 'Find-FirstTrueVariable' -Tag 'Local', 'Remote' {
         $Global:bar = $False
         $Global:baz = $False
         $Names = 'foo', 'bar', 'baz'
-        Find-FirstTrueVariable $Names | Should -Be 'foo'
+        Find-FirstTrueVariable $Names -Verbose | Should -Be 'foo'
     }
     It 'should support default value passed as index' {
         $Global:foo = $False
@@ -184,7 +184,7 @@ Describe 'Find-FirstTrueVariable' -Tag 'Local', 'Remote' {
 }
 Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
     It 'can get parameters from input code string' {
-        $List = '{ Param($A, $B, $C) $A + $B + $C }' | Get-ParameterList
+        $List = '{ Param($A, $B, $C) $A + $B + $C }' | Get-ParameterList -Verbose
         $List.Name | Should -Be 'A', 'B', 'C'
         $List.Type | Should -Be 'System.Object', 'System.Object', 'System.Object'
         $List = '{ Param([String]$A, [Switch]$B) $A + $B }' | Get-ParameterList

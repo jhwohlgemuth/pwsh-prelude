@@ -85,7 +85,7 @@ Radio.log = function(channelName, type, ...args) {
     const level = MSG_DICT[type];
     const msg = args.length > 2 ? args[2] : args[1];
     if (level < channelMethods.level()) {
-        consoleMessage(type)(`[${channelName}] `, msg, Date.now());
+        consoleMessage(type)(``[${channelName}] ``, msg, Date.now());
     }
 };
 export const radio = assign({}, Radio, channelMethods);

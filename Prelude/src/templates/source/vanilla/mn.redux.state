@@ -46,7 +46,7 @@ function reducer(state, action) {
 // middleware
 function dispatchLogger() {
     return next => action =>
-        // console.log(`Dispatch: ${action.type}`);
+        // console.log(``Dispatch: ${action.type}``);
         next(action)
     ;
 }

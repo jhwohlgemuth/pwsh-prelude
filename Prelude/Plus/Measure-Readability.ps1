@@ -30,7 +30,7 @@ function Measure-Readability {
         "==> Calculating readability using `"${Type}`" method" | Write-Verbose
         if ($AsJob) {
             $ModulePath = Join-Path $PSScriptRoot '..\Plus\Measure-Readability.ps1'
-            $Job = if (Test-Command -Name 'Start-ThreadJob') {
+            $Job = if (Test-Command -Name 'Start-ThreadJob' -Silent) {
                 Start-ThreadJob -Name 'Measure-Readability' -ScriptBlock {
                     . $Using:ModulePath
                     Measure-Readability -Text $Using:Text -Type $Using:Type

@@ -1,8 +1,8 @@
 import {html} from 'lit-html';
 
-export default html`
+export default html``
     <section>
-        <img src="assets/images/blank_canvas.png" />
+        <img src="images/blank.png" />
         <p>What happens next is up to you...</p>
     </section>
-`;
+``;

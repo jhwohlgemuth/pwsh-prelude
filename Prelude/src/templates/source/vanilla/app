@@ -30,7 +30,7 @@
                  app.info('hello');
              }
          };
-         app.info(`${name} is starting...`);
+         app.info(``${name} is starting...``);
          app.router = new Router({controller});
          Backbone.history.start();
      },
@@ -41,17 +41,16 @@
          });
          const MainView = View.extend({
              tagName: 'body',
-             template: ({name}) => html`
+             template: ({name}) => html``
                  ${header({name})}
                  ${body}
                  ${footer({name})}
-             `,
+             ``,
              model: new Model()
          });
          app.getRegion().show(new MainView());
-         app.info(`${name} is started!`);
+         app.info(``${name} is started!``);
      }
  });
  
  export default Object.assign(new App(), logging, state);
- 

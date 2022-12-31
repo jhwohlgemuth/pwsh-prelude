@@ -137,7 +137,7 @@ Describe 'Deny-Value' -Tag 'Local', 'Remote' {
 }
 Describe 'Find-FirstIndex' -Tag 'Local', 'Remote' {
     It 'can determine index of first item that satisfies default predicate' {
-        Find-FirstIndex -Values $False, $True, $False | Should -Be 1
+        Find-FirstIndex -Values $False, $True, $False -Verbose | Should -Be 1
         $False, $True, $False | Find-FirstIndex | Should -Be 1
         Find-FirstIndex -Values $True, $True, $False | Should -Be 0
         $True, $True, $False | Find-FirstIndex | Should -Be 0
@@ -320,8 +320,8 @@ Describe 'Invoke-ObjectMerge' -Tag 'Local', 'Remote' {
     It 'can merge empty objects' {
         $Empty = @{}
         $Object = @{ foo = 'a'; bar = 'b' }
-        $Empty, $Empty | Invoke-ObjectMerge | Should -BeNullOrEmpty
-        $Result = $Object, $Empty | Invoke-ObjectMerge
+        $Empty, $Empty | Invoke-ObjectMerge -Verbose | Should -BeNullOrEmpty
+        $Result = $Object, $Empty | Invoke-ObjectMerge -Verbose
         $Result.foo | Should -Be 'a'
         $Result.bar | Should -Be 'b'
         $Result = $Empty, $Object | Invoke-ObjectMerge
