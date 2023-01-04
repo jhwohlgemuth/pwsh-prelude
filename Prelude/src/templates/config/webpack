@@ -89,9 +89,7 @@ module.exports = (_, argv) => ({
     resolve: {
         alias: {{{= if($UseReact) { '''react-dom'': ''@hot-loader/react-dom''' } }}},
         extensions: ['.js'{{= if($UseReact) { ', ''.jsx''' } }}],
-        {{= if($WithCesium) { 'fallback: {`n`t`t`t''https'': false,`n`t`t`t''http'': false,`n`t`t`t''url'': false,`n`t`t`t''zlib'': false`n`t`t},' } }}
-        mainFields: ['module', 'main'],
-        {{= if($WithCesium) { 'mainFiles: [''index'', ''Cesium''],' } }}
-        modules: [resolve(__dirname, './{{ SourceDirectory }}'), 'node_modules']
+        {{= if($WithCesium) { 'fallback: {`n`t`t`t''https'': false,`n`t`t`t''http'': false,`n`t`t`t''url'': false,`n`t`t`t''zlib'': false`n`t`t},`n' } }}mainFields: ['module', 'main'],
+        {{= if($WithCesium) { 'mainFiles: [''index'', ''Cesium''],`n' } }}modules: [resolve(__dirname, './{{ SourceDirectory }}'), 'node_modules']
     }
 });
