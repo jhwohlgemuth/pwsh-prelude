@@ -510,7 +510,7 @@ function Get-HtmlElement {
     Process {
         $InputType = $InputObject.GetType().Name
         $Html = if ($InputType -eq 'String') {
-            $InputObject | ConvertFrom-Html
+            $InputObject | ConvertFrom-Html -Verbose:$False
         } else {
             $InputObject
         }
@@ -523,17 +523,20 @@ function Get-HtmlElement {
                         $Elements += $Element
                     }
                 }
+                "==> [INFO] Found $($Elements.Count) element(s) with ${ClassName} class name" | Write-Verbose
             }
             '^#.*' {
                 $Id = $_ | Remove-Character -At 0
                 foreach ($Element in $Html.getElementById($Id)) {
                     $Elements += $Element
                 }
+                "==> [INFO] Found $($Elements.Count) element(s) with ${Id} ID" | Write-Verbose
             }
             Default {
                 foreach ($Element in $Html.all.tags($Selector)) {
                     $Elements += $Element
                 }
+                "==> [INFO] Found $($Elements.Count) element(s) that match `"${_}`"" | Write-Verbose
             }
         }
         $Elements
