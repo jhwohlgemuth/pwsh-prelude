@@ -4,6 +4,7 @@ const DashboardPlugin = require('webpack-dashboard/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {SubresourceIntegrityPlugin} = require('webpack-subresource-integrity');
 const TerserPlugin = require('terser-webpack-plugin');
+const WebpackBar = require('webpackbar');
 {{= if($WithCesium) { 'const source = ''node_modules/cesium/Build/Cesium'';`n' } }}
 module.exports = (_, argv) => ({
     mode: argv.mode === 'production' ? 'production' : 'development',
@@ -79,6 +80,7 @@ module.exports = (_, argv) => ({
         minimizer: [new TerserPlugin()]
     },
     plugins: [
+        new WebpackBar({profile: argv.mode !== 'production'}),
         new DashboardPlugin(),
         new HtmlWebpackPlugin({
             title: ``Web App [${argv.mode === 'production' ? 'production' : 'development'}]``,
