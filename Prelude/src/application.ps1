@@ -988,7 +988,6 @@ function New-WebApplication {
             }
             Webpack = @{
                 Core = @{
-                    'start' = ''
                     'clean' = "del-cli $($Data.ProductionDirectory)"
                     'copy' = 'npm-run-all --parallel copy:assets'
                     'copy:assets' = "cpy \`"$($Data.AssetsDirectory)/!(css)/**/*.*\`" \`"$($Data.AssetsDirectory)/**/[.]*\`" $($Data.ProductionDirectory) --parents --recursive"

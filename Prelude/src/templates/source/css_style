@@ -60,7 +60,7 @@ section {
 .heart {
     color: red;
     &::before {
-        content: '❤️';
+        content: '♥';
     }
 }
 #logo {
