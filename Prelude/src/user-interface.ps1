@@ -522,6 +522,7 @@ function Invoke-Menu {
                 "${LeftPadding}<<prev  {{#${HighlightColor} ${CurrentPage}}}/${TotalPages}  next>>" | Write-Color -DarkGray
                 $Clear | Write-Color -Cyan
             }
+            $Output = ''
             foreach ($Item in $VisibleItems) {
                 if ($Null -ne $Item) {
                     $ModularIndex = ($PageNumber * $Limit) + $Index
@@ -533,7 +534,6 @@ function Invoke-Menu {
                         }
                     }
                     $IsSelected = $Index -eq $Position
-                    $Parameters = if ($IsSelected) { @{ Color = $HighlightColor } } else { @{} }
                     $Marker = if ($NoMarker) {
                         ''
                     } else {
@@ -542,14 +542,23 @@ function Invoke-Menu {
                     $Text = if ($IsSelected) {
                         # TODO: Figure out how to enable selected highlighting
                         # $Item | Remove-HandlebarsHelper
-                        $Item
+                        if ($FolderContent) {
+                            $Item
+                        } else {
+                            "{{#${HighlightColor} ${Item}}}"
+                        }
                     } else {
                         $Item
                     }
-                    Write-Color "${LeftPadding}${Marker}${Text}${Clear}" @Parameters
+                    $Output += if ($Index -eq 0) {
+                        "${LeftPadding}${Marker}${Text}${Clear}"
+                    } else {
+                        "`n${LeftPadding}${Marker}${Text}${Clear}"
+                    }
                 }
                 $Index++
             }
+            $Output | Write-Color
         }
         function Update-MenuSelection {
             Param(
