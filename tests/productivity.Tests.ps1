@@ -96,6 +96,37 @@ Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local', 'Remote' {
         $Ast.Extent.Text | Should -Be $Code
     }
 }
+Describe 'ConvertTo-ParameterString' -Tag 'Local', 'Remote' {
+    It 'can convert a hastable to a parameter string (short form)' {
+        $Params = @{
+            'h' = 'words'
+            'help' = 'more words'
+            'V' = '42'
+        }
+        $Params | ConvertTo-ParameterString | Should -Be '-V 42 --help more words -h words'
+    }
+    It 'can convert a hastable to a parameter string (long form)' {
+        $Params = @{
+            'Foo' = 'Bar'
+            'Baz' = 'Qux'
+        }
+        $Params | ConvertTo-ParameterString | Should -Be '--baz Qux --foo Bar'
+    }
+    It 'can convert an array of hastables to parameter strings' {
+        $Params = @(
+            @{
+                'Foo' = 'Bar'
+                'Baz' = 'Qux'
+            },
+            @{
+                'h' = 'words'
+                'help' = 'more words'
+                'V' = '42'
+            }
+        )
+        $Params | ConvertTo-ParameterString | Should -Be '--baz Qux --foo Bar', '-V 42 --help more words -h words'
+    }
+}
 Describe 'ConvertTo-PlainText' -Tag 'Local', 'Remote' {
     It 'can convert secure strings to plain text strings' {
         $Message = 'PowerShell is awesome'

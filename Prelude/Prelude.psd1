@@ -107,6 +107,7 @@
         'ConvertTo-Iso8601'
         'ConvertTo-JavaScript'
         'ConvertTo-Pair'
+        'ConvertTo-ParameterString'
         'ConvertTo-PlainText'
         'ConvertTo-QueryString'
         'ConvertTo-Radian'

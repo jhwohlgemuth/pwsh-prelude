@@ -90,6 +90,33 @@ function ConvertTo-AbstractSyntaxTree {
         }
     }
 }
+function ConvertTo-ParameterString {
+    <#
+    .SYNOPSIS
+    Convert hashtable to parameter string
+    .EXAMPLE
+    $Parameters = @{
+        Hostname = 'MARIO'
+        Age = 42
+    }
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [PSObject] $InputObject
+    )
+    Process {
+        $Result = New-Object 'System.Collections.ArrayList'
+        foreach ($Item in $InputObject.GetEnumerator()) {
+            $Name = $Item.Name
+            $Key = if ($Name.Length -eq 1) { "-${Name}" } else { "--$($Name.ToLower())" }
+            $Value = $Item.Value
+            $Result.Add("${Key} ${Value}") | Out-Null
+        }
+        $Result -join ' '
+    }
+}
 function ConvertTo-PlainText {
     <#
     .SYNOPSIS

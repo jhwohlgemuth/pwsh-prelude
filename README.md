@@ -197,6 +197,7 @@ Functions
   - `ConvertTo-JavaScript`
   - `ConvertTo-OrderedDictionary`
   - `ConvertTo-Pair`
+  - `ConvertTo-ParameterString`
   - `ConvertTo-PlainText`
   - `ConvertTo-QueryString`
   - `ConvertTo-Radian`
