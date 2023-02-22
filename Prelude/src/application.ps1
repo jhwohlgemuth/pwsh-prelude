@@ -933,6 +933,7 @@ function New-WebApplication {
             }
             Webpack = @{
                 'webpack' = '*'
+                'webpackbar' = '*'
                 'webpack-bundle-analyzer' = '*'
                 'webpack-cli' = '*'
                 'webpack-dashboard' = '*'
