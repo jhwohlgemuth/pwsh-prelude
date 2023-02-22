@@ -233,6 +233,7 @@ Functions
   - `Get-StateName`
   - `Get-StringPath`
   - `Get-SyllableCount`
+  - `Get-TemporaryDirectory`
   - `Get-Variance`
   - `Import-Excel`
   - `Import-Html` <sup>[3](#3)</sup>

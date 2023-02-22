@@ -126,6 +126,16 @@ Describe 'Format-Json' {
         Get-Content $Path -Raw | Should -Be $Expected
     }
 }
+Describe 'Get-TemporaryDirectory' -Tag 'Local', 'Remote', 'WindowsOnly' {
+    It 'can return temporary directory' {
+        Get-TemporaryDirectory | Should -Be $Env:Temp
+    }
+}
+Describe 'Get-TemporaryDirectory' -Tag 'Local', 'Remote', 'LinuxOnly' {
+    It 'can return temporary directory' {
+        Get-TemporaryDirectory | Should -Be '/tmp'
+    }
+}
 Describe -Skip 'Invoke-ListenTo' -Tag 'Local', 'Remote' {
     AfterEach {
         'TestEvent' | Invoke-StopListen

@@ -148,6 +148,7 @@
         'Get-StringPath'
         'Get-SyllableCount'
         'Get-Sum'
+        'Get-TemporaryDirectory'
         'Get-Variance'
         'Import-Excel'
         'Import-GraphData'

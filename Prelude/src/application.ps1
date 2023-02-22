@@ -76,7 +76,7 @@ function Get-State {
     if ($Path.Length -gt 0 -and (Test-Path $Path)) {
         "==> Resolved ${Path}" | Write-Verbose
     } else {
-        $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+        $TempRoot = Get-TemporaryDirectory
         $Filename = $Name | Get-StateName
         $Path = Join-Path $TempRoot "${Filename}.xml"
     }
@@ -98,6 +98,26 @@ function Get-StateName {
     )
     Process {
         "prelude-$($Id | ConvertTo-Base64)"
+    }
+}
+function Get-TemporaryDirectory {
+    <#
+    .SYNOPSIS
+    Cross platform way to get temporary directory location
+    .EXAMPLE
+    $Tmp = Get-TemporaryDirectory
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param()
+    if ($IsLinux) {
+        '/tmp'
+    } else {
+        if ($IsMacOS) {
+            $Env:TMPDIR
+        } else {
+            $Env:temp
+        }
     }
 }
 function Format-Json {
@@ -292,7 +312,7 @@ function Invoke-RunApplication {
         [Switch] $NoCleanup
     )
     if ($Name.Length -gt 0) {
-        $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+        $TempRoot = Get-TemporaryDirectory
         $Filename = $Name | Get-StateName
         $Path = Join-Path $TempRoot "${Filename}.xml"
         if ($ClearState -and (Test-Path $Path)) {
@@ -1512,7 +1532,15 @@ function Save-State {
         [Switch] $Force
     )
     if (-not $Path) {
-        $TempRoot = if ($IsLinux) { '/tmp' } else { $Env:temp }
+        $TempRoot = if ($IsLinux) {
+            '/tmp'
+        } else {
+            if ($IsMacOS) {
+                $Env:TMPDIR
+            } else {
+                $Env:temp
+            }
+        }
         $Filename = $Name | Get-StateName
         $Path = Join-Path $TempRoot "${Filename}.xml"
     }
