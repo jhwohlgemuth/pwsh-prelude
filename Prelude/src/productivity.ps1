@@ -99,6 +99,8 @@ function ConvertTo-ParameterString {
         Hostname = 'MARIO'
         Age = 42
     }
+    $Parameters | ConvertTo-ParameterString
+    # '--age 42 --hostname MARIO'
     #>
     [CmdletBinding()]
     [OutputType([String])]
