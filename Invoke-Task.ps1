@@ -229,15 +229,15 @@ function Invoke-Build {
         '==> [ERROR] Could not find VsDevCmd.bat which is needed to set environment variables' | Write-Error
     }
     if ((Test-Path $CompilerPath)) {
-        $CsharpDirectory = "${PSScriptRoot}/csharp"
-        $OutputDirectory = "${PSScriptRoot}/Prelude/bin"
+        $CsharpDirectory = "${PSScriptRoot}\csharp"
+        $OutputDirectory = "${PSScriptRoot}\Prelude\bin"
         $SystemRuntime = "${GAC_MSIL}\System.Runtime\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Runtime.dll"
         $SystemNumerics = "${GAC_MSIL}\System.Numerics\v4.0_4.0.0.0__b77a5c561934e089\System.Numerics.dll"
         [Xml]$ProjectData = Get-Content .\csharp\CommandLineInterface\CommandLineInterface.csproj
         $TargetFramework = $ProjectData.Project.PropertyGroup.TargetFramework
         $SpectreVersion = $ProjectData.Project.ItemGroup[0].PackageReference.Version
         $SpectreConsole = "${NugetPackages}\spectre.console\${SpectreVersion}\lib\${TargetFramework}\Spectre.Console.dll"
-        # TODO: Copy Spectre.Console.dll to ./Prelude/bin
+        Copy-Item -Path $SpectreConsole -Destination $OutputDirectory
         'CommandLineInterface' | ForEach-Object {
             "==> [INFO] Building ${_} link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:"${OutputDirectory}\Spectre.Console.dll" -reference:$SystemRuntime
