@@ -9,5 +9,3 @@ BenchmarkDotNet.Artifacts
 .ionide/
 #JetBrains
 csharp/.idea/
-# Third Party DLLs
-Prelude/bin/Spectre.Console.dll

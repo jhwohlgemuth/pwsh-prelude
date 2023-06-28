@@ -218,7 +218,6 @@ function Invoke-Build {
         Architecture = $Architecture
     }
     $GAC_MSIL = 'C:\Windows\Microsoft.NET\assembly\GAC_MSIL'
-    $NugetPackages = (dotnet nuget locals global-packages --list) -split ': ' | Select-Object -Last 1
     $VisualStudioRoot = Get-VisualStudioRoot @VisualStudioData
     $ToolsDirectory = "${VisualStudioRoot}\Common7\Tools"
     $CompilerPath = "${VisualStudioRoot}\MSBuild\Current\Bin\Roslyn\csc.exe"
@@ -233,11 +232,14 @@ function Invoke-Build {
         $OutputDirectory = "${PSScriptRoot}\Prelude\bin"
         $SystemRuntime = "${GAC_MSIL}\System.Runtime\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Runtime.dll"
         $SystemNumerics = "${GAC_MSIL}\System.Numerics\v4.0_4.0.0.0__b77a5c561934e089\System.Numerics.dll"
-        [Xml]$ProjectData = Get-Content .\csharp\CommandLineInterface\CommandLineInterface.csproj
-        $TargetFramework = $ProjectData.Project.PropertyGroup.TargetFramework
-        $SpectreVersion = $ProjectData.Project.ItemGroup[0].PackageReference.Version
-        $SpectreConsole = "${NugetPackages}\spectre.console\${SpectreVersion}\lib\${TargetFramework}\Spectre.Console.dll"
-        Copy-Item -Path $SpectreConsole -Destination $OutputDirectory
+        if (-not (Test-Path "${OutputDirectory}\Spectre.Console.dll")) {
+            [Xml]$ProjectData = Get-Content .\csharp\CommandLineInterface\CommandLineInterface.csproj
+            $NugetPackages = (dotnet nuget locals global-packages --list) -split ': ' | Select-Object -Last 1
+            $TargetFramework = $ProjectData.Project.PropertyGroup.TargetFramework
+            $SpectreVersion = $ProjectData.Project.ItemGroup[0].PackageReference.Version
+            $SpectreConsole = "${NugetPackages}\spectre.console\${SpectreVersion}\lib\${TargetFramework}\Spectre.Console.dll"
+            Copy-Item -Path $SpectreConsole -Destination $OutputDirectory
+        }
         'CommandLineInterface' | ForEach-Object {
             "==> [INFO] Building ${_} link library" | Write-Message
             & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:"${OutputDirectory}\Spectre.Console.dll" -reference:$SystemRuntime
