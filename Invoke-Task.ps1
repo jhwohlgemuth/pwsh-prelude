@@ -231,6 +231,7 @@ function Invoke-Build {
         $CsharpDirectory = "${PSScriptRoot}\csharp"
         $OutputDirectory = "${PSScriptRoot}\Prelude\bin"
         $SystemRuntime = "${GAC_MSIL}\System.Runtime\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Runtime.dll"
+        $SystemCollections = "${GAC_MSIL}\System.Collections\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Collections.dll"
         $SystemNumerics = "${GAC_MSIL}\System.Numerics\v4.0_4.0.0.0__b77a5c561934e089\System.Numerics.dll"
         if (-not (Test-Path "${OutputDirectory}\Spectre.Console.dll")) {
             [Xml]$ProjectData = Get-Content .\csharp\CommandLineInterface\CommandLineInterface.csproj
@@ -242,7 +243,7 @@ function Invoke-Build {
         }
         'CommandLineInterface' | ForEach-Object {
             "==> [INFO] Building ${_} link library" | Write-Message
-            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:"${OutputDirectory}\Spectre.Console.dll" -reference:$SystemRuntime
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:"${OutputDirectory}\Spectre.Console.dll" -reference:$SystemRuntime -reference:$SystemCollections
         }
         'Datum' | ForEach-Object {
             "==> [INFO] Building ${_} link library" | Write-Message
