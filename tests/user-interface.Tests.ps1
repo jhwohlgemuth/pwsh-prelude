@@ -6,7 +6,19 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
-
+Describe 'ConvertTo-SpectreMarkup' -Tag 'Local', 'Remote' {
+    It 'can handle empty imput' {
+        '' | ConvertTo-SpectreMarkup | Should -Be ''
+        ConvertTo-SpectreMarkup -Value $Null | Should -Be ''
+    }
+    It 'can convert to markup' {
+        '{{#red hello}}' | ConvertTo-SpectreMarkup | Should -Be '[red]hello[/]'
+        '{{#bold hello}} world' | ConvertTo-SpectreMarkup | Should -Be '[bold]hello[/] world'
+        '{{#green hello}} world {{#blue again}}' | ConvertTo-SpectreMarkup | Should -Be '[green]hello[/] world [blue]again[/]'
+        'hello world {{#blue again}}' | ConvertTo-SpectreMarkup | Should -Be 'hello world [blue]again[/]'
+        'hello {{#white world}} again' | ConvertTo-SpectreMarkup | Should -Be 'hello [white]world[/] again'
+    }
+}
 Describe 'Format-FileSize' -Tag 'Local', 'Remote' {
     It 'can format file sizes' {
         100 | Format-FileSize | Should -Be '100.0B'
@@ -71,6 +83,7 @@ Describe 'Remove-HandlebarsHelper' -Tag 'Local', 'Remote' {
         @{ Value = '{{#red RED}} WHITE {{#blue BLUE}}' }
         @{ Value = '{{#red RED}} {{#white WHITE}} BLUE' }
         @{ Value = 'RED {{#white WHITE}} BLUE' }
+        @{ Value = 'RED {{#white WHITE}} {{#blue BLUE}}' }
     ) {
         $Value | Remove-HandlebarsHelper | Should -Be 'RED WHITE BLUE'
     }

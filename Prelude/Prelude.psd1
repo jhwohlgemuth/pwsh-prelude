@@ -111,6 +111,7 @@
         'ConvertTo-PlainText'
         'ConvertTo-QueryString'
         'ConvertTo-Radian'
+        'ConvertTo-SpectreMarkup'
         'Deny-Empty'
         'Deny-Null'
         'Deny-Value'

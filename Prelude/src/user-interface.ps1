@@ -9,7 +9,45 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Scope = 'Function', Target = 'Invoke-Menu')]
 Param()
 
-
+function ConvertTo-SpectreMarkup {
+    <#
+    .SYNOPSIS
+    Convert a handlebars template string to the markup style of Spectre.Console
+    .EXAMPLE
+    "{{#red hello}}" | ConvertTo-SpectreMarkup
+    # '[red]hello[/]']'
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [String] $Value
+    )
+    Begin {
+        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#))(?<color>[^ ]*) *(?<content>((?!}}).)*)}}'
+    }
+    Process {
+        if (($Value -eq '') -or ($Null -eq $Value)) {
+            return ''
+        } else {
+            $Result = ''
+            $Position = 0
+            $Value | Select-String -Pattern $Pattern -AllMatches | ForEach-Object Matches | ForEach-Object {
+                $Result += $Value.Substring($Position, $_.Index - $Position)
+                $Color = $_.Groups | Where-Object { $_.Name -eq 'color' } | Select-Object -ExpandProperty Value
+                $Content = $_.Groups | Where-Object { $_.Name -eq 'content' } | Select-Object -ExpandProperty Value
+                $Result += "[${Color}]${Content}[/]"
+                $Position = $_.Index + $_.Length
+            }
+            if ($Position -lt $Value.Length) {
+                $Result += $Value.Substring($Position, $Value.Length - $Position)
+            }
+            $Result
+        }
+    }
+}
 function Format-FileSize {
     <#
     .SYNOPSIS
@@ -769,16 +807,15 @@ function Remove-HandlebarsHelper {
         [String] $Value
     )
     Begin {
-        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#)) *((?!}}).)*}}'
+        $Pattern = '(?<HELPER>){{(?<indicator>(=|-|#))(?<color>[^ ]*) *(?<content>((?!}}).)*)}}'
     }
     Process {
         $Result = ''
         $Position = 0
         $Value | Select-String -Pattern $Pattern -AllMatches | ForEach-Object Matches | ForEach-Object {
             $Result += $Value.Substring($Position, $_.Index - $Position)
-            $HelperTemplate = $Value.Substring($_.Index, $_.Length)
-            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace ' *}}', '' } | ForEach-Object { $_ -split ' +' }
-            $Result += ($Arr[1..$Arr.Length] -join ' ')
+            $Content = $_.Groups | Where-Object { $_.Name -eq 'content' } | Select-Object -ExpandProperty Value
+            $Result += $Content.Trim()
             $Position = $_.Index + $_.Length
         }
         if ($Position -lt $Value.Length) {
