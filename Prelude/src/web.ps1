@@ -28,7 +28,7 @@ class BrowserOptions: Options {
     [PSObject] $Size = @{ Height = 700; Width = 960 }
     [Bool] $IsWebBrowserContextMenuEnabled = $False
 }
-function Add-Metadata {
+function Add-Metadatum {
     <#
     .SYNOPSIS
     Identify certain elements and wrap them in semantic HTML tags.

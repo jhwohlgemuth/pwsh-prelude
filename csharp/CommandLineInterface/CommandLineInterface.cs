@@ -5,12 +5,14 @@
 
 namespace Prelude {
     using Spectre.Console;
+    using System.Collections.Generic;
 
     public class CommandLineInterface {
-        public CommandLineInterface() {}
+        public CommandLineInterface() { }
 
-        public static void Menu(string[] values, int limit = 10, string instructions = "[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]") {
-            var moreChoicesText = values.Length > limit ? "[grey](Move up and down to reveal more items)[/]" : "";
+        public const string DEFAULT_MORE_CHOICES_TEXT = "[grey](Move up and down to reveal more items)[/]";
+        public static List<string> Menu(string[] values, int limit = 10, string instructions = "[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]") {
+            var moreChoicesText = values.Length > limit ? DEFAULT_MORE_CHOICES_TEXT : "";
             var items = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
                     .NotRequired()
@@ -18,34 +20,20 @@ namespace Prelude {
                     .MoreChoicesText(moreChoicesText)
                     .InstructionsText(instructions)
                     .AddChoices(values));
-            foreach (string item in items) {
-                AnsiConsole.WriteLine(item);
-            }
+            return items;
+        }
+        public static string Select(string[] values, int limit = 10) {
+            var moreChoicesText = values.Length > limit ? DEFAULT_MORE_CHOICES_TEXT : "";
+            var item = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .PageSize(limit)
+                    .MoreChoicesText(moreChoicesText)
+                    .AddChoices(values));
+            return item;
         }
 
         public static void HelloWorld() {
             AnsiConsole.Markup("[yellow bold underline]Hello[/] World");
-            // Ask for the user's favorite fruits
-            var fruits = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title("What are your [green]favorite fruits[/]?")
-                    .NotRequired() // Not required to have a favorite fruit
-                    .PageSize(10)
-                    .MoreChoicesText("[grey](Move up and down to reveal more fruits)[/]")
-                    .InstructionsText(
-                        "[grey](Press [blue]<space>[/] to toggle a fruit, " +
-                        "[green]<enter>[/] to accept)[/]")
-                    .AddChoices(new[] {
-                        "Apple", "Apricot", "Avocado",
-                        "Banana", "Blackcurrant", "Blueberry",
-                        "Cherry", "Cloudberry", "Coconut",
-                    }));
-
-            // Write the selected fruits to the terminal
-            foreach (string fruit in fruits) {
-                AnsiConsole.WriteLine(fruit);
-            }
-
         }
     }
 }

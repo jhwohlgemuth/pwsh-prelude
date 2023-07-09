@@ -406,7 +406,7 @@ function Invoke-Lint {
             }
         }
         if ((Get-Command -Name 'dotnet' -ErrorAction Ignore)) {
-            'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
+            'CommandLineInterface', 'Matrix', 'Geodetic', 'Graph', 'Tests' | ForEach-Object {
                 & $Format -Name $_
             }
         } else {

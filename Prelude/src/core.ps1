@@ -59,6 +59,7 @@ function ConvertTo-OrderedDictionary {
     @{ a = 1; b = 2; c = 3 } | ConvertTo-OrderedDictionary
     #>
     [CmdletBinding()]
+    [OutputType([System.Collections.Specialized.OrderedDictionary])]
     Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $InputObject,
