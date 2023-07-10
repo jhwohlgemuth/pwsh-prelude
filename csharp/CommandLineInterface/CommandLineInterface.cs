@@ -11,6 +11,11 @@ namespace Prelude {
         public CommandLineInterface() { }
 
         public const string DEFAULT_MORE_CHOICES_TEXT = "[grey](Move up and down to reveal more items)[/]";
+
+        public static Style MenuStyle(Color? foreground = null, Color? background = null, Decoration? decoration = null, string link = "") {
+            return new Style(foreground, background, decoration, link);
+        }
+
         public static List<string> Menu(string[] values, int limit = 10, string instructions = "[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]") {
             var moreChoicesText = values.Length > limit ? DEFAULT_MORE_CHOICES_TEXT : "";
             var items = AnsiConsole.Prompt(
