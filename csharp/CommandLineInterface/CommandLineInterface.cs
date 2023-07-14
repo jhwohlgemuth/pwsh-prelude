@@ -14,7 +14,7 @@ namespace Prelude {
         public const int COLOR_BLUE = 12;
         public const string DEFAULT_MORE_CHOICES_TEXT = "[grey](Move up and down to reveal more items)[/]";
 
-        public static Style MenuStyle(Color? foreground = null, Color? background = null, Decoration? decoration = null, string link = "") {
+        public static Style PreludeStyle(Color? foreground = null, Color? background = null, Decoration? decoration = null, string link = "") {
             return new Style(foreground, background, decoration, link);
         }
 
@@ -24,7 +24,7 @@ namespace Prelude {
                 new MultiSelectionPrompt<string>()
                     .NotRequired()
                     .PageSize(limit)
-                    .HighlightStyle(style != null ? style : MenuStyle(COLOR_BLUE))
+                    .HighlightStyle(style != null ? style : PreludeStyle(COLOR_BLUE))
                     .MoreChoicesText(moreChoicesText)
                     .InstructionsText(instructions)
                     .AddChoices(values));
@@ -35,7 +35,7 @@ namespace Prelude {
             var item = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .PageSize(limit)
-                    .HighlightStyle(style != null ? style : MenuStyle(COLOR_BLUE))
+                    .HighlightStyle(style != null ? style : PreludeStyle(COLOR_BLUE))
                     .MoreChoicesText(moreChoicesText)
                     .AddChoices(values));
             return item;
