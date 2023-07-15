@@ -4,7 +4,7 @@
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Wohlgemuth Technology Foundation'
     Author = 'Jason Wohlgemuth'
-    Copyright = '(c) 2020 Jason Wohlgemuth. All rights reserved.'
+    Copyright = '(c) 2023 Jason Wohlgemuth. All rights reserved.'
     Description = 'A "standard" library for PowerShell inspired by the preludes of other languages'
     PowerShellVersion = '5.0'
     FileList = @()
