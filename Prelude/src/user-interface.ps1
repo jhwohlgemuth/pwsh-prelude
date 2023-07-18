@@ -524,30 +524,51 @@ function Invoke-Menu {
         [Switch] $MultiSelect,
         [Switch] $SingleSelect,
         [ValidateSet('White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow')]
-        [String] $HighlightColor = 'Cyan',
-        [Switch] $ReturnIndex = $False,
+        [String] $HighlightColor = 'Blue',
         [Switch] $FolderContent,
-        [Int] $Limit = 0,
-        [Int] $Indent = 2,
-        [String] $SelectedMarker = '>  ',
-        [Switch] $NoMarker,
-        [Switch] $Vim,
-        [Switch] $Unwrap
+        [Int] $Limit = 10
     )
     Begin {
-        $ModeWidth = 8
-        $SizeWidth = 8
+        $Lookup = @{
+            White = 15
+            Black = 0
+            DarkBlue = 18
+            DarkGreen = 22
+            DarkCyan = 6
+            DarkRed = 1
+            DarkMagenta = 5
+            DarkYellow = 3
+            Gray = 7
+            DarkGray = 8
+            Blue = 12
+            Green = 2
+            Cyan = 14
+            Red = 9
+            Magenta = 13
+            Yellow = 11
+        }
     }
     End {
         if ($Input.Length -gt 0) {
             $Items = $Input
         }
-        $Output = if ($SingleSelect) {
-            [CommandLineInterface]::Select($Items, $Limit)
-        } elseif ($MultiSelect) {
-            [CommandLineInterface]::Menu($Items, $Limit)
+        $ForegroundColor = $Lookup[$HighlightColor]
+        $Style = [CommandLineInterface]::PreludeStyle($ForegroundColor)
+        $Choices = $Items | ForEach-Object {
+            if ($FolderContent) {
+                $_
+            } else {
+                $_ | ConvertTo-SpectreMarkup
+            }
         }
-        $Output
+        $Output = if ($SingleSelect -and -not $MultiSelect) {
+            [CommandLineInterface]::Select($Choices, $Limit, $Style)
+        } else {
+            [CommandLineInterface]::Menu($Choices, $Limit, $Style)
+        }
+        $Output | ForEach-Object {
+            [CommandLineInterface]::Unwrap($_)
+        }
     }
 }
 function Remove-HandlebarsHelper {
