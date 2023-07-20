@@ -3,7 +3,6 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope = 'Function', Target = 'Update-Autocomplete')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Input')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Menu')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Update-MenuSelection')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Write-BarChart')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Write-Color')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Scope = 'Function', Target = 'Invoke-Menu')]
@@ -529,6 +528,9 @@ function Invoke-Menu {
         [Int] $Limit = 10
     )
     Begin {
+        $NotSpace = { Param($X) $X -ne ' ' }
+        $ModeWidth = 6
+        $SizeWidth = 6
         $Lookup = @{
             White = 15
             Black = 0
@@ -554,12 +556,21 @@ function Invoke-Menu {
         }
         $ForegroundColor = $Lookup[$HighlightColor]
         $Style = [CommandLineInterface]::PreludeStyle($ForegroundColor)
-        $Choices = $Items | ForEach-Object {
-            if ($FolderContent) {
-                $_
-            } else {
-                $_ | ConvertTo-SpectreMarkup
+        $Choices = if ($FolderContent) {
+            $Padding = ' '
+            $Spacer = $Padding | Invoke-Repeat -Times $SizeWidth | Invoke-Reduce -Add
+            $Folders = Get-ChildItem -Directory | ForEach-Object {
+                $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
+                "[grey] ${Mode}[/] ${Spacer} [fuchsia] $($_.Name)/[/]"
             }
+            $Files = Get-ChildItem -File | ForEach-Object {
+                $Mode = $_.Mode | Format-MinimumWidth $ModeWidth -Padding $Padding
+                $Size = $_.Length | Format-FileSize | Format-MinimumWidth $SizeWidth -Align Right -Padding $Padding
+                "[grey] ${Mode}[/] [grey] ${Size}[/] $($_.Name)"
+            }
+            $Folders + $Files
+        } else {
+            $Items | ForEach-Object { $_ | ConvertTo-SpectreMarkup }
         }
         $Output = if ($SingleSelect -and -not $MultiSelect) {
             [CommandLineInterface]::Select($Choices, $Limit, $Style)
@@ -567,7 +578,7 @@ function Invoke-Menu {
             [CommandLineInterface]::Menu($Choices, $Limit, $Style)
         }
         $Output | ForEach-Object {
-            [CommandLineInterface]::Unwrap($_)
+            [CommandLineInterface]::Unwrap($_) | Invoke-Method 'Substring' ($ModeWidth + $SizeWidth) | Invoke-DropWhile $NotSpace | Invoke-Method 'Trim'
         }
     }
 }
