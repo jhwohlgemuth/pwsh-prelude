@@ -578,7 +578,12 @@ function Invoke-Menu {
             [CommandLineInterface]::Menu($Choices, $Limit, $Style)
         }
         $Output | ForEach-Object {
-            [CommandLineInterface]::Unwrap($_) | Invoke-Method 'Substring' ($ModeWidth + $SizeWidth) | Invoke-DropWhile $NotSpace | Invoke-Method 'Trim'
+            $Value = [CommandLineInterface]::Unwrap($_)
+            if ($FolderContent) {
+                $Value | Invoke-Method 'Substring' ($ModeWidth + $SizeWidth) | Invoke-DropWhile $NotSpace | Invoke-Method 'Trim'
+            } else {
+                $Value
+            }
         }
     }
 }
