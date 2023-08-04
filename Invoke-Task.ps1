@@ -233,6 +233,9 @@ function Invoke-Build {
         $SystemRuntime = "${GAC_MSIL}\System.Runtime\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Runtime.dll"
         $SystemCollections = "${GAC_MSIL}\System.Collections\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Collections.dll"
         $SystemNumerics = "${GAC_MSIL}\System.Numerics\v4.0_4.0.0.0__b77a5c561934e089\System.Numerics.dll"
+        if (-not (Test-Path "${OutputDirectory}\System.Runtime.dll")) {
+            Copy-Item -Path $SystemRuntime -Destination $OutputDirectory
+        }
         if (-not (Test-Path "${OutputDirectory}\Spectre.Console.dll")) {
             [Xml]$ProjectData = Get-Content .\csharp\CommandLineInterface\CommandLineInterface.csproj
             $NugetPackages = (dotnet nuget locals global-packages --list) -split ': ' | Select-Object -Last 1
@@ -243,7 +246,7 @@ function Invoke-Build {
         }
         'CommandLineInterface' | ForEach-Object {
             "==> [INFO] Building ${_} link library" | Write-Message
-            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:"${OutputDirectory}\Spectre.Console.dll" -reference:$SystemRuntime -reference:$SystemCollections
+            & $CompilerPath "$CsharpDirectory/${_}/${_}.cs" -out:"$OutputDirectory/${_}.dll" -optimize -nologo -target:library -reference:"${OutputDirectory}\Spectre.Console.dll" -reference:"${OutputDirectory}\System.Runtime.dll" -reference:$SystemCollections
         }
         'Datum' | ForEach-Object {
             "==> [INFO] Building ${_} link library" | Write-Message
