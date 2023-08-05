@@ -7,10 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Runtime">
+      <HintPath>..\..\..\..\.nuget\packages\system.runtime\4.3.1\lib\net462\System.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Spectre.Console">
       <HintPath>..\..\..\..\.nuget\packages\spectre.console\0.47.0\lib\net6.0\Spectre.Console.dll</HintPath>
     </Reference>

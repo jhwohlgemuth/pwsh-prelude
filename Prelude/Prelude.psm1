@@ -25,7 +25,6 @@ $Accelerators = [PowerShell].Assembly.GetType('System.Management.Automation.Type
 if (-not ('Complex' -as [Type])) {
     $Accelerators::Add('Complex', 'System.Numerics.Complex')
 }
-Add-TypeData 'System.Runtime'
 'CommandLineInterface', 'Matrix', 'Node', 'Edge', 'DirectedEdge', 'Graph' | ForEach-Object {
     if (-not ("Prelude.${_}" -as [Type])) {
         Add-TypeData $_
