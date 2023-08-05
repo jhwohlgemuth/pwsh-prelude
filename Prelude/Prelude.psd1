@@ -1,5 +1,5 @@
 @{
-    ModuleVersion = '0.2.7'
+    ModuleVersion = '0.2.8'
     RootModule = 'Prelude.psm1'
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Wohlgemuth Technology Foundation'
@@ -10,12 +10,6 @@
     FileList = @()
     CmdletsToExport = @()
     VariablesToExport = @()
-    RequiredModules = @(
-        @{
-            ModuleName = 'bin\System.Runtime.dll'
-            ModuleVersion = '6.0'
-        }
-    )
     FormatsToProcess = @(
         'formats/Complex.Format.ps1xml',
         'formats/Matrix.Format.ps1xml',
