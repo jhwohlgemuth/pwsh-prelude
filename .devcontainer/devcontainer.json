@@ -3,31 +3,34 @@
         "dockerfile": "Dockerfile"
     },
     "name": "PowerShell Prelude",
-    "extensions": [
-        "akamud.vscode-theme-onedark",
-        "bierner.markdown-mermaid",
-        "christian-kohler.path-intellisense",
-        "cssho.vscode-svgviewer",
-        "deerawan.vscode-faker",
-        "emmanuelbeziat.vscode-great-icons",
-        "formulahendry.auto-rename-tag",
-        "GrapeCity.gc-excelviewer",
-        "icsharpcode.ilspy-vscode",
-        "johnpapa.vscode-peacock",
-        "kisstkondoros.vscode-gutter-preview",
-        "mechatroner.rainbow-csv",
-        "ms-dotnettools.csharp",
-        "ms-dotnettools.dotnet-interactive-vscode",
-        "ms-dotnettools.vscode-dotnet-runtime",
-        "ms-vscode-remote.remote-containers",
-        "ms-vscode.atom-keybindings",
-        "ms-vscode.azure-account",
-        "ms-vscode.powershell",
-        "oderwat.indent-rainbow",
-        "rafamel.subtle-brackets",
-        "redhat.vscode-xml",
-        "ryanluker.vscode-coverage-gutters",
-        "TylerLeonhardt.vscode-pester-test-adapter",
-        "wmaurer.change-case"
-    ]
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "akamud.vscode-theme-onedark",
+                "bierner.markdown-mermaid",
+                "christian-kohler.path-intellisense",
+                "cssho.vscode-svgviewer",
+                "deerawan.vscode-faker",
+                "emmanuelbeziat.vscode-great-icons",
+                "formulahendry.auto-rename-tag",
+                "GrapeCity.gc-excelviewer",
+                "icsharpcode.ilspy-vscode",
+                "johnpapa.vscode-peacock",
+                "kisstkondoros.vscode-gutter-preview",
+                "mechatroner.rainbow-csv",
+                "ms-dotnettools.csharp",
+                "ms-dotnettools.dotnet-interactive-vscode",
+                "ms-dotnettools.vscode-dotnet-runtime",
+                "ms-vscode-remote.remote-containers",
+                "ms-vscode.atom-keybindings",
+                "ms-vscode.azure-account",
+                "ms-vscode.powershell",
+                "oderwat.indent-rainbow",
+                "rafamel.subtle-brackets",
+                "redhat.vscode-xml",
+                "ryanluker.vscode-coverage-gutters",
+                "wmaurer.change-case"
+            ]
+        }
+    }
 }
