@@ -10,14 +10,26 @@ function Remove-DailyShutdownJob {
     Param(
         [Switch] $PassThru
     )
-    $Result = $False
-    if (Test-Admin) {
-        Unregister-ScheduledJob -Name 'DailyShutdown'
-        $Result = $True
-    } else {
-        Write-Error '==> Remove-DailyShutdownJob requires Administrator privileges'
+    Begin {
+        $Result = $False
+        $Version = $PSVersionTable.PSVersion.Major
+        $Name = 'DailyShutdown'
     }
-    if ($PassThru) {
-        $Result
+    End {
+        if (Test-Admin) {
+            if ($Version -ge 7) {
+                "==> Removing `"${Name}`" task" | Write-Verbose
+                Unregister-ScheduledTask -TaskName $Name -Confirm:$False
+            } else {
+                "==> Removing `"${Name}`" job" | Write-Verbose
+                Unregister-ScheduledJob -Name $Name
+            }
+            $Result = $True
+        } else {
+            Write-Error "==> $($MyInvocation.MyCommand.Name) requires Administrator privileges"
+        }
+        if ($PassThru) {
+            $Result
+        }
     }
 }
