@@ -98,33 +98,52 @@ Describe 'ConvertTo-AbstractSyntaxTree' -Tag 'Local', 'Remote' {
 }
 Describe 'ConvertTo-ParameterString' -Tag 'Local', 'Remote' {
     It 'can convert a hastable to a parameter string (short form)' {
-        $Params = @{
+        $Params = [Ordered]@{
             'h' = 'words'
             'help' = 'more words'
             'V' = '42'
         }
-        $Params | ConvertTo-ParameterString | Should -Be '-V 42 --help more words -h words'
+        $Params | ConvertTo-ParameterString | Should -Be '-h words --help more words -V 42'
     }
     It 'can convert a hastable to a parameter string (long form)' {
-        $Params = @{
+        $Params = [Ordered]@{
             'Foo' = 'Bar'
             'Baz' = 'Qux'
         }
-        $Params | ConvertTo-ParameterString | Should -Be '--baz Qux --foo Bar'
+        $Params | ConvertTo-ParameterString | Should -Be '--foo Bar --baz Qux'
+    }
+    It 'can convert a hastable to a parameter string with switch variables' {
+        $Params = [Ordered]@{
+            'Foo' = $True
+            'Baz' = $True
+        }
+        $Params | ConvertTo-ParameterString | Should -Be '--foo --baz'
+        $Params = [Ordered]@{
+            'Foo' = $False
+            'Baz' = $True
+        }
+        $Params | ConvertTo-ParameterString | Should -Be '--baz'
+        $Params = [Ordered]@{
+            'hello' = 'world'
+            'Foo' = $False
+            'V' = '42'
+            'Baz' = $True
+        }
+        $Params | ConvertTo-ParameterString | Should -Be '--hello world -V 42 --baz'
     }
     It 'can convert an array of hastables to parameter strings' {
         $Params = @(
-            @{
+            [Ordered]@{
                 'Foo' = 'Bar'
                 'Baz' = 'Qux'
             },
-            @{
+            [Ordered]@{
                 'h' = 'words'
                 'help' = 'more words'
                 'V' = '42'
             }
         )
-        $Params | ConvertTo-ParameterString | Should -Be '--baz Qux --foo Bar', '-V 42 --help more words -h words'
+        $Params | ConvertTo-ParameterString | Should -Be '--foo Bar --baz Qux', '-h words --help more words -V 42'
     }
 }
 Describe 'ConvertTo-PlainText' -Tag 'Local', 'Remote' {

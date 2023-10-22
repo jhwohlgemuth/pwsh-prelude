@@ -114,7 +114,18 @@ function ConvertTo-ParameterString {
             $Name = $Item.Name
             $Key = if ($Name.Length -eq 1) { "-${Name}" } else { "--$($Name.ToLower())" }
             $Value = $Item.Value
-            $Result.Add("${Key} ${Value}") | Out-Null
+            switch ($Value.GetType().Name) {
+                'Boolean' {
+                    if ($Value) {
+                        $Result.Add($Key) | Out-Null
+                    }
+                    break
+                }
+                'String' {
+                    $Result.Add("${Key} ${Value}") | Out-Null
+                    break
+                }
+            }
         }
         $Result -join ' '
     }
