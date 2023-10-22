@@ -8,12 +8,12 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '', Scope = 'Function', Target = 'Invoke-Menu')]
 Param()
 
-function ConvertTo-SpectreMarkup {
+function ConvertTo-ConsoleMarkup {
     <#
     .SYNOPSIS
-    Convert a handlebars template string to the markup style of Spectre.Console
+    Convert a handlebars template string to the markup style used by Spectre.Console and Python's Rich package (inspired by BBCode)
     .EXAMPLE
-    "{{#red hello}}" | ConvertTo-SpectreMarkup
+    "{{#red hello}}" | ConvertTo-ConsoleMarkup
     # '[red]hello[/]']'
     #>
     [CmdletBinding()]
@@ -570,7 +570,7 @@ function Invoke-Menu {
             }
             $Folders + $Files
         } else {
-            $Items | ForEach-Object { $_ | ConvertTo-SpectreMarkup }
+            $Items | ForEach-Object { $_ | ConvertTo-ConsoleMarkup }
         }
         $Output = if ($SingleSelect -and -not $MultiSelect) {
             [CommandLineInterface]::Select($Choices, $Limit, $Style)

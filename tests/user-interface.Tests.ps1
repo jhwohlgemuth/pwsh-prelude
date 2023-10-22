@@ -6,17 +6,17 @@ Param()
 
 & (Join-Path $PSScriptRoot '_setup.ps1') 'user-interface'
 
-Describe 'ConvertTo-SpectreMarkup' -Tag 'Local', 'Remote' {
+Describe 'ConvertTo-ConsoleMarkup' -Tag 'Local', 'Remote' {
     It 'can handle empty imput' {
-        '' | ConvertTo-SpectreMarkup | Should -Be ''
-        ConvertTo-SpectreMarkup -Value $Null | Should -Be ''
+        '' | ConvertTo-ConsoleMarkup | Should -Be ''
+        ConvertTo-ConsoleMarkup -Value $Null | Should -Be ''
     }
     It 'can convert to markup' {
-        '{{#red hello}}' | ConvertTo-SpectreMarkup | Should -Be '[red]hello[/]'
-        '{{#bold hello}} world' | ConvertTo-SpectreMarkup | Should -Be '[bold]hello[/] world'
-        '{{#green hello}} world {{#blue again}}' | ConvertTo-SpectreMarkup | Should -Be '[green]hello[/] world [blue]again[/]'
-        'hello world {{#blue again}}' | ConvertTo-SpectreMarkup | Should -Be 'hello world [blue]again[/]'
-        'hello {{#white world}} again' | ConvertTo-SpectreMarkup | Should -Be 'hello [white]world[/] again'
+        '{{#red hello}}' | ConvertTo-ConsoleMarkup | Should -Be '[red]hello[/]'
+        '{{#bold hello}} world' | ConvertTo-ConsoleMarkup | Should -Be '[bold]hello[/] world'
+        '{{#green hello}} world {{#blue again}}' | ConvertTo-ConsoleMarkup | Should -Be '[green]hello[/] world [blue]again[/]'
+        'hello world {{#blue again}}' | ConvertTo-ConsoleMarkup | Should -Be 'hello world [blue]again[/]'
+        'hello {{#white world}} again' | ConvertTo-ConsoleMarkup | Should -Be 'hello [white]world[/] again'
     }
 }
 Describe 'Format-FileSize' -Tag 'Local', 'Remote' {
