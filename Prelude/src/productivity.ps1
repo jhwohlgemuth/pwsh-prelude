@@ -226,6 +226,40 @@ function Find-FirstTrueVariable {
         }
     }
 }
+function Get-InitializationFileContent {
+    <#
+    .SYNOPSIS
+    Get content of initialization (INI) file
+    .EXAMPLE
+    Get-InitializationFileContent 'path/to/file.ini'
+    #>
+    [CmdletBinding()]
+    [Alias('ini')]
+    [OutputType([System.Collections.Hashtable])]
+    Param(
+        [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
+        [String] $Path
+    )
+    $Output = @{}
+    switch -regex -file $Path {
+        '^\[(.+)\]' {
+            $Section = $Matches[1]
+            $Output[$Section] = @{}
+            $CommentCount = 0
+        }
+        '^(;.*)$' {
+            $Value = $Matches[1]
+            $CommentCount = $CommentCount + 1
+            $Name = 'Comment' + $CommentCount
+            $Output[$Section][$Name] = $Value.Substring(1).Trim()
+        }
+        '(.+?)\s*=(.*)' {
+            $Name, $Value = $Matches[1..2]
+            $Output[$Section][$Name] = $Value
+        }
+    }
+    return $Output
+}
 function Get-ParameterList {
     <#
     .SYNOPSIS

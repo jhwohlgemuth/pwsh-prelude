@@ -232,6 +232,24 @@ Describe 'Find-FirstTrueVariable' -Tag 'Local', 'Remote' {
         Find-FirstTrueVariable $Names -DefaultValue 'boo' | Should -Be 'boo'
     }
 }
+Describe 'Get-InitializationFileContent' -Tag 'Local', 'Remote' {
+    It 'can get the content of a real Firefox profile INI file' {
+        $Path = Join-Path $PSScriptRoot '\fixtures\profiles.ini'
+        $Content = Get-InitializationFileContent $Path
+        $Content.Keys.Count | Should -Be 6
+        $Content.Profile2.Name | Should -Be 'default-release-1'
+        $Content.Profile0.Name | Should -Be 'Scoop'
+        $Content.General.Comment1 | Should -Be 'bar'
+    }
+    It 'can get the content of a real Firefox profile INI file via piped input' {
+        $Path = Join-Path $PSScriptRoot '\fixtures\profiles.ini'
+        $Content = $Path | Get-InitializationFileContent
+        $Content.Keys.Count | Should -Be 6
+        $Content.Profile2.Name | Should -Be 'default-release-1'
+        $Content.Profile0.Name | Should -Be 'Scoop'
+        $Content.General.Comment1 | Should -Be 'bar'
+    }
+}
 Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
     It 'can get parameters from input code string' {
         $List = '{ Param($A, $B, $C) $A + $B + $C }' | Get-ParameterList -Verbose

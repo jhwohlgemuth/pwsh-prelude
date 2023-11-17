@@ -10,10 +10,10 @@ BeforeDiscovery {
 Describe 'PowerShell Prelude Module' -Tag 'Local', 'Remote', 'WindowsOnly' {
     Context 'meta validation' {
         It 'should import exports' {
-            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 151
+            (Get-Module -Name Prelude).ExportedFunctions.Count | Should -Be 152
         }
         It 'should import aliases' {
-            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 65
+            (Get-Module -Name Prelude).ExportedAliases.Count | Should -Be 66
         }
     }
 }
