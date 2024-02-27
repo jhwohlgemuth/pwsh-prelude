@@ -1,6 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Scope = 'Function', Target = 'Add-Metadata')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Add-Metadata')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Browser')]
@@ -708,11 +707,11 @@ function Invoke-WebRequestBasicAuth {
             }
         }
         $Method = Find-FirstTrueVariable 'Get', 'Post', 'Put', 'Delete'
-        $Uri.Query = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
+        $QueryString = $Query | ConvertTo-QueryString -UrlEncode:$UrlEncode
         $Parameters = @{
             Headers = $Headers
             Method = $Method
-            Uri = $Uri.Uri
+            Uri = "$($Uri.Uri)$(if ($QueryString.Length -gt 0) { '?' })${QueryString}"
         }
         if ($Method -in 'Post', 'Put') {
             $Parameters.Body = $Data | ConvertTo-Json
@@ -730,6 +729,7 @@ function Invoke-WebRequestBasicAuth {
             $Parameters.OutFile = $OutFile
         }
         if ($PSCmdlet.ShouldProcess('Invoke-WebRequest')) {
+            $Parameters, $WebRequestParameters | Invoke-ObjectMerge | ConvertTo-Json | Write-Verbose
             $Request = Invoke-WebRequest @Parameters @WebRequestParameters -UseBasicParsing
         } else {
             '==> [DRYRUN] Would have called Invoke-WebRequest with the parameters:' | Write-Color -DarkGray
