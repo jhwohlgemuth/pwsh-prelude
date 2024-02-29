@@ -950,7 +950,8 @@ function Register-GitlabRunner {
     .SYNOPSIS
     Register new GitLab docker executor runner within a gitlab/gitlab-runner Docker container.
     .DESCRIPTION
-    Docker must be installed and running
+    - Docker must be installed and running
+    - If gum is not installed, Force will effectively be treated as True
     .PARAMETER Token
     GitLab runner registration token
     https://docs.gitlab.com/runner/register/index.html
@@ -971,7 +972,8 @@ function Register-GitlabRunner {
         [String] $Token,
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [Alias('id')]
-        [String] $Identifier
+        [String] $Identifier,
+        [Switch] $Force
     )
     Begin {
         $Tasks = @('Create', 'Register')
@@ -1001,7 +1003,7 @@ function Register-GitlabRunner {
             'Create' = "docker run $($Parameters.Create) --volume ${Passthru} ${Image}"
             'Register' = "docker exec runner_${Identifier} gitlab-runner --log-level ${LogLevel} register $($Parameters.Register)"
         }
-        $Execute = if (-not $Force) {
+        $Execute = if (-not $Force -and (Test-Command 'gum')) {
             gum confirm 'Execute Docker commands?'; if ($?) { $True } else { $False }
         } else {
             $True
