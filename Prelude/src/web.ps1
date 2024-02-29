@@ -635,12 +635,14 @@ function Invoke-WebRequestBasicAuth {
         [ValidateScript( { Test-Path $_ })]
         [String] $Folder = (Get-Location).Path,
         [Switch] $ParseContent,
-        [Alias('OTP')]
-        [String] $TwoFactorAuthentication = 'none',
+        [Alias('OTP', '2FA')]
+        [Switch] $TwoFactorAuthentication,
         [Switch] $Get,
         [Switch] $Post,
         [Switch] $Put,
         [Switch] $Delete,
+        [Switch] $Github,
+        [Switch] $Gitlab,
         [Parameter(ValueFromPipeline = $True)]
         [PSObject] $Data = @{},
         [Alias('Custom')]
@@ -684,15 +686,21 @@ function Invoke-WebRequestBasicAuth {
     }
     Process {
         if ($PSBoundParameters.ContainsKey('Password') -or $PSBoundParameters.ContainsKey('Token')) {
-            $Headers.Authorization = if ($Token.Length -gt 0) {
-                "Bearer $Token"
+            $HeaderData = if ($Gitlab) {
+                @{ 'PRIVATE-TOKEN' = $Token }
             } else {
-                $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
-                "Basic $Credential"
+                $Authorization = if ($Token.Length -gt 0) {
+                    "Bearer $Token"
+                } else {
+                    $Credential = [Convert]::ToBase64String([System.Text.Encoding]::Ascii.GetBytes("${Username}:${Password}"))
+                    "Basic $Credential"
+                }
+                @{ 'Authorization' = $Authorization }
             }
+            $Headers = $Headers, $HeaderData | Invoke-ObjectMerge
         }
-        switch ($TwoFactorAuthentication) {
-            'github' {
+        if ($TwoFactorAuthentication) {
+            if ($Github) {
                 if ($PSCmdlet.ShouldProcess('GitHub 2FA')) {
                     'GitHub 2FA' | Write-Title -Green
                     $Code = 'Code:' | Invoke-Input -Number -Indent 4
@@ -701,9 +709,6 @@ function Invoke-WebRequestBasicAuth {
                 } else {
                     '==> [DRYRUN] Would have set Accept and x-github-otp headers' | Write-Color -DarkGray
                 }
-            }
-            Default {
-                # Do nothing
             }
         }
         $Method = Find-FirstTrueVariable 'Get', 'Post', 'Put', 'Delete'
