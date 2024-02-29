@@ -154,6 +154,16 @@ Describe 'ConvertTo-PlainText' -Tag 'Local', 'Remote' {
         $Secure | ConvertTo-PlainText | Should -Be $Message
     }
 }
+Describe 'Export-EnvironmentFile' -Tag 'Local', 'Remote' {
+    It 'can parse an environment file and export the variables' {
+        $File = Join-Path $PSScriptRoot '\fixtures\.env'
+        Test-Path Variable:THE_ANSWER | Should -BeFalse
+        $File | Export-EnvironmentFile -Scope 'Global'
+        Test-Path Variable:THE_ANSWER | Should -BeTrue
+        $THE_ANSWER | Should -Be 42
+        Remove-Item Variable:THE_ANSWER
+    }
+}
 Describe -Skip:($IsLinux -is [Bool] -and $IsLinux) 'Find-Duplicate' -Tag 'Local', 'Remote' {
     AfterEach {
         if (Test-Path (Join-Path $TestDrive 'foo')) {

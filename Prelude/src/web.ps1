@@ -1,8 +1,10 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'Register-GitlabRunner')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Add-Metadata')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Browser')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('VariablePascalCase', '', Scope = 'Function', Target = 'Register-GitlabRunner')]
 Param()
 
 class Options {
@@ -764,6 +766,84 @@ function Invoke-WebRequestBasicAuth {
         }
     }
 }
+function New-GitlabRunner {
+    <#
+    .SYNOPSIS
+    Create a new GitLab runner using the GitLab API (as opposed to using the GitLab GUI).
+    .EXAMPLE
+    [PSCustomObject]@{
+        'Token'       = $Token
+        'Endpoint'    = 'https://gitlab.com'
+        'RunnerType'  = 'Group'
+        'Identifier'  = $GroupId
+        'Description' = 'My first runner'
+    } | New-GitlabRunner
+
+    .EXAMPLE
+    Get-Content '.\runners.json' |
+        ConvertFrom-Json |
+        Get-Property 'items' |
+        New-GitlabRunner -Token $PERSONAL_ACCESS_TOKEN
+    #>
+    [CmdletBinding(SupportsShouldProcess = $True)]
+    [OutputType([String])]
+    Param(
+        [ValidateSet('https://gitlab.com', 'https://code.ornl.gov')]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
+        [Alias('url')]
+        [String] $Endpoint,
+        [ValidateLength(20, 20)]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
+        [String] $Token,
+        [ValidateSet('Group', 'Project')]
+        [Parameter(Mandatory = $False)]
+        [Alias('type')]
+        [String] $RunnerType = 'Group',
+        [ValidateLength(5, 5)]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
+        [Alias('id')]
+        [String] $Identifier,
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $True)]
+        [String] $Description = 'Runner created with PowerShell'
+    )
+    Process {
+        $Uri = "${Endpoint}/api/v4/user/runners"
+        $RunnerData = switch ($RunnerType) {
+            'Group' {
+                @{
+                    'group_id' = $Identifier
+                    'runner_type' = 'group_type'
+                }
+            }
+            'Project' {
+                @{
+                    'project_id' = $Identifier
+                    'runner_type' = 'project_type'
+                }
+            }
+        }
+        $Query = $RunnerData, @{
+            'run_untagged' = $True
+            'description' = $Description
+        } | Invoke-ObjectMerge
+        $Parameters = @{
+            'Uri' = $Uri
+            'Query' = $Query
+            'Token' = $Token
+            'Post' = $True
+            'Gitlab' = $True
+            'ParseContent' = $True
+        }
+        '==> GitLab API request parameters:' | Write-Verbose
+        $Parameters | ConvertTo-Json | Write-Verbose
+        if ($PSCmdlet.ShouldProcess('Make request to GitLab API to create a runner')) {
+            $Response = Invoke-WebRequestBasicAuth @Parameters
+            '==> GitLab API response:' | Write-Verbose
+            $Response | ConvertTo-Json | Write-Verbose
+            $Response
+        }
+    }
+}
 function Out-Browser {
     <#
     .SYNOPSIS
@@ -862,6 +942,78 @@ function Out-Browser {
                     return $Document
                 }
             }
+        }
+    }
+}
+function Register-GitlabRunner {
+    <#
+    .SYNOPSIS
+    Register new GitLab docker executor runner within a gitlab/gitlab-runner Docker container.
+    .DESCRIPTION
+    Docker must be installed and running
+    .PARAMETER Token
+    GitLab runner registration token
+    https://docs.gitlab.com/runner/register/index.html
+    .EXAMPLE
+    Register-GitlabRunner -Token $Token -Identifier $RunnerId
+    .EXAMPLE
+    [PSCustomObject]@{
+        'Token'       = $Token
+        'RunnerType'  = 'Group'
+        'Identifier'  = $GroupId
+        'Endpoint'    = $Endpoint
+        'Description' = $Description
+    } | New-GitlabRunner | Register-GitlabRunner
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
+        [String] $Token,
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
+        [Alias('id')]
+        [String] $Identifier
+    )
+    Begin {
+        $Tasks = @('Create', 'Register')
+        $Image = 'gitlab/gitlab-runner:latest'
+        $Passthru = '/var/run/docker.sock:/var/run/docker.sock'
+        $LogLevel = if ($PSCmdlet.MyInvocation.BoundParameters.Verbose) { 'debug' } else { 'panic' }
+    }
+    Process {
+        $Parameters = @{
+            'Create' = @{
+                'detach' = $True
+                'name' = "runner_${Identifier}"
+                'restart' = 'always'
+                'volume' = '/srv/gitlab-runner/config:/etc/gitlab-runner'
+            } | ConvertTo-ParameterString
+            'Register' = @{
+                'non-interactive' = $True
+                'url' = 'https://code.ornl.gov'
+                'token' = $Token
+                'executor' = 'docker'
+                'docker-image' = 'docker'
+                'description' = "'GitLab Runner [${Identifier}]'"
+                'docker-volumes' = $Passthru
+            } | ConvertTo-ParameterString
+        }
+        $Command = @{
+            'Create' = "docker run $($Parameters.Create) --volume ${Passthru} ${Image}"
+            'Register' = "docker exec runner_${Identifier} gitlab-runner --log-level ${LogLevel} register $($Parameters.Register)"
+        }
+        $Execute = if (-not $Force) {
+            gum confirm 'Execute Docker commands?'; if ($?) { $True } else { $False }
+        } else {
+            $True
+        }
+        if ($Execute) {
+            $Tasks | ForEach-Object {
+                '==> Executing command:' | Write-Verbose
+                $Command[$_] | Write-Verbose
+                Invoke-Expression $Command[$_] | Out-Null
+            }
+        } else {
+            '==>[ERROR] User cancelled operation!' | Write-Color -Red
         }
     }
 }

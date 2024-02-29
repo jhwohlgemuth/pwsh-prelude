@@ -1,4 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertFrom-FolderStructure')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Export-EnvironmentFile')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Pack')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Tree')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Rename-FileExtension')]
@@ -152,6 +153,34 @@ function ConvertTo-PlainText {
             }
         }
         $PlainText
+    }
+}
+function Export-EnvironmentFile {
+    <#
+    .SYNOPSIS
+    Export environment variables from .env file(s).
+    .EXAMPLE
+    Export-EnvironmentFile -Scope 'Global'
+
+    .EXAMPLE
+    Export-EnvironmentFile -File '/path/to/.env'
+
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $False, Position = 0, ValueFromPipeline = $True)]
+        [String] $File = (Join-Path $PSScriptRoot '.env'),
+        [Parameter(Mandatory = $False, Position = 1)]
+        [String] $Scope = 'Private'
+    )
+    Process {
+        if (Test-Path $File) {
+            Get-Content $File | ForEach-Object {
+                $Name, $Value = $_.split('=')
+                "==> Exporting `$${Name} = ${Value}" | Write-Verbose
+                Set-Variable -Name $Name -Value $Value -Scope $Scope
+            }
+        }
     }
 }
 function Find-Duplicate {
