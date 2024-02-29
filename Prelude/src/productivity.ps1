@@ -170,6 +170,7 @@ function Export-EnvironmentFile {
     Param(
         [Parameter(Mandatory = $False, Position = 0, ValueFromPipeline = $True)]
         [String] $File = (Join-Path $PSScriptRoot '.env'),
+        [ValidateSet('Global', 'Local', 'Private', 'Script')]
         [Parameter(Mandatory = $False, Position = 1)]
         [String] $Scope = 'Private'
     )
