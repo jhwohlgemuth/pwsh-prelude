@@ -804,7 +804,9 @@ function New-GitlabRunner {
         [Alias('id')]
         [String] $Identifier,
         [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $True)]
-        [String] $Description = 'Runner created with PowerShell'
+        [String] $Description = 'Runner created with PowerShell',
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $True)]
+        [Switch] $Gpu = $False
     )
     Process {
         $Uri = "${Endpoint}/api/v4/user/runners"
@@ -822,8 +824,14 @@ function New-GitlabRunner {
                 }
             }
         }
-        $Query = $RunnerData, @{
-            'run_untagged' = $True
+        $TagData = if ($Gpu.IsPresent) {
+            @{ 'tag_list' = @('gpu') }
+        } else {
+            @{}
+        }
+        $TagData | ConvertTo-Json | Write-Verbose
+        $Query = $RunnerData, $TagData, @{
+            'run_untagged' = !$Gpu
             'description' = $Description
         } | Invoke-ObjectMerge
         $Parameters = @{
@@ -840,7 +848,9 @@ function New-GitlabRunner {
             $Response = Invoke-WebRequestBasicAuth @Parameters
             '==> GitLab API response:' | Write-Verbose
             $Response | ConvertTo-Json | Write-Verbose
-            $Response
+            $Output = $Response, @{ 'gpu' = $Gpu.IsPresent } | Invoke-ObjectMerge
+            $Output | ConvertTo-Json | Write-Verbose
+            $Output
         }
     }
 }
@@ -973,6 +983,8 @@ function Register-GitlabRunner {
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [Alias('id')]
         [String] $Identifier,
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $True)]
+        [Switch] $Gpu = $False,
         [Switch] $Force
     )
     Begin {
@@ -982,13 +994,14 @@ function Register-GitlabRunner {
         $LogLevel = if ($PSCmdlet.MyInvocation.BoundParameters.Verbose) { 'debug' } else { 'panic' }
     }
     Process {
+        $GpuOptions = if ($Gpu.IsPresent) { @{ 'gpus' = 'all' } } else { @{} }
         $Parameters = @{
-            'Create' = @{
+            'Create' = $GpuOptions, @{
                 'detach' = $True
                 'name' = "runner_${Identifier}"
                 'restart' = 'always'
                 'volume' = '/srv/gitlab-runner/config:/etc/gitlab-runner'
-            } | ConvertTo-ParameterString
+            } | Invoke-ObjectMerge | ConvertTo-ParameterString
             'Register' = @{
                 'non-interactive' = $True
                 'url' = 'https://code.ornl.gov'
