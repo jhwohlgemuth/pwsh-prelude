@@ -1019,25 +1019,20 @@ function Register-GitlabRunner {
             'Register' = "docker exec runner_${Identifier} gitlab-runner --log-level ${LogLevel} register $($Parameters.Register)"
         }
         $Execute = if (-not $Force -and (Test-Command 'gum')) {
-            gum confirm 'Execute Docker commands?'; if ($?) { $True } else { $False }
+            gum confirm "Create and register ${Name} container?"; if ($?) { $True } else { $False }
         } else {
             $True
         }
         if ($Execute) {
             $Tasks | ForEach-Object {
-                "==> Create and register ${Name} container?" | Write-Verbose
+                "==> [INFO] Executing Docker commands" | Write-Verbose
                 $Command[$_] | Write-Verbose
                 Invoke-Expression $Command[$_] | Out-Null
             }
         } else {
             '==>[ERROR] User cancelled operation!' | Write-Color -Red
-            $Parameters = @{
-                'Delete' = $True
-                'Gitlab' = $True
-                'Token' = $Token
-                'Uri' = "${Url}/api/v4/runners/${Identifier}"
-            }
-            Invoke-WebRequestBasicAuth @Parameters | Out-Null
+            '==> [INFO] You can remove the runner from your Gitlab instance with:' | Write-Color -Gray
+            "==>        basicauth -Delete -GitLab -Token `$Token -Uri ${Url}/api/v4/runners/${Identifier}" | Write-Color -Gray
         }
     }
 }
