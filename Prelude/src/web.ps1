@@ -827,11 +827,11 @@ function New-GitlabRunner {
         $TagData = if ($Gpu.IsPresent) {
             @{ 'tag_list' = @('gpu') }
         } else {
-            @{}
+            @{ 'tag_list' = @('cpu') }
         }
         $TagData | ConvertTo-Json | Write-Verbose
         $Query = $RunnerData, $TagData, @{
-            'run_untagged' = !$Gpu
+            'run_untagged' = $True
             'description' = $Description
         } | Invoke-ObjectMerge
         $Parameters = @{
