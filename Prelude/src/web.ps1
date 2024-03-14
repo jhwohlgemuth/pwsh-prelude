@@ -994,6 +994,7 @@ function Register-GitlabRunner {
         $LogLevel = if ($PSCmdlet.MyInvocation.BoundParameters.Verbose) { 'debug' } else { 'panic' }
     }
     Process {
+        $Url = 'https://code.ornl.gov'
         $GpuOptions = if ($Gpu.IsPresent) { @{ 'gpus' = 'all' } } else { @{} }
         $Parameters = @{
             'Create' = $GpuOptions, @{
@@ -1004,7 +1005,7 @@ function Register-GitlabRunner {
             } | Invoke-ObjectMerge | ConvertTo-ParameterString
             'Register' = @{
                 'non-interactive' = $True
-                'url' = 'https://code.ornl.gov'
+                'url' = $Url
                 'token' = $Token
                 'executor' = 'docker'
                 'docker-image' = 'docker'
@@ -1029,6 +1030,13 @@ function Register-GitlabRunner {
             }
         } else {
             '==>[ERROR] User cancelled operation!' | Write-Color -Red
+            $Parameters = @{
+                'Delete' = $True
+                'Gitlab' = $True
+                'Token' = $Token
+                'Uri' = "${Url}/api/v4/runners/${Identifier}"
+            }
+            Invoke-WebRequestBasicAuth @Parameters
         }
     }
 }
