@@ -995,11 +995,12 @@ function Register-GitlabRunner {
     }
     Process {
         $Url = 'https://code.ornl.gov'
+        $Name = "runner_${Identifier}"
         $GpuOptions = if ($Gpu.IsPresent) { @{ 'gpus' = 'all' } } else { @{} }
         $Parameters = @{
             'Create' = $GpuOptions, @{
                 'detach' = $True
-                'name' = "runner_${Identifier}"
+                'name' = $Name
                 'restart' = 'always'
                 'volume' = '/srv/gitlab-runner/config:/etc/gitlab-runner'
             } | Invoke-ObjectMerge | ConvertTo-ParameterString
@@ -1024,7 +1025,7 @@ function Register-GitlabRunner {
         }
         if ($Execute) {
             $Tasks | ForEach-Object {
-                '==> Executing command:' | Write-Verbose
+                "==> Create and register ${Name} container?" | Write-Verbose
                 $Command[$_] | Write-Verbose
                 Invoke-Expression $Command[$_] | Out-Null
             }
@@ -1036,7 +1037,7 @@ function Register-GitlabRunner {
                 'Token' = $Token
                 'Uri' = "${Url}/api/v4/runners/${Identifier}"
             }
-            Invoke-WebRequestBasicAuth @Parameters
+            Invoke-WebRequestBasicAuth @Parameters | Out-Null
         }
     }
 }
