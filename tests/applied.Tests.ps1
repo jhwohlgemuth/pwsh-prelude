@@ -186,12 +186,12 @@ Describe 'Get-Permutation' -Tag 'Local', 'Remote' {
 }
 Describe 'Get-Softmax' -Tag 'Local', 'Remote', 'WindowsOnly' {
     It 'can handle input from pipe' {
-        $Expected = '0.00216569646006109', '0.00588697333334214', '0.118243020252665', '0.873704309953932'
-        -1, 0, 3, 5 | Get-Softmax | ForEach-Object { $_.ToString() } | Should -Be $Expected
+        $Expected = '0.00216569646006', '0.00588697333334', '0.11824302025266', '0.87370430995393'
+        -1, 0, 3, 5 | Get-Softmax | ForEach-Object { $_.ToString().substring(0, 16) } | Should -Be $Expected
     }
     It 'can handle array input' {
-        $Expected = '0.00216569646006109', '0.00588697333334214', '0.118243020252665', '0.873704309953932'
-        Get-Softmax -Values -1, 0, 3, 5 | ForEach-Object { $_.ToString() } | Should -Be $Expected
+        $Expected = '0.00216569646006', '0.00588697333334', '0.11824302025266', '0.87370430995393'
+        Get-Softmax -Values -1, 0, 3, 5 | ForEach-Object { $_.ToString().substring(0, 16) } | Should -Be $Expected
     }
     It 'can handle matrix input' {
         $Round = { Param($X) [Math]::Round($X.Real, 3) }

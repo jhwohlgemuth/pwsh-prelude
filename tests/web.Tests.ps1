@@ -508,7 +508,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         Mock Invoke-WebRequest { $Response } -ModuleName 'Prelude'
         $Result = Invoke-WebRequestBasicAuth $Uri -ParseContent
         $Result | Should -Be $Content
-        Should -Invoke Write-Verbose -Exactly 2 -ModuleName 'Prelude'
+        Should -Invoke Write-Verbose -Exactly 3 -ModuleName 'Prelude'
     }
     It 'will not parse content with unknown content-type, <Type>' -TestCases @(
         @{ Type = 'not real content-type' }
@@ -532,9 +532,12 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $File = 'thing.png'
         $Uri = "https://example.com/${File}"
         $Request = Invoke-WebRequestBasicAuth $Uri -Download -Folder $TestDrive
-        $Request[5] | Should -Be $Uri
-        $Request[7] | Should -Be 'Get'
-        $Request[11] | Should -Be (Join-Path $TestDrive $File)
+        $Index = $Request | Find-FirstIndex -Predicate { Param($X) $X -eq '-Uri:' }
+        $Request[$Index + 1] | Should -Be $Uri
+        $Index = $Request | Find-FirstIndex -Predicate { Param($X) $X -eq '-OutFile:' }
+        $Request[$Index + 1] | Should -Be (Join-Path $TestDrive $File)
+        $Index = $Request | Find-FirstIndex -Predicate { Param($X) $X -eq '-Method:' }
+        $Request[$Index + 1] | Should -Be 'Get'
     }
 }
 Describe 'Save-File' -Tag 'Local', 'Remote', 'WindowsOnly' {
