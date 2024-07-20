@@ -1,6 +1,7 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeExpression', '', Scope = 'Function', Target = 'Register-GitlabRunner')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Scope = 'Function', Target = 'Add-Metadata')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Add-Metadata')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Browser')]
@@ -1025,7 +1026,7 @@ function Register-GitlabRunner {
         }
         if ($Execute) {
             $Tasks | ForEach-Object {
-                "==> [INFO] Executing Docker commands" | Write-Verbose
+                '==> [INFO] Executing Docker commands' | Write-Verbose
                 $Command[$_] | Write-Verbose
                 Invoke-Expression $Command[$_] | Out-Null
             }
@@ -1262,6 +1263,7 @@ function Use-Web {
     Whether or not to load WebBrowser type
     #>
     [CmdletBinding()]
+    [OutputType([Bool])]
     Param(
         [Switch] $Browser,
         [Switch] $PassThru
