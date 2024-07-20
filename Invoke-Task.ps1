@@ -545,7 +545,8 @@ function Invoke-Test {
         [String] $Filter,
         [String[]] $Skip,
         [String[]] $Tags,
-        [Switch] $WithCoverage
+        [Switch] $WithCoverage,
+        [String] $MinimumVersion = '5.6.1'
     )
     Set-BuildEnvironment -VariableNamePrefix 'Prelude' -Force
     $BuildSystem = if ($Env:PreludeBuildSystem -eq 'Unknown') { 'Local Computer' } else { $Env:PreludeBuildSystem }
@@ -560,7 +561,7 @@ function Invoke-Test {
         "`n`n" | Write-Output
     }
     if (-not ($Skip -contains 'powershell')) {
-        $PesterData = Import-Module -Name Pester -PassThru -RequiredVersion 5.3.1
+        $PesterData = Import-Module -Name Pester -PassThru -RequiredVersion $MinimumVersion
         $Parameters = @{
             Run = @{ PassThru = $True }
             Filter = @{ ExcludeTag = $Exclude }

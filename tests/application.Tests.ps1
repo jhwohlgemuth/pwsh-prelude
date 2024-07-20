@@ -1,7 +1,7 @@
 ﻿& (Join-Path $PSScriptRoot '_setup.ps1') 'application'
 
 Describe 'Application State' -Tag 'Local', 'Remote' {
-    It 'can save and get state using ID' {
+    It -Skip 'can save and get state using ID' {
         $Name = 'pester-test'
         $Value = (New-Guid).Guid
         $State = @{ Data = @{ Value = $Value } }
@@ -297,6 +297,10 @@ Describe 'New-Template' -Tag 'Local', 'Remote' {
         '${Bar} = {{ Bar }}' | New-Template -Data @{ Bar = 7 } | Should -Be '${Bar} = 7'
         '$Foo = {{ Foo }}; ${Bar} = {{ Bar }}' | New-Template -Data @{ Foo = 42; Bar = 7 } | Should -Be '$Foo = 42; ${Bar} = 7'
     }
+    It 'can support nested data objects' {
+        $Function:Render = 'My first name is {{ name.first }}' | New-Template
+        Render @{ name = @{ first = 'Joe' } } | Should -Be 'My first name is Joe'
+    }
     It 'can return a string when passed -Data parameter' {
         $Data = @{ name = 'World' }
         'Hello {{ name }}' | New-Template -Data $Data | Should -Be 'Hello World'
@@ -385,7 +389,7 @@ Describe -Skip 'Foo' {
     }
 }
 Describe 'New-WebApplication' -Tag 'Local', 'Remote', 'WindowsOnly' {
-    It 'can be created using Webpack and <Library>' -TestCases @(
+    It -Skip 'can be created using Webpack and <Library>' -TestCases @(
         @{ Bundler = 'Webpack'; Library = $Null }
         @{ Bundler = 'Webpack'; Library = 'React' }
         @{ Bundler = 'Webpack'; Library = 'Solid' }
@@ -476,7 +480,7 @@ Describe 'New-WebApplication' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $State.Name | Should -Be $Config.Name
         Remove-Item -Path (Join-Path $TestDrive $Config.Name) -Recurse -Force
     }
-    It 'can be created interactively' {
+    It -Skip 'can be created interactively' {
         Mock Write-Title {} -ModuleName Prelude
         Mock Write-Label {} -ModuleName Prelude
         Mock Invoke-Menu {

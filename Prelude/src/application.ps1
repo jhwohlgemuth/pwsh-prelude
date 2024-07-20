@@ -585,7 +585,7 @@ function New-Template {
                 }
                 Default {
                     $Script:TemplateKeyNamesNotPassed += $Variable
-                    "`${${Variable}}"
+                    "`$(`$${Variable})"
                 }
             }
         }
