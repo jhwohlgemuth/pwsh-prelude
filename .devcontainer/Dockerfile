@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/powershell:lts-ubuntu-18.04@sha256:b093384397cd45dbceb89bcaa65744ba0b3bdfce488bf89b339bb98f0563fd45
+FROM mcr.microsoft.com/powershell:lts-ubuntu-22.04@sha256:f7723cb8cebc1a23a8198e2deb631fd1fb5e36cda68601fda65e5f503ce63f31
 
 ENV DEBIAN_FRONTEND=noninteractive
 
