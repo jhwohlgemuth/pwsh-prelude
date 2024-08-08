@@ -1,0 +1,41 @@
+version: 2
+updates:
+  - package-ecosystem: docker
+    directory: /.devcontainer
+    schedule:
+      interval: daily
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /csharp/CommandLineInterface
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /csharp/Geodetic
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /csharp/Graph
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /csharp/Matrix
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /csharp/Performance
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /csharp/Tests
+    schedule:
+      interval: daily
