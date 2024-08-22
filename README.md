@@ -144,13 +144,6 @@ touch somefile.txt
 ```PowerShell
 take ~/path/to/some/folder
 ```
-- Save screenshots
-```PowerShell
-# ...all monitors
-screenshot
-#...or just one
-2 | screenshot
-```
 - Find duplicate files (based on hash of content)
 ```PowerShell
 Get-Location | Find-Duplicate
@@ -226,7 +219,6 @@ Functions
   - `Get-Permutation`
   - `Get-Plural`
   - `Get-Property`
-  - `Get-Screenshot`
   - `Get-Singular`
   - `Get-Softmax`
   - `Get-State`
