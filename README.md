@@ -24,7 +24,7 @@ Install-Module -Name Prelude -Scope CurrentUser
 Import-Module -Name Prelude
 ```
 
-> **Note**
+> [!NOTE]
 > For scripts, add `#Requires -Modules Prelude` to the top of your file - the "Requires" directive will prevent your script from running without the required module dependencies ([reference](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires?view=powershell-7.1))
 
 What's Prelude?
@@ -50,7 +50,7 @@ So what, big deal, who cares?
 
 This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[6](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[7](#7)</sup> without system/administrator/root privileges.
 
-> **Note**
+> [!NOTE]
 > For maximum effectiveness, it's recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/my-shell-setup).
 <!-- vale off -->
 Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly) works on Linux<sup>[3](#3)</sup> ;)
@@ -345,7 +345,7 @@ Type Accelerators
   $C | Format-ComplexValue -WithColor | Write-Label
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `System.Numerics.Complex`
 
 - `[Coordinate]`
@@ -364,7 +364,7 @@ Type Accelerators
   # Distance = 2097705.740066118 (meters)
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.Geodetic.Coordinate`
 
 - `[Datum]`
@@ -374,7 +374,7 @@ Type Accelerators
   # output 6371001
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.Geodetic.Datum`
 
 - `[Matrix]`
@@ -412,7 +412,7 @@ Type Accelerators
 
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.Matrix`
 
 - `[Node]`
@@ -423,7 +423,7 @@ Type Accelerators
   $C = [Node]'c'
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.Node`
 
 - `[Edge]`
@@ -440,7 +440,7 @@ Type Accelerators
   $BC = New-Edge $B $C
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.Edge`
 
 - `[DirectedEdge]`
@@ -455,7 +455,7 @@ Type Accelerators
   $BC = New-Edge -From $B -To $C -Directed
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.DirectedEdge`
 
 - `[Graph]`
@@ -481,7 +481,7 @@ Type Accelerators
 
   ```
 
-  > **Note**
+  > [!NOTE]
   > Full class name is `Prelude.Graph`
 
 Type Extensions
@@ -507,7 +507,7 @@ $Add = { Param($a,$b) $a + $b }
 
 ```
 
-> **Note**
+> [!NOTE]
 > For the full list of functions, read through the `ps1xml` files in the [types directory](./Prelude/types).
 
 Contributing
