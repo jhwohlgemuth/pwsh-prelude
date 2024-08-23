@@ -50,7 +50,7 @@ So what, big deal, who cares?
 
 This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[6](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[7](#7)</sup> without system/administrator/root privileges.
 
-> [!NOTE]
+> [!TIP]
 > For maximum effectiveness, it's recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/my-shell-setup).
 <!-- vale off -->
 Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly) works on Linux<sup>[3](#3)</sup> ;)
@@ -134,6 +134,7 @@ Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 
 Be More Productive
 ------------------
+> [!TIP]
 > `Prelude` includes a handful of functions and aliases that will make you more productive
 
 - Create a new file
@@ -168,6 +169,7 @@ ConvertFrom-FolderStructure | Out-Tree
 
 Functions
 ---------
+> [!TIP]
 > List all functions with `Get-Command -Module Prelude -CommandType Function`. Use `Get-Help <Function-Name>` to see usage details.
 
 <details>
@@ -320,6 +322,7 @@ Functions
 
 Aliases
 -------
+> [!TIP]
 > Use `Get-Alias <Name>` to see alias details. **Example**: `Get-Alias dra`
 
 ```PowerShell
@@ -486,6 +489,7 @@ Type Accelerators
 
 Type Extensions
 ---------------
+> [!TIP]
 > For details on how to extend types with `Types.ps1xml` files, see [About Types.ps1xml](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_types.ps1xml?view=powershell-7)
 
 Prelude uses type extensions to provide method versions of most core functions. This may be useful in some situations (or if you just don't feel like using pipelines…)
