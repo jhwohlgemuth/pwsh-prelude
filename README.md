@@ -51,7 +51,7 @@ So what, big deal, who cares?
 This module provides [data types](#type-accelerators) and patterns for scripting within a [ubiquitous terminal environment](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7). Prelude enables complex analysis, strives to make your scripts more sustainable, encourages you to put away the black boxes<sup>[6](#6)</sup>, and empowers you to take control of your productivity. It works almost everywhere and can be "installed"<sup>[7](#7)</sup> without system/administrator/root privileges.
 
 > **Note**
-> For maximum effectiveness, it's recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/env/tree/master/dev-with-windows-terminal).
+> For maximum effectiveness, it's recommended that you add `Import-Module -Name Prelude` to your Windows Terminal `$PROFILE`. [**I certainly do**](https://github.com/jhwohlgemuth/my-shell-setup).
 <!-- vale off -->
 Naturally, it has ***ZERO external dependencies***<sup>[2](#2)</sup> and (mostly) works on Linux<sup>[3](#3)</sup> ;)
 <!-- vale on -->
