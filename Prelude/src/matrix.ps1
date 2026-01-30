@@ -1,6 +1,6 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-ComplexValue')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Matrix')]
-param()
+Param()
 
 function Format-ComplexValue {
     <#
@@ -11,7 +11,7 @@ function Format-ComplexValue {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [System.Numerics.Complex] $Value,
         [Switch] $WithColor
@@ -47,14 +47,14 @@ function Invoke-MatrixMap {
     [CmdletBinding()]
     [Alias('matmap')]
     [OutputType([Matrix])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Matrix] $InputMatrix,
         [Parameter(Position = 0)]
         [ScriptBlock] $Expression = { },
         [Switch] $Strict
     )
-    process {
+    Process {
         $Parameters = ($Expression | Get-ParameterList).Name
         $Morphism = switch ($Parameters.Count) {
             1 { [System.Func[Complex, Complex]]$Expression }
@@ -87,7 +87,7 @@ function New-ComplexValue {
     [CmdletBinding(DefaultParameterSetName = 'normal')]
     [Alias('complex')]
     [OutputType([System.Numerics.Complex])]
-    param(
+    Param(
         [Parameter(ValueFromPipeline = $True)]
         [Array] $Parts,
         [Parameter(Position = 0)]
@@ -102,7 +102,7 @@ function New-ComplexValue {
         [ValidateCount(2, 2)]
         [Double[]] $Bounds = @(-10.0, 10.0)
     )
-    end {
+    End {
         $Re, $Im = if ($Input.Count -ge 2) {
             $Input[0, 1]
         } else {
@@ -179,7 +179,7 @@ function New-Matrix {
     [CmdletBinding(DefaultParameterSetName = 'normal')]
     [Alias('matrix')]
     [OutputType([Matrix])]
-    param(
+    Param(
         [Parameter(ValueFromPipeline = $True)]
         [Array] $Values,
         [Parameter(Position = 0)]
@@ -194,7 +194,7 @@ function New-Matrix {
         [ValidateCount(2, 2)]
         [Double[]] $Bounds = @(-10.0, 10.0)
     )
-    begin {
+    Begin {
         function Update-Matrix {
             Param(
                 [Matrix] $Matrix,
@@ -229,7 +229,7 @@ function New-Matrix {
             Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
         }
     }
-    end {
+    End {
         $Values = $Input
         if ($Values.Count -gt 0) {
             Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
@@ -273,7 +273,7 @@ function Test-Matrix {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         $Value,
         [Switch] $Diagonal,
