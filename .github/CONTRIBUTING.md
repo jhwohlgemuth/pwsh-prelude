@@ -33,7 +33,6 @@ The Prelude module entry point, [Prelude.psm1](../Prelude/Prelude.psm1), simply 
   - [`graph.ps1`](../src/graph.ps1): Helper functions for working with `[Node]`, `[Edge]`, and `[Graph]` data types.
   - [`matrix.ps1`](../src/matrix.ps1): Helper functions for using `[Matrix]` data type
   - [`productivity.ps1`](../src/productivity.ps1): A grab bag that contains functions like `Touch`, `Take`, and `Test-Empty`
-  - [`user-interface.ps1`](../src/user-interface.ps1): User interface components such as text inputs and multi-select menus (see [the kitchen sink](../kitchensink.ps1) for an example)
   - [`web.ps1`](../src/web.ps1): Functions for working with web technology
 - [`Prelude\formats\`](../Prelude/formats)
   - [`Format.ps1xml` files](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_format.ps1xml?view=powershell-7.1)
