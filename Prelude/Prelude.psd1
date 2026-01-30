@@ -4,11 +4,10 @@
     GUID = '5af3199a-e01b-4ed6-87ad-fdea39aa7e77'
     CompanyName = 'Wohlgemuth Technology Foundation'
     Author = 'Jason Wohlgemuth'
-    Copyright = '(c) 2023 Jason Wohlgemuth. All rights reserved.'
+    Copyright = '(c) 2026 Jason Wohlgemuth. All rights reserved.'
     Description = 'A "standard" library for PowerShell inspired by the preludes of other languages'
     PowerShellVersion = '5.0'
     FileList = @()
-    CmdletsToExport = @()
     VariablesToExport = @()
     FormatsToProcess = @(
         'formats/Complex.Format.ps1xml',
@@ -36,7 +35,6 @@
         'google'
         'impute'
         'ini'
-        'input'
         'insert'
         'invert'
         'irc'
@@ -47,7 +45,6 @@
         'max'
         'mean'
         'median'
-        'menu'
         'merge'
         'method'
         'min'
@@ -76,7 +73,6 @@
         'tap'
         'take'
         'takeWhile'
-        'title'
         'touch'
         'tpl'
         'toDegree'
@@ -101,7 +97,6 @@
         'ConvertFrom-QueryString'
         'ConvertTo-AbstractSyntaxTree'
         'ConvertTo-Base64'
-        'ConvertTo-ConsoleMarkup'
         'ConvertTo-Degree'
         'ConvertTo-OrderedDictionary'
         'ConvertTo-PowerShellSyntax'
@@ -122,7 +117,6 @@
         'Find-FirstIndex'
         'Find-FirstTrueVariable'
         'Format-ComplexValue'
-        'Format-FileSize'
         'Format-Json'
         'Format-MinimumWidth'
         'Format-MoneyValue'
@@ -163,12 +157,10 @@
         'Invoke-FireEvent'
         'Invoke-GoogleSearch'
         'Invoke-Imputation'
-        'Invoke-Input'
         'Invoke-InsertString'
         'Invoke-ListenTo'
         'Invoke-ListenForWord'
         'Invoke-MatrixMap'
-        'Invoke-Menu'
         'Invoke-Method'
         'Invoke-NewDirectoryAndEnter'
         'Invoke-Normalize'
@@ -218,7 +210,6 @@
         'Remove-Character'
         'Remove-DailyShutdownjob'
         'Remove-DirectoryForce'
-        'Remove-HandlebarsHelper'
         'Remove-Indent'
         'Rename-FileExtension'
         'Save-File'
@@ -244,11 +235,7 @@
         'Use-Grammar'
         'Use-Speech'
         'Use-Web'
-        'Write-BarChart'
-        'Write-Color'
-        'Write-Label'
         'Write-Status'
-        'Write-Title'
     )
     PrivateData = @{
         PSData = @{

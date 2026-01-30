@@ -38,7 +38,6 @@ The myriad use cases include:
 - Linear algebra, graph theory, and statistics
 - Data shaping, analysis, and visualization
 - Local and remote automation
-- Creating command line [user interfaces](./kitchensink.ps1)
 - PowerShell meta-programming
 - **See the [examples folder](./examples) for detailed examples**
 
@@ -110,26 +109,6 @@ $Callback = {
 $Callback | listenTo 'Boot' -Variable
 # Change the value of boot and have your computer tell you what changed
 $Boot = 43
-```
-- Create complex UI elements like paginated multi-select menus
-    <div align="center">
-      <a href="#"><img alt="Batteries include user input" src="http://www.jasonwohlgemuth.com/pwsh-prelude/images/multiselect.gif" alt="Multi-select Menu" width="1280"/></a>
-    </div>
-
-- Create a full form in the terminal (see the [./kitchensink.ps1](./kitchensink.ps1) for a more extensive example)
-```PowerShell
-'Example' | Write-Title
-$Fullname = input 'Full Name?' -Indent 4
-$Username = input 'Username?' -MaxLength 10 -Indent 4
-$Age = input 'Age?' -Number -Indent 4
-$Pass = input 'Password?' -Secret -Indent 4
-$Word = input 'Favorite Saiya-jin?' -Autocomplete -Indent 4 -Choices @('Goku','Gohan','Goten','Vegeta','Trunks')
-'Favorite number?' | Write-Label -Indent 4 -NewLine
-$Choice = menu @('one'; 'two'; 'three') -Indent 4
-```
-- Visualize file sizes in a directory with one line of code!
-```PowerShell
-Get-ChildItem -File | Invoke-Reduce -FileInfo | Write-BarChart
 ```
 
 Be More Productive
