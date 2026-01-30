@@ -3,7 +3,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Pack')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Tree')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Rename-FileExtension')]
-Param()
+param()
 
 function ConvertFrom-FolderStructure {
     <#
@@ -22,23 +22,23 @@ function ConvertFrom-FolderStructure {
     #>
     [CmdletBinding()]
     [OutputType([Object])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript({ (Test-Path $_) })]
         [String] $Path = (Get-Location).Path,
         [Switch] $IncludeHidden,
         [Switch] $RemoveExtensions
     )
-    Begin {
+    begin {
         function Test-Branch {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 $Value
             )
             $Value.GetType().Name -eq 'DirectoryInfo'
         }
         function Invoke-Iterate {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 [String] $Path
             )
@@ -59,7 +59,7 @@ function ConvertFrom-FolderStructure {
             $Output
         }
     }
-    Process {
+    process {
         Invoke-Iterate $Path
     }
 }
@@ -74,13 +74,13 @@ function ConvertTo-AbstractSyntaxTree {
     #>
     [CmdletBinding()]
     [OutputType([System.Management.Automation.Language.ScriptBlockAst])]
-    Param(
+    param(
         [Parameter(Position = 0)]
         [String] $File,
         [Parameter(ValueFromPipeline = $True)]
         [String] $String
     )
-    Process {
+    process {
         if ($File) {
             $Path = Get-StringPath $File
         }
@@ -105,11 +105,11 @@ function ConvertTo-ParameterString {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [PSObject] $InputObject
     )
-    Process {
+    process {
         $Result = New-Object 'System.Collections.ArrayList'
         foreach ($Item in $InputObject.GetEnumerator()) {
             $Name = $Item.Name
@@ -139,11 +139,11 @@ function ConvertTo-PlainText {
     [CmdletBinding()]
     [Alias('plain')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [SecureString] $Value
     )
-    Process {
+    process {
         try {
             $BinaryString = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Value);
             $PlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($BinaryString);
@@ -167,14 +167,14 @@ function Export-EnvironmentFile {
 
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $False, Position = 0, ValueFromPipeline = $True)]
         [String] $File = (Join-Path $PSScriptRoot '.env'),
         [ValidateSet('Global', 'Local', 'Private', 'Script')]
         [Parameter(Mandatory = $False, Position = 1)]
         [String] $Scope = 'Private'
     )
-    Process {
+    process {
         if (Test-Path $File) {
             Get-Content $File | ForEach-Object {
                 $Name, $Value = $_.split('=')
@@ -194,7 +194,7 @@ function Find-Duplicate {
     Get-Location | Find-Duplicate
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [String] $Path,
         [Switch] $AsJob
@@ -239,7 +239,7 @@ function Find-FirstTrueVariable {
     # 'Bar'
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0)]
         [Array] $VariableNames,
         [Int] $DefaultIndex = 0,
@@ -266,7 +266,7 @@ function Get-InitializationFileContent {
     [CmdletBinding()]
     [Alias('ini')]
     [OutputType([System.Collections.Hashtable])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Path
     )
@@ -303,7 +303,7 @@ function Get-ParameterList {
     #>
     [CmdletBinding()]
     [OutputType([System.Object])]
-    Param(
+    param(
         [Parameter(Position = 0)]
         [String] $Path,
         [Parameter(ValueFromPipeline = $True)]
@@ -316,7 +316,7 @@ function Get-ParameterList {
         Required = 'Extent'
     }
     $Reducer = {
-        Param($Name, $Value)
+        param($Name, $Value)
         switch ($Name) {
             'Name' {
                 $Value -replace '^\$', ''
@@ -362,11 +362,11 @@ function Get-StringPath {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Value
     )
-    Process {
+    process {
         $Type = $Value.GetType().Name
         switch ($Type) {
             'DirectoryInfo' {
@@ -404,7 +404,7 @@ function Invoke-GoogleSearch {
     [CmdletBinding()]
     [Alias('google')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String[]] $Keyword = @(),
         [ValidateSet('OR', 'AND')]
@@ -433,12 +433,12 @@ function Invoke-GoogleSearch {
         [Switch] $Encode,
         [Switch] $PassThru
     )
-    Begin {
+    begin {
         Add-Type -AssemblyName System.Web
         $Root = if ($Private) { 'https://duckduckgo.com/?q=' } else { 'https://google.com/search?q=' }
         $Terms = @()
     }
-    End {
+    end {
         if ($Input.Count -gt 1) {
             $Keyword = $Input
         }
@@ -507,7 +507,7 @@ function Invoke-Pack {
     [CmdletBinding()]
     [Alias('pack')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(ValueFromPipeline = $True)]
         [Array] $Items,
         [Parameter(Position = 0)]
@@ -516,16 +516,16 @@ function Invoke-Pack {
         [String] $Output = 'packed',
         [Switch] $Compress
     )
-    Begin {
+    begin {
         function Get-PathFragment {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [System.IO.FileInfo] $Item
             )
             ($Item | Get-StringPath).Replace($Root, '')
         }
         function ConvertTo-ItemList {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $Values
             )
@@ -542,7 +542,7 @@ function Invoke-Pack {
             }
         }
         function ConvertTo-ObjectList {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $Items
             )
@@ -564,7 +564,7 @@ function Invoke-Pack {
             }
         }
     }
-    End {
+    end {
         $Values = if ($Input.Count -gt 0) { $Input } else { $Items }
         $OutputPath = Join-Path (Get-Location).Path "$Output.xml"
         ConvertTo-ObjectList (ConvertTo-ItemList $Values) | Export-Clixml $OutputPath -Force
@@ -592,7 +592,7 @@ function Invoke-Speak {
     #>
     [CmdletBinding()]
     [Alias('say')]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Text = '',
         [String] $InputType = 'text',
@@ -600,11 +600,11 @@ function Invoke-Speak {
         [Switch] $Silent,
         [String] $Output = 'none'
     )
-    Begin {
+    begin {
         Use-Speech
         $TotalText = ''
     }
-    Process {
+    process {
         if ($IsLinux -is [Bool] -and $IsLinux) {
             Write-Verbose '==> Invoke-Speak is only supported on Windows platform'
         } else {
@@ -626,7 +626,7 @@ function Invoke-Speak {
             $TotalText += "$Text "
         }
     }
-    End {
+    end {
         if ($IsLinux -is [Bool] -and $IsLinux) {
             Write-Verbose '==> Invoke-Speak was not executed, no output was created'
         } else {
@@ -668,14 +668,14 @@ function Invoke-Unpack {
     #>
     [CmdletBinding()]
     [Alias('unpack')]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript({ (Test-Path $_) })]
         [String] $Path,
         [Parameter(ValueFromPipeline = $True)]
         [System.IO.FileInfo] $File
     )
-    Process {
+    process {
         $Value = if ($Path) { $Path } else { Get-Item $File }
         $Pack = Import-Clixml $Value
         $Base = Join-Path (Get-Location).Path (Get-Item $Value).BaseName
@@ -714,7 +714,7 @@ function Measure-Performance {
     [CmdletBinding()]
     [OutputType([PSObject])]
     [OutputType([Hashtable])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [ScriptBlock] $ScriptBlock,
         [Parameter(Position = 1)]
@@ -764,7 +764,7 @@ function New-File {
     [CmdletBinding(SupportsShouldProcess = $True)]
     [Alias('touch')]
     [OutputType([Bool])]
-    Param(
+    param(
         [Parameter(Mandatory = $True)]
         [String] $Name,
         [Switch] $PassThru
@@ -811,7 +811,7 @@ function Out-Tree {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Items,
         [String] $Prefix = '',
@@ -819,11 +819,11 @@ function Out-Tree {
         [Int] $Level = 1,
         [Int] $Limit = 3
     )
-    Begin {
+    begin {
         $Pipe = '│'
         $Initial = ''
         function Get-LineContent {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [String] $Value,
                 [Switch] $IsTerminal,
@@ -840,7 +840,7 @@ function Out-Tree {
             }
         }
         function Out-TreeStructure {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 $Items
             )
@@ -864,7 +864,7 @@ function Out-Tree {
         }
         Out-TreeStructure $Items
     }
-    End {
+    end {
         Out-TreeStructure $Input
     }
 }
@@ -877,12 +877,12 @@ function Remove-DirectoryForce {
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [Alias('rf')]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
         [String] $Path
     )
-    Process {
+    process {
         $AbsolutePath = Get-StringPath $Path
         if ($PSCmdlet.ShouldProcess($AbsolutePath)) {
             "==> Deleting $AbsolutePath" | Write-Verbose
@@ -904,7 +904,7 @@ function Rename-FileExtension {
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Path,
         [String] $To,
@@ -915,7 +915,7 @@ function Rename-FileExtension {
         [Switch] $MD,
         [Switch] $PassThru
     )
-    Process {
+    process {
         $NewExtension = if ($To.Length -gt 0) {
             $To
         } else {
@@ -942,7 +942,7 @@ function Test-Admin {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    Param()
+    param()
     if ($IsLinux -is [Bool] -and $IsLinux) {
         (whoami) -eq 'root'
     } else {
@@ -960,7 +960,7 @@ function Test-Command {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0)]
         [String] $Name,
         [Switch] $Silent
@@ -994,7 +994,7 @@ function Test-Empty {
     [CmdletBinding()]
     [ValidateNotNullorEmpty()]
     [OutputType([Bool])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [String] $Name
     )
@@ -1009,7 +1009,7 @@ function Test-Installed {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Name
     )
@@ -1026,7 +1026,7 @@ function Use-Speech {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    Param(
+    param(
         [Switch] $PassThru
     )
     $Result = $False
