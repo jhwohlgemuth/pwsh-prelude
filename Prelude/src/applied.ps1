@@ -5,7 +5,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Get-Sum')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Imputation')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = 'Find-LargestMoveable')]
-param()
+Param()
 
 function ConvertTo-Degree {
     <#
@@ -15,11 +15,11 @@ function ConvertTo-Degree {
     [CmdletBinding()]
     [Alias('toDegree')]
     [OutputType([Double])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Double] $Radians
     )
-    process {
+    Process {
         ($Radians * (180 / [Math]::Pi)) % 360
     }
 }
@@ -31,11 +31,11 @@ function ConvertTo-Radian {
     [CmdletBinding()]
     [Alias('toRadian')]
     [OutputType([Double])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Double] $Degrees
     )
-    process {
+    Process {
         ($Degrees % 360) * ([Math]::Pi / 180)
     }
 }
@@ -57,12 +57,12 @@ function Get-Covariance {
     #>
     [CmdletBinding()]
     [Alias('covariance')]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $Data,
         [Switch] $Sample
     )
-    end {
+    End {
         $Values = if ($Input.Count -eq 2) { $Input } else { $Data }
         $X, $Y = $Values
         $MeanX = Get-Mean $X
@@ -89,7 +89,7 @@ function Get-Extremum {
     # 1
     #>
     [CmdletBinding()]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Alias('Max')]
@@ -97,7 +97,7 @@ function Get-Extremum {
         [Alias('Min')]
         [Switch] $Minimum
     )
-    begin {
+    Begin {
         function Invoke-GetExtremum {
             Param(
                 [Parameter(Position = 0)]
@@ -124,7 +124,7 @@ function Get-Extremum {
         }
         Invoke-GetExtremum $InputObject
     }
-    end {
+    End {
         Invoke-GetExtremum $Input
     }
 }
@@ -141,11 +141,11 @@ function Get-Factorial {
     #>
     [CmdletBinding()]
     [OutputType([Int])]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Int] $Value
     )
-    process {
+    Process {
         if ($Value -eq 0) {
             1
         } else {
@@ -176,7 +176,7 @@ function Get-LogisticSigmoid {
     [CmdletBinding()]
     [Alias('sigmoid')]
     [OutputType([Double])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Alias('x')]
         [Double] $Value,
@@ -188,7 +188,7 @@ function Get-LogisticSigmoid {
         [Double] $MaximumValue = 1,
         [Switch] $Derivative
     )
-    process {
+    Process {
         $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, (-1 * $GrowthRate) * ($X - $Midpoint))) }
         $Result = & $Sigmoid $Value
         if ($Derivative) {
@@ -205,16 +205,16 @@ function Get-Maximum {
     #>
     [CmdletBinding()]
     [Alias('max')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Values
     )
-    begin {
+    Begin {
         if ($Values.Count -gt 0) {
             $Values | Get-Extremum -Maximum
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Input | Get-Extremum -Maximum
         }
@@ -239,7 +239,7 @@ function Get-Mean {
     [CmdletBinding()]
     [Alias('mean')]
     [OutputType([System.Double])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Data,
         [Switch] $Arithmetic,
@@ -251,7 +251,7 @@ function Get-Mean {
         [Double] $Trim = 0,
         [Array] $Weight
     )
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Data = $Input
         }
@@ -297,11 +297,11 @@ function Get-Median {
     #>
     [CmdletBinding()]
     [Alias('median')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Data
     )
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Data = $Input
         }
@@ -324,16 +324,16 @@ function Get-Minimum {
     #>
     [CmdletBinding()]
     [Alias('min')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Values
     )
-    begin {
+    Begin {
         if ($Values.Count -gt 0) {
             $Values | Get-Extremum -Minimum
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Input | Get-Extremum -Minimum
         }
@@ -376,7 +376,7 @@ function Get-Permutation {
     #>
     [CmdletBinding()]
     [Alias('permute')]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Position = 1)]
@@ -385,7 +385,7 @@ function Get-Permutation {
         [Switch] $Unique,
         [Switch] $Words
     )
-    begin {
+    Begin {
         function Invoke-Swap {
             <#
             .SYNOPSIS
@@ -551,7 +551,7 @@ function Get-Permutation {
         }
         & $GetResults $InputObject
     }
-    end {
+    End {
         & $GetResults $Input
     }
 }
@@ -568,11 +568,11 @@ function Get-Softmax {
     [Alias('softmax')]
     [OutputType([Int[]])]
     [OutputType([Matrix])]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $Values
     )
-    begin {
+    Begin {
         function Get-Softmax_ {
             Param($Values)
             $Numerators = $Values | ForEach-Object { [Math]::Exp($_) }
@@ -590,7 +590,7 @@ function Get-Softmax {
             }
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             if ($Input[0].GetType().Name -eq 'Matrix') {
                 $Size = $Input.Size
@@ -616,13 +616,13 @@ function Get-Sum {
     [Alias('sum')]
     [OutputType([System.Numerics.Complex])]
     [OutputType([Int])]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $Values,
         [Parameter(Position = 1)]
         [Array] $Weight
     )
-    begin {
+    Begin {
         function Get-Sum_ {
             Param($Values)
             if ($Values.Count -gt 0) {
@@ -652,7 +652,7 @@ function Get-Sum {
         }
         Get-Sum_ $Values
     }
-    end {
+    End {
         Get-Sum_ $Input
     }
 }
@@ -671,12 +671,12 @@ function Get-Variance {
     #>
     [CmdletBinding()]
     [Alias('variance')]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [Array] $Data,
         [Switch] $Sample
     )
-    end {
+    End {
         $Values = if ($Input.Count -gt 0) { $Input } else { $Data }
         if ($Sample -and $Values.Count -gt 1) {
             $Mean = Get-Mean $Values
@@ -707,7 +707,7 @@ function Invoke-Imputation {
     #>
     [CmdletBinding()]
     [Alias('impute')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [AllowNull()]
         [Array] $Values,
@@ -716,7 +716,7 @@ function Invoke-Imputation {
         $With = 0,
         [Int] $Limit
     )
-    begin {
+    Begin {
         function Invoke-Impute {
             Param(
                 [Parameter(Position = 0)]
@@ -740,7 +740,7 @@ function Invoke-Imputation {
         }
         Invoke-Impute $Values
     }
-    end {
+    End {
         Invoke-Impute $Input
     }
 }

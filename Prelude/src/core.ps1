@@ -13,7 +13,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Join-StringsWithGrammar')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-PropertyExpression')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-RegexString')]
-param()
+Param()
 
 function ConvertFrom-Pair {
     <#
@@ -25,11 +25,11 @@ function ConvertFrom-Pair {
     #>
     [CmdletBinding()]
     [Alias('fromPair')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject
     )
-    begin {
+    Begin {
         function Invoke-FromPair {
             Param(
                 [Parameter(Position = 0)]
@@ -46,7 +46,7 @@ function ConvertFrom-Pair {
         }
         Invoke-FromPair $InputObject
     }
-    end {
+    End {
         Invoke-FromPair $Input
     }
 }
@@ -60,7 +60,7 @@ function ConvertTo-OrderedDictionary {
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Specialized.OrderedDictionary])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $InputObject,
         [Parameter(Mandatory = $False, Position = 1)]
@@ -102,11 +102,11 @@ function ConvertTo-Pair {
     [CmdletBinding()]
     [Alias('toPair')]
     [OutputType([Array])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [PSObject] $InputObject
     )
-    process {
+    Process {
         switch ($InputObject.GetType().Name) {
             'PSCustomObject' {
                 $Properties = $InputObject.PSObject.Properties
@@ -132,19 +132,19 @@ function Deny-Empty {
     # 'a', 'b', 'd'
     #>
     [CmdletBinding()]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [AllowNull()]
         [AllowEmptyString()]
         [Array] $InputObject
     )
-    begin {
+    Begin {
         $IsNotEmptyString = { -not ($_ -is [String]) -or ($_.Length -gt 0) }
         if ($InputObject.Count -gt 0) {
             $InputObject | Where-Object $IsNotEmptyString
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Input | Where-Object $IsNotEmptyString
         }
@@ -159,19 +159,19 @@ function Deny-Null {
     # 1, 2, 4
     #>
     [CmdletBinding()]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [AllowNull()]
         [AllowEmptyString()]
         [Array] $InputObject
     )
-    begin {
+    Begin {
         $IsNotNull = { $Null -ne $_ }
         if ($InputObject.Count -gt 0) {
             $InputObject | Where-Object $IsNotNull
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Input | Where-Object $IsNotNull
         }
@@ -186,19 +186,19 @@ function Deny-Value {
     # 'a', 'a', 'a'
     #>
     [CmdletBinding()]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True, Position = 1)]
         [Array] $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         $Value
     )
-    begin {
+    Begin {
         $IsNotValue = { $_ -ne $Value }
         if ($InputObject.Count -gt 0) {
             $InputObject | Where-Object $IsNotValue
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Input | Where-Object $IsNotValue
         }
@@ -226,13 +226,13 @@ function Find-FirstIndex {
     #>
     [CmdletBinding()]
     [OutputType([Int])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Values,
         [ScriptBlock] $Predicate = { $_ -eq $True },
         [Int] $DefaultIndex = -1
     )
-    begin {
+    Begin {
         function Find-FirstIndex_ {
             Param(
                 [Parameter(Position = 0)]
@@ -265,7 +265,7 @@ function Find-FirstIndex {
         }
         Find-FirstIndex_ $Values
     }
-    end {
+    End {
         Find-FirstIndex_ $Input
     }
 }
@@ -286,14 +286,14 @@ function Get-Property {
     #>
     [CmdletBinding()]
     [Alias('prop')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         $InputObject,
         [Parameter(Position = 0)]
         [ValidatePattern('^-?[\w\.]+$')]
         [String] $Name
     )
-    begin {
+    Begin {
         function Test-NumberLike {
             Param(
                 [String] $Value
@@ -315,7 +315,7 @@ function Get-Property {
             }
         }
     }
-    process {
+    Process {
         if ($Name -match '\.') {
             $Result = $InputObject
             $Properties = $Name -split '\.'
@@ -338,14 +338,14 @@ function Invoke-Chunk {
     #>
     [CmdletBinding()]
     [Alias('chunk')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Position = 1)]
         [Alias('s')]
         [Int] $Size = 0
     )
-    begin {
+    Begin {
         function Invoke-Chunk_ {
             Param(
                 [Parameter(Position = 0)]
@@ -370,7 +370,7 @@ function Invoke-Chunk {
         }
         Invoke-Chunk_ $InputObject $Size
     }
-    end {
+    End {
         Invoke-Chunk_ $Input $Size
     }
 }
@@ -389,13 +389,13 @@ function Invoke-DropWhile {
     #>
     [CmdletBinding()]
     [Alias('dropwhile')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Predicate
     )
-    begin {
+    Begin {
         function Invoke-DropWhile_ {
             Param(
                 [Parameter(Position = 1)]
@@ -436,7 +436,7 @@ function Invoke-DropWhile {
             Invoke-DropWhile_ $Predicate $InputObject
         }
     }
-    end {
+    End {
         if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
             $Result = Invoke-DropWhile_ $Predicate $Input.ToCharArray()
             $Result -join ''
@@ -455,11 +455,11 @@ function Invoke-Flatten {
     #>
     [CmdletBinding()]
     [Alias('flatten')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Values
     )
-    begin {
+    Begin {
         function Invoke-Flat {
             Param(
                 [Parameter(Position = 0)]
@@ -476,7 +476,7 @@ function Invoke-Flatten {
         }
         Invoke-Flat $Values
     }
-    end {
+    End {
         Invoke-Flat $Input
     }
 }
@@ -493,7 +493,7 @@ function Invoke-InsertString {
     [CmdletBinding()]
     [Alias('insert')]
     [OutputType([String])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [String] $To,
         [Parameter(Mandatory = $True, Position = 0)]
@@ -501,7 +501,7 @@ function Invoke-InsertString {
         [Parameter(Mandatory = $True)]
         [Int] $At
     )
-    process {
+    Process {
         if ($At -le $To.Length -and $At -ge 0) {
             $To.Substring(0, $At) + $Value + $To.Substring($At, $To.length - $At)
         } else {
@@ -526,7 +526,7 @@ function Invoke-Method {
     #>
     [CmdletBinding()]
     [Alias('method')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
@@ -537,7 +537,7 @@ function Invoke-Method {
         [Parameter(Position = 2)]
         $ArgumentTwo
     )
-    process {
+    Process {
         $Methods = $InputObject | Get-Member -MemberType Method | Select-Object -ExpandProperty Name
         $ScriptMethods = $InputObject | Get-Member -MemberType ScriptMethod | Select-Object -ExpandProperty Name
         $ParameterizedProperties = $InputObject | Get-Member -MemberType ParameterizedProperty | Select-Object -ExpandProperty Name
@@ -572,11 +572,11 @@ function Invoke-ObjectInvert {
     [CmdletBinding()]
     [Alias('invert')]
     [OutputType([System.Collections.Hashtable])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [PSObject] $InputObject
     )
-    process {
+    Process {
         $Data = $InputObject
         $Keys, $Values = $Data | ConvertTo-Pair
         $GroupedData = @($Keys, $Values) | Invoke-Zip | Group-Object { $_[1] }
@@ -623,13 +623,13 @@ function Invoke-ObjectMerge {
     [CmdletBinding()]
     [Alias('merge')]
     [OutputType([System.Collections.Hashtable])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Switch] $InPlace,
         [Switch] $Force
     )
-    begin {
+    Begin {
         function Set-ObjectKeyValue {
             Param(
                 [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
@@ -716,7 +716,7 @@ function Invoke-ObjectMerge {
         }
         Invoke-Merge $InputObject
     }
-    end {
+    End {
         Invoke-Merge $Input
     }
 }
@@ -739,7 +739,7 @@ function Invoke-Once {
     # Functions returned by Invoke-Once can accept arguments
     #>
     [CmdletBinding()]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Function,
         [Int] $Times = 1
@@ -763,13 +763,13 @@ function Invoke-Omit {
     [Alias('omit')]
     [OutputType([Hashtable])]
     [OutputType([PSCustomObject])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [PSObject] $From,
         [Parameter(Position = 0)]
         [Array] $Name
     )
-    process {
+    Process {
         $Type = $From.GetType().Name
         $Name = $Name | ForEach-Object { $_ }
         switch ($Type) {
@@ -806,7 +806,7 @@ function Invoke-Operator {
     #>
     [CmdletBinding()]
     [Alias('op')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
@@ -816,7 +816,7 @@ function Invoke-Operator {
         [Parameter(Mandatory = $True, Position = 1)]
         [Array] $Arguments
     )
-    process {
+    Process {
         try {
             if ($Arguments.Count -eq 1) {
                 $Operand = if ([String]::IsNullOrEmpty($Arguments)) { "''" } else { "`"``$Arguments`"" }
@@ -851,13 +851,13 @@ function Invoke-Partition {
     #>
     [CmdletBinding()]
     [Alias('partition')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Predicate
     )
-    begin {
+    Begin {
         function Invoke-Partition_ {
             Param(
                 [Parameter(Position = 0)]
@@ -890,7 +890,7 @@ function Invoke-Partition {
         }
         Invoke-Partition_ $InputObject $Predicate
     }
-    end {
+    End {
         Invoke-Partition_ $Input $Predicate
     }
 }
@@ -910,7 +910,7 @@ function Invoke-Pick {
     [Alias('pick')]
     [OutputType([Hashtable])]
     [OutputType([PSCustomObject])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [PSObject] $From,
         [Parameter(Position = 0)]
@@ -920,7 +920,7 @@ function Invoke-Pick {
         [AllowEmptyString()]
         $EmptyValue = $Null
     )
-    process {
+    Process {
         $Type = $From.GetType().Name
         switch ($Type) {
             'PSCustomObject' {
@@ -1035,9 +1035,9 @@ function Invoke-PropertyTransform {
         [Parameter(Mandatory = $True, Position = 0)]
         [PSObject] $Lookup,
         [Parameter(Position = 1)]
-        [ScriptBlock] $Transform = { Param($Value) $Value }
+        [ScriptBlock] $Transform = { param($Value) $Value }
     )
-    begin {
+    Begin {
         function New-PropertyExpression {
             Param(
                 [Parameter(Mandatory = $True)]
@@ -1058,7 +1058,7 @@ function Invoke-PropertyTransform {
             }
         }
     }
-    process {
+    Process {
         $InputObject | Select-Object -Property $Property
     }
 }
@@ -1101,7 +1101,7 @@ function Invoke-Reduce {
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Array] $Items,
         [Parameter(Position = 0)]
-        [ScriptBlock] $Callback = { Param($A) $A },
+        [ScriptBlock] $Callback = { param($A) $A },
         [Parameter(Position = 1)]
         $InitialValue,
         [Switch] $Identity,
@@ -1111,7 +1111,7 @@ function Invoke-Reduce {
         [Switch] $Some,
         [Switch] $FileInfo
     )
-    begin {
+    Begin {
         function Invoke-Reduce_ {
             Param(
                 [Parameter(Position = 0)]
@@ -1166,7 +1166,7 @@ function Invoke-Reduce {
         }
         Invoke-Reduce_ -Items $Items -Callback $Callback -InitialValue $InitialValue
     }
-    end {
+    End {
         Invoke-Reduce_ -Items $Input -Callback $Callback -InitialValue $InitialValue
     }
 }
@@ -1183,7 +1183,7 @@ function Invoke-Repeat {
     #>
     [CmdletBinding()]
     [Alias('repeat')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [AllowEmptyString()]
         $Value,
@@ -1191,7 +1191,7 @@ function Invoke-Repeat {
         [Alias('x')]
         [Int] $Times = 1
     )
-    process {
+    Process {
         [System.Linq.Enumerable]::Repeat($Value, $Times)
     }
 }
@@ -1211,12 +1211,12 @@ function Invoke-Reverse {
     #>
     [CmdletBinding()]
     [Alias('reverse')]
-    param(
+    Param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [AllowEmptyString()]
         [Array] $InputObject
     )
-    begin {
+    Begin {
         function Invoke-Reverse_ {
             Param(
                 [Parameter(Position = 0)]
@@ -1238,7 +1238,7 @@ function Invoke-Reverse {
             Invoke-Reverse_ $InputObject
         }
     }
-    end {
+    End {
         if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
             $Result = Invoke-Reverse_ $Input.ToCharArray()
             $Result -join ''
@@ -1260,13 +1260,13 @@ function Invoke-TakeWhile {
     #>
     [CmdletBinding()]
     [Alias('takeWhile')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Predicate
     )
-    begin {
+    Begin {
         function Invoke-TakeWhile_ {
             Param(
                 [Parameter(Position = 0)]
@@ -1300,7 +1300,7 @@ function Invoke-TakeWhile {
             Invoke-TakeWhile_ $InputObject $Predicate
         }
     }
-    end {
+    End {
         if ($Input.Count -eq 1 -and $Input[0].GetType().Name -eq 'String') {
             $Result = Invoke-TakeWhile_ $Input.ToCharArray() $Predicate
             $Result -join ''
@@ -1332,13 +1332,13 @@ function Invoke-Tap {
     #>
     [CmdletBinding()]
     [Alias('tap')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         $InputObject,
         [Parameter(Position = 0)]
         [ScriptBlock] $Callback
     )
-    process {
+    Process {
         if ($Callback -and $Callback -is [ScriptBlock]) {
             $CallbackResult = & $Callback $InputObject
             if ($Null -ne $CallbackResult) {
@@ -1364,11 +1364,11 @@ function Invoke-Unzip {
     [CmdletBinding()]
     [Alias('unzip')]
     [OutputType([Array])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject
     )
-    begin {
+    Begin {
         function Invoke-Unzip_ {
             Param(
                 [Array] $InputObject
@@ -1385,7 +1385,7 @@ function Invoke-Unzip {
         }
         Invoke-Unzip_ $InputObject
     }
-    end {
+    End {
         Invoke-Unzip_ $Input
     }
 }
@@ -1409,12 +1409,12 @@ function Invoke-Zip {
     #>
     [CmdletBinding()]
     [Alias('zip')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [String] $EmptyValue = 'empty'
     )
-    begin {
+    Begin {
         function Invoke-Zip_ {
             Param(
                 [Parameter(Position = 0)]
@@ -1444,7 +1444,7 @@ function Invoke-Zip {
         }
         Invoke-Zip_ $InputObject
     }
-    end {
+    End {
         Invoke-Zip_ $Input
     }
 }
@@ -1458,21 +1458,21 @@ function Invoke-ZipWith {
     #>
     [CmdletBinding()]
     [Alias('zipWith')]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
         [Array] $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Iteratee,
         [String] $EmptyValue = ''
     )
-    begin {
+    Begin {
         if ($InputObject.Count -gt 0) {
             Invoke-Zip $InputObject -EmptyValue $EmptyValue | ForEach-Object {
                 $_[1..$_.Count] | Invoke-Reduce -Callback $Iteratee -InitialValue $_[0]
             }
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Input | Invoke-Zip -EmptyValue $EmptyValue | ForEach-Object {
                 $_[1..$_.Count] | Invoke-Reduce -Callback $Iteratee -InitialValue $_[0]
@@ -1490,13 +1490,13 @@ function Join-StringsWithGrammar {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String[]] $Items,
         [String] $Delimiter = ','
     )
 
-    begin {
+    Begin {
         function Join-StringArray {
             Param(
                 [Parameter(Mandatory = $True, Position = 0)]
@@ -1525,7 +1525,7 @@ function Join-StringsWithGrammar {
         }
         Join-StringArray $Items
     }
-    end {
+    End {
         Join-StringArray $Input
     }
 }
@@ -1545,7 +1545,7 @@ function New-RegexString {
     [CmdletBinding()]
     [Alias('re')]
     [OutputType([String])]
-    param(
+    Param(
         [Parameter(ValueFromPipeline = $True)]
         [String[]] $Value,
         [Switch] $Date,
@@ -1559,7 +1559,7 @@ function New-RegexString {
         [Switch] $And,
         [Switch] $Only
     )
-    begin {
+    Begin {
         $Month = @(
             'January'
             'February'
@@ -1745,7 +1745,7 @@ function New-RegexString {
             $Re
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             Get-RegexString -Value $Input
         } elseif ($Value.Count -eq 0) {
@@ -1772,14 +1772,14 @@ function Remove-Character {
     [CmdletBinding()]
     [Alias('remove')]
     [OutputType([String])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [String] $Value,
         [Int] $At,
         [Switch] $First,
         [Switch] $Last
     )
-    process {
+    Process {
         $At = if ($First) { 0 } elseif ($Last) { $Value.Length - 1 } else { $At }
         if ($At -lt $Value.Length -and $At -ge 0) {
             $Value.Substring(0, $At) + $Value.Substring($At + 1, $Value.length - $At - 1)
@@ -1795,11 +1795,11 @@ function Test-Enumerable {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Value
     )
-    begin {
+    Begin {
         function Test-Enumerable_ {
             Param(
                 [Parameter(Position = 0)]
@@ -1831,7 +1831,7 @@ function Test-Enumerable {
             Test-Enumerable_ -Value $Value
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             Test-Enumerable_ -Value (Invoke-Flatten $Input)
         }
@@ -1867,7 +1867,7 @@ function Test-Equal {
     [CmdletBinding()]
     [Alias('equal')]
     [OutputType([Bool])]
-    param(
+    Param(
         [Parameter(Position = 0)]
         $Left,
         [Parameter(Position = 1)]
@@ -1875,7 +1875,7 @@ function Test-Equal {
         [Parameter(ValueFromPipeline = $True)]
         [Array] $InputObject
     )
-    begin {
+    Begin {
         function Test-Equal_ {
             Param(
                 $Left,
@@ -1960,7 +1960,7 @@ function Test-Equal {
             Test-Equal_ $Left $Right
         }
     }
-    end {
+    End {
         if ($Input.Count -gt 0) {
             $Parameters = @{
                 FromPipeline = $Input
@@ -1982,7 +1982,7 @@ function Test-Match {
     [CmdletBinding()]
     [OutputType([Bool])]
     [OutputType([System.Collections.Hashtable])]
-    param(
+    Param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [ValidateNotNull()]
         [String] $Value,
@@ -1997,7 +1997,7 @@ function Test-Match {
         [Switch] $Only,
         [Switch] $AsBoolean
     )
-    process {
+    Process {
         $Parameters = @{
             Value = $Value
             Date = $Date
