@@ -31,13 +31,13 @@ function ConvertFrom-Pair {
     )
     begin {
         function Invoke-FromPair {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject
             )
             if ($InputObject.Count -gt 0) {
                 $Callback = {
-                    param($Acc, $Item)
+                    Param($Acc, $Item)
                     $Key, $Value = $Item
                     $Acc.$Key = $Value
                 }
@@ -234,7 +234,7 @@ function Find-FirstIndex {
     )
     begin {
         function Find-FirstIndex_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $Values
             )
@@ -295,14 +295,14 @@ function Get-Property {
     )
     begin {
         function Test-NumberLike {
-            param(
+            Param(
                 [String] $Value
             )
             $AsNumber = $Value -as [Int]
             $AsNumber -or ($AsNumber -eq 0)
         }
         function Get-PropertyMaybe {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 $InputObject,
                 [Parameter(Position = 1)]
@@ -347,7 +347,7 @@ function Invoke-Chunk {
     )
     begin {
         function Invoke-Chunk_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject,
                 [Parameter(Position = 1)]
@@ -397,7 +397,7 @@ function Invoke-DropWhile {
     )
     begin {
         function Invoke-DropWhile_ {
-            param(
+            Param(
                 [Parameter(Position = 1)]
                 [Array] $InputObject,
                 [Parameter(Position = 0)]
@@ -461,7 +461,7 @@ function Invoke-Flatten {
     )
     begin {
         function Invoke-Flat {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $Values
             )
@@ -582,7 +582,7 @@ function Invoke-ObjectInvert {
         $GroupedData = @($Keys, $Values) | Invoke-Zip | Group-Object { $_[1] }
         if ($Keys.Count -gt 1) {
             $Callback = {
-                param($Acc, [String]$Key)
+                Param($Acc, [String]$Key)
                 $Acc.$Key = $GroupedData |
                     Where-Object { $_.Name -eq $Key } |
                     Select-Object -ExpandProperty Group |
@@ -631,7 +631,7 @@ function Invoke-ObjectMerge {
     )
     begin {
         function Set-ObjectKeyValue {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
                 $InputObject,
                 [Parameter(Mandatory = $True)]
@@ -647,7 +647,7 @@ function Invoke-ObjectMerge {
             $InputObject
         }
         function Test-ObjectKeyValueNullEmpty {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 $InputObject,
                 [Parameter(Mandatory = $True, Position = 1)]
@@ -666,14 +666,14 @@ function Invoke-ObjectMerge {
             }
         }
         function Invoke-Merge {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject
             )
             if ($Null -ne $InputObject) {
                 $Result = if ($InputObject.Count -gt 1) {
                     $InputObject | Invoke-Reduce -Callback {
-                        param($Acc, $Item)
+                        Param($Acc, $Item)
                         $Type = $Item.GetType().Name
                         $ItemCount = if ($Type -eq 'PSCustomObject') {
                             $Item.PSObject.Properties.Name.Length
@@ -859,7 +859,7 @@ function Invoke-Partition {
     )
     begin {
         function Invoke-Partition_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject,
                 [Parameter(Position = 1)]
@@ -1035,11 +1035,11 @@ function Invoke-PropertyTransform {
         [Parameter(Mandatory = $True, Position = 0)]
         [PSObject] $Lookup,
         [Parameter(Position = 1)]
-        [ScriptBlock] $Transform = { param($Value) $Value }
+        [ScriptBlock] $Transform = { Param($Value) $Value }
     )
     begin {
         function New-PropertyExpression {
-            param(
+            Param(
                 [Parameter(Mandatory = $True)]
                 [String] $Name,
                 [Parameter(Mandatory = $True)]
@@ -1101,7 +1101,7 @@ function Invoke-Reduce {
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Array] $Items,
         [Parameter(Position = 0)]
-        [ScriptBlock] $Callback = { param($A) $A },
+        [ScriptBlock] $Callback = { Param($A) $A },
         [Parameter(Position = 1)]
         $InitialValue,
         [Switch] $Identity,
@@ -1113,7 +1113,7 @@ function Invoke-Reduce {
     )
     begin {
         function Invoke-Reduce_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $Items,
                 [Parameter(Position = 1)]
@@ -1136,19 +1136,19 @@ function Invoke-Reduce {
                         $Callback
                     }
                     'Add' {
-                        { param($A, $B) $A + $B }
+                        { Param($A, $B) $A + $B }
                     }
                     'Multiply' {
-                        { param($A, $B) $A * $B }
+                        { Param($A, $B) $A * $B }
                     }
                     'Every' {
-                        { param($A, $B) $A -and $B }
+                        { Param($A, $B) $A -and $B }
                     }
                     'Some' {
-                        { param($A, $B) $A -or $B }
+                        { Param($A, $B) $A -or $B }
                     }
                     'FileInfo' {
-                        { param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
+                        { Param($Acc, $Item) $Acc[$Item.Name] = $Item.Length }
                     }
                     default { $Callback }
                 }
@@ -1218,7 +1218,7 @@ function Invoke-Reverse {
     )
     begin {
         function Invoke-Reverse_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject
             )
@@ -1268,7 +1268,7 @@ function Invoke-TakeWhile {
     )
     begin {
         function Invoke-TakeWhile_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject,
                 [Parameter(Position = 1)]
@@ -1370,7 +1370,7 @@ function Invoke-Unzip {
     )
     begin {
         function Invoke-Unzip_ {
-            param(
+            Param(
                 [Array] $InputObject
             )
             if ($InputObject.Count -gt 0) {
@@ -1416,7 +1416,7 @@ function Invoke-Zip {
     )
     begin {
         function Invoke-Zip_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject
             )
@@ -1498,7 +1498,7 @@ function Join-StringsWithGrammar {
 
     begin {
         function Join-StringArray {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 [AllowNull()]
                 [AllowEmptyCollection()]
@@ -1581,7 +1581,7 @@ function New-RegexString {
         $MM_alt = '(((\b[1-9])|01|02|03|04|05|06|07|08|09|10|11|12)\b)'
         $MMM = $Month |
             ForEach-Object { $_.Substring(0, 3) } |
-            Invoke-Reduce { param($Str, $Mon) "$Str|$Mon|$($Mon.toUpper())" }
+            Invoke-Reduce { Param($Str, $Mon) "$Str|$Mon|$($Mon.toUpper())" }
         $Months = $Month -join '|'
         $YYYY = '((?<!\d)[0-9]{2}(?!\d))|([0-9]{4})'
         $DateFormats = @(
@@ -1644,7 +1644,7 @@ function New-RegexString {
             'online'
         ) -join '|' -join '|'
         function Get-RegexString {
-            param(
+            Param(
                 [String[]] $Value = ''
             )
             $ReArray = @()
@@ -1801,7 +1801,7 @@ function Test-Enumerable {
     )
     begin {
         function Test-Enumerable_ {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 $Value
             )
@@ -1877,13 +1877,13 @@ function Test-Equal {
     )
     begin {
         function Test-Equal_ {
-            param(
+            Param(
                 $Left,
                 $Right,
                 [Array] $FromPipeline
             )
             $Compare = {
-                param($Left, $Right)
+                Param($Left, $Right)
                 $Type = $Left.GetType().Name
                 switch -Wildcard ($Type) {
                     'Object`[`]' {
@@ -2020,7 +2020,7 @@ function Test-Match {
         } else {
             $Results = ([Regex]$Re).Matches($Value)
             function Get-Value {
-                param(
+                Param(
                     [String] $Name
                 )
                 $Results.Groups | Where-Object { $_.Name -eq $Name } | Get-Property 'Value'

@@ -64,7 +64,7 @@ function Invoke-MatrixMap {
                 if ($Strict) {
                     throw 'Expression has wrong number of parameters'
                 }
-                $Identity = { param($X) $X }
+                $Identity = { Param($X) $X }
                 [System.Func[Complex, Complex]]$Identity
             }
         }
@@ -196,7 +196,7 @@ function New-Matrix {
     )
     begin {
         function Update-Matrix {
-            param(
+            Param(
                 [Matrix] $Matrix,
                 [String] $MatrixType,
                 [Array] $Values

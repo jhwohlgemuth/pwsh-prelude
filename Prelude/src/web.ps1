@@ -73,7 +73,7 @@ function Add-Metadata {
                 $Text,
                 $Custom,
                 {
-                    param($Match)
+                    Param($Match)
                     $Value = $Match.Value
                     $ClassName = $Value -replace '\s', '-'
                     if ($Microformat) {
@@ -93,7 +93,7 @@ function Add-Metadata {
                     $Text,
                     "\b${Value}\b",
                     {
-                        param($Match)
+                        Param($Match)
                         $Value = $Match.Value
                         "<abbr title=`"${Name}`">${Value}</abbr>"
                     }
@@ -107,7 +107,7 @@ function Add-Metadata {
                         $Text,
                         $Url,
                         {
-                            param($Match)
+                            Param($Match)
                             $Value = $Match.Groups[1].Value
                             if ($Microformat) {
                                 "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
@@ -123,7 +123,7 @@ function Add-Metadata {
                         $Text,
                         $Date,
                         {
-                            param($Match)
+                            Param($Match)
                             $Value = $Match.Groups[1].value
                             $Data = $Value | Test-Match -Date
                             $IsoValue = [DateTime]"$($Data.Month)/$($Data.Day)/$($Data.Year)" | ConvertTo-Iso8601
@@ -141,7 +141,7 @@ function Add-Metadata {
                         $Text,
                         $Duration,
                         {
-                            param($Match)
+                            Param($Match)
                             $Value = $Match.Groups[1].value
                             $Data = $Value | Test-Match -Duration
                             $Start = $Data.Start
@@ -161,7 +161,7 @@ function Add-Metadata {
                         $Text,
                         $Email,
                         {
-                            param($Match)
+                            Param($Match)
                             $Value = $Match.Groups[1].Value
                             if ($Microformat) {
                                 "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
@@ -177,7 +177,7 @@ function Add-Metadata {
                         $Text,
                         $IpAdress,
                         {
-                            param($Match)
+                            Param($Match)
                             $Value = $Match.Groups[1].Value
                             "<a class=`"ip`" href=`"${Value}`">${Value}</a>"
                         },
@@ -201,7 +201,7 @@ function ConvertFrom-ByteArray {
     )
     begin {
         function Invoke-Convert {
-            param(
+            Param(
                 [Parameter(Position = 0)]
                 $Data
             )
@@ -301,7 +301,7 @@ function ConvertFrom-QueryString {
         $Decoded = [System.Web.HttpUtility]::UrlDecode($Query)
         if ($Decoded -match '=') {
             $Decoded -split '&' | Invoke-Reduce {
-                param($Acc, $Item)
+                Param($Acc, $Item)
                 $Key, $Value = $Item -split '='
                 $Acc.$Key = $Value.Trim()
             } -InitialValue @{}
@@ -348,11 +348,11 @@ function ConvertTo-JavaScript {
     )
     begin {
         $CoordinateTemplate = {
-            param($Value)
+            Param($Value)
             "{latitude: $($Value.Latitude), longitude: $($Value.Longitude), height: $($Value.Height), hemisphere: '$($Value.Hemisphere -join '')'}"
         }
         $MatrixTemplate = {
-            param($Value)
+            Param($Value)
             $Rows = $Value.Values.Real |
                 Invoke-Chunk -Size $Value.Size[1] |
                 ForEach-Object { $_ -join ', ' } |
@@ -360,25 +360,25 @@ function ConvertTo-JavaScript {
             "[$($Rows -join ', ')]"
         }
         $NodeTemplate = {
-            param($Value)
+            Param($Value)
             "{id: '$($Value.Id)', label: '$($Value.Label)'}"
         }
         $EdgeTemplate = {
-            param($Value)
+            Param($Value)
             $Source = (& $NodeTemplate -Value $Value.Source)
             $Target = (& $NodeTemplate -Value $Value.Target)
             "{source: $Source, target: $Target}"
         }
         $GraphTemplate = {
-            param($Value)
+            Param($Value)
             "{nodes: $($Value.Nodes | ConvertTo-JavaScript), edges: $($Value.Edges | ConvertTo-JavaScript)}"
         }
         $DefaultTemplate = {
-            param($Value)
+            Param($Value)
             $Value | ConvertTo-Json -Compress
         }
         function Invoke-Convert {
-            param($Value)
+            Param($Value)
             $Type = $Value.GetType().Name
             $Template = switch ($Type) {
                 'Coordinate' { $CoordinateTemplate }
@@ -428,7 +428,7 @@ function ConvertTo-QueryString {
     }
     process {
         $Callback = {
-            param($Acc, $Item)
+            Param($Acc, $Item)
             $Key = $Item.Name
             $Value = $Item.Value
             "${Acc}$(if ($Acc -ne '') { '&' } else { '' })${Key}=${Value}"
@@ -653,7 +653,7 @@ function Invoke-WebRequestBasicAuth {
     )
     begin {
         function Get-ParsedContent {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 $Request
             )
@@ -1072,7 +1072,7 @@ function Save-File {
     )
     begin {
         function Format-FileVersion {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
                 [String] $Name
             )
@@ -1082,7 +1082,7 @@ function Save-File {
             "${Filename}-${Elapsed}${Extension}"
         }
         function Test-JobComplete {
-            param(
+            Param(
                 [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
                 $BitsJob
             )
