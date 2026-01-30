@@ -419,7 +419,7 @@ function Invoke-Lint {
     }
     if (-not ($Skip -contains 'powershell')) {
         $FolderName = if ($Plus) { 'Plus' } else { 'src' }
-        $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion 5.0.4
+        $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion 5.6.1
         $PSScriptAnalyzerData = Import-Module -Name PSScriptAnalyzer -PassThru -MinimumVersion 1.20.0
         $Parameters = @{
             Path = (Join-Path $PSScriptRoot "Prelude/${FolderName}")

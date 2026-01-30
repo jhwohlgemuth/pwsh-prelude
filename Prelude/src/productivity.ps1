@@ -31,14 +31,14 @@ function ConvertFrom-FolderStructure {
     )
     Begin {
         function Test-Branch {
-            Param(
+            param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 $Value
             )
             $Value.GetType().Name -eq 'DirectoryInfo'
         }
         function Invoke-Iterate {
-            Param(
+            param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 [String] $Path
             )
@@ -518,14 +518,14 @@ function Invoke-Pack {
     )
     Begin {
         function Get-PathFragment {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [System.IO.FileInfo] $Item
             )
             ($Item | Get-StringPath).Replace($Root, '')
         }
         function ConvertTo-ItemList {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $Values
             )
@@ -542,7 +542,7 @@ function Invoke-Pack {
             }
         }
         function ConvertTo-ObjectList {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $Items
             )
@@ -823,7 +823,7 @@ function Out-Tree {
         $Pipe = '│'
         $Initial = ''
         function Get-LineContent {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [String] $Value,
                 [Switch] $IsTerminal,
@@ -840,7 +840,7 @@ function Out-Tree {
             }
         }
         function Out-TreeStructure {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 $Items
             )

@@ -547,7 +547,7 @@ function New-Template {
         $Script:TemplateKeyNamesNotPassed = @()
         $Pattern = '(?<expression>{{(?<indicator>(=|-|#))?\s+(?<variable>.*?)\s*}})'
         $Renderer = {
-            Param(
+            param(
                 [ScriptBlock] $Script,
                 [Hashtable] $Binding = @{}
             )
@@ -559,7 +559,7 @@ function New-Template {
             }
         }
         $Evaluator = {
-            Param($Match)
+            param($Match)
             $Groups = $Match.Groups
             $Value = $Groups[1].Value
             $Indicator = $Groups | Where-Object { $_.Name -eq 'indicator' } | Get-Property 'Value'
@@ -619,7 +619,7 @@ function New-Template {
             }
         } else {
             {
-                Param(
+                param(
                     [Parameter(Position = 0, ValueFromPipeline = $True)]
                     [Alias('Data')]
                     [Hashtable] $Binding = @{},
@@ -1637,7 +1637,7 @@ function Test-ApplicationContext {
     )
     Begin {
         function Test-SomeExist {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [String[]] $PathList
             )

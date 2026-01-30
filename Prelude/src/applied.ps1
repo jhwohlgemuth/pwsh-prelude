@@ -99,7 +99,7 @@ function Get-Extremum {
     )
     Begin {
         function Invoke-GetExtremum {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $Values
             )
@@ -150,7 +150,7 @@ function Get-Factorial {
             1
         } else {
             1..$Value | Invoke-Reduce {
-                Param(
+                param(
                     [BigInt] $Acc,
                     [BigInt] $Item
                 )
@@ -189,7 +189,7 @@ function Get-LogisticSigmoid {
         [Switch] $Derivative
     )
     Process {
-        $Sigmoid = { Param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, (-1 * $GrowthRate) * ($X - $Midpoint))) }
+        $Sigmoid = { param($X) $MaximumValue / (1 + [Math]::Pow([Math]::E, (-1 * $GrowthRate) * ($X - $Midpoint))) }
         $Result = & $Sigmoid $Value
         if ($Derivative) {
             $Result * (1 - $Result)
@@ -393,7 +393,7 @@ function Get-Permutation {
             .DESCRIPTION
             Uses the algorithm, b = (a += b -= a) - b
             #>
-            Param(
+            param(
                 [Array] $Items,
                 [Int] $Next,
                 [Int] $Current
@@ -401,7 +401,7 @@ function Get-Permutation {
             $Items[$Next] = ($Items[$Current] += $Items[$Next] -= $Items[$Current]) - $Items[$Next]
         }
         function Test-Moveable {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $Work,
                 [Parameter(Position = 1)]
@@ -427,7 +427,7 @@ function Get-Permutation {
         }
         function Test-MoveableExist {
             [OutputType([Bool])]
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $Work,
                 [Parameter(Position = 1)]
@@ -443,7 +443,7 @@ function Get-Permutation {
             $IsMoveable
         }
         function Find-LargestMoveable {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $Work,
                 [Parameter(Position = 1)]
@@ -460,7 +460,7 @@ function Get-Permutation {
             $Position
         }
         function Invoke-Permutation {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Int] $Value,
                 [Parameter(Position = 1)]
@@ -503,7 +503,7 @@ function Get-Permutation {
             }
         }
         $GetResults = {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [Array] $InputObject
             )
@@ -574,7 +574,7 @@ function Get-Softmax {
     )
     Begin {
         function Get-Softmax_ {
-            Param($Values)
+            param($Values)
             $Numerators = $Values | ForEach-Object { [Math]::Exp($_) }
             $Denominator = $Numerators | Get-Sum
             foreach ($Value in $Numerators) {
@@ -624,7 +624,7 @@ function Get-Sum {
     )
     Begin {
         function Get-Sum_ {
-            Param($Values)
+            param($Values)
             if ($Values.Count -gt 0) {
                 switch ($Values[0].GetType().Name) {
                     'Boolean' {
@@ -718,7 +718,7 @@ function Invoke-Imputation {
     )
     Begin {
         function Invoke-Impute {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [AllowNull()]
                 [Array] $Values

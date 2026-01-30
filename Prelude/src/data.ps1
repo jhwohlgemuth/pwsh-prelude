@@ -154,7 +154,7 @@ function Format-MoneyValue {
     )
     Process {
         function Get-Magnitude {
-            Param($Value)
+            param($Value)
             [Math]::Log([Math]::Abs($Value), 10)
         }
         switch -Wildcard ($Value.GetType()) {
@@ -516,7 +516,7 @@ function Get-SyllableCount {
     }
     Process {
         $Syllables = {
-            Param($Word)
+            param($Word)
             switch ($Word) {
                 { $_.Length -eq 0 } {
                     0

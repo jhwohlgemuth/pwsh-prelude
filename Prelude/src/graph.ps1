@@ -284,7 +284,7 @@ function New-Graph {
     Begin {
         $GraphType = Find-FirstTrueVariable 'Custom', 'Complete', 'SmallWorld', 'Bipartite'
         function Invoke-NewGraph {
-            Param(
+            param(
                 [Edge[]] $Edges
             )
             switch ($GraphType) {
