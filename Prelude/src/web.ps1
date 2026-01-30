@@ -789,18 +789,15 @@ function New-GitlabRunner {
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
     Param(
-        [ValidateSet('https://gitlab.com', 'https://code.ornl.gov')]
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [Alias('url')]
         [String] $Endpoint,
-        [ValidateLength(20, 20)]
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [String] $Token,
         [ValidateSet('Group', 'Project')]
         [Parameter(Mandatory = $False)]
         [Alias('type')]
         [String] $RunnerType = 'Group',
-        [ValidateLength(5, 5)]
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [Alias('id')]
         [String] $Identifier,

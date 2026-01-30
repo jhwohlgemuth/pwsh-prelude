@@ -34,5 +34,6 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true
-    }
+    },
+    "sarif-viewer.connectToGithubCodeScanning": "on"
 }
