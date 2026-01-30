@@ -1,6 +1,6 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-ComplexValue')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Matrix')]
-Param()
+param()
 
 function Format-ComplexValue {
     <#
@@ -11,7 +11,7 @@ function Format-ComplexValue {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [System.Numerics.Complex] $Value,
         [Switch] $WithColor
@@ -47,24 +47,24 @@ function Invoke-MatrixMap {
     [CmdletBinding()]
     [Alias('matmap')]
     [OutputType([Matrix])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Matrix] $InputMatrix,
         [Parameter(Position = 0)]
         [ScriptBlock] $Expression = { },
         [Switch] $Strict
     )
-    Process {
+    process {
         $Parameters = ($Expression | Get-ParameterList).Name
         $Morphism = switch ($Parameters.Count) {
             1 { [System.Func[Complex, Complex]]$Expression }
             3 { [System.Func[Complex, Int, Int, Complex]]$Expression }
             4 { [System.Func[Complex, Int, Int, Matrix, Complex]]$Expression }
-            Default {
+            default {
                 if ($Strict) {
                     throw 'Expression has wrong number of parameters'
                 }
-                $Identity = { Param($X) $X }
+                $Identity = { param($X) $X }
                 [System.Func[Complex, Complex]]$Identity
             }
         }
@@ -87,7 +87,7 @@ function New-ComplexValue {
     [CmdletBinding(DefaultParameterSetName = 'normal')]
     [Alias('complex')]
     [OutputType([System.Numerics.Complex])]
-    Param(
+    param(
         [Parameter(ValueFromPipeline = $True)]
         [Array] $Parts,
         [Parameter(Position = 0)]
@@ -102,7 +102,7 @@ function New-ComplexValue {
         [ValidateCount(2, 2)]
         [Double[]] $Bounds = @(-10.0, 10.0)
     )
-    End {
+    end {
         $Re, $Im = if ($Input.Count -ge 2) {
             $Input[0, 1]
         } else {
@@ -179,7 +179,7 @@ function New-Matrix {
     [CmdletBinding(DefaultParameterSetName = 'normal')]
     [Alias('matrix')]
     [OutputType([Matrix])]
-    Param(
+    param(
         [Parameter(ValueFromPipeline = $True)]
         [Array] $Values,
         [Parameter(Position = 0)]
@@ -194,9 +194,9 @@ function New-Matrix {
         [ValidateCount(2, 2)]
         [Double[]] $Bounds = @(-10.0, 10.0)
     )
-    Begin {
+    begin {
         function Update-Matrix {
-            Param(
+            param(
                 [Matrix] $Matrix,
                 [String] $MatrixType,
                 [Array] $Values
@@ -217,7 +217,7 @@ function New-Matrix {
                 'Custom' {
                     $Matrix.Rows = $Values | Invoke-Flatten
                 }
-                Default {
+                default {
                     # Do nothing
                 }
             }
@@ -229,7 +229,7 @@ function New-Matrix {
             Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
         }
     }
-    End {
+    end {
         $Values = $Input
         if ($Values.Count -gt 0) {
             Update-Matrix -Values $Values -Matrix $Matrix -MatrixType $MatrixType
@@ -249,7 +249,7 @@ function New-Matrix {
                     }
                     break
                 }
-                Default {
+                default {
                     # Do nothing
                 }
             }
@@ -273,7 +273,7 @@ function Test-Matrix {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         $Value,
         [Switch] $Diagonal,

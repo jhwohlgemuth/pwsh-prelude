@@ -6,7 +6,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-WebRequestBasicAuth')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Browser')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('VariablePascalCase', '', Scope = 'Function', Target = 'Register-GitlabRunner')]
-Param()
+param()
 
 class Options {
     [String[]] GetProperties() {
@@ -40,7 +40,7 @@ function Add-Metadata {
     #>
     [CmdletBinding()]
     [OutputType([System.String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Text,
         [String[]] $Keyword,
@@ -49,7 +49,7 @@ function Add-Metadata {
         [ValidateSet('all', 'date', 'duration', 'email', 'url', 'ip')]
         [String[]] $Disable
     )
-    Begin {
+    begin {
         $Custom = [Regex](($Keyword | ForEach-Object { "(\b${_}\b)" }) -join '|' )
         $Date = [Regex](New-RegexString -Date)
         $Duration = [RegEx](New-RegexString -Duration)
@@ -67,13 +67,13 @@ function Add-Metadata {
         }
         $Options = [Text.RegularExpressions.RegexOptions]'IgnoreCase, CultureInvariant'
     }
-    Process {
-        If ($Keyword.Count -gt 0) {
+    process {
+        if ($Keyword.Count -gt 0) {
             $Text = [Regex]::Replace(
                 $Text,
                 $Custom,
                 {
-                    Param($Match)
+                    param($Match)
                     $Value = $Match.Value
                     $ClassName = $Value -replace '\s', '-'
                     if ($Microformat) {
@@ -93,7 +93,7 @@ function Add-Metadata {
                     $Text,
                     "\b${Value}\b",
                     {
-                        Param($Match)
+                        param($Match)
                         $Value = $Match.Value
                         "<abbr title=`"${Name}`">${Value}</abbr>"
                     }
@@ -107,7 +107,7 @@ function Add-Metadata {
                         $Text,
                         $Url,
                         {
-                            Param($Match)
+                            param($Match)
                             $Value = $Match.Groups[1].Value
                             if ($Microformat) {
                                 "<a $($Attributes.Url) href=`"${Value}`">${Value}</a>"
@@ -123,7 +123,7 @@ function Add-Metadata {
                         $Text,
                         $Date,
                         {
-                            Param($Match)
+                            param($Match)
                             $Value = $Match.Groups[1].value
                             $Data = $Value | Test-Match -Date
                             $IsoValue = [DateTime]"$($Data.Month)/$($Data.Day)/$($Data.Year)" | ConvertTo-Iso8601
@@ -141,7 +141,7 @@ function Add-Metadata {
                         $Text,
                         $Duration,
                         {
-                            Param($Match)
+                            param($Match)
                             $Value = $Match.Groups[1].value
                             $Data = $Value | Test-Match -Duration
                             $Start = $Data.Start
@@ -161,7 +161,7 @@ function Add-Metadata {
                         $Text,
                         $Email,
                         {
-                            Param($Match)
+                            param($Match)
                             $Value = $Match.Groups[1].Value
                             if ($Microformat) {
                                 "<a $($Attributes.Email) href=`"mailto:${Value}`">${Value}</a>"
@@ -177,7 +177,7 @@ function Add-Metadata {
                         $Text,
                         $IpAdress,
                         {
-                            Param($Match)
+                            param($Match)
                             $Value = $Match.Groups[1].Value
                             "<a class=`"ip`" href=`"${Value}`">${Value}</a>"
                         },
@@ -195,13 +195,13 @@ function ConvertFrom-ByteArray {
     Converts bytes to human-readable text
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Array] $Data
     )
-    Begin {
+    begin {
         function Invoke-Convert {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 $Data
             )
@@ -215,7 +215,7 @@ function ConvertFrom-ByteArray {
         }
         Invoke-Convert $Data
     }
-    End {
+    end {
         Invoke-Convert $Input
     }
 }
@@ -236,7 +236,7 @@ function ConvertFrom-EpochDate () {
     [CmdletBinding()]
     [OutputType([System.String])]
     [OutputType([DateTime])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [BigInt] $Value,
         [Switch] $Milliseconds,
@@ -267,7 +267,7 @@ function ConvertFrom-Html {
     '<html><body><h1>hello</h1></body></html>' | ConvertFrom-Html
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Value
     )
@@ -290,18 +290,18 @@ function ConvertFrom-QueryString {
     [CmdletBinding()]
     [OutputType([Object[]])]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Query
     )
-    Begin {
+    begin {
         Use-Web
     }
-    Process {
+    process {
         $Decoded = [System.Web.HttpUtility]::UrlDecode($Query)
         if ($Decoded -match '=') {
             $Decoded -split '&' | Invoke-Reduce {
-                Param($Acc, $Item)
+                param($Acc, $Item)
                 $Key, $Value = $Item -split '='
                 $Acc.$Key = $Value.Trim()
             } -InitialValue @{}
@@ -318,11 +318,11 @@ function ConvertTo-Iso8601 {
     See https://www.iso.org/iso-8601-date-and-time-format.html
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Value
     )
-    Process {
+    process {
         $Value | Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
     }
 }
@@ -342,17 +342,17 @@ function ConvertTo-JavaScript {
     #>
     [CmdletBinding()]
     [OutputType([System.String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Value
     )
-    Begin {
+    begin {
         $CoordinateTemplate = {
-            Param($Value)
+            param($Value)
             "{latitude: $($Value.Latitude), longitude: $($Value.Longitude), height: $($Value.Height), hemisphere: '$($Value.Hemisphere -join '')'}"
         }
         $MatrixTemplate = {
-            Param($Value)
+            param($Value)
             $Rows = $Value.Values.Real |
                 Invoke-Chunk -Size $Value.Size[1] |
                 ForEach-Object { $_ -join ', ' } |
@@ -360,25 +360,25 @@ function ConvertTo-JavaScript {
             "[$($Rows -join ', ')]"
         }
         $NodeTemplate = {
-            Param($Value)
+            param($Value)
             "{id: '$($Value.Id)', label: '$($Value.Label)'}"
         }
         $EdgeTemplate = {
-            Param($Value)
+            param($Value)
             $Source = (& $NodeTemplate -Value $Value.Source)
             $Target = (& $NodeTemplate -Value $Value.Target)
             "{source: $Source, target: $Target}"
         }
         $GraphTemplate = {
-            Param($Value)
+            param($Value)
             "{nodes: $($Value.Nodes | ConvertTo-JavaScript), edges: $($Value.Edges | ConvertTo-JavaScript)}"
         }
         $DefaultTemplate = {
-            Param($Value)
+            param($Value)
             $Value | ConvertTo-Json -Compress
         }
         function Invoke-Convert {
-            Param($Value)
+            param($Value)
             $Type = $Value.GetType().Name
             $Template = switch ($Type) {
                 'Coordinate' { $CoordinateTemplate }
@@ -387,7 +387,7 @@ function ConvertTo-JavaScript {
                 'DirectedEdge' { $EdgeTemplate }
                 'Edge' { $EdgeTemplate }
                 'Graph' { $GraphTemplate }
-                Default { $DefaultTemplate }
+                default { $DefaultTemplate }
             }
             & $Template -Value $Value
         }
@@ -400,7 +400,7 @@ function ConvertTo-JavaScript {
             }
         }
     }
-    End {
+    end {
         switch ($Input.Count) {
             1 {
                 Invoke-Convert -Value $Input[0]
@@ -418,17 +418,17 @@ function ConvertTo-QueryString {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [PSObject] $InputObject,
         [Switch] $UrlEncode
     )
-    Begin {
+    begin {
         Use-Web
     }
-    Process {
+    process {
         $Callback = {
-            Param($Acc, $Item)
+            param($Acc, $Item)
             $Key = $Item.Name
             $Value = $Item.Value
             "${Acc}$(if ($Acc -ne '') { '&' } else { '' })${Key}=${Value}"
@@ -458,7 +458,7 @@ function Get-HostsContent {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
         [String] $Path
@@ -504,13 +504,13 @@ function Get-HtmlElement {
     #>
     [CmdletBinding()]
     [OutputType([System.Object[]])]
-    Param(
+    param(
         [Parameter(ValueFromPipeline = $True)]
         $InputObject,
         [Parameter(Mandatory = $True, Position = 0)]
         [String] $Selector
     )
-    Process {
+    process {
         $InputType = $InputObject.GetType().Name
         $Html = if ($InputType -eq 'String') {
             $InputObject | ConvertFrom-Html -Verbose:$False
@@ -535,7 +535,7 @@ function Get-HtmlElement {
                 }
                 "==> [INFO] Found $($Elements.Count) element(s) with ${Id} ID" | Write-Verbose
             }
-            Default {
+            default {
                 foreach ($Element in $Html.all.tags($Selector)) {
                     $Elements += $Element
                 }
@@ -555,7 +555,7 @@ function Import-Html {
     Import-Html .\bookmarks.html | ForEach-Object { $_.all.tags('a') } | Selelct-Object -ExpandProperty textContent
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Alias('Uri')]
         [String] $Path
@@ -620,7 +620,7 @@ function Invoke-WebRequestBasicAuth {
     #>
     [CmdletBinding(DefaultParameterSetName = 'none', SupportsShouldProcess = $True)]
     [Alias('basicauth')]
-    Param(
+    param(
         [Parameter(ParameterSetName = 'basic')]
         [String] $Username,
         [Parameter(ParameterSetName = 'basic')]
@@ -651,9 +651,9 @@ function Invoke-WebRequestBasicAuth {
         [Alias('Custom')]
         [PSObject] $WebRequestParameters = @{}
     )
-    Begin {
+    begin {
         function Get-ParsedContent {
-            Param(
+            param(
                 [Parameter(Mandatory = $True, Position = 0)]
                 $Request
             )
@@ -680,14 +680,14 @@ function Invoke-WebRequestBasicAuth {
                     "==> [INFO] Cannot parse content of type, ${Type}" | Write-Verbose
                     $Content
                 }
-                Default {
+                default {
                     "==> [WARN] Unable to resolve type, ${Type}" | Write-Warning
                     $Content
                 }
             }
         }
     }
-    Process {
+    process {
         if ($PSBoundParameters.ContainsKey('Password') -or $PSBoundParameters.ContainsKey('Token')) {
             $HeaderData = if ($Gitlab) {
                 @{ 'PRIVATE-TOKEN' = $Token }
@@ -788,7 +788,7 @@ function New-GitlabRunner {
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [Alias('url')]
         [String] $Endpoint,
@@ -806,7 +806,7 @@ function New-GitlabRunner {
         [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $True)]
         [Switch] $Gpu = $False
     )
-    Process {
+    process {
         $Uri = "${Endpoint}/api/v4/user/runners"
         $RunnerData = switch ($RunnerType) {
             'Group' {
@@ -883,7 +883,7 @@ function Out-Browser {
     '<h1 contenteditable="true">Type Here</h1>' | Out-Browser -OnClose $OnClose | Out-Null
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Content,
         [FormOptions] $FormOptions = @{},
@@ -894,7 +894,7 @@ function Out-Browser {
         [Switch] $Default,
         [Switch] $PassThru
     )
-    Begin {
+    begin {
         Use-Web -Browser
         $Form = $FormOptions.SetProperties((New-Object 'Windows.Forms.Form'))
         $Browser = $BrowserOptions.SetProperties((New-Object 'Windows.Forms.WebBrowser'))
@@ -912,7 +912,7 @@ function Out-Browser {
         $Form.Add_Shown($ShownCallback);
         $Browser.Add_DocumentCompleted($CompletedCallback)
     }
-    Process {
+    process {
         "==> Browser is $(if($Browser.IsOffline) { 'OFFLINE' } else { 'ONLINE' })" | Write-Verbose
         $IsFile = if (Test-Path $Content -IsValid) { Test-Path $Content } else { $False }
         $IsUri = ([Uri]$Content).IsAbsoluteUri
@@ -975,7 +975,7 @@ function Register-GitlabRunner {
     } | New-GitlabRunner | Register-GitlabRunner
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
         [String] $Token,
         [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $True)]
@@ -985,13 +985,13 @@ function Register-GitlabRunner {
         [Switch] $Gpu = $False,
         [Switch] $Force
     )
-    Begin {
+    begin {
         $Tasks = @('Create', 'Register')
         $Image = 'gitlab/gitlab-runner:latest'
         $Passthru = '/var/run/docker.sock:/var/run/docker.sock'
         $LogLevel = if ($PSCmdlet.MyInvocation.BoundParameters.Verbose) { 'debug' } else { 'panic' }
     }
-    Process {
+    process {
         $Url = 'https://code.ornl.gov'
         $Name = "runner_${Identifier}"
         $GpuOptions = if ($Gpu.IsPresent) { @{ 'gpus' = 'all' } } else { @{} }
@@ -1051,7 +1051,7 @@ function Save-File {
     'https://storage.googleapis.com/ygoprodeck.com/pics/93717133.jpg' | Save-File 'dragon.jpg' -Asynchronous -Priority 'High'
     #>
     [CmdletBinding(DefaultParameterSetName = 'normal', SupportsShouldProcess = $True)]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [UriBuilder] $Uri,
         [ValidateScript( { Test-Path $_ })]
@@ -1070,9 +1070,9 @@ function Save-File {
         [Switch] $WebClient,
         [PSObject] $CustomParameters = @{}
     )
-    Begin {
+    begin {
         function Format-FileVersion {
-            Param(
+            param(
                 [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
                 [String] $Name
             )
@@ -1082,7 +1082,7 @@ function Save-File {
             "${Filename}-${Elapsed}${Extension}"
         }
         function Test-JobComplete {
-            Param(
+            param(
                 [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
                 $BitsJob
             )
@@ -1099,7 +1099,7 @@ function Save-File {
             New-Object 'System.Net.WebClient'
         }
     }
-    Process {
+    process {
         $Name = if ($Filename.Count -gt 0) { $Filename[$Count] } else { Split-Path $Uri.Path -Leaf }
         $Path = Join-Path $Destination $Name
         if (Test-Path -Path $Path) {
@@ -1146,7 +1146,7 @@ function Save-File {
                             "==> [ERROR] BitsTransfer Job [${Id}], failed." | Write-Error
                             $Job | Format-List
                         }
-                        Default {
+                        default {
                             # Do nothing
                         }
                     }
@@ -1171,13 +1171,13 @@ function Test-Url {
     [CmdletBinding()]
     [OutputType([Bool])]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [UriBuilder] $Value,
         [Switch] $Code,
         [PSObject] $WebRequestParameters = @{}
     )
-    Process {
+    process {
         $Response = try {
             Invoke-WebRequestBasicAuth -Uri $Value.Uri -WebRequestParameters $WebRequestParameters
         } catch {
@@ -1188,7 +1188,7 @@ function Test-Url {
             200 {
                 if ($Code) { '200' } else { $True }
             }
-            Default {
+            default {
                 if ($Code) { $StatusCode.ToString() } else { $False }
             }
         }
@@ -1208,7 +1208,7 @@ function Update-HostsFile {
     Update-HostsFile -IPAddress '127.0.0.1' -Hostname 'c2.evil.com' -Comment 'Malware C2'
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0)]
         [Alias('IP')]
         [Net.IpAddress] $IPAddress,
@@ -1261,7 +1261,7 @@ function Use-Web {
     #>
     [CmdletBinding()]
     [OutputType([Bool])]
-    Param(
+    param(
         [Switch] $Browser,
         [Switch] $PassThru
     )

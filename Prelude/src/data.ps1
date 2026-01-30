@@ -1,5 +1,5 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextforPassword', '', Scope = 'Function', Target = 'Import-Excel')]
-Param()
+param()
 
 # Nouns with the same singular and plural forms
 $SameSingularPlural = @(
@@ -145,16 +145,16 @@ function Format-MoneyValue {
     [CmdletBinding()]
     [Alias('money')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         $Value,
         [String] $Symbol = '$',
         [Switch] $AsNumber,
         [Switch] $Postfix
     )
-    Process {
+    process {
         function Get-Magnitude {
-            Param($Value)
+            param($Value)
             [Math]::Log([Math]::Abs($Value), 10)
         }
         switch -Wildcard ($Value.GetType()) {
@@ -216,7 +216,7 @@ function Format-MoneyValue {
                 }
                 $Output
             }
-            Default { throw 'Format-MoneyValue only accepts strings and numbers' }
+            default { throw 'Format-MoneyValue only accepts strings and numbers' }
         }
     }
 }
@@ -233,11 +233,11 @@ function Get-Plural {
     [CmdletBinding()]
     [Alias('plural')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Word
     )
-    Begin {
+    begin {
         $Plural = @(
             ('(quiz)$', '${1}zes')
             ('^(ox)$', '${1}en')
@@ -259,28 +259,28 @@ function Get-Plural {
             ('s$', 's')
         )
     }
-    Process {
+    process {
         switch ($Word.ToLower()) {
             { $_ -in $SameSingularPlural } {
                 $Word
-                Break
+                break
             }
             { $_ -in $Irregular.Keys } {
                 $Irregular.$_
-                Break
+                break
             }
             { $_ -in $Irregular.Values } {
                 $Word
-                Break
+                break
             }
-            Default {
+            default {
                 $Result = "${Word}s"
                 $Pairs = Invoke-Chunk $Plural -Size 2
                 foreach ($Pair in $Pairs) {
                     [Regex]$Re, $PluralVersion = $Pair
                     if ($Word -match $Re) {
                         $Result = $Word -replace $Re, $PluralVersion
-                        Break
+                        break
                     }
                 }
                 $Result
@@ -301,11 +301,11 @@ function Get-Singular {
     [CmdletBinding()]
     [Alias('singular')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Word
     )
-    Begin {
+    begin {
         $Singular = @(
             ('(quiz)zes$', '${1}')
             ('(matr)ices$', '${1}ix')
@@ -337,28 +337,28 @@ function Get-Singular {
             ('s$', '')
         )
     }
-    Process {
+    process {
         switch ($Word.ToLower()) {
             { $_ -in $SameSingularPlural } {
                 $Word
-                Break
+                break
             }
             { $_ -in $Irregular.Keys } {
                 $Word
-                Break
+                break
             }
             { $_ -in $Irregular.Values } {
                 ($Irregular | Invoke-ObjectInvert).$_
-                Break
+                break
             }
-            Default {
+            default {
                 $Result = $Word
                 $Pairs = Invoke-Chunk $Singular -Size 2
                 foreach ($Pair in $Pairs) {
                     [Regex]$Re, $SingularVersion = $Pair
                     if ($Word -match $Re) {
                         $Result = $Word -replace $Re, $SingularVersion
-                        Break
+                        break
                     }
                 }
                 $Result
@@ -380,12 +380,12 @@ function Get-SyllableCount {
     #>
     [CmdletBinding()]
     [OutputType([Int])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [AllowEmptyString()]
         [String] $Word
     )
-    Begin {
+    begin {
         # Match single syllable pre- and suffixes
         $Single = [Regex]'^(?:un|fore|ware|none?|out|post|sub|pre|pro|dis|side|some)|(?:ly|less|some|ful|ers?|ness|cians?|ments?|ettes?|villes?|ships?|sides?|ports?|shires?|[gnst]ion(?:ed|s)?)$'
         # Match double syllable pre- and suffixes
@@ -514,37 +514,37 @@ function Get-SyllableCount {
         $NonAlphabetic = [Regex]'[^a-z]'
         $Count = 0
     }
-    Process {
+    process {
         $Syllables = {
-            Param($Word)
+            param($Word)
             switch ($Word) {
                 { $_.Length -eq 0 } {
                     0
-                    Break
+                    break
                 }
                 { $_.Length -in 1, 2 } {
                     1
-                    Break
+                    break
                 }
                 { $_ -in $Problematic.Keys } {
                     $Problematic.$_
-                    Break
+                    break
                 }
                 { (Get-Singular $_) -in $Problematic.Keys } {
                     $Word = (Get-Singular $_)
                     $Problematic.$Word
-                    Break
+                    break
                 }
                 { $_ -in $NeedToBeFixed.Keys } {
                     $NeedToBeFixed.$_
-                    Break
+                    break
                 }
                 { (Get-Singular $_) -in $NeedToBeFixed.Keys } {
                     $Word = Get-Singular $_
                     $NeedToBeFixed.$Word
-                    Break
+                    break
                 }
-                Default {
+                default {
                     $Count += (3 * ($Word | Select-String -Pattern $Triple).Matches.Value.Count)
                     $Word = $Word -replace $Triple, ''
                     $Count += (2 * ($Word | Select-String -Pattern $Double).Matches.Value.Count)
@@ -585,7 +585,7 @@ function Import-Excel {
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    Param(
+    param(
         [Parameter(Mandatory = $True)]
         [String] $Path,
         [String] $WorksheetName,
@@ -668,7 +668,7 @@ function Import-Raw {
     Import-Raw 'data.csv' -Peek
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0)]
         [ValidateScript({ Test-Path $_ })]
         [String] $File,

@@ -4,7 +4,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-WebApplication')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Remove-Indent')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Test-ApplicationContext')]
-Param()
+param()
 
 class ApplicationState {
     [String] $Id = (New-Guid)
@@ -21,11 +21,11 @@ function ConvertFrom-Base64 {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Value
     )
-    Process {
+    process {
         $String = [System.Convert]::FromBase64String($Value)
         [System.Text.Encoding]::Unicode.GetString($String)
     }
@@ -37,18 +37,18 @@ function ConvertTo-Base64 {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Value
     )
-    Process {
+    process {
         $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Value)
         [Convert]::ToBase64String($Bytes)
     }
 }
 function ConvertTo-PowerShellSyntax {
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Value,
         [String] $DataVariableName = 'Data'
@@ -67,7 +67,7 @@ function Get-State {
     $State = 'abc-def-ghi' | Get-State
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Name,
         [AllowEmptyString()]
@@ -92,11 +92,11 @@ function Get-StateName {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [String] $Id
     )
-    Process {
+    process {
         "prelude-$($Id | ConvertTo-Base64)"
     }
 }
@@ -109,7 +109,7 @@ function Get-TemporaryDirectory {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param()
+    param()
     if ($IsLinux) {
         '/tmp'
     } else {
@@ -130,7 +130,7 @@ function Format-Json {
     './some.json' | Format-Json -InPlace
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [String] $Value,
         [ValidateSet(2, 4)]
@@ -176,7 +176,7 @@ function Invoke-FireEvent {
     #>
     [CmdletBinding()]
     [Alias('trigger')]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Name,
         [PSObject] $Data
@@ -192,12 +192,12 @@ function Invoke-NpmInstall {
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([Bool])]
-    Param(
+    param(
         [ValidateScript( { Test-Path $_ })]
         [String] $Parent = (Get-Location).Path,
         [Switch] $Silent
     )
-    Begin {
+    begin {
         $Command = 'npm install'
         $Context = Test-ApplicationContext -Parent $Parent
         $Location = Get-Location
@@ -206,7 +206,7 @@ function Invoke-NpmInstall {
             Set-Location -Path $Parent
         }
     }
-    Process {
+    process {
         if ($Context.Node.Ready) {
             try {
                 if ($PSCmdlet.ShouldProcess('Install dependencies with "npm install"')) {
@@ -229,14 +229,14 @@ function Invoke-NpmInstall {
                 { -not $_.Manifest } {
                     "Could not find package.json in ${Parent}...`n" | Write-Color -White
                 }
-                Default {
+                default {
                     "{{#yellow (╯°□°)╯︵ ┻━┻ }}...maybe try again?`n" | Write-Color -White
                 }
             }
             $Success = $False
         }
     }
-    End {
+    end {
         if ($PSCmdlet.ShouldProcess("Restore location to ${Location}")) {
             Set-Location -Path $Location
             if (-not $Success) {
@@ -297,7 +297,7 @@ function Invoke-RunApplication {
     } | Invoke-ListenTo 'application:init'
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0)]
         [ScriptBlock] $Init,
         [Parameter(Mandatory = $True, Position = 1)]
@@ -387,7 +387,7 @@ function Invoke-StopListen {
     # Selectively remove a single event by passing its event data
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(ValueFromPipeline = $True)]
         [String] $Name,
         [PSObject] $EventData
@@ -412,7 +412,7 @@ function New-TerminalApplicationTemplate {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param()
+    param()
     $Snippet = if (-not $IsLinux) {
         '
         {
@@ -532,7 +532,7 @@ function New-Template {
     [CmdletBinding()]
     [Alias('tpl')]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(ParameterSetName = 'string', Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [String] $Template,
         [Parameter(ParameterSetName = 'file')]
@@ -543,11 +543,11 @@ function New-Template {
         [Hashtable] $DefaultValues = @{},
         [Switch] $PassThru
     )
-    Begin {
+    begin {
         $Script:TemplateKeyNamesNotPassed = @()
         $Pattern = '(?<expression>{{(?<indicator>(=|-|#))?\s+(?<variable>.*?)\s*}})'
         $Renderer = {
-            Param(
+            param(
                 [ScriptBlock] $Script,
                 [Hashtable] $Binding = @{}
             )
@@ -559,7 +559,7 @@ function New-Template {
             }
         }
         $Evaluator = {
-            Param($Match)
+            param($Match)
             $Groups = $Match.Groups
             $Value = $Groups[1].Value
             $Indicator = $Groups | Where-Object { $_.Name -eq 'indicator' } | Get-Property 'Value'
@@ -583,14 +583,14 @@ function New-Template {
                         }
                     }
                 }
-                Default {
+                default {
                     $Script:TemplateKeyNamesNotPassed += $Variable
                     "`$(`$${Variable})"
                 }
             }
         }
     }
-    Process {
+    process {
         $PLACEHOLDER = '<<<DOUBLE QUOTES PRELUDE PLACEHOLDER>>>'
         if ($File) {
             $Path = Get-StringPath $File
@@ -619,7 +619,7 @@ function New-Template {
             }
         } else {
             {
-                Param(
+                param(
                     [Parameter(Position = 0, ValueFromPipeline = $True)]
                     [Alias('Data')]
                     [Hashtable] $Binding = @{},
@@ -662,13 +662,13 @@ function New-DesktopApplication {
     Create a new desktop application.
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(ValueFromPipeline = $True)]
         [PSObject] $Configuration = @{}
     )
-    Begin {}
-    Process {}
-    End {}
+    begin {}
+    process {}
+    end {}
 }
 function New-WebApplication {
     <#
@@ -701,7 +701,7 @@ function New-WebApplication {
     } | New-WebApplication -Name 'My-App'
     #>
     [CmdletBinding(DefaultParameterSetName = 'parameter', SupportsShouldProcess = $True)]
-    Param(
+    param(
         [Parameter(ParameterSetName = 'pipeline', ValueFromPipeline = $True)]
         [PSObject] $Configuration = @{},
         [ApplicationState] $State = @{ Type = 'Web' },
@@ -741,7 +741,7 @@ function New-WebApplication {
         [Switch] $Silent,
         [Switch] $Force
     )
-    Begin {
+    begin {
         $BundlerOptions = @(
             'Webpack'
             'Parcel'
@@ -773,7 +773,7 @@ function New-WebApplication {
             Port = $Port
         }
     }
-    Process {
+    process {
         $Data = if ($PsCmdlet.ParameterSetName -eq 'pipeline') {
             $Defaults, $Configuration | Invoke-ObjectMerge -Force
         } else {
@@ -1142,7 +1142,7 @@ function New-WebApplication {
                     # TODO: Add code for copying files
                 }
             }
-            Default {
+            default {
                 if ($PSCmdlet.ShouldProcess('Add Webpack dependencies and tasks to package.json')) {
                     @(
                         $PackageManifestData.devDependencies
@@ -1241,7 +1241,7 @@ function New-WebApplication {
                     # TODO: Add code for copying files
                 }
             }
-            Default {
+            default {
                 if ($PSCmdlet.ShouldProcess('Add JavaScript dependencies to package.json')) {
                     $PackageManifestData.dependencies, $Dependencies.Marionette | Invoke-ObjectMerge -InPlace
                     $PackageManifestData.devDependencies, $DevelopmentDependencies.BrowserSync | Invoke-ObjectMerge -InPlace
@@ -1416,7 +1416,7 @@ function New-WebApplication {
                     }
                 }
             }
-            Default {}
+            default {}
         }
         if ($PSCmdlet.ShouldProcess('Save EditorConfig configuration file')) {
             $Parameters = @{
@@ -1466,7 +1466,7 @@ function New-WebApplication {
             Update-Application -Add $Tools -Parent $ApplicationDirectory -State $State
         }
     }
-    End {
+    end {
         if ($PSCmdlet.ShouldProcess('Save application state')) {
             $State | Save-State -Name $State.Name -Verbose:(-not $Silent) -Force:$Force | Out-Null
         }
@@ -1494,13 +1494,13 @@ function Remove-Indent {
     Good for removing spaces added to template strings because of alignment with code.
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [AllowEmptyString()]
         [String] $From,
         [Int] $Size = 4
     )
-    Process {
+    process {
         $Lines = $From -split '\n'
         $Delimiter = if ($Lines.Count -eq 1) { '' } else { "`n" }
         $Callback = { $Args[0], $Args[1] -join $Delimiter }
@@ -1523,7 +1523,7 @@ function Save-State {
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0)]
         [String] $Name,
         [Parameter(Mandatory = $True, Position = 1, ValueFromPipeline = $True)]
@@ -1564,7 +1564,7 @@ function Save-JsonData {
     Provides warning message when file already exists and -Force is not used.
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [PSObject] $Data,
         [String] $Parent,
         [String] $Filename,
@@ -1598,7 +1598,7 @@ function Save-TemplateData {
     Name of output file
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [PSObject] $Data,
         [ValidateScript( { Test-Path $_ })]
         [String] $TemplateDirectory = (Get-Location).Path,
@@ -1630,14 +1630,14 @@ function Test-ApplicationContext {
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
         [String] $Parent = (Get-Location).Path
     )
-    Begin {
+    begin {
         function Test-SomeExist {
-            Param(
+            param(
                 [Parameter(Position = 0)]
                 [String[]] $PathList
             )
@@ -1669,7 +1669,7 @@ function Test-ApplicationContext {
             '.json'
         ) | ForEach-Object { ".eslintrc${_}" }
     }
-    Process {
+    process {
         $Installed = @{
             Cargo = (Test-Command 'cargo' -Silent)
             Rustc = (Test-Command 'rustc' -Silent)
@@ -1684,7 +1684,7 @@ function Test-ApplicationContext {
             WebpackConfig = (Test-SomeExist 'webpack.config.js')
         }
     }
-    End {
+    end {
         @{
             Rust = @{
                 Ready = ($Installed.Cargo -and $Installed.Rustc -and $FileExists.CargoToml)
@@ -1716,7 +1716,7 @@ function Update-Application {
     Update a dependency of a web or desktop application created using New-WebApplication or New-DesktopApplication, respectively.
     #>
     [CmdletBinding(SupportsShouldProcess = $True)]
-    Param(
+    param(
         [Switch] $Web,
         [Switch] $Desktop,
         [ValidateSet(
@@ -1736,7 +1736,7 @@ function Update-Application {
         [ApplicationState] $State,
         [Switch] $Force
     )
-    Begin {
+    begin {
         $Data = if ($State) {
             $PackageManifestData = $State.Data.PackageManifestData
             $State.Data
@@ -1997,7 +1997,7 @@ function Update-Application {
             }
         }
     }
-    Process {
+    process {
         switch ($Add) {
             Babel {
                 $ToolName = $_
@@ -2101,7 +2101,7 @@ function Update-Application {
                     }
                 }
             }
-            Default {
+            default {
                 if ($Null -ne $_) {
                     "==> [WARN] Adding ${_} is not currently supported" | Write-Color -Yellow
                 }
@@ -2132,14 +2132,14 @@ function Update-Application {
                     Remove-Item $ConfigName
                 }
             }
-            Default {
+            default {
                 if ($Null -ne $_) {
                     "==> [WARN] Removing ${_} is not currently supported" | Write-Color -Yellow
                 }
             }
         }
     }
-    End {
+    end {
         if ($PSCmdlet.ShouldProcess('Save package.json to application directory')) {
             $PackageManifestData = $PackageManifestData | ConvertTo-OrderedDictionary
             $PackageManifestData.dependencies = $PackageManifestData.dependencies | ConvertTo-OrderedDictionary
@@ -2164,7 +2164,7 @@ function Write-Status {
     #>
     [CmdletBinding()]
     [OutputType([String])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateSet('done', 'fail', 'pass')]
         [String] $Status = 'done',

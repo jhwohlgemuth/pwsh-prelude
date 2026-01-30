@@ -1,6 +1,6 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Export-GraphData')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'New-Graph')]
-Param()
+param()
 
 function Export-GraphData {
     <#
@@ -28,7 +28,7 @@ function Export-GraphData {
     # Supports passing format as string paramter
     #>
     [CmdletBinding()]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Prelude.Graph] $Graph,
         [ValidateScript( { Test-Path $_ })]
@@ -61,11 +61,11 @@ function Export-GraphData {
         }
         'JSON' {
             function Format-Node {
-                Param(
+                param(
                     [Parameter(ValueFromPipeline = $True)]
                     [Node] $Node
                 )
-                Process {
+                process {
                     $Node | Select-Object 'Id', 'Label'
                 }
             }
@@ -129,14 +129,14 @@ function Import-GraphData {
     #>
     [CmdletBinding()]
     [OutputType([Prelude.Graph])]
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $True)]
         [ValidateScript( { Test-Path $_ })]
         [String] $FilePath
     )
     $Extension = [System.IO.Path]::GetExtension($FilePath).Substring(1).ToUpper()
     function Get-Node {
-        Param(
+        param(
             [Graph] $Graph,
             [Node] $Node
         )
@@ -170,7 +170,7 @@ function Import-GraphData {
             }
         }
         'MMD' {
-            $IsNotSquareBracket = { Param($X) $X -ne '[' }
+            $IsNotSquareBracket = { param($X) $X -ne '[' }
             $_, $Lines = (Get-Content -Path $FilePath) -split "`n" | Invoke-Method 'Trim' | Deny-Empty
             $Data = $Lines | Invoke-Operator split '\s+' | Invoke-Chunk -Size 5
             foreach ($Item in $Data) {
@@ -222,7 +222,7 @@ function New-Edge {
     [CmdletBinding()]
     [Alias('edge')]
     [OutputType([Prelude.Edge])]
-    Param(
+    param(
         [Parameter(Mandatory = $True, Position = 0, ValueFromPipeline = $True)]
         [Node] $From,
         [Parameter(Mandatory = $True, Position = 1)]
@@ -253,7 +253,7 @@ function New-Graph {
     #>
     [CmdletBinding(DefaultParameterSetName = 'custom')]
     [OutputType([Graph])]
-    Param(
+    param(
         [Parameter(ParameterSetName = 'custom', Position = 0)]
         [Alias('V')]
         [Node[]] $Nodes,
@@ -281,10 +281,10 @@ function New-Graph {
         [Alias('K')]
         [Double] $MeanDegree
     )
-    Begin {
+    begin {
         $GraphType = Find-FirstTrueVariable 'Custom', 'Complete', 'SmallWorld', 'Bipartite'
         function Invoke-NewGraph {
-            Param(
+            param(
                 [Edge[]] $Edges
             )
             switch ($GraphType) {
@@ -302,7 +302,7 @@ function New-Graph {
                     [Graph]::Bipartite($Left, $Right)
                     break
                 }
-                Default {
+                default {
                     if ($Nodes.Count -gt 0) {
                         "==> Creating custom graph with $($Nodes.Count) nodes and $($Edges.Count) edges" | Write-Verbose
                         [Graph]::New($Nodes, $Edges)
@@ -317,7 +317,7 @@ function New-Graph {
             Invoke-NewGraph -Edges $Edges
         }
     }
-    End {
+    end {
         if ($Input.Count -gt 0 -and $GraphType -eq 'Custom') {
             Invoke-NewGraph -Edges $Input
         }
