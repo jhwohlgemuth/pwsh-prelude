@@ -11,7 +11,7 @@ matrix:
   fast_finish: true
 
 install:
-  - ps: ./Invoke-Setup.ps1
+  - ps: ./util/Invoke-Setup.ps1
   - ps: dotnet tool install --global Codecov.Tool
 
 build_script:
