@@ -1035,7 +1035,7 @@ function Invoke-PropertyTransform {
         [Parameter(Mandatory = $True, Position = 0)]
         [PSObject] $Lookup,
         [Parameter(Position = 1)]
-        [ScriptBlock] $Transform = { param($Value) $Value }
+        [ScriptBlock] $Transform = { Param($Value) $Value }
     )
     Begin {
         function New-PropertyExpression {
@@ -1101,7 +1101,7 @@ function Invoke-Reduce {
         [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
         [Array] $Items,
         [Parameter(Position = 0)]
-        [ScriptBlock] $Callback = { param($A) $A },
+        [ScriptBlock] $Callback = { Param($A) $A },
         [Parameter(Position = 1)]
         $InitialValue,
         [Switch] $Identity,

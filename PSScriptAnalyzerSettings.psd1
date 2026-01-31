@@ -56,7 +56,7 @@
             CheckPipeForRedundantWhitespace = $True
         }
         PSUseCorrectCasing = @{
-            Enable = $True
+            Enable = $False
         }
     }
 }

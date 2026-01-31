@@ -252,7 +252,7 @@ function ConvertFrom-EpochDate () {
     } else {
         1
     }
-    $Result = (Get-Date $Epoch) + ([System.TimeSpan]::fromseconds($Value / $Units))
+    $Result = (Get-Date $Epoch) + ([System.TimeSpan]::FromSeconds([Double]($Value / $Units)))
     if ($AsString) {
         $Result.ToString($Format)
     } else {

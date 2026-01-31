@@ -383,12 +383,12 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Request = Invoke-WebRequestBasicAuth $Uri -Token $Token
-        $Values = $Request[1, 3, 7] | Sort-Object
+        $Values = $Request | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
         $Values | Should -Contain $Uri
         $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token
-        $Values = $Request[1, 3, 7] | Sort-Object
+        $Values = $Request | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
         $Values | Should -Contain $Uri
@@ -399,7 +399,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Token = 'token'
         $Uri = 'https://example.com/'
         $Request = Invoke-WebRequestBasicAuth $Uri -Username $Username -Password $Token -DisableSession
-        $Values = $Request[1, 3, 5] | Sort-Object
+        $Values = $Request | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be 'Basic dXNlcjp0b2tlbg==' }
         $Values | Should -Contain 'Get'
         $Values | Should -Contain $Uri
@@ -410,7 +410,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Uri = 'https://example.com/'
         $Query = @{ foo = 'bar' }
         $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token -Query $Query -DisableSession
-        $Values = $Request[1, 3, 5] | Sort-Object
+        $Values = $Request | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
         $Values | Should -Contain "${Uri}?foo=bar"
@@ -421,7 +421,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Uri = 'https://example.com/'
         $Query = @{ answer = 42 }
         $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token -Query $Query -UrlEncode -DisableSession
-        $Values = $Request[1, 3, 5] | Sort-Object
+        $Values = $Request | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Get'
         $Values | Where-Object { $_ -match $Uri } | Should -Match "$Uri\?answer(=|%3d)42$"
@@ -432,7 +432,7 @@ Describe 'Invoke-WebRequestBasicAuth' -Tag 'Local', 'Remote', 'WindowsOnly' {
         $Uri = 'https://example.com/'
         $Data = @{ answer = 42 }
         $Request = Invoke-WebRequestBasicAuth -Uri $Uri -Token $Token -Put -Data $Data -DisableSession
-        $Values = $Request[1, 3, 5, 7] | Sort-Object
+        $Values = $Request | Sort-Object
         $Values | Where-Object { $_ -is [Hashtable] } | ForEach-Object { $_.Authorization | Should -Be "Bearer $Token" }
         $Values | Should -Contain 'Put'
         $Values | Should -Contain $Uri

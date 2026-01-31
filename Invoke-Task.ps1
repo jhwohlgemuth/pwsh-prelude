@@ -561,7 +561,7 @@ function Invoke-Test {
         "`n`n" | Write-Output
     }
     if (-not ($Skip -contains 'powershell')) {
-        $PesterData = Import-Module -Name Pester -PassThru -RequiredVersion $MinimumVersion
+        $PesterData = Import-Module -Name Pester -PassThru -MinimumVersion $MinimumVersion
         $Parameters = @{
             Run = @{ PassThru = $True }
             Filter = @{ ExcludeTag = $Exclude }

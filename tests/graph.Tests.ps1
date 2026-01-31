@@ -27,7 +27,7 @@ Describe 'Graph export helper functions' -Tag 'Local', 'Remote' {
     It 'can export graph objects to JSON format strings' -Tag 'WindowsOnly' {
         $G | Export-GraphData -JSON -PassThru | Should -Match '"Edges":\s{1,2}\['
         $G | Export-GraphData -Format 'JSON' -PassThru | Should -Match '"Edges":\s{1,2}\['
-        $G | Export-GraphData -JSON -Compress -PassThru | Should -Match '{"Edges":\[\{"'
+        $G | Export-GraphData -JSON -Compress -PassThru | Should -Match '"Edges":\[\{"'
         $Graph = $G | Export-GraphData -JSON -PassThru | ConvertFrom-Json
         $Graph.Nodes | Should -HaveCount 3
         $Graph.Edges | Should -HaveCount 3

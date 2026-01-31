@@ -276,14 +276,11 @@ Describe 'Get-ParameterList' -Tag 'Local', 'Remote' {
         $List.Required | Should -Be $True
     }
     It 'can get parameters from a complicated function' {
-        $List = 'Invoke-Menu' | Get-ParameterList
+        $List = 'Find-FirstIndex' | Get-ParameterList
         $Names = @(
-            'FolderContent'
-            'HighlightColor'
-            'Items'
-            'Limit'
-            'MultiSelect'
-            'SingleSelect'
+            'DefaultIndex'
+            'Predicate'
+            'Values'
         )
         $List.Name | Should -Be $Names
     }

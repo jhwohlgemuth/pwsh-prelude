@@ -235,6 +235,7 @@
         'Use-Grammar'
         'Use-Speech'
         'Use-Web'
+        'Write-Color'
         'Write-Status'
     )
     PrivateData = @{

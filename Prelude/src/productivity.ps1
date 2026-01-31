@@ -1,8 +1,10 @@
-﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertFrom-FolderStructure')]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope = 'Function', Target = 'Write-Color')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'ConvertFrom-FolderStructure')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Export-EnvironmentFile')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Invoke-Pack')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Out-Tree')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Rename-FileExtension')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function', Target = 'Write-Color')]
 Param()
 
 function ConvertFrom-FolderStructure {
@@ -1044,5 +1046,72 @@ function Use-Speech {
     }
     if ($PassThru) {
         $Result
+    }
+}
+function Write-Color {
+    <#
+    .SYNOPSIS
+    Basically Write-Host with the ability to color parts of the output by using template strings
+    .PARAMETER Color
+    Performs the function Write-Host's -ForegroundColor. Useful for programmatically setting text color.
+    .EXAMPLE
+    '{{#red this will be red}} and {{#blue this will be blue}}' | Write-Color
+    .EXAMPLE
+    'You can color entire string using switch parameters' | Write-Color -Green
+    .EXAMPLE
+    'You can color entire string using Color parameter' | Write-Color -Color Green
+    .EXAMPLE
+    '{{#green Hello}} {{#blue {{ name }}}}' |
+        New-Template -Data @{ name = 'World' } |
+        Write-Color
+    #>
+    [CmdletBinding()]
+    [OutputType([Void])]
+    [OutputType([String])]
+    Param(
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [AllowEmptyString()]
+        [String] $Text,
+        [ValidateSet('White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow')]
+        [String] $Color,
+        [Switch] $NoNewLine,
+        [Switch] $Black,
+        [Switch] $Blue,
+        [Switch] $DarkBlue,
+        [Switch] $DarkGreen,
+        [Switch] $DarkCyan,
+        [Switch] $DarkGray,
+        [Switch] $DarkRed,
+        [Switch] $DarkMagenta,
+        [Switch] $DarkYellow,
+        [Switch] $Cyan,
+        [Switch] $Gray,
+        [Switch] $Green,
+        [Switch] $Red,
+        [Switch] $Magenta,
+        [Switch] $Yellow,
+        [Switch] $White,
+        [Switch] $PassThru
+    )
+    if ($Text.Length -eq 0) {
+        Write-Host '' -NoNewline:$NoNewLine
+    } else {
+        if (-not $Color) {
+            $Color = Find-FirstTrueVariable 'White', 'Black', 'DarkBlue', 'DarkGreen', 'DarkCyan', 'DarkRed', 'DarkMagenta', 'DarkYellow', 'Gray', 'DarkGray', 'Blue', 'Green', 'Cyan', 'Red', 'Magenta', 'Yellow'
+        }
+        $Position = 0
+        $Text | Select-String -Pattern '(?<HELPER>){{#((?!}}).)*}}' -AllMatches | ForEach-Object Matches | ForEach-Object {
+            Write-Host $Text.Substring($Position, $_.Index - $Position) -ForegroundColor $Color -NoNewline
+            $HelperTemplate = $Text.Substring($_.Index, $_.Length)
+            $Arr = $HelperTemplate | ForEach-Object { $_ -replace '{{#', '' } | ForEach-Object { $_ -replace '}}', '' } | ForEach-Object { $_ -split ' ' }
+            Write-Host ($Arr[1..$Arr.Length] -join ' ') -ForegroundColor $Arr[0] -NoNewline
+            $Position = $_.Index + $_.Length
+        }
+        if ($Position -lt $Text.Length) {
+            Write-Host $Text.Substring($Position, $Text.Length - $Position) -ForegroundColor $Color -NoNewline:$NoNewLine
+        }
+    }
+    if ($PassThru) {
+        $Text
     }
 }
